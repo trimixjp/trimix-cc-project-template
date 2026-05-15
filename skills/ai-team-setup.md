@@ -39,51 +39,111 @@ description: AIチームをプロジェクトにセットアップするウィ�
 ### 必須（全チーム共通）
 
 ```
-templates/_shared/agents/contributor.md   → .claude/agents/contributor.md
-templates/_shared/agents/dispatcher.md    → .claude/agents/dispatcher.md
+templates/_shared/agents/contributor.md     → .claude/agents/contributor.md
+templates/_shared/agents/dispatcher.md      → .claude/agents/dispatcher.md
 templates/_shared/agents/human-escalator.md → .claude/agents/human-escalator.md
-templates/_shared/escalation-rules.yml    → .claude/escalation-rules.yml
-templates/_shared/dod/incident.md         → .claude/dod/incident.md
-templates/_shared/dod/README.md           → .claude/dod/README.md
-templates/incidents/index.yml             → .claude/incidents/index.yml
-templates/incidents/TEMPLATE.md           → .claude/incidents/TEMPLATE.md
-templates/incidents/README.md             → .claude/incidents/README.md
-templates/docs/workflow-guide.md          → .claude/docs/workflow-guide.md
+templates/_shared/escalation-rules.yml      → .claude/escalation-rules.yml
+templates/_shared/dod/incident.md           → .claude/dod/incident.md
+templates/_shared/dod/README.md             → .claude/dod/README.md
+templates/incidents/index.yml               → .claude/incidents/index.yml
+templates/incidents/TEMPLATE.md             → .claude/incidents/TEMPLATE.md
+templates/incidents/README.md               → .claude/incidents/README.md
+templates/docs/workflow-guide.md            → .claude/docs/workflow-guide.md
 ```
 
 ### エンジニアチーム（選択時）
 
 ```
-templates/teams/engineer/agents/*.md      → .claude/teams/engineer/agents/
-templates/teams/engineer/workflow.yml     → .claude/teams/engineer/workflow.yml
+templates/teams/engineer/agents/*.md       → .claude/teams/engineer/agents/
+templates/teams/engineer/workflow.yml      → .claude/teams/engineer/workflow.yml
 templates/teams/engineer/review-config.yml → .claude/teams/engineer/review-config.yml
-templates/teams/engineer/dod/*.md         → .claude/teams/engineer/dod/
+templates/teams/engineer/dod/*.md          → .claude/teams/engineer/dod/
 ```
 
 ### コンテンツチーム（選択時）
 
 ```
-templates/teams/content/agents/*.md            → .claude/teams/content/agents/
-templates/teams/content/workflow.yml           → .claude/teams/content/workflow.yml
-templates/teams/content/dod/*.md               → .claude/teams/content/dod/
-templates/teams/content/compliance-rules/*.md  → .claude/teams/content/compliance-rules/
+templates/teams/content/agents/*.md           → .claude/teams/content/agents/
+templates/teams/content/workflow.yml          → .claude/teams/content/workflow.yml
+templates/teams/content/dod/*.md              → .claude/teams/content/dod/
+templates/teams/content/compliance-rules/*.md → .claude/teams/content/compliance-rules/
 ```
 
 ### インフラチーム（選択時）
 
 ```
-templates/teams/infra/agents/*.md         → .claude/teams/infra/agents/
-templates/teams/infra/workflow.yml        → .claude/teams/infra/workflow.yml
-templates/teams/infra/dod/*.md            → .claude/teams/infra/dod/
+templates/teams/infra/agents/*.md  → .claude/teams/infra/agents/
+templates/teams/infra/workflow.yml → .claude/teams/infra/workflow.yml
+templates/teams/infra/dod/*.md     → .claude/teams/infra/dod/
 ```
 
 ### GitHub Issueテンプレート（選択時）
 
 ```
-templates/.github/ISSUE_TEMPLATE/*.yml    → .github/ISSUE_TEMPLATE/
+templates/.github/ISSUE_TEMPLATE/*.yml → .github/ISSUE_TEMPLATE/
 ```
 
-## ステップ4: CLAUDE.md への追記
+## ステップ4: GitHub Issues ラベルの作成（GitHub Issues選択時のみ）
+
+チケット管理に GitHub Issues を選択した場合、選択されたチームに応じてラベルを作成してください。
+
+まず `gh` コマンドが使用可能か確認します：
+
+```bash
+gh auth status
+```
+
+認証されていない場合はユーザーに `gh auth login` の実行を案内して、完了後に続けてください。
+
+リポジトリを特定します（カレントディレクトリのgitリモートから自動取得）：
+
+```bash
+gh repo view --json nameWithOwner -q .nameWithOwner
+```
+
+### 共通ラベル（常に作成）
+
+```bash
+gh label create "contributor:ready"  --color "0075ca" --description "Contributorが完了確認中"         --force
+gh label create "escalated:human"    --color "d93f0b" --description "人間の判断が必要"                --force
+gh label create "epic"               --color "7057ff" --description "複数チームにまたがる大規模タスク" --force
+gh label create "dispatcher"         --color "7057ff" --description "Dispatcherが自動分解中"          --force
+gh label create "incident"           --color "b60205" --description "インシデント報告"                --force
+```
+
+### エンジニアチーム（選択時）
+
+```bash
+gh label create "engineer:tech-lead"   --color "1d76db" --description "Tech-Leadが要件分析・設計中"   --force
+gh label create "engineer:implementer" --color "1d76db" --description "Implementerが実装中"           --force
+gh label create "engineer:reviewer"    --color "1d76db" --description "Reviewerがレビュー中"           --force
+gh label create "engineer:reviewer-a"  --color "1d76db" --description "Reviewer-Aがレビュー中"        --force
+gh label create "engineer:reviewer-b"  --color "1d76db" --description "Reviewer-Bがレビュー中"        --force
+gh label create "engineer:pr-creator"  --color "1d76db" --description "PR-CreatorがPR作成中"          --force
+```
+
+### コンテンツチーム（選択時）
+
+```bash
+gh label create "content:editor-in-chief" --color "e4e669" --description "Editor-in-Chiefが方針決定中" --force
+gh label create "content:researcher"      --color "e4e669" --description "Researcherが調査中"          --force
+gh label create "content:writer"          --color "e4e669" --description "Writerが執筆中"              --force
+gh label create "content:compliance"      --color "e4e669" --description "Complianceがチェック中"      --force
+```
+
+### インフラチーム（選択時）
+
+```bash
+gh label create "infra:infra-lead"        --color "0e8a16" --description "Infra-Leadが設計中"         --force
+gh label create "infra:network-engineer"  --color "0e8a16" --description "Network-Engineerが実装中"   --force
+gh label create "infra:infra-specialist"  --color "0e8a16" --description "Infra-Specialistが実装中"   --force
+gh label create "infra:security-engineer" --color "0e8a16" --description "Security-Engineerがレビュー中" --force
+gh label create "infra:architect"         --color "5319e7" --description "Architectが助言中（依頼時のみ）" --force
+```
+
+`--force` オプションにより、既存ラベルは上書き更新されます。エラーが出た場合はリポジトリ名を `--repo <owner>/<repo>` で明示して再実行してください。
+
+## ステップ5: CLAUDE.md への追記
 
 `.claude/CLAUDE.md` が存在しない場合は作成し、既存の場合は末尾に追記してください：
 
@@ -110,7 +170,7 @@ templates/.github/ISSUE_TEMPLATE/*.yml    → .github/ISSUE_TEMPLATE/
 - エスカレーションルール: `.claude/escalation-rules.yml`
 ```
 
-## ステップ5: 完了報告
+## ステップ6: 完了報告
 
 セットアップ完了後、以下を報告してください：
 
@@ -121,6 +181,7 @@ templates/.github/ISSUE_TEMPLATE/*.yml    → .github/ISSUE_TEMPLATE/
 - 有効なチーム: [チーム名一覧]
 - チケット管理: [システム名]
 - 配置ファイル数: [件数]
+- 作成ラベル数: [件数]（GitHub Issues の場合）
 
 ## 次のステップ
 1. `.claude/CLAUDE.md` を確認・カスタマイズしてください
