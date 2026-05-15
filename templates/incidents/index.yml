@@ -1,0 +1,25 @@
+# インシデントインデックス
+# Contributor エージェントが自動管理します（手動編集は非推奨）
+#
+# エントリのスキーマ:
+#   id: 連番（自動採番）
+#   date: 発生日（YYYY-MM-DD）
+#   file: インシデントファイルのパス（incidents/配下）
+#   title: インシデントの概要タイトル
+#   severity: P1 / P2 / P3
+#   teams: 影響チームのリスト
+#   issue: 関連GitHubイシュー番号
+#   keywords: 検索用キーワード（Tech-Lead がインシデント確認時に照合）
+#
+# 例:
+# incidents:
+#   - id: 1
+#     date: "2026-01-15"
+#     file: "incidents/20260115-db-connection-pool-exhausted.md"
+#     title: "DBコネクションプールの枯渇によりAPIが応答不能"
+#     severity: P1
+#     teams: [engineer, infra]
+#     issue: 42
+#     keywords: [database, connection-pool, timeout, api]
+
+incidents: []

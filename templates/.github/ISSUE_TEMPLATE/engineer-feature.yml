@@ -1,0 +1,52 @@
+name: "🛠️ エンジニア — 新機能実装"
+description: "新機能の追加・既存機能の拡張を依頼します"
+title: "[Feature] "
+labels:
+  - "engineer:tech-lead"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > このIssueはエンジニアチームが担当します。
+        > ラベル `engineer:tech-lead` が付与されると Tech-Lead が自動起動します。
+
+  - type: textarea
+    id: overview
+    attributes:
+      label: "概要"
+      description: "何を実装したいか、1〜3文で説明してください"
+      placeholder: "ユーザーが〜できるようにしたい"
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: "要件"
+      description: "機能要件・非機能要件を記載してください"
+      placeholder: |
+        - ユーザーは〜ができる
+        - レスポンスタイムは〇〇ms以内
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: "影響範囲（わかる範囲で）"
+      description: "変更が及ぶファイル・モジュール・APIがあれば記載してください"
+      placeholder: "例: auth/middleware.ts, users API"
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "参照資料"
+      description: "関連する仕様書・Issueなどがあれば記載してください"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Definition of Done
+
+        > Tech-Lead が `teams/engineer/dod/feature.md` を貼り付けます
