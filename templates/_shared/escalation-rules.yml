@@ -1,0 +1,28 @@
+# エスカレーションルール定義
+
+escalation_triggers:
+  # 法的判断・契約に関わる内容
+  - type: legal
+    description: 法的判断、契約、コンプライアンスに関わる内容
+
+  # 予算・費用の承認
+  - type: budget
+    description: 予算承認、費用の発生を伴う判断
+
+  # PR・マージの承認
+  - type: merge_approval
+    description: プルリクエストの承認とマージは常に人間が行う
+
+  # 仕様の曖昧さ
+  - type: ambiguous_spec
+    description: |
+      以下を全て検索して記述が見つからず、どちらを採用しても優劣がつかない場合:
+        - .claude/rules/ 配下の .md ファイル
+        - CLAUDE.md
+        - docs/ 配下の仕様書
+
+transparency_rules:
+  - 全ての判断には根拠を記録する
+  - 参照したファイル・仕様書・ルールを明示する
+  - 懸念点は「未解決」として明示する
+  - 判断できなかった場合は理由を記録してエスカレーション

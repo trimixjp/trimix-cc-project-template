@@ -1,0 +1,106 @@
+# コンテンツチーム ワークフロー定義
+# Researcherは Editor-in-Chief が「調査が必要」と判断した場合のみ呼び出される
+
+name: content-workflow
+description: 記事・ドキュメント・コンテンツ作成タスクのワークフロー
+
+# ラベル命名規則
+labels:
+  prefix: "content"
+  examples:
+    - "content:editor-in-chief"
+    - "content:researcher"
+    - "content:writer"
+    - "content:compliance"
+    - "contributor:ready"
+    - "escalated:human"
+
+steps:
+
+  - id: editor-in-chief-planning
+    agent: editor-in-chief
+    label: "content:editor-in-chief"
+    description: コンテンツ要件の分析・方針決定・インシデント確認。調査が必要か否かを判断する
+    on_complete:
+      conditions:
+        - id: needs-research
+          description: 事実確認・データ収集・専門知識の調査が必要と判断した場合
+          criteria:
+            - 統計・数値データが必要
+            - 専門的な事実確認が必要
+            - 情報源の裏付けが必要
+            - 調査レポートなしに正確な記事が書けないと判断
+          next: researcher
+
+        - id: no-research-needed
+          description: 既存情報で執筆可能・調査不要と判断した場合
+          criteria:
+            - 内部ドキュメントの整理・編集
+            - ガイドライン・マニュアルの作成
+            - 既知の事実のみで構成される記事
+          next: writer
+
+    on_escalation:
+      next: human-escalator
+
+  - id: researcher
+    agent: researcher
+    label: "content:researcher"
+    description: |
+      情報収集・データ分析を実施し、調査レポートを作成する。
+      Editor-in-Chiefが「調査が必要」と判断した場合のみ起動する。
+    on_complete:
+      next: editor-in-chief-review  # 調査結果を Editor-in-Chief が確認してからWriterへ
+
+  - id: editor-in-chief-review
+    agent: editor-in-chief
+    label: "content:editor-in-chief"
+    description: 調査レポートを確認し、Writerへの指示を更新・確定する
+    on_complete:
+      next: writer
+    on_escalation:
+      next: human-escalator
+
+  - id: writer
+    agent: writer
+    label: "content:writer"
+    description: Editor-in-Chiefの方針・Researcherの調査レポート（あれば）に従いコンテンツを作成する
+    on_complete:
+      next: compliance
+    on_escalation:
+      next: human-escalator
+    on_rework:
+      condition: Complianceからの差し戻し時
+      next: writer
+
+  - id: compliance
+    agent: compliance
+    label: "content:compliance"
+    description: |
+      コンプライアンスチェックを実施する。
+      記事の分野に応じて compliance-rules/ 配下のカスタムチェックも適用する。
+      （例: 健康・医薬品関連は health-pharma.md を参照）
+    on_complete:
+      condition: 合格
+      next: contributor-close
+    on_rework:
+      condition: 不合格
+      next: writer
+    on_escalation:
+      condition: 法的判断が必要
+      next: human-escalator
+
+  - id: human-escalator
+    agent: human-escalator
+    label: "escalated:human"
+    description: 判断できない事項を人間にエスカレーション
+    on_complete:
+      condition: 人間が判断・返答
+      next: return_to_previous
+
+  - id: contributor-close
+    agent: contributor
+    label: "contributor:ready"
+    description: DOD確認・コメント品質チェック・Issueクローズ・インシデント調査
+    on_complete:
+      action: close_issue

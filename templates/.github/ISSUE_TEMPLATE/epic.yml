@@ -1,0 +1,70 @@
+name: "🗺️ Epic（大規模タスク）"
+description: "複数チーム・複数Issueにまたがる大規模なタスクを登録します"
+title: "[Epic] "
+labels:
+  - "epic"
+  - "dispatcher"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > Epic は **Dispatcher** が受け取り、Sub Issue に自動分解します。
+        > ラベル `dispatcher` が付与されると Dispatcher が自動起動します。
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: "Epicのゴール"
+      description: "このEpicで達成したいことを1〜3文で説明してください"
+    validations:
+      required: true
+
+  - type: textarea
+    id: background
+    attributes:
+      label: "背景・目的"
+      description: "なぜこのEpicが必要か、ビジネス的な文脈を記載してください"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: teams
+    attributes:
+      label: "関係するチーム（該当するものをすべて選択）"
+      options:
+        - label: "エンジニアチーム"
+        - label: "コンテンツチーム"
+        - label: "インフラチーム"
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: "スコープ・やること"
+      description: "このEpicに含まれる作業の概要をリストアップしてください"
+      placeholder: |
+        - 機能Aの実装
+        - インフラ設定の変更
+        - ドキュメントの更新
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: "スコープ外・やらないこと"
+      placeholder: "明示的に除外する作業があれば記載してください"
+
+  - type: textarea
+    id: constraints
+    attributes:
+      label: "制約・前提条件"
+      placeholder: "期限・予算・技術的制約など"
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "参照資料・関連Issue"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        > Dispatcher が Sub Issue を生成し、各チームのワークフローが自動起動します。

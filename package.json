@@ -1,0 +1,24 @@
+{
+  "name": "@trimix/ai-team",
+  "version": "0.1.0",
+  "description": "AIチームをプロジェクトにセットアップするウィザード",
+  "type": "module",
+  "bin": {
+    "ai-team": "./bin/setup.js"
+  },
+  "files": [
+    "bin/",
+    "templates/",
+    "skills/"
+  ],
+  "scripts": {
+    "postinstall": "node bin/postinstall.js",
+    "test": "echo \"テストは未実装\""
+  },
+  "keywords": ["claude-code", "ai-team", "agents", "workflow"],
+  "author": "Trimix",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

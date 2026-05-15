@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "📖 ワークフローガイド"
+    url: ".claude/docs/workflow-guide.md"
+    about: "AIチームのワークフロー定義とカスタマイズ方法"

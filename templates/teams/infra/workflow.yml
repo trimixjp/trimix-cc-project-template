@@ -1,0 +1,132 @@
+# インフラチーム ワークフロー定義
+# Architectは依頼を受けた時のみ起動する（常駐しない）
+
+name: infra-workflow
+description: インフラ構成・ネットワーク・セキュリティ関連タスクのワークフロー
+
+# ラベル命名規則
+labels:
+  prefix: "infra"
+  examples:
+    - "infra:infra-lead"
+    - "infra:network-engineer"
+    - "infra:infra-specialist"
+    - "infra:security-engineer"
+    - "infra:architect"       # 依頼時のみ付与
+    - "contributor:ready"
+    - "escalated:human"
+
+steps:
+
+  - id: infra-lead-analysis
+    agent: infra-lead
+    label: "infra:infra-lead"
+    description: |
+      インフラ要件の分析・設計方針の決定・インシデント確認。
+      公式ドキュメントを参照してから設計する（推測での設定変更禁止）。
+      変更内容をネットワーク系/クラウド構成系に分類してタスクを振り分ける。
+    on_complete:
+      conditions:
+        - id: network-only
+          description: ネットワーク層のみの変更
+          criteria:
+            - VPC・サブネット・DNS・LB・FW・ルーティングのみに関わる変更
+          next: network-engineer
+
+        - id: infra-only
+          description: クラウド構成・サーバー構成のみの変更
+          criteria:
+            - Terraform・Kubernetes・CI/CD・環境設定のみに関わる変更
+          next: infra-specialist
+
+        - id: both
+          description: ネットワーク・クラウド構成の両方にまたがる変更
+          next: [network-engineer, infra-specialist]  # 並列起動
+
+    on_escalation:
+      next: human-escalator
+
+  - id: network-engineer
+    agent: network-engineer
+    label: "infra:network-engineer"
+    description: ネットワーク層（VPC・DNS・LB・FW等）の設計・実装
+    on_complete:
+      next: infra-lead-check
+    on_escalation:
+      next: human-escalator
+
+  - id: infra-specialist
+    agent: infra-specialist
+    label: "infra:infra-specialist"
+    description: クラウドリソース・Terraform・Kubernetes・CI/CD等の実装
+    on_complete:
+      next: infra-lead-check
+    on_escalation:
+      next: human-escalator
+
+  - id: infra-lead-check
+    agent: infra-lead
+    label: "infra:infra-lead"
+    description: |
+      専門エージェントの実装完了を確認し、整合性をチェックする。
+      複雑なアーキテクチャ判断が必要な場合のみ Architect に助言を依頼する。
+    requires_all_of:  # 並列実行している場合は両方の完了を待つ
+      - network-engineer
+      - infra-specialist
+    on_complete:
+      conditions:
+        - id: architect-needed
+          description: 複雑なアーキテクチャ判断・システム全体への影響確認が必要な場合のみ
+          criteria:
+            - システム全体の設計方針に関わる大規模変更
+            - 言語・フレームワーク・デザインパターンの選定が必要
+            - 他チームのシステムに大きく影響する変更
+          next: architect  # 依頼時のみ起動
+
+        - id: no-architect-needed
+          description: 通常の実装変更で Architect への相談不要な場合
+          next: security-engineer
+
+    on_escalation:
+      next: human-escalator
+
+  - id: architect
+    agent: architect
+    label: "infra:architect"
+    description: |
+      システムアーキテクト（助言役）。依頼を受けた時のみ起動する。
+      インフラ・言語・デザインパターン等システム全体への助言を行う。
+      Opusモデルを使用するため、必要な場合のみ呼び出すこと。
+    on_complete:
+      next: security-engineer
+    on_escalation:
+      next: human-escalator
+
+  - id: security-engineer
+    agent: security-engineer
+    label: "infra:security-engineer"
+    description: セキュリティレビュー（脆弱性・権限・暗号化・ネットワーク）を実施する
+    on_complete:
+      condition: 合格
+      next: contributor-close
+    on_rework:
+      condition: 不合格
+      next: infra-lead-analysis  # 設計から見直し
+    on_escalation:
+      condition: 重大セキュリティリスクを発見
+      next: human-escalator
+
+  - id: human-escalator
+    agent: human-escalator
+    label: "escalated:human"
+    description: 判断できない事項を人間にエスカレーション
+    on_complete:
+      condition: 人間が判断・返答
+      next: return_to_previous
+
+  - id: contributor-close
+    agent: contributor
+    label: "contributor:ready"
+    description: DOD確認・コメント品質チェック・Issueクローズ・インシデント調査
+    on_complete:
+      action: close_issue
