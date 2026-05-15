@@ -1,6 +1,6 @@
 ---
 name: ai-team-setup
-description: AIチームをプロジェクトにセットアップするウィザード。.claude/ディレクトリにエージェント定義・ワークフロー・設定ファイルを配置します。
+description: AIチームをプロジェクトにセットアップするウィザード。.claude/ディレクトリにエージェント定義・ワークフロー・設定ファイルを配置し、GitHub Issuesのラベルを作成します。
 ---
 
 # /ai-team setup — AIチーム セットアップウィザード
@@ -15,22 +15,14 @@ description: AIチームをプロジェクトにセットアップするウィ�
 2. `.claude/` ディレクトリが存在するか確認する
 3. 既存の `.claude/teams/` があれば、すでにセットアップ済みのチームを確認する
 
-## ステップ2: セットアップ内容の確認
+## ステップ2: 導入チームの選択
 
 ユーザーに以下を確認してください（`AskUserQuestion` ツールを使用）：
 
-**質問1**: 導入するチームを選択してください（複数選択可）
+**質問**: 導入するチームを選択してください（複数選択可）
 - エンジニアチーム（コード実装・レビュー・PR作成）
 - コンテンツチーム（記事・ドキュメント作成）
 - インフラチーム（クラウド構成・ネットワーク・セキュリティ）
-
-**質問2**: チケット管理システムはどれを使用しますか？
-- GitHub Issues
-- Jira
-- Linear
-- その他（テキスト入力）
-
-**質問3**: GitHub Issueテンプレートをセットアップしますか？（GitHub Issues選択時のみ）
 
 ## ステップ3: ファイルの配置
 
@@ -77,25 +69,23 @@ templates/teams/infra/workflow.yml → .claude/teams/infra/workflow.yml
 templates/teams/infra/dod/*.md     → .claude/teams/infra/dod/
 ```
 
-### GitHub Issueテンプレート（選択時）
+### GitHub Issueテンプレート（常に配置）
 
 ```
 templates/.github/ISSUE_TEMPLATE/*.yml → .github/ISSUE_TEMPLATE/
 ```
 
-## ステップ4: GitHub Issues ラベルの作成（GitHub Issues選択時のみ）
+## ステップ4: GitHub Issuesラベルの作成
 
-チケット管理に GitHub Issues を選択した場合、選択されたチームに応じてラベルを作成してください。
-
-まず `gh` コマンドが使用可能か確認します：
+まず `gh` コマンドの認証状態を確認してください：
 
 ```bash
 gh auth status
 ```
 
-認証されていない場合はユーザーに `gh auth login` の実行を案内して、完了後に続けてください。
+認証されていない場合はユーザーに `gh auth login` の実行を案内し、完了後に続けてください。
 
-リポジトリを特定します（カレントディレクトリのgitリモートから自動取得）：
+リポジトリを特定します：
 
 ```bash
 gh repo view --json nameWithOwner -q .nameWithOwner
@@ -104,44 +94,44 @@ gh repo view --json nameWithOwner -q .nameWithOwner
 ### 共通ラベル（常に作成）
 
 ```bash
-gh label create "contributor:ready"  --color "0075ca" --description "Contributorが完了確認中"         --force
-gh label create "escalated:human"    --color "d93f0b" --description "人間の判断が必要"                --force
-gh label create "epic"               --color "7057ff" --description "複数チームにまたがる大規模タスク" --force
-gh label create "dispatcher"         --color "7057ff" --description "Dispatcherが自動分解中"          --force
-gh label create "incident"           --color "b60205" --description "インシデント報告"                --force
+gh label create "contributor:ready"  --color "0075ca" --description "Contributorが完了確認中"          --force
+gh label create "escalated:human"    --color "d93f0b" --description "人間の判断が必要"                 --force
+gh label create "epic"               --color "7057ff" --description "複数チームにまたがる大規模タスク"  --force
+gh label create "dispatcher"         --color "7057ff" --description "Dispatcherが自動分解中"           --force
+gh label create "incident"           --color "b60205" --description "インシデント報告"                 --force
 ```
 
 ### エンジニアチーム（選択時）
 
 ```bash
-gh label create "engineer:tech-lead"   --color "1d76db" --description "Tech-Leadが要件分析・設計中"   --force
-gh label create "engineer:implementer" --color "1d76db" --description "Implementerが実装中"           --force
-gh label create "engineer:reviewer"    --color "1d76db" --description "Reviewerがレビュー中"           --force
-gh label create "engineer:reviewer-a"  --color "1d76db" --description "Reviewer-Aがレビュー中"        --force
-gh label create "engineer:reviewer-b"  --color "1d76db" --description "Reviewer-Bがレビュー中"        --force
-gh label create "engineer:pr-creator"  --color "1d76db" --description "PR-CreatorがPR作成中"          --force
+gh label create "engineer:tech-lead"   --color "1d76db" --description "Tech-Leadが要件分析・設計中"    --force
+gh label create "engineer:implementer" --color "1d76db" --description "Implementerが実装中"            --force
+gh label create "engineer:reviewer"    --color "1d76db" --description "Reviewerがレビュー中"            --force
+gh label create "engineer:reviewer-a"  --color "1d76db" --description "Reviewer-Aがレビュー中"         --force
+gh label create "engineer:reviewer-b"  --color "1d76db" --description "Reviewer-Bがレビュー中"         --force
+gh label create "engineer:pr-creator"  --color "1d76db" --description "PR-CreatorがPR作成中"           --force
 ```
 
 ### コンテンツチーム（選択時）
 
 ```bash
 gh label create "content:editor-in-chief" --color "e4e669" --description "Editor-in-Chiefが方針決定中" --force
-gh label create "content:researcher"      --color "e4e669" --description "Researcherが調査中"          --force
-gh label create "content:writer"          --color "e4e669" --description "Writerが執筆中"              --force
-gh label create "content:compliance"      --color "e4e669" --description "Complianceがチェック中"      --force
+gh label create "content:researcher"      --color "e4e669" --description "Researcherが調査中"           --force
+gh label create "content:writer"          --color "e4e669" --description "Writerが執筆中"               --force
+gh label create "content:compliance"      --color "e4e669" --description "Complianceがチェック中"       --force
 ```
 
 ### インフラチーム（選択時）
 
 ```bash
-gh label create "infra:infra-lead"        --color "0e8a16" --description "Infra-Leadが設計中"         --force
-gh label create "infra:network-engineer"  --color "0e8a16" --description "Network-Engineerが実装中"   --force
-gh label create "infra:infra-specialist"  --color "0e8a16" --description "Infra-Specialistが実装中"   --force
+gh label create "infra:infra-lead"        --color "0e8a16" --description "Infra-Leadが設計中"            --force
+gh label create "infra:network-engineer"  --color "0e8a16" --description "Network-Engineerが実装中"      --force
+gh label create "infra:infra-specialist"  --color "0e8a16" --description "Infra-Specialistが実装中"      --force
 gh label create "infra:security-engineer" --color "0e8a16" --description "Security-Engineerがレビュー中" --force
 gh label create "infra:architect"         --color "5319e7" --description "Architectが助言中（依頼時のみ）" --force
 ```
 
-`--force` オプションにより、既存ラベルは上書き更新されます。エラーが出た場合はリポジトリ名を `--repo <owner>/<repo>` で明示して再実行してください。
+`--force` オプションにより既存ラベルは上書き更新されます。
 
 ## ステップ5: CLAUDE.md への追記
 
@@ -151,18 +141,13 @@ gh label create "infra:architect"         --color "5319e7" --description "Archit
 ## AIチーム設定
 
 このプロジェクトは `@trimix/ai-team` でセットアップされたAIチームで運用されます。
+チケット管理には GitHub Issues を使用します。
 
 ### 有効なチーム
 <!-- セットアップしたチームを列挙 -->
-- エンジニアチーム: `.claude/teams/engineer/`
-- コンテンツチーム: `.claude/teams/content/`
-- インフラチーム: `.claude/teams/infra/`
-
-### チケット管理
-- システム: <!-- GitHub Issues / Jira / Linear / その他 -->
 
 ### ワークフローの起動
-チケットを担当したら `/ai-team run <チケットURL>` を実行してください。
+チケットを担当したら `/ai-team run <IssueのURL または Issue番号>` を実行してください。
 
 ### 参照ドキュメント
 - ワークフローガイド: `.claude/docs/workflow-guide.md`
@@ -172,21 +157,18 @@ gh label create "infra:architect"         --color "5319e7" --description "Archit
 
 ## ステップ6: 完了報告
 
-セットアップ完了後、以下を報告してください：
-
 ```
 ✅ AIチームのセットアップが完了しました
 
 ## セットアップ内容
 - 有効なチーム: [チーム名一覧]
-- チケット管理: [システム名]
-- 配置ファイル数: [件数]
-- 作成ラベル数: [件数]（GitHub Issues の場合）
+- 作成ラベル数: [件数]件
+- 配置ファイル数: [件数]件
 
 ## 次のステップ
 1. `.claude/CLAUDE.md` を確認・カスタマイズしてください
-2. チームメンバーにリポジトリをクローンしてもらい、`@trimix/ai-team` をインストールします
-3. チケットが発行されたら `/ai-team run <チケットURL>` でワークフローを開始します
+2. チームメンバーに `npm install --save-dev ./trimix-ai-team-x.x.x.tgz` を実行してもらいます
+3. Issueを作成し、担当者をアサインしたら `/ai-team run <IssueのURL>` でワークフローを開始します
 
 ## カスタマイズ
 - エージェント定義: `.claude/teams/<チーム>/agents/` 内の .md ファイルを編集
