@@ -1,0 +1,35 @@
+# フロントエンドチーム レビュー設定
+# レビュー方式は Frontend-Lead が実装内容の影響範囲を分析して自動判断します
+# このファイルはその判断基準を定義します
+
+review:
+  mode: auto  # AIが以下の基準に従って自動判断します
+
+  # ダブルレビュー（reviewer-a + reviewer-b + クロスレビュー）を選択する基準
+  # 以下のいずれかに1つでも該当する場合はダブルレビュー
+  double_review_criteria:
+    file_count_threshold: 5          # 変更ファイル数がこれ以上
+    sensitive_areas:                 # これらの領域を含む変更
+      - 認証UI（login / auth / session）
+      - 決済UI（payment / checkout / billing）
+      - 個人情報フォーム（user / profile / password）
+      - デザインシステムの破壊的変更（共通コンポーネント・スタイル変数・テーマの変更）
+      - 公開APIとのインターフェース変更（リクエスト・レスポンスの型変更・エンドポイント変更）
+    labels:                          # これらのラベルが付与されている場合
+      - "complexity:high"
+      - "security-sensitive"
+      - "breaking-change"
+
+  # シングルレビュー（reviewer のみ）を選択する基準
+  # ダブルレビュー基準に該当しない場合はシングルレビュー
+  single_review_criteria:
+    - 単一コンポーネントの軽微な変更
+    - ドキュメント・コメントのみの変更
+    - テストの追加（実装ロジックの変更なし）
+    - スタイル・フォーマットの修正
+    - 静的なコンテンツ（テキスト・画像）の変更
+
+# レビュー完了後のフロー
+post_review:
+  create_pr: true
+  pr_agent: pr-creator

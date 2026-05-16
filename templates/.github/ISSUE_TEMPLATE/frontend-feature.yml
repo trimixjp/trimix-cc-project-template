@@ -1,0 +1,82 @@
+name: "🎨 フロントエンド — 新機能実装"
+description: "UI・コンポーネント・ページの新規実装・既存機能の拡張を依頼します"
+title: "[Frontend] "
+labels:
+  - "frontend:frontend-lead"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > このIssueはフロントエンドチームが担当します。
+        > ラベル `frontend:frontend-lead` が付与されると Frontend-Lead が自動起動します。
+
+  - type: textarea
+    id: overview
+    attributes:
+      label: "概要"
+      description: "何を実装したいか、1〜3文で説明してください"
+      placeholder: "ユーザーが〜できるUIを追加したい"
+    validations:
+      required: true
+
+  - type: textarea
+    id: target_pages
+    attributes:
+      label: "対象ページ・コンポーネント"
+      description: "変更・追加するページやコンポーネントを記載してください"
+      placeholder: |
+        - /users/profile ページ
+        - UserAvatarComponent（新規作成）
+    validations:
+      required: true
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: "要件"
+      description: "機能要件・非機能要件を記載してください"
+      placeholder: |
+        - ユーザーは〜ができる
+        - モバイルでも快適に操作できる
+    validations:
+      required: true
+
+  - type: textarea
+    id: design_mock
+    attributes:
+      label: "デザインモック・参考資料"
+      description: "Figma URL・スクリーンショット・参考UIなどがあれば記載してください"
+      placeholder: "Figma: https://www.figma.com/..."
+
+  - type: textarea
+    id: browser_requirements
+    attributes:
+      label: "ブラウザ・デバイス要件"
+      description: "対応が必要なブラウザ・OS・デバイスを記載してください"
+      placeholder: |
+        - Chrome 最新版
+        - Safari 最新版（iOS含む）
+        - Firefox 最新版
+
+  - type: textarea
+    id: accessibility_requirements
+    attributes:
+      label: "アクセシビリティ要件"
+      description: "特別なアクセシビリティ対応が必要な場合は記載してください"
+      placeholder: |
+        - スクリーンリーダーで操作できること（WCAG 2.1 AA 必須）
+        - キーボードのみで全操作が可能なこと
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "参照資料"
+      description: "関連する仕様書・Issueなどがあれば記載してください"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Definition of Done
+
+        > Frontend-Lead が `teams/frontend/dod/feature.md` を貼り付けます
