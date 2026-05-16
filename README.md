@@ -14,7 +14,7 @@ GitHub Issues（またはJira・Linear等）のチケットをトリガーに、
 npm install --save-dev ./trimix-ai-team-0.1.0.tgz
 ```
 
-インストール完了時に Skillファイルが `.claude/skills/` に自動展開されます。
+インストール完了時に Skillファイルが `.claude/commands/` に自動展開されます。
 
 ### AIチームをセットアップする
 
@@ -49,6 +49,9 @@ AIチームがチケットを読み込み、ワークフローに従って自律
 
 ### エンジニアチーム
 Tech-Lead → Implementer → Reviewer → PR-Creator → （人間がマージ）
+
+### フロントエンドチーム
+Designer → Frontend-Lead → Developer → Reviewer → PR-Creator → （人間がマージ）
 
 ### コンテンツチーム
 Editor-in-Chief → Researcher（必要時）→ Writer → Compliance

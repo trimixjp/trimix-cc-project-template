@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * npm install 後に自動実行されるpostinstallスクリプト。
- * Skillファイルをプロジェクトの .claude/skills/ にコピーします。
+ * Skillファイルをプロジェクトの .claude/commands/ にコピーします。
  */
 
 import { mkdirSync, copyFileSync, existsSync } from 'fs';
@@ -21,7 +21,7 @@ if (projectRoot === packageRoot) {
 }
 
 const skillsSource = join(packageRoot, 'skills');
-const skillsDest = join(projectRoot, '.claude', 'skills');
+const skillsDest = join(projectRoot, '.claude', 'commands');
 
 const skillFiles = [
   'ai-team-setup.md',
@@ -39,7 +39,7 @@ try {
     count++;
   }
 
-  console.log(`\n✅ @trimix/ai-team: ${count} 件のSkillファイルを .claude/skills/ に展開しました`);
+  console.log(`\n✅ @trimix/ai-team: ${count} 件のSkillファイルを .claude/commands/ に展開しました`);
   console.log('   Claude Code で /ai-team setup を実行してセットアップを完了してください\n');
 } catch (err) {
   // postinstall の失敗でインストール全体を止めない
