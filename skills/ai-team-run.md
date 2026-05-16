@@ -47,7 +47,7 @@ URLのパターンから自動判別してください：
 | `infra:*` | インフラチーム | `.claude/teams/infra/workflow.yml` |
 | `epic` または `dispatcher` | Dispatcher | 各チームに分解 |
 | `incident` | インシデント対応 | 緊急対応フロー |
-| `escalated:human` | 人間対応待ち | ワークフロー停止中 |
+| `escalated:human` | 人間対応待ち | ワークフロー停止中（解除後は /ai-team resume で再開） |
 
 ### ラベルがない場合
 
@@ -108,6 +108,7 @@ workflow.yml の steps[0] = tech-lead-analysis
 以下のいずれかに該当する場合はワークフローを停止し、ユーザーに状況を報告してください：
 
 - `escalated:human` ラベルが付与された（人間の判断が必要）
+  → エスカレーションコメントに再開手順を案内し停止。人間の対応後に `/ai-team resume` で再開。
 - PR の承認・マージが必要になった
 - セキュリティレビューで重大リスクが発見された
 - エスカレーション条件（`.claude/escalation-rules.yml`）に該当した
