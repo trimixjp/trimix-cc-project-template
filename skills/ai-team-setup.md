@@ -87,7 +87,38 @@ templates/.github/ISSUE_TEMPLATE/*.yml → .github/ISSUE_TEMPLATE/
 
 ## ステップ4: GitHub Issuesラベルの作成
 
-まず `gh` コマンドの認証状態を確認してください：
+### 4-1: リポジトリの確認
+
+まず現在のディレクトリにGitHubリポジトリが設定されているか確認してください：
+
+```bash
+gh repo view --json nameWithOwner -q .nameWithOwner
+```
+
+**リポジトリが見つからない場合（エラーが出た場合）:**
+
+以下のメッセージをユーザーに表示して、ラベル作成をスキップしてください：
+
+```
+⚠️  GitHubリポジトリが設定されていません
+
+ラベルの作成をスキップします。
+リポジトリを用意した後、以下のいずれかの方法でラベルを作成してください：
+
+  A) 既存リポジトリを紐付ける場合:
+     git remote add origin https://github.com/<org>/<repo>.git
+     その後、/ai-team setup を再実行してください
+
+  B) 新しいリポジトリを作成する場合:
+     gh repo create <repo-name> --public  （または --private）
+     その後、/ai-team setup を再実行してください
+```
+
+ラベル作成をスキップしてステップ5に進んでください。
+
+**リポジトリが見つかった場合:** 4-2 に進みます。
+
+### 4-2: 認証状態の確認
 
 ```bash
 gh auth status
@@ -95,11 +126,17 @@ gh auth status
 
 認証されていない場合はユーザーに `gh auth login` の実行を案内し、完了後に続けてください。
 
-リポジトリを特定します：
+### 4-3: ラベル作成の確認
 
-```bash
-gh repo view --json nameWithOwner -q .nameWithOwner
-```
+`AskUserQuestion` ツールを使い、以下を確認してください：
+
+**質問**: GitHub Issuesにラベルを作成しますか？
+- はい、今すぐ作成する（選択したチームに対応するラベルを一括作成）
+- いいえ、スキップする（後で手動作成するか、/ai-team setup を再実行して作成できます）
+
+「いいえ」を選択した場合はステップ5に進んでください。
+
+### 4-4: ラベルの作成
 
 ### 共通ラベル（常に作成）
 
