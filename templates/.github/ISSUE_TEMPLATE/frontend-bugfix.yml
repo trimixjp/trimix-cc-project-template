@@ -1,0 +1,92 @@
+name: "🐛 フロントエンド — バグ修正"
+description: "UI・コンポーネント・ページの不具合調査・修正を依頼します"
+title: "[Frontend Bug] "
+labels:
+  - "frontend:frontend-lead"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > このIssueはフロントエンドチームが担当します。
+        > ラベル `frontend:frontend-lead` が付与されると Frontend-Lead が自動起動します。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: "不具合の概要"
+      description: "何が起きているか、1〜3文で説明してください"
+      placeholder: "〇〇ページで〜をすると表示が崩れる"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "再現手順"
+      description: "不具合を再現するための手順を記載してください"
+      placeholder: |
+        1. 〇〇ページを開く
+        2. 〜をクリックする
+        3. 表示が崩れる / エラーが発生する
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "期待する動作"
+      placeholder: "〇〇が正常に表示される"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: "実際の動作"
+      placeholder: "〇〇の表示が崩れる / 〇〇エラーが発生する"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "重大度"
+      options:
+        - "P1 — 本番障害・主要機能が使用不能"
+        - "P2 — 主要機能に影響あり（使用は可能）"
+        - "P3 — 軽微な表示崩れ・使い勝手の問題"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "発生環境"
+      description: "不具合が発生したブラウザ・OS・デバイス情報を記載してください"
+      placeholder: |
+        - ブラウザ: Chrome 124 / Safari 17 / Firefox 125
+        - OS: macOS 14 / Windows 11 / iOS 17
+        - デバイス: MacBook Pro / iPhone 15 / iPad
+        - 画面サイズ: 1440px / 375px
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "スクリーンショット・動画"
+      description: "不具合の様子がわかるスクリーンショットや動画があれば添付してください"
+
+  - type: textarea
+    id: console_errors
+    attributes:
+      label: "コンソールエラー・ネットワークエラー"
+      description: "ブラウザの開発者ツールに表示されるエラーがあれば貼り付けてください"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Definition of Done
+
+        > Frontend-Lead が `teams/frontend/dod/bugfix.md` を貼り付けます

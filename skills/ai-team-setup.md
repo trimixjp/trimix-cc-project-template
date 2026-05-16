@@ -21,6 +21,7 @@ description: AIチームをプロジェクトにセットアップするウィ�
 
 **質問**: 導入するチームを選択してください（複数選択可）
 - エンジニアチーム（コード実装・レビュー・PR作成）
+- フロントエンドチーム（UI実装・コンポーネント開発・アクセシビリティ）
 - コンテンツチーム（記事・ドキュメント作成）
 - インフラチーム（クラウド構成・ネットワーク・セキュリティ）
 
@@ -50,6 +51,15 @@ templates/teams/engineer/agents/*.md       → .claude/teams/engineer/agents/
 templates/teams/engineer/workflow.yml      → .claude/teams/engineer/workflow.yml
 templates/teams/engineer/review-config.yml → .claude/teams/engineer/review-config.yml
 templates/teams/engineer/dod/*.md          → .claude/teams/engineer/dod/
+```
+
+### フロントエンドチーム（選択時）
+
+```
+templates/teams/frontend/agents/*.md          → .claude/teams/frontend/agents/
+templates/teams/frontend/workflow.yml         → .claude/teams/frontend/workflow.yml
+templates/teams/frontend/review-config.yml    → .claude/teams/frontend/review-config.yml
+templates/teams/frontend/dod/*.md             → .claude/teams/frontend/dod/
 ```
 
 ### コンテンツチーム（選択時）
@@ -110,6 +120,18 @@ gh label create "engineer:reviewer"    --color "1d76db" --description "Reviewer�
 gh label create "engineer:reviewer-a"  --color "1d76db" --description "Reviewer-Aがレビュー中"         --force
 gh label create "engineer:reviewer-b"  --color "1d76db" --description "Reviewer-Bがレビュー中"         --force
 gh label create "engineer:pr-creator"  --color "1d76db" --description "PR-CreatorがPR作成中"           --force
+```
+
+### フロントエンドチーム（選択時）
+
+```bash
+gh label create "frontend:designer"      --color "f9a825" --description "Designerがデザイン仕様策定中" --force
+gh label create "frontend:frontend-lead" --color "f9a825" --description "Frontend-Leadが設計中"       --force
+gh label create "frontend:developer"     --color "f9a825" --description "Developerが実装中"           --force
+gh label create "frontend:reviewer"      --color "f9a825" --description "Reviewerがレビュー中"         --force
+gh label create "frontend:reviewer-a"    --color "f9a825" --description "Reviewer-Aがレビュー中"      --force
+gh label create "frontend:reviewer-b"    --color "f9a825" --description "Reviewer-Bがレビュー中"      --force
+gh label create "frontend:pr-creator"    --color "f9a825" --description "PR-CreatorがPR作成中"        --force
 ```
 
 ### コンテンツチーム（選択時）
