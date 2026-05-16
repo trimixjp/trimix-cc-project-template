@@ -15,15 +15,19 @@ description: AIチームをプロジェクトにセットアップするウィ�
 2. `.claude/` ディレクトリが存在するか確認する
 3. 既存の `.claude/teams/` があれば、すでにセットアップ済みのチームを確認する
 
-## ステップ2: 導入チームの選択
+## ステップ2: 導入チームと運用モードの選択
 
 ユーザーに以下を確認してください（`AskUserQuestion` ツールを使用）：
 
-**質問**: 導入するチームを選択してください（複数選択可）
+**質問1**: 導入するチームを選択してください（複数選択可）
 - エンジニアチーム（コード実装・レビュー・PR作成）
 - フロントエンドチーム（UI実装・コンポーネント開発・アクセシビリティ）
 - コンテンツチーム（記事・ドキュメント作成）
 - インフラチーム（クラウド構成・ネットワーク・セキュリティ）
+
+**質問2**: 運用モードを選択してください（`AskUserQuestion` ツールを使用）
+- **マルチユーザーモード**: 担当者が `/ai-team run <Issue>` を実行して処理を開始します。複数人チームに適しています
+- **ソロモード**: `/ai-team watch` を起動すると新しいIssueを自動検出して処理します。1人での運用に適しています
 
 ## ステップ3: ファイルの配置
 
@@ -42,6 +46,35 @@ templates/incidents/index.yml               → .claude/incidents/index.yml
 templates/incidents/TEMPLATE.md             → .claude/incidents/TEMPLATE.md
 templates/incidents/README.md               → .claude/incidents/README.md
 templates/docs/workflow-guide.md            → .claude/docs/workflow-guide.md
+# 運用モード設定（選択したモードを記録）
+→ .claude/ai-team-config.yml（内容は下記）
+```
+
+ステップ2で選択した運用モードに応じて、以下の内容で `.claude/ai-team-config.yml` を生成してください：
+
+```yaml
+# @trimix/ai-team 運用設定
+mode: multi-user  # または solo
+
+# solo モードの設定（mode: solo の場合のみ有効）
+solo:
+  poll_interval_minutes: 5      # Issue監視の間隔（分）
+  target_labels:                # 処理対象とするラベル（いずれか1つでも付いていれば対象）
+    - dispatcher
+    - engineer:tech-lead
+    - frontend:frontend-lead
+    - content:editor-in-chief
+    - infra:infra-lead
+  skip_labels:                  # このラベルが付いていれば処理済みとしてスキップ
+    - ai-team:in-progress
+    - escalated:human
+    - contributor:ready
+```
+
+### ソロモード（選択時）
+
+```
+templates/skills/ai-team-watch.md → .claude/commands/ai-team-watch.md
 ```
 
 ### エンジニアチーム（選択時）
@@ -141,11 +174,12 @@ gh auth status
 ### 共通ラベル（常に作成）
 
 ```bash
-gh label create "contributor:ready"  --color "0075ca" --description "Contributorが完了確認中"          --force
-gh label create "escalated:human"    --color "d93f0b" --description "人間の判断が必要"                 --force
-gh label create "epic"               --color "7057ff" --description "複数チームにまたがる大規模タスク"  --force
-gh label create "dispatcher"         --color "7057ff" --description "Dispatcherが自動分解中"           --force
-gh label create "incident"           --color "b60205" --description "インシデント報告"                 --force
+gh label create "contributor:ready"   --color "0075ca" --description "Contributorが完了確認中"          --force
+gh label create "escalated:human"     --color "d93f0b" --description "人間の判断が必要"                 --force
+gh label create "epic"                --color "7057ff" --description "複数チームにまたがる大規模タスク"  --force
+gh label create "dispatcher"          --color "7057ff" --description "Dispatcherが自動分解中"           --force
+gh label create "incident"            --color "b60205" --description "インシデント報告"                 --force
+gh label create "ai-team:in-progress" --color "fbca04" --description "AIエージェントが処理中（二重実行防止）" --force
 ```
 
 ### エンジニアチーム（選択時）
@@ -233,4 +267,8 @@ gh label create "infra:architect"         --color "5319e7" --description "Archit
 - エージェント定義: `.claude/teams/<チーム>/agents/` 内の .md ファイルを編集
 - ワークフロー: `.claude/teams/<チーム>/workflow.yml` を編集
 - DOD: `.claude/teams/<チーム>/dod/` 内のテンプレートを編集
+
+## 運用モードについて
+- **マルチユーザーモード**: Issueを作成し、担当者をアサインしたら `/ai-team run <IssueのURL>` でワークフローを開始します
+- **ソロモード**: `/ai-team watch` を実行すると新しいIssueの自動監視が始まります。停止するまでバックグラウンドで動作します
 ```
