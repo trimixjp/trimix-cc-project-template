@@ -43,6 +43,7 @@ function installSkills() {
   const skillFiles = [
     'ai-team-setup.md',
     'ai-team-run.md',
+    'ai-team-watch.md',
   ];
 
   let installed = 0;
