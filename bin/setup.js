@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * @trimix/ai-team CLI
- * Skillファイルを .claude/skills/ に展開します。
+ * Skillファイルを .claude/commands/ に展開します。
  * 実際のセットアップは Claude Code Skill コマンド /ai-team setup で行います。
  */
 
@@ -25,7 +25,7 @@ function printHelp() {
   printVersion();
   console.log('');
   console.log('使い方:');
-  console.log('  npx @trimix/ai-team install   Skillファイルを .claude/skills/ に展開');
+  console.log('  npx @trimix/ai-team install   Skillファイルを .claude/commands/ に展開');
   console.log('  npx @trimix/ai-team --version  バージョンを表示');
   console.log('  npx @trimix/ai-team --help     このヘルプを表示');
   console.log('');
@@ -35,9 +35,9 @@ function printHelp() {
 
 function installSkills() {
   const skillsSource = join(packageRoot, 'skills');
-  const skillsDest = join(cwd, '.claude', 'skills');
+  const skillsDest = join(cwd, '.claude', 'commands');
 
-  // .claude/skills/ を作成
+  // .claude/commands/ を作成
   mkdirSync(skillsDest, { recursive: true });
 
   const skillFiles = [
@@ -57,7 +57,7 @@ function installSkills() {
 
     const alreadyExists = existsSync(dest);
     copyFileSync(src, dest);
-    console.log(`  ${alreadyExists ? '🔄 更新' : '✅ 追加'}: .claude/skills/${file}`);
+    console.log(`  ${alreadyExists ? '🔄 更新' : '✅ 追加'}: .claude/commands/${file}`);
     installed++;
   }
 
