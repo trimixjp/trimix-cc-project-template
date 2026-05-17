@@ -9,7 +9,7 @@ body:
     attributes:
       value: |
         > ⚠️ インシデントは **即座に人間がトリアージ**してください。
-        > 担当チームを決定してラベル（`engineer:tech-lead` 等）を追加すると AI チームが自動起動します。
+        > 担当チームを決定してラベル（`backend:tech-lead` 等）を追加すると AI チームが自動起動します。
 
   - type: dropdown
     id: severity

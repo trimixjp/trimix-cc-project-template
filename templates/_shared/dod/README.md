@@ -10,10 +10,10 @@ Contributor は Issue のタスクタイプに応じて以下のDODテンプレ�
 
 | タスクタイプ | テンプレート | 適用条件 |
 |------------|-----------|--------|
-| 新機能実装 | `teams/engineer/dod/feature.md` | 新しい機能・API・UI の追加 |
-| バグ修正 | `teams/engineer/dod/bugfix.md` | 既存の不具合修正 |
-| コードレビュー | `teams/engineer/dod/review.md` | レビュー依頼・監査 |
-| リファクタリング | `teams/engineer/dod/refactor.md` | 機能変更なしの品質改善 |
+| 新機能実装 | `teams/backend/dod/feature.md` | 新しい機能・API・UI の追加 |
+| バグ修正 | `teams/backend/dod/bugfix.md` | 既存の不具合修正 |
+| コードレビュー | `teams/backend/dod/review.md` | レビュー依頼・監査 |
+| リファクタリング | `teams/backend/dod/refactor.md` | 機能変更なしの品質改善 |
 
 ### コンテンツチーム
 

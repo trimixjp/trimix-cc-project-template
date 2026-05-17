@@ -20,7 +20,7 @@ description: AIチームをプロジェクトにセットアップするウィ�
 ユーザーに以下を確認してください（`AskUserQuestion` ツールを使用）：
 
 **質問1**: 導入するチームを選択してください（複数選択可）
-- エンジニアチーム（コード実装・レビュー・PR作成）
+- バックエンドチーム（コード実装・レビュー・PR作成）
 - フロントエンドチーム（UI実装・コンポーネント開発・アクセシビリティ）
 - コンテンツチーム（記事・ドキュメント作成）
 - インフラチーム（クラウド構成・ネットワーク・セキュリティ）
@@ -61,7 +61,7 @@ solo:
   poll_interval_minutes: 5      # Issue監視の間隔（分）
   target_labels:                # 処理対象とするラベル（いずれか1つでも付いていれば対象）
     - dispatcher
-    - engineer:tech-lead
+    - backend:tech-lead
     - frontend:frontend-lead
     - content:editor-in-chief
     - infra:infra-lead
@@ -77,13 +77,13 @@ solo:
 templates/skills/ai-team-watch.md → .claude/commands/ai-team-watch.md
 ```
 
-### エンジニアチーム（選択時）
+### バックエンドチーム（選択時）
 
 ```
-templates/teams/engineer/agents/*.md       → .claude/teams/engineer/agents/
-templates/teams/engineer/workflow.yml      → .claude/teams/engineer/workflow.yml
-templates/teams/engineer/review-config.yml → .claude/teams/engineer/review-config.yml
-templates/teams/engineer/dod/*.md          → .claude/teams/engineer/dod/
+templates/teams/backend/agents/*.md       → .claude/teams/backend/agents/
+templates/teams/backend/workflow.yml      → .claude/teams/backend/workflow.yml
+templates/teams/backend/review-config.yml → .claude/teams/backend/review-config.yml
+templates/teams/backend/dod/*.md          → .claude/teams/backend/dod/
 ```
 
 ### フロントエンドチーム（選択時）
@@ -182,15 +182,15 @@ gh label create "incident"            --color "b60205" --description "インシ�
 gh label create "ai-team:in-progress" --color "fbca04" --description "AIエージェントが処理中（二重実行防止）" --force
 ```
 
-### エンジニアチーム（選択時）
+### バックエンドチーム（選択時）
 
 ```bash
-gh label create "engineer:tech-lead"   --color "1d76db" --description "Tech-Leadが要件分析・設計中"    --force
-gh label create "engineer:implementer" --color "1d76db" --description "Implementerが実装中"            --force
-gh label create "engineer:reviewer"    --color "1d76db" --description "Reviewerがレビュー中"            --force
-gh label create "engineer:reviewer-a"  --color "1d76db" --description "Reviewer-Aがレビュー中"         --force
-gh label create "engineer:reviewer-b"  --color "1d76db" --description "Reviewer-Bがレビュー中"         --force
-gh label create "engineer:pr-creator"  --color "1d76db" --description "PR-CreatorがPR作成中"           --force
+gh label create "backend:tech-lead"   --color "1d76db" --description "Tech-Leadが要件分析・設計中"    --force
+gh label create "backend:implementer" --color "1d76db" --description "Implementerが実装中"            --force
+gh label create "backend:reviewer"    --color "1d76db" --description "Reviewerがレビュー中"            --force
+gh label create "backend:reviewer-a"  --color "1d76db" --description "Reviewer-Aがレビュー中"         --force
+gh label create "backend:reviewer-b"  --color "1d76db" --description "Reviewer-Bがレビュー中"         --force
+gh label create "backend:pr-creator"  --color "1d76db" --description "PR-CreatorがPR作成中"           --force
 ```
 
 ### フロントエンドチーム（選択時）

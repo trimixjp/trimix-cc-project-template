@@ -18,7 +18,7 @@
 #     file: "incidents/20260115-db-connection-pool-exhausted.md"
 #     title: "DBコネクションプールの枯渇によりAPIが応答不能"
 #     severity: P1
-#     teams: [engineer, infra]
+#     teams: [backend, infra]
 #     issue: 42
 #     keywords: [database, connection-pool, timeout, api]
 
