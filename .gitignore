@@ -2,3 +2,6 @@ node_modules/
 *.log
 .DS_Store
 *.tgz
+
+# グローバルgitignoreの docs/ 除外をpublic/docs/では解除
+!public/docs/

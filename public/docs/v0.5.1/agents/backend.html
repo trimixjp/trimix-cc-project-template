@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>バックエンドエージェント - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.5.1</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム・ワークフロー</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">エージェント</div><ul class="nav-list"><li class="active"><a href="../agents/backend.html">バックエンドエージェント</a></li><li class=""><a href="../agents/tech-writer.html">Tech-Writer</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">バックエンドエージェント</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/agents/backend.html" selected>v0.5.1 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>バックエンドエージェント</h1>
+
+<p>バックエンドチームに含まれる 7 つのエージェントの詳細です。各エージェントの起動条件・動作フロー・出力するコメントフォーマットを定義しています。</p>
+
+<p>> <strong>定義場所</strong>: <code>.claude/teams/backend/agents/*.md</code></p>
+
+<hr>
+
+<h2>エージェント一覧</h2>
+
+<table><thead><tr><th>エージェント</th><th>ファイル</th><th>役割</th></tr></thead><tbody><tr><td>Tech-Lead</td><td><code>tech-lead.md</code></td><td>リーダー。要件分析・設計方針決定・レビュー方式判断</td></tr><tr><td>Implementer</td><td><code>implementer.md</code></td><td>実装担当</td></tr><tr><td>Reviewer</td><td><code>reviewer.md</code></td><td>シングルレビュー担当</td></tr><tr><td>Reviewer-A</td><td><code>reviewer-a.md</code></td><td>ダブルレビュー A 担当・クロスレビューのリード</td></tr><tr><td>Reviewer-B</td><td><code>reviewer-b.md</code></td><td>ダブルレビュー B 担当</td></tr><tr><td>Tech-Writer</td><td><code>tech-writer.md</code></td><td>ドキュメント更新担当（<a href="tech-writer.html">専用ページ</a>）</td></tr><tr><td>PR-Creator</td><td><code>pr-creator.md</code></td><td>PR 作成担当</td></tr></tbody></table>
+<hr>
+
+<h2>Tech-Lead</h2>
+
+<p>バックエンドチームのリーダーです。</p>
+
+<h3>起動条件</h3>
+
+<ol><li><code>backend:tech-lead</code> ラベル付与</li><li>Dispatcher から直接ディスパッチ</li><li>Reviewer からの差し戻しで再設計が必要と判断</li></ol>
+<h3>動作フロー</h3>
+
+<ol><li><strong>インシデント確認</strong>: <code>.claude/incidents/index.yml</code> を読み込み、関連インシデントがあれば Issue 本文末に注意事項を追記</li><li><strong>要件分析・設計方針決定</strong>: 機能要件・非機能要件・影響範囲・技術的制約・リスクを分析</li><li><strong>Implementer への振り分け</strong>: 設計方針をコメント記録 → <code>backend:implementer</code> ラベル付与</li><li><strong>レビュー方式判断</strong>（Implementer 完了後）: <code>review-config.yml</code> を参照してシングル / ダブルを判定</li></ol>
+<h3>コメントフォーマット（設計方針）</h3>
+
+<pre><code class="language-">🔧 Tech-Lead: 設計方針を決定しました
+
+## 要件分析
+- 機能要件: ...
+- 非機能要件: ...
+- 影響範囲: ...
+
+## 設計方針
+（実装アプローチ・アーキテクチャ上の判断）
+
+## 参照仕様書・ドキュメント
+- `docs/xxx.md`（参照箇所: セクション名）
+
+## 判断根拠
+（代替案と選択理由を含む）
+
+## 懸念点・注意事項
+- （未解決の懸念点があれば「未解決」と明記。なければ「なし」）
+
+## Implementer への指示
+- （実装タスクを箇条書きで）
+
+⏭️ 次のアクション: backend:implementer に引き継ぎます</code></pre>
+
+<h3>コメントフォーマット（レビュー方式判断）</h3>
+
+<pre><code class="language-">🔧 Tech-Lead: レビュー方式を判断しました
+
+## 影響範囲の分析
+- 変更ファイル数: &lt;件数&gt;
+- 変更対象領域: &lt;認証 / DB / API / Frontend 等&gt;
+- 複数レイヤーの変更: あり / なし
+- 付与ラベル: &lt;ラベル名&gt;
+
+## 判断結果: シングルレビュー / ダブルレビュー
+
+判断理由:
+- （該当した基準を列挙）
+
+⏭️ 次のアクション: &lt;backend:reviewer / backend:reviewer-a + backend:reviewer-b&gt; に引き継ぎます</code></pre>
+
+<h3>重要な原則</h3>
+
+<ul><li>Tech-Lead 自身はコードを書かない（必ず Implementer に委譲）</li><li>全ての設計判断には参照仕様書を明記</li><li>懸念点は「未解決」として明示・隠蔽禁止</li><li>インシデント確認は作業開始前に必ず実施</li></ul>
+<hr>
+
+<h2>Implementer</h2>
+
+<p>実装担当エージェントです。</p>
+
+<h3>起動条件</h3>
+
+<ol><li><code>backend:implementer</code> ラベル付与</li><li>Reviewer からの差し戻しで <code>backend:implementer</code> ラベル再付与</li></ol>
+<h3>動作フロー</h3>
+
+<ol><li><strong>設計方針の確認</strong>: Tech-Lead のコメントから機能要件・実装アプローチ・指示を把握</li><li><strong>実装</strong>: 設計方針に従いコード実装（逸脱前は Tech-Lead に確認）</li><li><strong>テスト実行・確認</strong>: 既存テスト通過・新規テスト追加・リント</li><li><strong>完了報告コメント投稿</strong></li></ol>
+<h3>コメントフォーマット</h3>
+
+<pre><code class="language-">🛠️ Implementer: 実装が完了しました
+
+## 変更ファイル一覧
+| ファイルパス | 変更内容の概要 |
+|-------------|---------------|
+| `src/xxx.ts` | ... |
+| `tests/xxx.test.ts` | ... |
+
+## 実装内容
+（Tech-Lead の設計方針に対して、何をどのように実装したか）
+
+## 設計方針からの変更点
+- （あれば理由とともに記述。なければ「なし」）
+
+## テスト結果
+- 既存テスト: 全件パス
+- 新規テスト: 全件パス / 追加件数: &lt;件数&gt;
+- リント: エラーなし
+
+## 懸念点・注意事項
+- （「未解決」と明記）
+
+⏭️ 次のアクション: Tech-Lead へ完了を通知します</code></pre>
+
+<h3>実装時の遵守事項</h3>
+
+<ul><li>設計方針から逸脱する場合は事前に Tech-Lead に確認</li><li>セキュリティ・法的判断が必要な箇所では即座にエスカレーション</li><li>ハードコードされたシークレットを含めない</li><li>新規実装箇所にはテストを追加</li></ul>
+<hr>
+
+<h2>Reviewer（シングルレビュー）</h2>
+
+<p>シングルレビュー担当です。</p>
+
+<h3>起動条件</h3>
+
+<ol><li><code>backend:reviewer</code> ラベル付与</li><li>Implementer の完了報告コメントが投稿済み</li></ol>
+<h3>レビュー観点</h3>
+
+<table><thead><tr><th>観点</th><th>判定基準</th></tr></thead><tbody><tr><td>可読性</td><td>変数名・関数名が意図を明確に表現</td></tr><tr><td>関数の責務</td><td>1 関数が単一責務、50 行以内が目安</td></tr><tr><td>重複排除</td><td>同一ロジックが複数箇所に存在しない</td></tr><tr><td>エラーハンドリング</td><td>失敗しうる処理に適切な処理</td></tr><tr><td>セキュリティ</td><td>ハードコードされたシークレットなし・外部入力検証</td></tr><tr><td>設計との整合</td><td>Tech-Lead の方針に従って実装</td></tr><tr><td>テスト</td><td>新規実装箇所のテスト・正常系・異常系カバー</td></tr></tbody></table>
+<h3>合否判定</h3>
+
+<ul><li><strong>合格</strong>: <code>contributor:ready</code> ラベル付与 → Contributor へ</li><li><strong>不合格</strong>: <code>backend:implementer</code> ラベルに戻して差し戻し（同一指摘 3 回以上は Tech-Lead に設計見直しを依頼）</li></ul>
+<h3>コメントフォーマット（差し戻し）</h3>
+
+<pre><code class="language-">❌ Reviewer: 差し戻し
+
+## 指摘事項
+
+### CRITICAL（必ず修正）
+- [ ] （指摘内容。該当ファイルと行番号を明記）
+  - 問題: ...
+  - 根拠: ...
+  - 修正方針: ...
+
+### HIGH（原則修正）
+- [ ] ...
+
+### MEDIUM（改善推奨）
+- [ ] ...
+
+## 参照した根拠
+- （根拠として参照したファイルパス）
+
+⏭️ 次のアクション: backend:implementer に差し戻します</code></pre>
+
+<p>CRITICAL 指摘が 1 件でもある場合は必ず不合格とします。</p>
+
+<hr>
+
+<h2>Reviewer-A / Reviewer-B（ダブルレビュー）</h2>
+
+<p>ダブルレビューは「独立レビュー → クロスレビュー」の 2 段階で行われます。Reviewer-A がクロスレビューをリードし、Reviewer-B が応答します。</p>
+
+<h3>起動条件（共通）</h3>
+
+<ol><li><code>backend:reviewer-a</code> または <code>backend:reviewer-b</code> ラベル付与</li><li>Implementer の完了報告コメントが投稿済み</li><li><code>review-config.yml</code> で <code>mode</code> が <code>double</code> 相当（または Tech-Lead がダブル判定）</li></ol>
+<h3>動作フロー</h3>
+
+<p><strong>段階 1: 独立レビュー</strong></p>
+
+<ul><li>お互いのコメントを読まずに、Tech-Lead の方針と Implementer の実装をレビュー</li><li>暫定判定コメントを投稿（最終判定はまだ確定しない）</li></ul>
+<p><strong>段階 2: クロスレビュー</strong></p>
+
+<ul><li>両者の独立レビュー完了後、Reviewer-A がリードして比較・議論</li><li>Reviewer-B が応答（Reviewer-A の指摘への賛否・独自の指摘）</li><li>Reviewer-A が最終判定コメントを投稿</li></ul>
+<h3>Reviewer-A の独立レビューコメント</h3>
+
+<pre><code class="language-">🔍 Reviewer-A: 独立レビュー完了（暫定）
+
+※ このレビューはReviewer-Bの結果を見ずに独立して行いました
+
+## レビュー結果（暫定）
+
+| 観点 | 結果 |
+|------|------|
+| コード品質 | 合格 / 要修正 |
+| 設計との整合 | 合格 / 要修正 |
+| テスト | 合格 / 要修正 |
+
+## 指摘事項（あれば）
+- （指摘内容と根拠）
+
+Reviewer-B の独立レビュー完了後にクロスレビューを実施します。</code></pre>
+
+<h3>Reviewer-A のクロスレビューコメント（最終判定）</h3>
+
+<pre><code class="language-">🔀 Reviewer-A: クロスレビュー完了 → 最終判定
+
+## Reviewer-B との差異確認
+
+| 指摘項目 | Reviewer-A | Reviewer-B | 最終判断 |
+|---------|-----------|-----------|---------|
+| &lt;項目&gt; | 合格/指摘 | 合格/指摘 | &lt;結論&gt; |
+
+## 差異があった場合の議論結果
+（議論の経緯と結論）
+
+## 最終判定: 合格 / 不合格
+
+⏭️ 次のアクション: &lt;backend:tech-writer に引き継ぎ / backend:implementer に差し戻し&gt;</code></pre>
+
+<h3>Reviewer-B のクロスレビュー応答コメント</h3>
+
+<pre><code class="language-">💬 Reviewer-B: クロスレビューへの応答
+
+## Reviewer-A の指摘への見解
+
+| Reviewer-A の指摘 | Reviewer-B の見解 | 合意 |
+|-----------------|-----------------|------|
+| &lt;指摘内容&gt; | &lt;賛成/反対+理由&gt; | 合意/不合意 |
+
+## Reviewer-B 独自の指摘（Reviewer-A が見逃していた点）
+- （あれば記述。なければ「なし」）</code></pre>
+
+<h3>重要な原則（共通）</h3>
+
+<ul><li>独立レビュー中は相手のコメントを読まない</li><li>全ての指摘には根拠（ルール・仕様書）を明記</li><li>クロスレビューで差異があった場合は議論の経緯を必ず記録</li><li>意見が一致しない場合は Human-Escalator を呼び出し</li></ul>
+<hr>
+
+<h2>PR-Creator</h2>
+
+<p>プルリクエスト作成担当です。</p>
+
+<h3>起動条件</h3>
+
+<ol><li><code>backend:pr-creator</code> ラベル付与</li><li>Reviewer の合格コメント後、Tech-Lead がラベルを更新</li></ol>
+<h3>動作フロー</h3>
+
+<ol><li><strong>情報収集</strong>: Issue 全コメントから設計方針・実装内容・テスト結果・レビュー結果を収集</li><li><strong>PR 作成</strong>: <code>gh pr create</code> を実行</li><li><strong>承認依頼</strong>: Issue に承認依頼コメント投稿 + <code>escalated:human</code> ラベル付与</li></ol>
+<h3>PR 作成コマンド</h3>
+
+<pre><code class="language-bash">gh pr create \
+  --title "&lt;タイトル&gt;" \
+  --body "&lt;本文&gt;" \
+  --base main \
+  --head &lt;feature-branch&gt;</code></pre>
+
+<h3>PR 本文フォーマット</h3>
+
+<pre><code class="language-markdown">## 概要
+&lt;この PR が解決する問題・追加する機能を2〜3行&gt;
+
+## 関連 Issue
+Closes #&lt;Issue番号&gt;
+
+## 変更内容
+&lt;Implementer の完了報告から転記&gt;
+
+| ファイルパス | 変更内容の概要 |
+|-------------|---------------|
+| `src/xxx.ts` | ... |
+
+## 設計方針
+- 採用したアプローチ: ...
+- 選択の根拠: ...
+
+## テスト
+- 既存テスト: 全件パス
+- 新規テスト: &lt;件数&gt;件追加・全件パス
+- リント: エラーなし
+
+## レビュー結果
+&lt;Reviewer の合格コメントから要約&gt;
+
+## チェックリスト
+- [ ] CI がパスしている
+- [ ] セルフレビュー完了
+- [ ] レビュアーの承認済み（エージェントレビュー）</code></pre>
+
+<h3>Issue 承認依頼コメント</h3>
+
+<pre><code class="language-">🔀 PR-Creator: プルリクエストを作成しました
+
+PR: &lt;PR URL&gt;
+タイトル: &lt;PR タイトル&gt;
+マージ先: main
+
+---
+⚠️ 承認・マージは人間が行います
+
+確認ポイント:
+- 設計方針が意図通りか
+- テストが十分か
+- 変更範囲が適切か
+
+⏸️ 人間の承認があるまで処理を停止します</code></pre>
+
+<h3>重要な原則</h3>
+
+<ul><li>PR の承認・マージは常に人間が行う</li><li>マージ後の Issue クローズは行わない（Contributor が担当）</li><li>ブランチ不在・コンフリクトは Tech-Lead に報告</li></ul>
+<hr>
+
+<h2>エスカレーション条件（共通）</h2>
+
+<p>各エージェントは以下に該当した場合 <code>human-escalator</code> を呼び出します。</p>
+
+<ul><li>セキュリティ脆弱性発見（<code>legal</code>）</li><li>法的判断が必要な実装（<code>legal</code>）</li><li>PR の承認・マージが必要（<code>merge_approval</code>）</li><li>設計方針が決定不能（<code>ambiguous_spec</code>）</li><li>費用が発生するサービス利用が必要（<code>budget</code>）</li><li><code>.claude/escalation-rules.yml</code> の <code>escalation_triggers</code> に該当</li></ul>
+<p>詳細は <a href="../reference/escalation.html">エスカレーションルール</a> を参照してください。</p>
+
+<hr>
+
+<h2>共通エージェントへのリンク</h2>
+
+<ul><li><code>contributor</code> / <code>dispatcher</code> / <code>human-escalator</code> は <code>.claude/agents/</code> 配下に配置され、全チーム共通で動作します</li><li>これら共通エージェントの詳細仕様は本リファレンスの <a href="../reference/escalation.html">エスカレーションルール</a> と各チームページの「ワークフロー全体フロー」を参照してください</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+</body>
+</html>

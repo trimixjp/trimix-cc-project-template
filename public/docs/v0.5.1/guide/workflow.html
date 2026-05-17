@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ワークフローの起動 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.5.1</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム・ワークフロー</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">エージェント</div><ul class="nav-list"><li class=""><a href="../agents/backend.html">バックエンドエージェント</a></li><li class=""><a href="../agents/tech-writer.html">Tech-Writer</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">ワークフローの起動</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/guide/workflow.html" selected>v0.5.1 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>ワークフローの起動</h1>
+
+<h2>ソロモード（自動監視）</h2>
+
+<code>/ai-team watch</code> を使うと、GitHub Issues を定期的にポーリングして新しいタスクを自動検出します。
+
+<pre><code class="language-bash">/ai-team watch</code></pre>
+
+<p>設定ファイル (<code>.claude/ai-team-config.yml</code>) でポーリング間隔とターゲットラベルを設定できます。</p>
+
+<pre><code class="language-yaml">mode: solo
+solo:
+  poll_interval_minutes: 5
+  target_labels:
+    - backend:tech-lead
+    - frontend:frontend-lead</code></pre>
+
+<h2>手動起動</h2>
+
+<p>特定の Issue を指定して実行します。</p>
+
+<pre><code class="language-bash">/ai-team run &lt;Issue番号&gt;</code></pre>
+
+<h2>バックエンドワークフローの流れ</h2>
+
+<pre><code class="language-">GitHub Issue 作成
+    ↓
+Tech-Lead: 要件分析・設計方針決定
+    ↓
+Implementer: 実装・テスト
+    ↓
+Tech-Lead: レビュー方式の自動判断
+    ↓
+[シングル] Reviewer: コードレビュー
+[ダブル]   Reviewer-A + Reviewer-B → クロスレビュー
+    ↓
+Tech-Writer: ドキュメント更新・ビルド
+    ↓
+PR-Creator: プルリクエスト作成
+    ↓
+人間: PR承認・マージ
+    ↓
+Contributor: Issue クローズ</code></pre>
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+</body>
+</html>

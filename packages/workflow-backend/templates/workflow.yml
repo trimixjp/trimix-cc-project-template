@@ -13,6 +13,7 @@ labels:
     - "backend:reviewer"
     - "backend:reviewer-a"
     - "backend:reviewer-b"
+    - "backend:tech-writer"
     - "backend:pr-creator"
     - "contributor:ready"
     - "escalated:human"
@@ -72,7 +73,7 @@ steps:
     description: シングルレビュー。コード品質・設計整合・テストをレビューする
     on_complete:
       condition: 合格
-      next: pr-creator
+      next: tech-writer
     on_rework:
       condition: 不合格
       next: implementer
@@ -103,7 +104,7 @@ steps:
     requires: [reviewer-a, reviewer-b]  # 両方の完了が必要
     on_complete:
       condition: 合格（両者合意）
-      next: pr-creator
+      next: tech-writer
     on_rework:
       condition: 不合格
       next: implementer
@@ -111,10 +112,22 @@ steps:
       condition: 意見が割れて判断できない
       next: human-escalator
 
+  - id: tech-writer
+    agent: tech-writer
+    label: "backend:tech-writer"
+    description: |
+      コードの変更差分をドキュメントに反映する。
+      docs-src/ のMarkdownを更新し、public/docs/ にHTMLをビルドしてコミットする。
+      コミット済みコードとバージョン情報をもとにマニュアル・仕様書を最新化する。
+    on_complete:
+      next: pr-creator
+    on_escalation:
+      next: human-escalator
+
   - id: pr-creator
     agent: pr-creator
     label: "backend:pr-creator"
-    description: レビュー合格後にプルリクエストを作成し、人間に承認を依頼する
+    description: レビュー合格・ドキュメント更新後にプルリクエストを作成し、人間に承認を依頼する
     on_complete:
       next: human-merge-approval
 
