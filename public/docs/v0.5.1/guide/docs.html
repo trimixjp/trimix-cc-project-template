@@ -86,6 +86,27 @@ git commit -m "docs: v{バージョン} ドキュメントを更新"</code></pre
 
 <pre><code class="language-bash">node docs-src/build.js</code></pre>
 
+<h2>フローチャートの記述（Mermaid）</h2>
+
+<p>ドキュメント内のフローチャートや処理フロー図は <strong>Mermaid記法</strong> で記述します。HTMLビルド時に自動でレンダリングされます。</p>
+
+<h3>使い方</h3>
+
+<p>Markdownファイル内で <code> </code>`<code>mermaid </code> コードブロックを使用します。</p>
+
+<div class="mermaid">flowchart TD
+    A[ステップ1] --> B[ステップ2]
+    B --> C{判断}
+    C -->|はい| D[処理A]
+    C -->|いいえ| E[処理B]</div>
+
+<h3>主な記法</h3>
+
+<table><thead><tr><th>記法</th><th>用途</th></tr></thead><tbody><tr><td><code>flowchart TD</code></td><td>上から下へのフローチャート</td></tr><tr><td><code>flowchart LR</code></td><td>左から右へのフローチャート</td></tr><tr><td><code>sequenceDiagram</code></td><td>シーケンス図（エージェント間の連携など）</td></tr></tbody></table>
+<h3>ビルド時の動作</h3>
+
+<code>node docs-src/build.js</code> 実行時に <code> </code>`<code>mermaid </code> ブロックが <code>&lt;div class="mermaid"&gt;</code> に変換されます。HTMLページはMermaid.js（CDN）を自動的に読み込み、ブラウザ上でレンダリングします。
+
 <h2>バージョン切り替え</h2>
 
 <p>ブラウザ上部の右側にあるバージョン切り替えドロップダウンで、異なるバージョンのドキュメントに切り替えられます。同じページが存在すれば、そのページを表示します。</p>
@@ -94,5 +115,7 @@ git commit -m "docs: v{バージョン} ドキュメントを更新"</code></pre
     </div>
   </div>
   <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
 </body>
 </html>

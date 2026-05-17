@@ -21,7 +21,11 @@ function markdownToHtml(md) {
 
   html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
     const i = blocks.length;
-    blocks.push(`<pre><code class="language-${lang}">${escape(code).trimEnd()}</code></pre>`);
+    if (lang === 'mermaid') {
+      blocks.push(`<div class="mermaid">${code.trimEnd()}</div>`);
+    } else {
+      blocks.push(`<pre><code class="language-${lang}">${escape(code).trimEnd()}</code></pre>`);
+    }
     return placeholder(i);
   });
 
@@ -176,6 +180,8 @@ function buildPage({ title, fileKey, content, nav, versionSwitcher, version }) {
     </div>
   </div>
   <script src="${assetPath}script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
 </body>
 </html>`;
 }

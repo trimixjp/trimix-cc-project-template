@@ -50,75 +50,23 @@
 
 <h2>ワークフロー全体フロー</h2>
 
-<pre><code class="language-">                    ┌──────────────────────┐
-                    │  /ai-team-run &lt;番号&gt;  │
-                    └──────────┬───────────┘
-                               │
-                               ▼
-                  ┌─────────────────────────┐
-                  │ tech-lead (要件分析)    │
-                  │ - インシデント確認      │
-                  │ - 設計方針決定          │
-                  └──────────┬──────────────┘
-                             │
-                             ▼
-                  ┌─────────────────────────┐
-                  │ implementer             │
-                  │ - 実装・テスト          │
-                  │ - 完了報告              │
-                  └──────────┬──────────────┘
-                             │
-                             ▼
-                  ┌─────────────────────────┐
-                  │ tech-lead (レビュー判断)│
-                  │ review-config.yml 参照  │
-                  └──────────┬──────────────┘
-                             │
-              ┌──────────────┴──────────────┐
-              │                             │
-              ▼                             ▼
-   ┌──────────────────┐         ┌─────────────────────────┐
-   │ single-review    │         │ double-review (並列)    │
-   │   reviewer       │         │   reviewer-a            │
-   │                  │         │   reviewer-b            │
-   └─────┬────────────┘         └──────────┬──────────────┘
-         │                                 │
-         │                                 ▼
-         │                      ┌──────────────────────┐
-         │                      │ cross-review          │
-         │                      │ (requires: a, b)      │
-         │                      └──────────┬───────────┘
-         │                                 │
-         │     合格                  合格  │
-         └────────────────┬────────────────┘
-                          │ 不合格 → implementer に差し戻し
-                          ▼
-                ┌─────────────────────┐
-                │ tech-writer         │
-                │ - docs-src/ 更新    │
-                │ - build.js 実行     │
-                └──────────┬──────────┘
-                           │
-                           ▼
-                ┌─────────────────────┐
-                │ pr-creator          │
-                │ - gh pr create      │
-                │ - escalated:human   │
-                └──────────┬──────────┘
-                           │
-                           ▼
-                ┌─────────────────────┐
-                │ human-merge-approval│
-                │ ⏸️ 人間がマージ      │
-                └──────────┬──────────┘
-                           │
-                           ▼
-                ┌─────────────────────┐
-                │ contributor-close   │
-                │ - DOD 確認          │
-                │ - インシデント記録  │
-                │ - Issue クローズ    │
-                └─────────────────────┘</code></pre>
+<div class="mermaid">flowchart TD
+    A(["/ai-team-run &lt;番号&gt;"]) --> B["tech-lead\n要件分析・設計方針決定\nインシデント確認"]
+    B --> C["implementer\n実装・テスト\n完了報告"]
+    C --> D["tech-lead\nレビュー方式判断\nreview-config.yml 参照"]
+    D --> E{レビュー方式}
+    E -->|シングルレビュー| F["reviewer\nシングルレビュー"]
+    E -->|ダブルレビュー| G["reviewer-a\n独立レビュー"]
+    E -->|ダブルレビュー| H["reviewer-b\n独立レビュー"]
+    G --> I["cross-review\nrequires: a + b\n最終判定"]
+    H --> I
+    F -->|合格| J["tech-writer\ndocs-src/ 更新\nbuild.js 実行"]
+    I -->|合格| J
+    F -->|不合格| C
+    I -->|不合格| C
+    J --> K["pr-creator\ngh pr create\nescalated:human"]
+    K --> L["⏸️ human-merge-approval\n人間がマージ"]
+    L --> M["contributor-close\nDOD 確認\nインシデント記録\nIssue クローズ"]</div>
 
 <hr>
 
@@ -219,5 +167,7 @@
     </div>
   </div>
   <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
 </body>
 </html>

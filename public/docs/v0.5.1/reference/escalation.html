@@ -42,28 +42,17 @@
 
 <h2>エスカレーションの仕組み</h2>
 
-<pre><code class="language-">[エージェント実行中]
-        │
-        ▼
-[escalation_triggers に該当する状況を検出]
-        │
-        ▼
-[human-escalator エージェント呼び出し]
-  → 関連ドキュメントを全て調査
-  → 🚨 エスカレーション コメントを Issue に投稿
-  → escalated:human ラベル付与
-  → 担当者をアサイン
-  → 処理停止
-        │
-   （人間が確認・対応）
-        │
-        ▼
-[人間がコメントで判断を投稿 + escalated:human ラベル除去]
-        │
-        ▼
-[/ai-team-resume または ai-team-watch で再開検出]
-  → 🔄 エスカレーション解決 コメント投稿
-  → 元のエージェントを人間の判断つきで再起動</code></pre>
+<div class="mermaid">flowchart TD
+    A["エージェント実行中"] --> B{"escalation_triggers\nに該当?"}
+    B -->|Yes| C["human-escalator エージェント呼び出し\n関連ドキュメントを全て調査"]
+    C --> D["🚨 エスカレーションコメントを Issue に投稿\nescalated:human ラベル付与\n担当者アサイン"]
+    D --> E["⏸️ 処理停止"]
+    E --> F["人間が確認・対応"]
+    F --> G["人間がコメントで判断を投稿\nescalated:human ラベル除去"]
+    G --> H["/ai-team-resume または\nai-team-watch で再開検出"]
+    H --> I["🔄 エスカレーション解決コメント投稿\n元のエージェントを人間の判断つきで再起動"]
+    I --> J["ワークフロー継続"]
+    B -->|No| K["通常処理継続"]</div>
 
 <hr>
 
@@ -239,5 +228,7 @@ gh issue edit &lt;番号&gt; --add-assignee "&lt;GitHubユーザー名&gt;"</cod
     </div>
   </div>
   <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
 </body>
 </html>

@@ -47,66 +47,22 @@
 
 <h2>ワークフロー全体フロー</h2>
 
-<pre><code class="language-">                  ┌──────────────────────┐
-                  │  /ai-team-run &lt;番号&gt;  │
-                  └──────────┬───────────┘
-                             │
-                             ▼
-                ┌──────────────────────────┐
-                │ infra-lead-analysis      │
-                │ - 公式ドキュメント参照   │
-                │ - 設計方針決定           │
-                │ - 変更内容を分類         │
-                └──────────┬───────────────┘
-                           │
-            ┌──────────────┼──────────────┐
-            │              │              │
-            ▼              ▼              ▼
-  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐
-  │ network-only │  │ infra-only   │  │ both（並列）     │
-  │ network-     │  │ infra-       │  │ network +        │
-  │ engineer     │  │ specialist   │  │ infra-specialist │
-  └──────┬───────┘  └──────┬───────┘  └──────┬───────────┘
-         │                 │                 │
-         └────────┬────────┴────────┬────────┘
-                  │                 │
-                  ▼                 ▼
-        ┌──────────────────────────────┐
-        │ infra-lead-check              │
-        │ (requires_all_of)             │
-        │ - 整合性チェック              │
-        │ - Architect 要否判断          │
-        └──────────┬───────────────────┘
-                   │
-        ┌──────────┴────────────┐
-        │                       │
-        ▼                       ▼
-┌────────────────┐    ┌──────────────────┐
-│architect-needed│    │ no-architect-... │
-│ architect      │    │ (skip)           │
-│ (Opus 助言)    │    │                  │
-└──────┬─────────┘    └──────────┬───────┘
-       │                         │
-       └────────────┬────────────┘
-                    │
-                    ▼
-        ┌──────────────────────────┐
-        │ security-engineer         │
-        │ - 脆弱性チェック          │
-        │ - 権限チェック            │
-        │ - 暗号化チェック          │
-        │ - シークレット管理        │
-        │ - ネットワークチェック    │
-        └──────────┬───────────────┘
-                   │
-        ┌──────────┴───────────────────┐
-        │ 合格                         │ 不合格 → infra-lead に差し戻し
-        │                              │
-        ▼                              ▼
-┌──────────────────┐            ┌─────────────────┐
-│ contributor-close│            │ infra-lead      │
-│ - DOD 確認       │            │ （再設計）       │
-└──────────────────┘            └─────────────────┘</code></pre>
+<div class="mermaid">flowchart TD
+    A(["/ai-team-run &lt;番号&gt;"]) --> B["infra-lead\n公式ドキュメント参照\n設計方針決定\n変更内容を分類"]
+    B --> C{変更内容の分類}
+    C -->|network-only| D["network-engineer\nVPC・DNS・LB・FW 実装"]
+    C -->|infra-only| E["infra-specialist\nTerraform・K8s・CI/CD 実装"]
+    C -->|both（並列）| D
+    C -->|both（並列）| E
+    D --> F["infra-lead-check\nrequires_all_of\n整合性チェック\nArchitect 要否判断"]
+    E --> F
+    F --> G{Architect 必要?}
+    G -->|Yes| H["architect\nOpus モデル\nシステム全体への助言"]
+    G -->|No| I["security-engineer\n脆弱性・権限・暗号化\nシークレット・ネットワーク"]
+    H --> I
+    I -->|合格| J["contributor-close\nDOD 確認・クローズ"]
+    I -->|不合格| B
+    I -->|重大リスク| K["🚨 human-escalator\n即時エスカレーション"]</div>
 
 <p>重大セキュリティリスクが発見された場合、Security-Engineer は差し戻しではなく<strong>即座に Human-Escalator を呼び出します</strong>。</p>
 
@@ -184,5 +140,7 @@
     </div>
   </div>
   <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
 </body>
 </html>
