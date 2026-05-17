@@ -1,0 +1,78 @@
+name: "🏗️ インフラ — 構成変更"
+description: "インフラ・ネットワーク・セキュリティ関連の変更を依頼します"
+title: "[Infra] "
+labels:
+  - "infra:infra-lead"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > このIssueはインフラチームが担当します。
+        > ラベル `infra:infra-lead` が付与されると Infra-Lead が自動起動します。
+
+  - type: textarea
+    id: overview
+    attributes:
+      label: "変更の概要"
+      description: "何を変更したいか、1〜3文で説明してください"
+      placeholder: "〇〇のネットワーク設定を変更したい / 〇〇をTerraformで管理したい"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: change_type
+    attributes:
+      label: "変更の種別（該当するものをすべて選択）"
+      options:
+        - label: "ネットワーク（VPC・サブネット・DNS・LB・FW・ルーティング）"
+        - label: "クラウド構成（Terraform・AWS/GCP/Azure リソース）"
+        - label: "Kubernetes / コンテナ"
+        - label: "CI/CD パイプライン"
+        - label: "セキュリティ（IAM・権限・暗号化）"
+        - label: "監視・アラート"
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: "変更の理由・背景"
+      placeholder: "なぜこの変更が必要か"
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: "影響範囲"
+      description: "変更が影響するシステム・環境・サービスを記載してください"
+      placeholder: "例: production環境のAPI Gateway、関連する全サービス"
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: "緊急度"
+      options:
+        - "高（本番障害対応・セキュリティリスク）"
+        - "中（計画的な改善・機能追加）"
+        - "低（将来的な改善）"
+    validations:
+      required: true
+
+  - type: textarea
+    id: risks
+    attributes:
+      label: "想定されるリスク・懸念点"
+      placeholder: "ダウンタイム、既存設定との競合など"
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "参照資料・関連Issue"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Definition of Done
+
+        > Infra-Lead が `teams/infra/dod/infrastructure-change.md` または
+        > `teams/infra/dod/network-change.md` を貼り付けます

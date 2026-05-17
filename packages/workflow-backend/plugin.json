@@ -1,0 +1,28 @@
+{
+  "id": "trimix-backend",
+  "team_id": "backend",
+  "label_prefix": "backend",
+  "name": "バックエンドチーム",
+  "version": "1.0.0",
+  "description": "コード実装・レビュー・PR作成ワークフロー",
+  "package": "@trimix/workflow-trimix-backend",
+  "category": "engineering",
+  "tags": ["code", "review", "pr", "backend"],
+  "install": {
+    "templates/agents/*": ".claude/teams/backend/agents/",
+    "templates/workflow.yml": ".claude/teams/backend/workflow.yml",
+    "templates/review-config.yml": ".claude/teams/backend/review-config.yml",
+    "templates/dod/*": ".claude/teams/backend/dod/",
+    "github/ISSUE_TEMPLATE/*": ".github/ISSUE_TEMPLATE/"
+  },
+  "labels": [
+    { "name": "backend:tech-lead", "color": "1d76db", "description": "Tech-Leadが要件分析中" },
+    { "name": "backend:implementer", "color": "1d76db", "description": "Implementerが実装中" },
+    { "name": "backend:reviewer", "color": "1d76db", "description": "Reviewerがレビュー中" },
+    { "name": "backend:reviewer-a", "color": "1d76db", "description": "Reviewer-Aがレビュー中" },
+    { "name": "backend:reviewer-b", "color": "1d76db", "description": "Reviewer-Bがレビュー中" },
+    { "name": "backend:pr-creator", "color": "1d76db", "description": "PR-CreatorがPR作成中" }
+  ],
+  "solo_target_labels": ["backend:tech-lead"],
+  "claude_md_entry": "- バックエンドチーム: コード実装・レビュー・PR作成"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@trimix/workflow-trimix-backend",
+  "version": "1.0.0",
+  "description": "ai-team backend workflow plugin",
+  "files": ["plugin.json", "templates/", "github/"],
+  "keywords": ["ai-team-plugin", "trimix", "workflow", "backend"],
+  "author": "Trimix",
+  "license": "MIT",
+  "peerDependencies": {
+    "@trimix/ai-team": ">=0.4.0"
+  }
+}

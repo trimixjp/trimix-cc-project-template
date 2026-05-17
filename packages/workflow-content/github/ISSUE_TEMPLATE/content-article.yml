@@ -1,0 +1,75 @@
+name: "✍️ コンテンツ — 記事作成"
+description: "新規記事・ブログ投稿の作成を依頼します"
+title: "[Article] "
+labels:
+  - "content:editor-in-chief"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > このIssueはコンテンツチームが担当します。
+        > ラベル `content:editor-in-chief` が付与されると Editor-in-Chief が自動起動します。
+
+  - type: textarea
+    id: theme
+    attributes:
+      label: "テーマ・タイトル案"
+      placeholder: "〇〇についての記事"
+    validations:
+      required: true
+
+  - type: textarea
+    id: audience
+    attributes:
+      label: "ターゲット読者"
+      placeholder: "例: 健康に関心があるビジネスパーソン（30〜40代）"
+    validations:
+      required: true
+
+  - type: textarea
+    id: purpose
+    attributes:
+      label: "記事の目的・ゴール"
+      placeholder: "例: 商品ページへの誘導 / ブランド認知向上"
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: "記載してほしい内容・キーワード"
+      placeholder: "必ず含めてほしいポイントや検索キーワードがあれば"
+
+  - type: input
+    id: word_count
+    attributes:
+      label: "目標文字数"
+      placeholder: "例: 2000〜3000文字"
+
+  - type: dropdown
+    id: research_needed
+    attributes:
+      label: "調査・データ収集の必要性"
+      description: "Editor-in-Chief が最終判断しますが、参考情報として記載してください"
+      options:
+        - "必要（統計・専門知識が必要）"
+        - "不要（既知の情報で執筆可能）"
+        - "不明（Editor-in-Chief に判断を委ねる）"
+
+  - type: textarea
+    id: compliance_notes
+    attributes:
+      label: "コンプライアンス上の注意点"
+      description: "健康・医薬品・法律・金融等の記事の場合は記載してください"
+      placeholder: "例: 医薬品に関する記事のため薬機法チェックが必要"
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "参考資料・参照先"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Definition of Done
+
+        > Editor-in-Chief が `teams/content/dod/article.md` を貼り付けます

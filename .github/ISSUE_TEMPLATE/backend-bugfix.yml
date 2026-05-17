@@ -1,0 +1,79 @@
+name: "🐛 バックエンド — バグ修正"
+description: "不具合の調査・修正を依頼します"
+title: "[Bug] "
+labels:
+  - "backend:tech-lead"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > このIssueはバックエンドチームが担当します。
+        > ラベル `backend:tech-lead` が付与されると Tech-Lead が自動起動します。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: "不具合の概要"
+      description: "何が起きているか、1〜3文で説明してください"
+      placeholder: "〇〇をすると〜というエラーが発生する"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "再現手順"
+      description: "不具合を再現するための手順を記載してください"
+      placeholder: |
+        1. 〇〇画面を開く
+        2. 〜をクリックする
+        3. エラーが発生する
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "期待する動作"
+      placeholder: "〇〇が表示される"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: "実際の動作"
+      placeholder: "〇〇エラーが発生する"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "重大度"
+      options:
+        - "P1 — 本番障害・サービス停止"
+        - "P2 — 主要機能に影響あり"
+        - "P3 — 軽微な不具合"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "発生環境"
+      placeholder: "本番 / ステージング / 開発、ブラウザ、OSなど"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "エラーログ・スクリーンショット"
+      description: "ログやスクリーンショットがあれば貼り付けてください"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Definition of Done
+
+        > Tech-Lead が `teams/backend/dod/bugfix.md` を貼り付けます

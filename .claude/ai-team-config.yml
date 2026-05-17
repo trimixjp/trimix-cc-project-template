@@ -1,0 +1,16 @@
+# @trimix/ai-team 運用設定
+mode: solo
+
+# solo モードの設定
+solo:
+  poll_interval_minutes: 5
+  target_labels:
+    - dispatcher
+    - backend:tech-lead
+    - frontend:frontend-lead
+    - content:editor-in-chief
+    - infra:infra-lead
+  skip_labels:
+    - ai-team:in-progress
+    - escalated:human
+    - contributor:ready

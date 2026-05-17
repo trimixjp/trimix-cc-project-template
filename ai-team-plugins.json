@@ -1,0 +1,104 @@
+{
+  "installed": {
+    "trimix-backend": {
+      "id": "trimix-backend",
+      "team_id": "backend",
+      "label_prefix": "backend",
+      "name": "バックエンドチーム",
+      "package": "@trimix/workflow-trimix-backend",
+      "version": "1.0.0",
+      "installed_at": "2026-05-17T02:14:21.048Z",
+      "files": [
+        ".claude/teams/backend/agents/.gitkeep",
+        ".claude/teams/backend/agents/implementer.md",
+        ".claude/teams/backend/agents/pr-creator.md",
+        ".claude/teams/backend/agents/reviewer-a.md",
+        ".claude/teams/backend/agents/reviewer-b.md",
+        ".claude/teams/backend/agents/reviewer.md",
+        ".claude/teams/backend/agents/tech-lead.md",
+        ".claude/teams/backend/workflow.yml",
+        ".claude/teams/backend/review-config.yml",
+        ".claude/teams/backend/dod/.gitkeep",
+        ".claude/teams/backend/dod/bugfix.md",
+        ".claude/teams/backend/dod/feature.md",
+        ".claude/teams/backend/dod/refactor.md",
+        ".claude/teams/backend/dod/review.md",
+        ".github/ISSUE_TEMPLATE/backend-bugfix.yml",
+        ".github/ISSUE_TEMPLATE/backend-feature.yml"
+      ]
+    },
+    "trimix-frontend": {
+      "id": "trimix-frontend",
+      "team_id": "frontend",
+      "label_prefix": "frontend",
+      "name": "フロントエンドチーム",
+      "package": "@trimix/workflow-trimix-frontend",
+      "version": "1.0.0",
+      "installed_at": "2026-05-17T02:14:32.791Z",
+      "files": [
+        ".claude/teams/frontend/agents/.gitkeep",
+        ".claude/teams/frontend/agents/designer.md",
+        ".claude/teams/frontend/agents/developer.md",
+        ".claude/teams/frontend/agents/frontend-lead.md",
+        ".claude/teams/frontend/agents/pr-creator.md",
+        ".claude/teams/frontend/agents/reviewer-a.md",
+        ".claude/teams/frontend/agents/reviewer-b.md",
+        ".claude/teams/frontend/agents/reviewer.md",
+        ".claude/teams/frontend/workflow.yml",
+        ".claude/teams/frontend/review-config.yml",
+        ".claude/teams/frontend/dod/.gitkeep",
+        ".claude/teams/frontend/dod/bugfix.md",
+        ".claude/teams/frontend/dod/component.md",
+        ".claude/teams/frontend/dod/feature.md",
+        ".github/ISSUE_TEMPLATE/frontend-bugfix.yml",
+        ".github/ISSUE_TEMPLATE/frontend-feature.yml"
+      ]
+    },
+    "trimix-content": {
+      "id": "trimix-content",
+      "team_id": "content",
+      "label_prefix": "content",
+      "name": "コンテンツチーム",
+      "package": "@trimix/workflow-trimix-content",
+      "version": "1.0.0",
+      "installed_at": "2026-05-17T02:14:41.283Z",
+      "files": [
+        ".claude/teams/content/agents/.gitkeep",
+        ".claude/teams/content/agents/compliance.md",
+        ".claude/teams/content/agents/editor-in-chief.md",
+        ".claude/teams/content/agents/researcher.md",
+        ".claude/teams/content/agents/writer.md",
+        ".claude/teams/content/workflow.yml",
+        ".claude/teams/content/compliance-rules/health-pharma.md",
+        ".claude/teams/content/dod/.gitkeep",
+        ".claude/teams/content/dod/article.md",
+        ".claude/teams/content/dod/document.md",
+        ".claude/teams/content/dod/revision.md",
+        ".github/ISSUE_TEMPLATE/content-article.yml"
+      ]
+    },
+    "trimix-infra": {
+      "id": "trimix-infra",
+      "team_id": "infra",
+      "label_prefix": "infra",
+      "name": "インフラチーム",
+      "package": "@trimix/workflow-trimix-infra",
+      "version": "1.0.0",
+      "installed_at": "2026-05-17T02:14:48.725Z",
+      "files": [
+        ".claude/teams/infra/agents/.gitkeep",
+        ".claude/teams/infra/agents/architect.md",
+        ".claude/teams/infra/agents/infra-lead.md",
+        ".claude/teams/infra/agents/infra-specialist.md",
+        ".claude/teams/infra/agents/network-engineer.md",
+        ".claude/teams/infra/agents/security-engineer.md",
+        ".claude/teams/infra/workflow.yml",
+        ".claude/teams/infra/dod/.gitkeep",
+        ".claude/teams/infra/dod/infrastructure-change.md",
+        ".claude/teams/infra/dod/network-change.md",
+        ".claude/teams/infra/dod/security-review.md",
+        ".github/ISSUE_TEMPLATE/infra-change.yml"
+      ]
+    }
+  }
+}

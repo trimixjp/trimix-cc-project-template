@@ -1,0 +1,156 @@
+# フロントエンドチーム ワークフロー定義
+# 条件分岐付き。レビュー方式は Frontend-Lead が実装内容の影響範囲から自動判断します
+
+name: frontend-workflow
+description: UI実装・コンポーネント開発・アクセシビリティ対応等フロントエンドタスクのワークフロー
+
+# ラベル命名規則
+labels:
+  prefix: "frontend"
+  examples:
+    - "frontend:designer"
+    - "frontend:frontend-lead"
+    - "frontend:developer"
+    - "frontend:reviewer"
+    - "frontend:reviewer-a"
+    - "frontend:reviewer-b"
+    - "frontend:pr-creator"
+    - "contributor:ready"
+    - "escalated:human"
+
+steps:
+
+  - id: designer-analysis
+    agent: designer
+    label: "frontend:designer"
+    description: 参考サイト分析・UI仕様策定・デザイントークン定義
+    on_complete:
+      next: frontend-lead-analysis
+    on_escalation:
+      next: human-escalator
+
+  - id: frontend-lead-analysis
+    agent: frontend-lead
+    label: "frontend:frontend-lead"
+    description: 要件分析・コンポーネント設計方針の決定・アクセシビリティ要件の確認・インシデント確認
+    on_complete:
+      next: developer
+    on_escalation:
+      next: human-escalator
+
+  - id: developer
+    agent: developer
+    label: "frontend:developer"
+    description: Frontend-Leadの設計方針に従いコンポーネント・ページを実装
+    on_complete:
+      next: frontend-lead-review-decision
+    on_escalation:
+      next: human-escalator
+    on_rework:
+      # Reviewerからの差し戻し時
+      trigger: "差し戻し"
+      next: developer
+
+  - id: frontend-lead-review-decision
+    agent: frontend-lead
+    label: "frontend:frontend-lead"
+    description: |
+      実装内容の影響範囲を分析してレビュー方式を自動判断する。
+      review-config.yml の double_review_criteria を参照。
+    conditions:
+      - id: single-review
+        description: ダブルレビュー基準に非該当
+        criteria:
+          - 変更ファイル数が5未満
+          - 認証UI・決済UI・個人情報フォームに非該当
+          - デザインシステムの破壊的変更なし
+          - 公開APIとのインターフェース変更なし
+          - 複雑度・セキュリティ関連ラベルなし
+        next: reviewer
+
+      - id: double-review
+        description: 以下のいずれかに1つでも該当する場合
+        criteria:
+          - 変更ファイル数が5以上
+          - 認証UI（login / auth / session）に関わる変更
+          - 決済UI（payment / checkout / billing）に関わる変更
+          - 個人情報フォーム（user / profile / password）に関わる変更
+          - デザインシステムの破壊的変更を含む
+          - 公開APIとのインターフェース変更を含む
+          - "complexity:high / security-sensitive / breaking-change ラベルあり"
+        next: [reviewer-a, reviewer-b]  # 並列起動
+
+  - id: reviewer
+    agent: reviewer
+    label: "frontend:reviewer"
+    description: シングルレビュー。コード品質・アクセシビリティ・パフォーマンス・設計整合をレビューする
+    on_complete:
+      condition: 合格
+      next: pr-creator
+    on_rework:
+      condition: 不合格
+      next: developer
+    on_escalation:
+      next: human-escalator
+
+  - id: reviewer-a
+    agent: reviewer-a
+    label: "frontend:reviewer-a"
+    description: ダブルレビューのA。Reviewer-Bと独立して並列レビューを実施する
+    parallel_with: reviewer-b
+    on_complete:
+      condition: 独立レビュー完了
+      next: cross-review  # 両者完了後にクロスレビューへ
+
+  - id: reviewer-b
+    agent: reviewer-b
+    label: "frontend:reviewer-b"
+    description: ダブルレビューのB。Reviewer-Aと独立して並列レビューを実施する
+    parallel_with: reviewer-a
+    on_complete:
+      condition: 独立レビュー完了
+      next: cross-review  # 両者完了後にクロスレビューへ
+
+  - id: cross-review
+    agent: reviewer-a  # Reviewer-Aがクロスレビューをリード、Reviewer-Bが応答
+    description: Reviewer-AとBが互いのレビュー結果を比較・議論して最終判定を出す
+    requires: [reviewer-a, reviewer-b]  # 両方の完了が必要
+    on_complete:
+      condition: 合格（両者合意）
+      next: pr-creator
+    on_rework:
+      condition: 不合格
+      next: developer
+    on_escalation:
+      condition: 意見が割れて判断できない
+      next: human-escalator
+
+  - id: pr-creator
+    agent: pr-creator
+    label: "frontend:pr-creator"
+    description: レビュー合格後にプルリクエストを作成し、人間に承認を依頼する
+    on_complete:
+      next: human-merge-approval
+
+  - id: human-merge-approval
+    agent: human-escalator
+    label: "escalated:human"
+    description: PR承認・マージは常に人間が行う
+    on_complete:
+      condition: 人間がマージ完了
+      next: contributor-close
+
+  - id: human-escalator
+    agent: human-escalator
+    label: "escalated:human"
+    description: 判断できない事項を人間にエスカレーション
+    on_complete:
+      condition: 人間が判断・返答
+      next: return_to_previous  # エスカレーション元のステップに戻る
+
+  - id: contributor-close
+    agent: contributor
+    label: "contributor:ready"
+    description: DOD確認・コメント品質チェック・Issueクローズ・インシデント調査
+    on_complete:
+      action: close_issue

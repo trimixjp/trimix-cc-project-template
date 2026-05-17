@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -i '' 's/engineer/backend/g' templates/.github/ISSUE_TEMPLATE/backend-feature.yml)",
+      "Bash(sed -i '' 's/engineer/backend/g' templates/.github/ISSUE_TEMPLATE/backend-bugfix.yml)",
+      "Bash(sed -i '' 's|engineer / infra / content|backend / infra / content|g' /Users/taku/git/trimix-cc-project-template/.claude/incidents/TEMPLATE.md)",
+      "Bash(sed -i '' 's/| 完了 \\\\/ 対応中 \\\\/ 未着手 | engineer /| 完了 \\\\/ 対応中 \\\\/ 未着手 | backend /g' /Users/taku/git/trimix-cc-project-template/.claude/incidents/TEMPLATE.md)",
+      "Bash(sed -i '' 's/teams: \\\\[engineer, infra\\\\]/teams: [backend, infra]/g' /Users/taku/git/trimix-cc-project-template/.claude/incidents/index.yml)",
+      "Bash(sed -i '' 's/teams: \\\\[engineer, infra, content\\\\]/teams: [backend, infra, content]/g' /Users/taku/git/trimix-cc-project-template/.claude/incidents/README.md)",
+      "Bash(sed -i '' 's|teams/engineer/dod/|teams/backend/dod/|g' /Users/taku/git/trimix-cc-project-template/.claude/dod/README.md)",
+      "Bash(node *)"
+    ]
+  }
+}

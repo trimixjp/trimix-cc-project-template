@@ -1,0 +1,26 @@
+{
+  "id": "trimix-infra",
+  "team_id": "infra",
+  "label_prefix": "infra",
+  "name": "インフラチーム",
+  "version": "1.0.0",
+  "description": "クラウド構成・ネットワーク・セキュリティワークフロー",
+  "package": "@trimix/workflow-trimix-infra",
+  "category": "infrastructure",
+  "tags": ["terraform", "kubernetes", "security"],
+  "install": {
+    "templates/agents/*": ".claude/teams/infra/agents/",
+    "templates/workflow.yml": ".claude/teams/infra/workflow.yml",
+    "templates/dod/*": ".claude/teams/infra/dod/",
+    "github/ISSUE_TEMPLATE/*": ".github/ISSUE_TEMPLATE/"
+  },
+  "labels": [
+    { "name": "infra:infra-lead", "color": "bfd4f2", "description": "Infra-Leadが要件分析中" },
+    { "name": "infra:network-engineer", "color": "bfd4f2", "description": "Network-Engineerが実装中" },
+    { "name": "infra:infra-specialist", "color": "bfd4f2", "description": "Infra-Specialistが実装中" },
+    { "name": "infra:security-engineer", "color": "bfd4f2", "description": "Security-Engineerがチェック中" },
+    { "name": "infra:architect", "color": "bfd4f2", "description": "Architectが設計中" }
+  ],
+  "solo_target_labels": ["infra:infra-lead"],
+  "claude_md_entry": "- インフラチーム: クラウド構成・セキュリティ"
+}

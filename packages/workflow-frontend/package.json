@@ -1,0 +1,12 @@
+{
+  "name": "@trimix/workflow-trimix-frontend",
+  "version": "1.0.0",
+  "description": "ai-team frontend workflow plugin",
+  "files": ["plugin.json", "templates/", "github/"],
+  "keywords": ["ai-team-plugin", "trimix", "workflow", "frontend"],
+  "author": "Trimix",
+  "license": "MIT",
+  "peerDependencies": {
+    "@trimix/ai-team": ">=0.4.0"
+  }
+}

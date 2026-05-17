@@ -1,0 +1,26 @@
+{
+  "id": "trimix-content",
+  "team_id": "content",
+  "label_prefix": "content",
+  "name": "コンテンツチーム",
+  "version": "1.0.0",
+  "description": "記事・ドキュメント・コンテンツ作成ワークフロー",
+  "package": "@trimix/workflow-trimix-content",
+  "category": "content",
+  "tags": ["writing", "documentation", "compliance"],
+  "install": {
+    "templates/agents/*": ".claude/teams/content/agents/",
+    "templates/workflow.yml": ".claude/teams/content/workflow.yml",
+    "templates/compliance-rules/*": ".claude/teams/content/compliance-rules/",
+    "templates/dod/*": ".claude/teams/content/dod/",
+    "github/ISSUE_TEMPLATE/*": ".github/ISSUE_TEMPLATE/"
+  },
+  "labels": [
+    { "name": "content:editor-in-chief", "color": "f9d0c4", "description": "Editor-in-Chiefが要件分析中" },
+    { "name": "content:researcher", "color": "f9d0c4", "description": "Researcherが調査中" },
+    { "name": "content:writer", "color": "f9d0c4", "description": "Writerが執筆中" },
+    { "name": "content:compliance", "color": "f9d0c4", "description": "Complianceがチェック中" }
+  ],
+  "solo_target_labels": ["content:editor-in-chief"],
+  "claude_md_entry": "- コンテンツチーム: 記事・ドキュメント作成"
+}

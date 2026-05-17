@@ -1,0 +1,79 @@
+name: "🚨 インシデント報告"
+description: "本番障害・セキュリティインシデント・重大バグを報告します"
+title: "[Incident] "
+labels:
+  - "incident"
+  - "escalated:human"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > ⚠️ インシデントは **即座に人間がトリアージ**してください。
+        > 担当チームを決定してラベル（`backend:tech-lead` 等）を追加すると AI チームが自動起動します。
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "重大度"
+      options:
+        - "P1 — 本番サービス停止・データ損失"
+        - "P2 — 主要機能障害・セキュリティリスク"
+        - "P3 — 部分的な障害・軽微な影響"
+    validations:
+      required: true
+
+  - type: input
+    id: detected_at
+    attributes:
+      label: "検知日時"
+      placeholder: "YYYY-MM-DD HH:MM（JST）"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: "インシデントの概要"
+      description: "何が起きているか、現在の状況を記載してください"
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: "影響範囲"
+      description: "影響しているサービス・ユーザー数・データ等"
+      placeholder: |
+        - 影響サービス:
+        - 影響ユーザー数（概算）:
+        - データへの影響:
+    validations:
+      required: true
+
+  - type: textarea
+    id: timeline
+    attributes:
+      label: "タイムライン（わかる範囲で）"
+      placeholder: |
+        - HH:MM — 発生
+        - HH:MM — 検知
+        - HH:MM — 対応開始
+
+  - type: textarea
+    id: temporary_action
+    attributes:
+      label: "実施済みの暫定対応"
+      placeholder: "サービス切り戻し・アクセス遮断など、すでに実施した対応"
+
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: "原因の仮説（わかる範囲で）"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Definition of Done
+
+        > 担当チームリーダーが `_shared/dod/incident.md` を貼り付けます
