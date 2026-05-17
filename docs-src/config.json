@@ -43,12 +43,24 @@
         ]
       },
       {
+        "title": "ガイド",
+        "items": [
+          { "title": "セットアップガイド", "file": "guide/setup" },
+          { "title": "ワークフローの起動", "file": "guide/workflow" },
+          { "title": "エージェントのカスタマイズ", "file": "guide/agents" },
+          { "title": "ドキュメントの管理", "file": "guide/docs" }
+        ]
+      },
+      {
         "title": "リファレンス",
         "items": [
           { "title": "設定ファイル", "file": "reference/config" },
           { "title": "ワークフロー定義", "file": "reference/workflow" },
           { "title": "エスカレーションルール", "file": "reference/escalation" },
-          { "title": "DODテンプレート", "file": "reference/dod" }
+          { "title": "DODテンプレート", "file": "reference/dod" },
+          { "title": "ワークフロー YAML 仕様", "file": "api/workflow" },
+          { "title": "エージェント定義 YAML 仕様", "file": "api/agents" },
+          { "title": "設定ファイル YAML 仕様", "file": "api/config" }
         ]
       }
     ]
