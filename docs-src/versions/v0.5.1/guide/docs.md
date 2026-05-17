@@ -66,6 +66,34 @@ cp -r docs-src/versions/v0.5.1 docs-src/versions/v0.6.0
 node docs-src/build.js
 ```
 
+## フローチャートの記述（Mermaid）
+
+ドキュメント内のフローチャートや処理フロー図は **Mermaid記法** で記述します。HTMLビルド時に自動でレンダリングされます。
+
+### 使い方
+
+Markdownファイル内で ` ```mermaid ` コードブロックを使用します。
+
+```mermaid
+flowchart TD
+    A[ステップ1] --> B[ステップ2]
+    B --> C{判断}
+    C -->|はい| D[処理A]
+    C -->|いいえ| E[処理B]
+```
+
+### 主な記法
+
+| 記法 | 用途 |
+|------|------|
+| `flowchart TD` | 上から下へのフローチャート |
+| `flowchart LR` | 左から右へのフローチャート |
+| `sequenceDiagram` | シーケンス図（エージェント間の連携など） |
+
+### ビルド時の動作
+
+`node docs-src/build.js` 実行時に ` ```mermaid ` ブロックが `<div class="mermaid">` に変換されます。HTMLページはMermaid.js（CDN）を自動的に読み込み、ブラウザ上でレンダリングします。
+
 ## バージョン切り替え
 
 ブラウザ上部の右側にあるバージョン切り替えドロップダウンで、異なるバージョンのドキュメントに切り替えられます。同じページが存在すれば、そのページを表示します。

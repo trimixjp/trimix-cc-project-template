@@ -122,27 +122,20 @@ gh issue view <番号> --json title,body,labels,comments
 
 ## エスカレーションのライフサイクル
 
-```
-[エージェント実行中]
-        │
-        ▼
-[判断不能 → human-escalator 起動]
-  → 🚨 エスカレーション コメント投稿
-  → escalated:human ラベル付与
-  → 処理停止
-        │
-   （人間が確認）
-        │
-        ▼
-[人間がコメント投稿 + ラベル除去]
-        │
-        ▼
-[/ai-team-resume または ai-team-watch が検出]
-  → 🔄 エスカレーション解決 コメント投稿
-  → 該当エージェントを人間の判断つきで再起動
-        │
-        ▼
-[ワークフロー継続]
+```mermaid
+sequenceDiagram
+    participant A as エージェント
+    participant H as 人間
+    participant R as ai-team-resume
+
+    A->>A: 処理実行中
+    A->>H: 🚨 エスカレーションコメント投稿<br/>escalated:human ラベル付与
+    A->>A: 処理停止
+    H->>H: Issue を確認・判断
+    H->>A: 判断内容をコメント投稿<br/>escalated:human ラベル除去
+    R->>R: エスカレーション解除を検出
+    R->>A: 🔄 エスカレーション解決コメント投稿<br/>エージェントを人間の判断つきで再起動
+    A->>A: ワークフロー継続
 ```
 
 ---
