@@ -11,7 +11,8 @@
     "templates/",
     "skills/",
     "packages/",
-    "registry.json"
+    "registry.json",
+    "public/"
   ],
   "workspaces": [
     "packages/*"
