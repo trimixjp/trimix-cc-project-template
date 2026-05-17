@@ -21,7 +21,7 @@
 | `tech-writer` | ドキュメント更新担当。`docs-src/` 更新と `build.js` 実行 | `backend:tech-writer` |
 | `pr-creator` | プルリクエスト作成担当 | `backend:pr-creator` |
 
-各エージェントの詳細は [バックエンドエージェント](../agents/backend.html) を参照してください。
+各エージェントの詳細は各 agents/ ページを参照してください。
 
 ---
 
@@ -203,7 +203,6 @@ PR 作成後は `escalated:human` ラベルが付与され、人間のマージ�
 
 ## 関連ドキュメント
 
-- [バックエンドエージェント](../agents/backend.html) — 各エージェントの動作・コメントフォーマット
 - [Tech-Writer](../agents/tech-writer.html) — ドキュメント更新の詳細
 - [ワークフロー定義](../reference/workflow.html) — workflow.yml の文法
 - [DOD テンプレート](../reference/dod.html) — DOD の運用ルール

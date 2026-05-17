@@ -40,18 +40,9 @@ Contributor エージェントは Issue クローズ時にインシデントと�
 
 ---
 
-## 対応チーム一覧
+## 対応チーム
 
-`registry.json` で配布対象として定義されている 4 つのチームです。
-
-| チーム ID | 名称 | 用途 | 含まれるエージェント |
-|-----------|------|------|---------------------|
-| `backend` | バックエンドチーム | コード実装・レビュー・PR 作成 | tech-lead / implementer / reviewer / reviewer-a / reviewer-b / tech-writer / pr-creator |
-| `frontend` | フロントエンドチーム | UI 実装・コンポーネント開発・アクセシビリティ対応 | designer / frontend-lead / developer / reviewer / reviewer-a / reviewer-b / pr-creator |
-| `content` | コンテンツチーム | 記事・ドキュメント・コンテンツ作成 | editor-in-chief / researcher / writer / compliance |
-| `infra` | インフラチーム | クラウド構成・ネットワーク・セキュリティ | infra-lead / network-engineer / infra-specialist / security-engineer / architect |
-
-これらに加えて、全チーム共通の `contributor`（全体管理）、`dispatcher`（Epic 分解）、`human-escalator`（人間エスカレーション）が `.claude/agents/` に配置されます。
+4 つのチームに対応しています。詳細は[チーム概要](teams/overview.html)を参照してください。
 
 ---
 
@@ -78,15 +69,3 @@ ai-team-gallery.md
 ai-team-install.md
 ai-team-configure.md
 ```
-
----
-
-## ドキュメントの構成
-
-このドキュメントは以下のセクションで構成されています。
-
-- **はじめに**: 概要・クイックスタート・インストール手順
-- **スキル（コマンド）**: 7 つのスラッシュコマンドの詳細仕様
-- **チーム・ワークフロー**: 各チームのワークフロー定義とフロー図
-- **エージェント**: 各エージェントの役割・起動条件・コメントフォーマット
-- **リファレンス**: 設定ファイル・ワークフロー YAML・エスカレーションルール・DOD テンプレートの仕様
