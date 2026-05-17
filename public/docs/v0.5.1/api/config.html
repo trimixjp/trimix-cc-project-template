@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>設定ファイルリファレンス - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.5.1</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム・ワークフロー</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">エージェント</div><ul class="nav-list"><li class=""><a href="../agents/backend.html">バックエンドエージェント</a></li><li class=""><a href="../agents/tech-writer.html">Tech-Writer</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">設定ファイルリファレンス</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/api/config.html" selected>v0.5.1 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>設定ファイルリファレンス</h1>
+
+<h2>ai-team-config.yml</h2>
+
+<p>AIチームの動作モードと監視設定を定義します。</p>
+
+<pre><code class="language-yaml">mode: solo
+
+solo:
+  poll_interval_minutes: 5
+  target_labels:
+    - dispatcher
+    - backend:tech-lead
+    - frontend:frontend-lead
+    - content:editor-in-chief
+    - infra:infra-lead
+  skip_labels:
+    - ai-team:in-progress
+    - escalated:human
+    - contributor:ready</code></pre>
+
+<table><thead><tr><th>フィールド</th><th>説明</th></tr></thead><tbody><tr><td><code>mode</code></td><td>動作モード。<code>solo</code> のみ対応</td></tr><tr><td><code>solo.poll_interval_minutes</code></td><td>ポーリング間隔（分）</td></tr><tr><td><code>solo.target_labels</code></td><td>処理対象のIssueラベル</td></tr><tr><td><code>solo.skip_labels</code></td><td>スキップするIssueラベル</td></tr></tbody></table>
+<h2>escalation-rules.yml</h2>
+
+<p>エスカレーションの条件を定義します。</p>
+
+<pre><code class="language-yaml">escalation_triggers:
+  - type: legal
+  - type: budget
+  - type: merge_approval
+  - type: ambiguous_spec</code></pre>
+
+<h2>docs-src/config.json</h2>
+
+<p>ドキュメントのバージョンとナビゲーション構成を定義します。</p>
+
+<pre><code class="language-json">{
+  "title": "プロジェクト名 ドキュメント",
+  "versions": ["v0.5.1"],
+  "latest": "v0.5.1",
+  "nav": {
+    "v0.5.1": [
+      {
+        "title": "セクション名",
+        "items": [
+          { "title": "ページタイトル", "file": "ファイル名（拡張子なし）" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ワークフロー定義リファレンス - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.5.1</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム・ワークフロー</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">エージェント</div><ul class="nav-list"><li class=""><a href="../agents/backend.html">バックエンドエージェント</a></li><li class=""><a href="../agents/tech-writer.html">Tech-Writer</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">ワークフロー定義リファレンス</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/api/workflow.html" selected>v0.5.1 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>ワークフロー定義リファレンス</h1>
+
+<p>ワークフローは <code>.claude/teams/{チーム}/workflow.yml</code> で定義します。</p>
+
+<h2>基本構造</h2>
+
+<pre><code class="language-yaml">name: ワークフロー名
+description: 説明
+
+labels:
+  prefix: "チーム名"
+
+steps:
+  - id: ステップID
+    agent: エージェント名
+    label: "チーム名:ラベル名"
+    description: ステップの説明
+    on_complete:
+      next: 次のステップID
+    on_escalation:
+      next: human-escalator</code></pre>
+
+<h2>ステップのオプション</h2>
+
+<table><thead><tr><th>フィールド</th><th>説明</th></tr></thead><tbody><tr><td><code>id</code></td><td>ステップの一意識別子</td></tr><tr><td><code>agent</code></td><td>使用するエージェント名（agents/配下のファイル名）</td></tr><tr><td><code>label</code></td><td>GitHub Issues に付与するラベル</td></tr><tr><td><code>description</code></td><td>ステップの説明</td></tr><tr><td><code>on_complete.next</code></td><td>完了時の次ステップ</td></tr><tr><td><code>on_rework</code></td><td>差し戻し時の設定</td></tr><tr><td><code>on_escalation.next</code></td><td>エスカレーション先</td></tr><tr><td><code>parallel_with</code></td><td>並列実行するステップID</td></tr><tr><td><code>requires</code></td><td>実行前に完了が必要なステップIDのリスト</td></tr><tr><td><code>conditions</code></td><td>条件分岐の定義</td></tr></tbody></table>
+<h2>バックエンドワークフロー</h2>
+
+<pre><code class="language-">tech-lead-analysis
+  → implementer
+    → tech-lead-review-decision
+      → [single] reviewer → tech-writer → pr-creator
+      → [double] reviewer-a + reviewer-b → cross-review → tech-writer → pr-creator
+        → human-merge-approval → contributor-close</code></pre>
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+</body>
+</html>

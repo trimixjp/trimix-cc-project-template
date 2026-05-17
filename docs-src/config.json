@@ -1,0 +1,56 @@
+{
+  "title": "@trimix/ai-team ドキュメント",
+  "versions": ["v0.5.1"],
+  "latest": "v0.5.1",
+  "nav": {
+    "v0.5.1": [
+      {
+        "title": "はじめに",
+        "items": [
+          { "title": "概要", "file": "index" },
+          { "title": "クイックスタート", "file": "getting-started" },
+          { "title": "インストール", "file": "installation" }
+        ]
+      },
+      {
+        "title": "スキル（コマンド）",
+        "items": [
+          { "title": "スキル一覧", "file": "skills/overview" },
+          { "title": "ai-team-setup", "file": "skills/setup" },
+          { "title": "ai-team-run", "file": "skills/run" },
+          { "title": "ai-team-watch", "file": "skills/watch" },
+          { "title": "ai-team-configure", "file": "skills/configure" },
+          { "title": "ai-team-install", "file": "skills/install" },
+          { "title": "ai-team-gallery", "file": "skills/gallery" },
+          { "title": "ai-team-resume", "file": "skills/resume" }
+        ]
+      },
+      {
+        "title": "チーム・ワークフロー",
+        "items": [
+          { "title": "チーム概要", "file": "teams/overview" },
+          { "title": "バックエンドチーム", "file": "teams/backend" },
+          { "title": "フロントエンドチーム", "file": "teams/frontend" },
+          { "title": "インフラチーム", "file": "teams/infra" },
+          { "title": "コンテンツチーム", "file": "teams/content" }
+        ]
+      },
+      {
+        "title": "エージェント",
+        "items": [
+          { "title": "バックエンドエージェント", "file": "agents/backend" },
+          { "title": "Tech-Writer", "file": "agents/tech-writer" }
+        ]
+      },
+      {
+        "title": "リファレンス",
+        "items": [
+          { "title": "設定ファイル", "file": "reference/config" },
+          { "title": "ワークフロー定義", "file": "reference/workflow" },
+          { "title": "エスカレーションルール", "file": "reference/escalation" },
+          { "title": "DODテンプレート", "file": "reference/dod" }
+        ]
+      }
+    ]
+  }
+}
