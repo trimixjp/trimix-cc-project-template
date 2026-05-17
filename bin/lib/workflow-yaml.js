@@ -38,6 +38,23 @@ function formatNext(next) {
 }
 
 /**
+ * description テキストをYAML行として整形する
+ * - 改行を含む場合: ブロックスカラー形式（|）
+ * - 改行なし: インライン形式
+ * @param {string} text - 説明テキスト
+ * @param {string} indent - インデント文字列
+ * @returns {string|null} YAML行文字列、またはテキストが空の場合はnull
+ */
+function formatDescription(text, indent) {
+  if (!text) return null;
+  if (text.includes('\n')) {
+    const lines = text.split('\n');
+    return [`${indent}description: |`, ...lines.map(l => `${indent}  ${l}`)].join('\n');
+  }
+  return `${indent}description: ${text}`;
+}
+
+/**
  * ワークフロー設定オブジェクトからYAML文字列を生成する純粋関数
  * @param {object} config - ワークフロー設定オブジェクト
  * @returns {string} YAML文字列
@@ -47,8 +64,9 @@ export function buildWorkflowYaml(config) {
 
   // ヘッダー部分
   lines.push(`name: ${config.name}`);
-  if (config.description) {
-    lines.push(`description: ${config.description}`);
+  const headerDesc = formatDescription(config.description, '');
+  if (headerDesc) {
+    lines.push(headerDesc);
   }
   lines.push('');
   lines.push('labels:');
@@ -63,8 +81,9 @@ export function buildWorkflowYaml(config) {
     lines.push(`    label: "${step.label}"`);
 
     // description が空文字列・undefined の場合は省略
-    if (step.description) {
-      lines.push(`    description: ${step.description}`);
+    const stepDesc = formatDescription(step.description, '    ');
+    if (stepDesc) {
+      lines.push(stepDesc);
     }
 
     // conditions がある場合は on_complete を出力しない（排他）

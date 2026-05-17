@@ -312,6 +312,187 @@ test('requires なし: フィールドが省略される', () => {
   assert.ok(!yaml.includes('    requires:'), 'requires がない場合は省略されること');
 });
 
+// ケース9: conditions + on_rework の同一ステップ
+test('conditions + on_rework: 同一ステップに共存できる', () => {
+  const config = {
+    name: 'cond-rework-workflow',
+    description: 'conditionsとon_rework共存テスト',
+    prefix: 'backend',
+    steps: [
+      {
+        id: 'reviewer',
+        agent: 'reviewer',
+        label: 'backend:reviewer',
+        conditions: [
+          {
+            id: 'approved',
+            description: '承認',
+            criteria: ['全基準をクリア'],
+            next: 'pr-creator',
+          },
+        ],
+        on_rework: { trigger: '差し戻し', next: 'implementer' },
+      },
+    ],
+  };
+
+  const yaml = buildWorkflowYaml(config);
+
+  // conditions が出力される
+  assert.ok(yaml.includes('    conditions:'), 'conditions が出力されること');
+  // on_rework が出力される
+  assert.ok(yaml.includes('    on_rework:'), 'on_rework が出力されること');
+  // on_complete が出力されない（conditions と排他）
+  assert.ok(!yaml.includes('    on_complete:'), 'on_complete が出力されないこと');
+});
+
+// ケース10: parallel_with + requires の同一ステップ
+test('parallel_with + requires: 同一ステップに共存できる', () => {
+  const config = {
+    name: 'parallel-requires-workflow',
+    description: 'parallel_withとrequires共存テスト',
+    prefix: 'backend',
+    steps: [
+      {
+        id: 'reviewer-a',
+        agent: 'reviewer-a',
+        label: 'backend:reviewer-a',
+        parallel_with: 'reviewer-b',
+        requires: ['implementer'],
+        on_complete: { next: 'cross-review' },
+      },
+    ],
+  };
+
+  const yaml = buildWorkflowYaml(config);
+
+  // parallel_with が出力される
+  assert.ok(yaml.includes('    parallel_with: reviewer-b'), 'parallel_with が出力されること');
+  // requires が出力される
+  assert.ok(yaml.includes('    requires: [implementer]'), 'requires が出力されること');
+});
+
+// ケース11: 全オプション同時指定
+test('全オプション同時指定: すべて正しく出力される（on_complete は出力されない）', () => {
+  const config = {
+    name: 'all-options-workflow',
+    description: '全オプションテスト',
+    prefix: 'backend',
+    steps: [
+      {
+        id: 'reviewer',
+        agent: 'reviewer',
+        label: 'backend:reviewer',
+        conditions: [
+          {
+            id: 'approved',
+            description: '承認',
+            criteria: ['全基準をクリア'],
+            next: 'pr-creator',
+          },
+        ],
+        on_rework: { trigger: '差し戻し', next: 'implementer' },
+        on_escalation: { next: 'human-escalator' },
+        parallel_with: 'reviewer-b',
+        requires: ['implementer'],
+      },
+    ],
+  };
+
+  const yaml = buildWorkflowYaml(config);
+
+  // conditions が出力される
+  assert.ok(yaml.includes('    conditions:'), 'conditions が出力されること');
+  // on_rework が出力される
+  assert.ok(yaml.includes('    on_rework:'), 'on_rework が出力されること');
+  // on_escalation が出力される
+  assert.ok(yaml.includes('    on_escalation:'), 'on_escalation が出力されること');
+  // parallel_with が出力される
+  assert.ok(yaml.includes('    parallel_with: reviewer-b'), 'parallel_with が出力されること');
+  // requires が出力される
+  assert.ok(yaml.includes('    requires: [implementer]'), 'requires が出力されること');
+  // on_complete が出力されない（conditions と排他）
+  assert.ok(!yaml.includes('    on_complete:'), 'on_complete が出力されないこと');
+});
+
+// ケース12: on_rework.next が自己参照
+test('on_rework.next が自己参照: 自分自身のIDを指せる', () => {
+  const config = {
+    name: 'self-ref-workflow',
+    description: '自己参照テスト',
+    prefix: 'backend',
+    steps: [
+      {
+        id: 'writer',
+        agent: 'writer',
+        label: 'backend:writer',
+        on_complete: { next: 'reviewer' },
+        on_rework: { trigger: '差し戻し', next: 'writer' },
+      },
+    ],
+  };
+
+  const yaml = buildWorkflowYaml(config);
+
+  // on_rework.next が自身のID（writer）を指す
+  assert.ok(yaml.includes('      next: writer'), 'on_rework.next が自己参照（writer）であること');
+  assert.ok(yaml.includes('    on_rework:'), 'on_rework ブロックが出力されること');
+});
+
+// ケース13: requires が空配列のとき省略される
+test('requires が空配列のとき省略される', () => {
+  const config = {
+    name: 'empty-requires-workflow',
+    description: 'requires空配列テスト',
+    prefix: 'backend',
+    steps: [
+      {
+        id: 'step-a',
+        agent: 'tech-lead',
+        label: 'backend:tech-lead',
+        requires: [],
+        on_complete: { next: 'step-b' },
+      },
+    ],
+  };
+
+  const yaml = buildWorkflowYaml(config);
+
+  // requires: [] → フィールドが出力されない
+  assert.ok(!yaml.includes('    requires:'), 'requires が空配列の場合は省略されること');
+});
+
+// ケース14: description に改行が含まれるとき（バグ修正の検証）
+test('description に改行が含まれるとき: ブロックスカラー形式で出力される', () => {
+  const config = {
+    name: 'multiline-desc-workflow',
+    description: 'ヘッダー1行目\nヘッダー2行目',
+    prefix: 'backend',
+    steps: [
+      {
+        id: 'step-a',
+        agent: 'tech-lead',
+        label: 'backend:tech-lead',
+        description: '1行目\n2行目',
+        on_complete: { next: 'step-b' },
+      },
+    ],
+  };
+
+  const yaml = buildWorkflowYaml(config);
+
+  // ステップの description がブロックスカラー形式で出力される
+  assert.ok(yaml.includes('    description: |'), 'ステップのdescriptionがブロックスカラー形式であること');
+  assert.ok(yaml.includes('      1行目'), 'ステップのdescription 1行目が正しく出力されること');
+  assert.ok(yaml.includes('      2行目'), 'ステップのdescription 2行目が正しく出力されること');
+
+  // ヘッダーの description もブロックスカラー形式で出力される
+  const headerSection = yaml.split('steps:')[0];
+  assert.ok(headerSection.includes('description: |'), 'ヘッダーのdescriptionがブロックスカラー形式であること');
+  assert.ok(headerSection.includes('  ヘッダー1行目'), 'ヘッダーのdescription 1行目が正しく出力されること');
+  assert.ok(headerSection.includes('  ヘッダー2行目'), 'ヘッダーのdescription 2行目が正しく出力されること');
+});
+
 // ケース8: 組み合わせ（実際のcontentワークフローに近い構成）
 test('組み合わせ: contentワークフローに近い構成が正しく出力される', () => {
   const config = {
