@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>インストール - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.5.2</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class="active"><a href="installation.html">インストール</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">インストール</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/installation.html" >v0.5.1</option><option value="../v0.5.2/installation.html" selected>v0.5.2 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>インストール</h1>
+
+<code>@trimix/ai-team</code> は npm パッケージとして配布されます。<code>.tgz</code> ファイルを <code>npm install</code> することで、自動的に Claude Code スキルがプロジェクトに展開されます。
+
+<hr>
+
+<h2>インストール方法</h2>
+
+<h3>標準的な手順</h3>
+
+<p>配布された <code>.tgz</code> ファイルをプロジェクトルートに配置して、開発依存としてインストールします。</p>
+
+<pre><code class="language-bash">cd /path/to/your-project
+npm install --save-dev ./trimix-ai-team-0.5.1.tgz</code></pre>
+
+<p>インストール後、<code>package.json</code> の <code>devDependencies</code> に次のエントリが追加されます。</p>
+
+<pre><code class="language-json">{
+  "devDependencies": {
+    "@trimix/ai-team": "file:./trimix-ai-team-0.5.1.tgz"
+  }
+}</code></pre>
+
+<h3>バージョンアップ時</h3>
+
+<p>新しい <code>.tgz</code> ファイルを受け取ったら、同じく <code>npm install</code> を実行します。古い <code>.tgz</code> は削除して構いません。</p>
+
+<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.5.2.tgz</code></pre>
+
+<code>postinstall</code> スクリプトが再実行され、<code>.claude/commands/</code> のスキルファイルが最新版に更新されます。既にプロジェクトで <code>/ai-team-setup</code> 済みの場合、<code>.claude/teams/</code> 配下のカスタマイズ済みファイルは上書きされません。
+
+<hr>
+
+<h2>postinstall の挙動</h2>
+
+<code>bin/postinstall.js</code> は <code>npm install</code> のたびに自動実行されます。挙動は次のとおりです。
+
+<h3>動作内容</h3>
+
+<ol><li><code>INIT_CWD</code>（<code>npm install</code> を実行したディレクトリ）を取得</li><li>パッケージ開発リポジトリ自身であれば（<code>projectRoot === packageRoot</code>）即終了</li><li>それ以外なら <code>.claude/commands/</code> ディレクトリを作成（存在しなければ）</li><li>パッケージ内の <code>skills/</code> から以下 7 ファイルをコピー</li></ol>
+<pre><code class="language-">ai-team-setup.md
+ai-team-run.md
+ai-team-watch.md
+ai-team-resume.md
+ai-team-gallery.md
+ai-team-install.md
+ai-team-configure.md</code></pre>
+
+<ol><li>成功時のメッセージを表示</li></ol>
+<pre><code class="language-">✅ @trimix/ai-team: 7 件のSkillファイルを .claude/commands/ に展開しました
+   Claude Code で /ai-team-setup を実行してセットアップを完了してください</code></pre>
+
+<h3>失敗時の挙動</h3>
+
+<p>postinstall は失敗してもエラーで終了せず、警告のみ表示します（npm install 全体が止まらないように設計されています）。</p>
+
+<pre><code class="language-">⚠️  @trimix/ai-team: Skillファイルの展開に失敗しました
+   手動で npx ai-team install を実行してください</code></pre>
+
+<p>手動展開する場合は次のコマンドを実行します。</p>
+
+<pre><code class="language-bash">npx @trimix/ai-team install</code></pre>
+
+<hr>
+
+<h2>CLI コマンド一覧</h2>
+
+<code>bin/setup.js</code> で提供される CLI コマンドは次のとおりです。
+
+<table><thead><tr><th>コマンド</th><th>用途</th></tr></thead><tbody><tr><td><code>npx @trimix/ai-team install</code></td><td>スキルファイルを <code>.claude/commands/</code> に展開（postinstall と同等）</td></tr><tr><td><code>npx @trimix/ai-team install &lt;team_id&gt;</code></td><td>ワークフロープラグインをインストール</td></tr><tr><td><code>npx @trimix/ai-team gallery</code></td><td>利用可能なプラグイン一覧を表示</td></tr><tr><td><code>npx @trimix/ai-team list</code></td><td>インストール済みプラグインを表示</td></tr><tr><td><code>npx @trimix/ai-team uninstall &lt;team_id&gt;</code></td><td>プラグインをアンインストール</td></tr><tr><td><code>npx @trimix/ai-team --version</code></td><td>バージョンを表示</td></tr><tr><td><code>npx @trimix/ai-team --help</code></td><td>ヘルプを表示</td></tr></tbody></table>
+<p>利用可能なチーム ID は <code>backend</code> / <code>frontend</code> / <code>content</code> / <code>infra</code> の 4 つです。</p>
+
+<hr>
+
+<h2>セットアップ後のディレクトリ構成</h2>
+
+<code>/ai-team-setup</code> を実行すると、選択したチームに応じて以下のディレクトリが配置されます。バックエンドとインフラの 2 チームを導入した例を示します。
+
+<pre><code class="language-">.claude/
+├── CLAUDE.md                       # AIチーム設定（CLAUDE.md 末尾に追記される）
+├── ai-team-config.yml              # 運用モード（multi-user / solo）と solo 設定
+├── escalation-rules.yml            # エスカレーション条件の定義
+├── agents/
+│   ├── contributor.md              # 全体管理エージェント
+│   ├── dispatcher.md               # Epic 分解エージェント
+│   └── human-escalator.md          # 人間エスカレーションエージェント
+├── teams/
+│   ├── backend/
+│   │   ├── workflow.yml            # バックエンドのワークフロー定義
+│   │   ├── review-config.yml       # ダブルレビュー判定基準
+│   │   ├── agents/                 # tech-lead / implementer / reviewer / pr-creator など
+│   │   └── dod/                    # feature / bugfix / refactor / review テンプレート
+│   └── infra/
+│       ├── workflow.yml
+│       ├── agents/                 # infra-lead / network-engineer / infra-specialist など
+│       └── dod/                    # infrastructure-change / network-change / security-review
+├── dod/
+│   ├── README.md                   # DODテンプレートの選択ガイド
+│   └── incident.md                 # 共通のインシデント対応DOD
+├── incidents/
+│   ├── README.md                   # インシデント運用ガイド
+│   ├── TEMPLATE.md                 # インシデントレポートの雛形
+│   └── index.yml                   # インシデント一覧（初期状態は空）
+├── docs/
+│   └── workflow-guide.md           # ワークフロー運用ガイド
+└── commands/
+    ├── ai-team-setup.md            # postinstall で展開（変更しないこと）
+    ├── ai-team-run.md
+    ├── ai-team-watch.md
+    ├── ai-team-resume.md
+    ├── ai-team-gallery.md
+    ├── ai-team-install.md
+    └── ai-team-configure.md</code></pre>
+
+<code>.github/ISSUE_TEMPLATE/</code> には、選択したチームに応じた Issue テンプレート（<code>backend-feature.yml</code> / <code>infra-change.yml</code> など）が配置されます。
+
+<hr>
+
+<h2>アンインストール</h2>
+
+<p>パッケージを削除するには次のコマンドを実行します。</p>
+
+<pre><code class="language-bash">npm uninstall @trimix/ai-team</code></pre>
+
+<code>.claude/commands/</code> 内のスキルファイルは <code>npm uninstall</code> では削除されません。完全に削除する場合は手動で <code>.claude/</code> ディレクトリを整理してください。
+
+<hr>
+
+<h2>注意事項</h2>
+
+<ul><li><code>.claude/commands/</code> 配下のファイルはバージョンアップ時に上書きされるため、直接編集しないでください。スキルをカスタマイズしたい場合はパッケージ側で修正してください。</li><li><code>.claude/teams/&lt;team_id&gt;/</code> 配下はプロジェクト固有のカスタマイズを行う場所です。バージョンアップでは上書きされません。</li><li><code>.claude/incidents/</code> はプロジェクトの履歴であるため、Git で管理することを推奨します。</li><li><code>.claude/ai-team-config.yml</code> は運用モードを切り替える際に編集します。詳細は <a href="reference/config.html">設定ファイル</a> を参照してください。</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
