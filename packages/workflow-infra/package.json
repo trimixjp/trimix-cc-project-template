@@ -1,0 +1,12 @@
+{
+  "name": "@trimix/workflow-trimix-infra",
+  "version": "1.0.0",
+  "description": "ai-team infra workflow plugin",
+  "files": ["plugin.json", "templates/", "github/"],
+  "keywords": ["ai-team-plugin", "trimix", "workflow", "infra"],
+  "author": "Trimix",
+  "license": "MIT",
+  "peerDependencies": {
+    "@trimix/ai-team": ">=0.4.0"
+  }
+}

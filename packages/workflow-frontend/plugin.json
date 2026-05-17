@@ -1,0 +1,29 @@
+{
+  "id": "trimix-frontend",
+  "team_id": "frontend",
+  "label_prefix": "frontend",
+  "name": "フロントエンドチーム",
+  "version": "1.0.0",
+  "description": "UI実装・コンポーネント開発・アクセシビリティ対応ワークフロー",
+  "package": "@trimix/workflow-trimix-frontend",
+  "category": "engineering",
+  "tags": ["ui", "component", "accessibility"],
+  "install": {
+    "templates/agents/*": ".claude/teams/frontend/agents/",
+    "templates/workflow.yml": ".claude/teams/frontend/workflow.yml",
+    "templates/review-config.yml": ".claude/teams/frontend/review-config.yml",
+    "templates/dod/*": ".claude/teams/frontend/dod/",
+    "github/ISSUE_TEMPLATE/*": ".github/ISSUE_TEMPLATE/"
+  },
+  "labels": [
+    { "name": "frontend:designer", "color": "e4e669", "description": "Designerが設計中" },
+    { "name": "frontend:frontend-lead", "color": "e4e669", "description": "Frontend-Leadが要件分析中" },
+    { "name": "frontend:developer", "color": "e4e669", "description": "Developerが実装中" },
+    { "name": "frontend:reviewer", "color": "e4e669", "description": "Reviewerがレビュー中" },
+    { "name": "frontend:reviewer-a", "color": "e4e669", "description": "Reviewer-Aがレビュー中" },
+    { "name": "frontend:reviewer-b", "color": "e4e669", "description": "Reviewer-Bがレビュー中" },
+    { "name": "frontend:pr-creator", "color": "e4e669", "description": "PR-CreatorがPR作成中" }
+  ],
+  "solo_target_labels": ["frontend:frontend-lead"],
+  "claude_md_entry": "- フロントエンドチーム: UI実装・コンポーネント開発"
+}

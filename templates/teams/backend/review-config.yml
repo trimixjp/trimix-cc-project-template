@@ -1,0 +1,37 @@
+# バックエンドチーム レビュー設定
+# レビュー方式は Tech-Lead が実装内容の影響範囲を分析して自動判断します
+# このファイルはその判断基準を定義します
+
+review:
+  mode: auto  # AIが以下の基準に従って自動判断します
+
+  # ダブルレビュー（reviewer-a + reviewer-b + クロスレビュー）を選択する基準
+  # 以下のいずれかに1つでも該当する場合はダブルレビュー
+  double_review_criteria:
+    file_count_threshold: 5          # 変更ファイル数がこれ以上
+    sensitive_areas:                 # これらの領域を含む変更
+      - 認証・認可（auth / login / session / token / JWT）
+      - 決済・課金（payment / billing / stripe / invoice）
+      - 個人情報・機密データ（user / password / email / PII）
+      - データベーススキーマ・マイグレーション（migration / schema）
+      - 公開API（破壊的変更・エンドポイントの追加・削除）
+      - セキュリティ設定（cors / csrf / rate-limit / firewall）
+    cross_layer_changes: true        # 複数レイヤー（DB/API/Frontend）にまたがる変更
+    labels:                          # これらのラベルが付与されている場合
+      - "complexity:high"
+      - "security-sensitive"
+      - "breaking-change"
+
+  # シングルレビュー（reviewer のみ）を選択する基準
+  # ダブルレビュー基準に該当しない場合はシングルレビュー
+  single_review_criteria:
+    - 単一ファイルの変更
+    - ドキュメント・コメントのみの変更
+    - テストの追加（実装ロジックの変更なし）
+    - 設定値・定数の変更（アルゴリズムの変更なし）
+    - スタイル・フォーマットの修正
+
+# レビュー完了後のフロー
+post_review:
+  create_pr: true
+  pr_agent: pr-creator

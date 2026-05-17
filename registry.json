@@ -1,0 +1,51 @@
+{
+  "version": "1",
+  "registry_url": null,
+  "updated_at": "2026-05-17",
+  "plugins": [
+    {
+      "id": "trimix-backend",
+      "team_id": "backend",
+      "label_prefix": "backend",
+      "name": "バックエンドチーム",
+      "package": "@trimix/workflow-trimix-backend",
+      "version": "1.0.0",
+      "description": "コード実装・レビュー・PR作成ワークフロー",
+      "category": "engineering",
+      "tags": ["code", "review", "pr", "backend"]
+    },
+    {
+      "id": "trimix-frontend",
+      "team_id": "frontend",
+      "label_prefix": "frontend",
+      "name": "フロントエンドチーム",
+      "package": "@trimix/workflow-trimix-frontend",
+      "version": "1.0.0",
+      "description": "UI実装・コンポーネント開発・アクセシビリティ対応ワークフロー",
+      "category": "engineering",
+      "tags": ["ui", "component", "accessibility"]
+    },
+    {
+      "id": "trimix-content",
+      "team_id": "content",
+      "label_prefix": "content",
+      "name": "コンテンツチーム",
+      "package": "@trimix/workflow-trimix-content",
+      "version": "1.0.0",
+      "description": "記事・ドキュメント・コンテンツ作成ワークフロー",
+      "category": "content",
+      "tags": ["writing", "documentation", "compliance"]
+    },
+    {
+      "id": "trimix-infra",
+      "team_id": "infra",
+      "label_prefix": "infra",
+      "name": "インフラチーム",
+      "package": "@trimix/workflow-trimix-infra",
+      "version": "1.0.0",
+      "description": "クラウド構成・ネットワーク・セキュリティワークフロー",
+      "category": "infrastructure",
+      "tags": ["terraform", "kubernetes", "security"]
+    }
+  ]
+}
