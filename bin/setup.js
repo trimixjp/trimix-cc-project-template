@@ -53,6 +53,7 @@ function installSkills() {
     'ai-team-resume.md',
     'ai-team-gallery.md',
     'ai-team-install.md',
+    'ai-team-configure.md',
   ];
 
   let installed = 0;

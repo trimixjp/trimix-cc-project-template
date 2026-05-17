@@ -16,7 +16,7 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "postinstall": "node bin/postinstall.js",
-    "test": "echo \"テストは未実装\""
+    "test": "node --test tests/*.test.js"
   },
   "keywords": ["claude-code", "ai-team", "agents", "workflow"],
   "author": "Trimix",
