@@ -26,6 +26,8 @@ description: ソロモード用。GitHub Issuesを定期監視し、新しいタ
 
 **ステップ1: 処理対象Issueの検索**
 
+**A) 新規Issue（通常処理）**
+
 `.claude/ai-team-config.yml` の `solo.target_labels` に定義されたラベルのいずれかが付いており、かつ `solo.skip_labels` のラベルが付いていないIssueを検索：
 
 ```bash
@@ -33,6 +35,21 @@ gh issue list --label "<target_label>" --state open --json number,title,labels,u
 ```
 
 target_labels を1つずつ検索し、結果をまとめて重複を除去してください。
+
+**B) エスカレーション解除Issue（再開処理）**
+
+`escalated:human` ラベルが**付いていない**、かつ直近のコメントに `🚨 エスカレーション` が含まれており、その後に人間のコメントが存在するIssueを検索：
+
+```bash
+gh issue list --state open --json number,title,labels,comments,url
+```
+
+取得したIssueのうち以下の条件を満たすものを再開対象として抽出：
+- `escalated:human` ラベルがない
+- コメント履歴に `🚨 エスカレーション` を含むコメントがある
+- そのコメントより後に、AIエージェント以外（`🚨`・`✅`・`🛠️`・`🔧`・`🎨`・`💻` で始まらない）のコメントがある
+
+これらは `/ai-team run` の再開モードで処理します。
 
 **ステップ2: 処理済み・処理中Issueのスキップ判定**
 
