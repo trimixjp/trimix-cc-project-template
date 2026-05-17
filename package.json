@@ -1,6 +1,6 @@
 {
   "name": "@trimix/ai-team",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "AIチームをプロジェクトにセットアップするウィザード",
   "type": "module",
   "bin": {
@@ -9,8 +9,11 @@
   "files": [
     "bin/",
     "templates/",
-    "skills/"
+    "skills/",
+    "packages/",
+    "registry.json"
   ],
+  "workspaces": ["packages/*"],
   "scripts": {
     "postinstall": "node bin/postinstall.js",
     "test": "echo \"テストは未実装\""

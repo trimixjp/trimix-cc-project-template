@@ -25,12 +25,18 @@ function printHelp() {
   printVersion();
   console.log('');
   console.log('使い方:');
-  console.log('  npx @trimix/ai-team install   Skillファイルを .claude/commands/ に展開');
-  console.log('  npx @trimix/ai-team --version  バージョンを表示');
-  console.log('  npx @trimix/ai-team --help     このヘルプを表示');
+  console.log('  npx @trimix/ai-team install              Skillファイルを .claude/commands/ に展開');
+  console.log('  npx @trimix/ai-team install <team_id>    ワークフロープラグインをインストール');
+  console.log('  npx @trimix/ai-team gallery              利用可能なプラグイン一覧を表示');
+  console.log('  npx @trimix/ai-team list                 インストール済みプラグインを表示');
+  console.log('  npx @trimix/ai-team uninstall <team_id>  プラグインをアンインストール');
+  console.log('  npx @trimix/ai-team --version            バージョンを表示');
+  console.log('  npx @trimix/ai-team --help               このヘルプを表示');
   console.log('');
   console.log('展開後のセットアップ:');
   console.log('  Claude Code を起動し、/ai-team setup を実行してください');
+  console.log('');
+  console.log('利用可能なチームID: backend / frontend / content / infra');
 }
 
 function installSkills() {
@@ -45,6 +51,8 @@ function installSkills() {
     'ai-team-run.md',
     'ai-team-watch.md',
     'ai-team-resume.md',
+    'ai-team-gallery.md',
+    'ai-team-install.md',
   ];
 
   let installed = 0;
@@ -71,15 +79,36 @@ function installSkills() {
   console.log('  2. /ai-team setup を実行してAIチームをセットアップしてください');
 }
 
-// メイン処理
-if (command === 'install') {
-  installSkills();
-} else if (command === '--version' || command === '-v') {
-  printVersion();
-} else if (command === '--help' || command === '-h' || !command) {
-  printHelp();
-} else {
-  console.error(`不明なコマンド: ${command}`);
-  console.error('使い方: npx @trimix/ai-team --help');
-  process.exit(1);
+// メイン処理（非同期コマンドに対応）
+async function main() {
+  if (command === 'install' && args[1]) {
+    // プラグインインストール
+    const { installPlugin } = await import('./lib/plugin-install.js');
+    await installPlugin(args[1], { cwd });
+  } else if (command === 'install') {
+    // 引数なし: 従来通りスキルファイル展開
+    installSkills();
+  } else if (command === 'gallery') {
+    const { showGallery } = await import('./lib/gallery.js');
+    await showGallery({ cwd, packageRoot });
+  } else if (command === 'list') {
+    const { listPlugins } = await import('./lib/gallery.js');
+    await listPlugins({ cwd });
+  } else if (command === 'uninstall') {
+    const { uninstallPlugin } = await import('./lib/plugin-uninstall.js');
+    await uninstallPlugin(args[1], { cwd });
+  } else if (command === '--version' || command === '-v') {
+    printVersion();
+  } else if (command === '--help' || command === '-h' || !command) {
+    printHelp();
+  } else {
+    console.error(`不明なコマンド: ${command}`);
+    console.error('使い方: npx @trimix/ai-team --help');
+    process.exit(1);
+  }
 }
+
+main().catch(err => {
+  console.error(err.message);
+  process.exit(1);
+});

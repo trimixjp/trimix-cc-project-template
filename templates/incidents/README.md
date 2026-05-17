@@ -63,7 +63,7 @@ Contributor はIssueクローズ時に以下のいずれかに該当する場合
   file: "incidents/YYYYMMDD-*.md"
   title: "インシデントの概要タイトル"
   severity: P1 / P2 / P3
-  teams: [engineer, infra, content]
+  teams: [backend, infra, content]
   issue: <Issue番号>
   keywords: [関連キーワードのリスト]
 ```

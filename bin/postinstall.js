@@ -26,6 +26,8 @@ const skillsDest = join(projectRoot, '.claude', 'commands');
 const skillFiles = [
   'ai-team-setup.md',
   'ai-team-run.md',
+  'ai-team-gallery.md',   // 追加
+  'ai-team-install.md',   // 追加
 ];
 
 try {

@@ -42,7 +42,7 @@ URLのパターンから自動判別してください：
 
 | ラベルのプレフィックス | 担当チーム | ワークフロー |
 |----------------------|-----------|------------|
-| `engineer:*` | エンジニアチーム | `.claude/teams/engineer/workflow.yml` |
+| `backend:*` | バックエンドチーム | `.claude/teams/backend/workflow.yml` |
 | `content:*` | コンテンツチーム | `.claude/teams/content/workflow.yml` |
 | `infra:*` | インフラチーム | `.claude/teams/infra/workflow.yml` |
 | `epic` または `dispatcher` | Dispatcher | 各チームに分解 |
@@ -75,10 +75,10 @@ URLのパターンから自動判別してください：
 
 ワークフロー定義（`workflow.yml`）の最初のステップのエージェント定義を読み込み、そのエージェントとして動作してください。
 
-例（エンジニアチーム）:
+例（バックエンドチーム）:
 ```
 workflow.yml の steps[0] = tech-lead-analysis
-→ .claude/teams/engineer/agents/tech-lead.md を読み込む
+→ .claude/teams/backend/agents/tech-lead.md を読み込む
 → Tech-Lead として動作開始
 ```
 
