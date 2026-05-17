@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エージェントのカスタマイズ - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.5.2</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class="active"><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">エージェントのカスタマイズ</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/guide/agents.html" >v0.5.1</option><option value="../../v0.5.2/guide/agents.html" selected>v0.5.2 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>エージェントのカスタマイズ</h1>
+
+<h2>エージェント定義ファイルとは</h2>
+
+<p>各エージェントの動作は <code>.claude/teams/{チーム}/agents/*.md</code> に配置された Markdown ファイルで定義されています。インストール時にパッケージ同梱のデフォルト定義が展開されますが、プロジェクトの運用ルールに合わせてファイルを直接編集することでエージェントの動作を変更できます。</p>
+
+<hr>
+
+<h2>ファイルの基本構造</h2>
+
+<p>エージェント定義ファイルは YAML frontmatter と Markdown セクションで構成されます。</p>
+
+<pre><code class="language-markdown">---
+name: エージェント名
+description: 一行の説明
+---
+
+# エージェント名
+
+## 役割
+このエージェントが担当する責務を記述します。
+
+## 起動条件
+どのタイミングで起動されるかを記述します。
+
+## 動作フロー
+起動後にどのような手順で処理を進めるかを記述します。
+GitHub Issue へのコメント投稿や次のエージェントへの引き継ぎ手順を含めます。
+
+## GitHub Issue コメントフォーマット
+このエージェントが Issue に投稿するコメントのテンプレートを記述します。
+
+## エスカレーション条件
+human-escalator を呼び出すべき状況を具体的に列挙します。
+
+## 重要な原則
+このエージェントが遵守すべきルールや制約を記述します。</code></pre>
+
+<p>frontmatter の <code>name</code> と <code>description</code> は Claude Code がエージェントを識別するために使用します。<code>description</code> は 1 行で簡潔に記述してください。</p>
+
+<hr>
+
+<h2>既存エージェントの変更方法</h2>
+
+<code>.claude/teams/{チーム}/agents/</code> 配下の対象ファイルをテキストエディタで直接編集します。よく変更される箇所は以下のとおりです。
+
+<p><strong>動作フローを変更する場合</strong></p>
+<code>## 動作フロー</code> セクションの手順を書き換えます。たとえばテスト実施の基準を厳格化したい場合は、Implementer の動作フローにカバレッジ閾値の確認ステップを追記します。
+
+<p><strong>コメントフォーマットを変更する場合</strong></p>
+<code>## GitHub Issue コメントフォーマット</code> セクションのテンプレートを書き換えます。プロジェクト固有の情報（チケット番号形式・通知先など）を追加する場合に使います。
+
+<p><strong>エスカレーション条件を変更する場合</strong></p>
+<code>## エスカレーション条件</code> セクションの記述を変更します。AI に判断させる範囲を広げたい場合は条件を減らし、人間の承認を必須にしたい操作がある場合は条件を追加します。
+
+<hr>
+
+<h2>新しいエージェントの追加方法</h2>
+
+<ol><li><code>.claude/teams/{チーム}/agents/</code> に新しい <code>.md</code> ファイルを作成し、上記の基本構造に従って定義を記述します。</li><li><code>.claude/teams/{チーム}/workflow.yml</code> の <code>steps</code> リストに追加したエージェントのファイル名（拡張子なし）を記述します。</li></ol>
+<pre><code class="language-yaml">steps:
+  - agent: tech-lead
+  - agent: implementer
+  - agent: your-new-agent   # 追加したエージェント
+  - agent: reviewer</code></pre>
+
+<p>追加後は <code>/ai-team run</code> で動作を確認してください。</p>
+
+<hr>
+
+<h2>共通エージェントについて</h2>
+
+<code>dispatcher</code>（Epic の Issue 分解）・<code>contributor</code>（Issue クローズ管理）・<code>human-escalator</code>（人間へのエスカレーション）の 3 エージェントは <code>.claude/agents/</code> に配置されており、全チームで共有されます。これらは特別な理由がない限り変更不要です。変更する場合は全チームの動作に影響することを念頭においてください。
+
+<hr>
+
+<h2>詳細な各エージェントの仕様</h2>
+
+<p>チームごとの全エージェントの役割・起動条件・コメントフォーマットの詳細は <code>agents/</code> ディレクトリの各ページを参照してください。</p>
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

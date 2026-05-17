@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スキル一覧 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.5.2</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class="active"><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">スキル一覧</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/skills/overview.html" >v0.5.1</option><option value="../../v0.5.2/skills/overview.html" selected>v0.5.2 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>スキル一覧</h1>
+
+<code>@trimix/ai-team</code> は 7 つの Claude Code スキル（スラッシュコマンド）を提供します。<code>bin/postinstall.js</code> により <code>.claude/commands/</code> 配下に自動展開されるため、Claude Code 起動後すぐに利用できます。
+
+<hr>
+
+<h2>スキル一覧</h2>
+
+<table><thead><tr><th>スキル</th><th>用途</th><th>引数</th></tr></thead><tbody><tr><td><a href="setup.html"><code>/ai-team-setup</code></a></td><td>AIチームをプロジェクトにセットアップするウィザード</td><td>なし</td></tr><tr><td><a href="run.html"><code>/ai-team-run</code></a></td><td>チケット（GitHub Issue 等）を読み込みワークフローを起動</td><td>チケットURL または ID</td></tr><tr><td><a href="watch.html"><code>/ai-team-watch</code></a></td><td>ソロモード用。GitHub Issues を定期監視</td><td>なし</td></tr><tr><td><a href="configure.html"><code>/ai-team-configure</code></a></td><td>チームの <code>workflow.yml</code> を会話形式で生成・編集</td><td>チームID（backend/frontend/content/infra）</td></tr><tr><td><a href="install.html"><code>/ai-team-install</code></a></td><td>ワークフロープラグインをインストール</td><td>チームID</td></tr><tr><td><a href="gallery.html"><code>/ai-team-gallery</code></a></td><td>利用可能なプラグイン一覧を表示</td><td>なし</td></tr><tr><td><a href="resume.html"><code>/ai-team-resume</code></a></td><td>エスカレーション対応済みIssueの続きを再開</td><td>なし（または Issue番号/URL）</td></tr></tbody></table>
+<p>各スキルの定義ファイルはパッケージ内 <code>skills/*.md</code> にあり、postinstall で <code>.claude/commands/</code> にコピーされます。</p>
+
+<hr>
+
+<h2>スキルの使い方</h2>
+
+<p>Claude Code を起動した状態で、メッセージ入力欄に <code>/</code> を入力するとスキル候補が表示されます。</p>
+
+<pre><code class="language-">/ai-team-setup
+/ai-team-run 42
+/ai-team-watch
+/ai-team-configure backend</code></pre>
+
+<p>引数は半角スペースで区切ります。引数が必須のスキル（<code>run</code> / <code>configure</code> / <code>install</code>）で引数が省略された場合、Claude Code が対話的に補完を促します。</p>
+
+<hr>
+
+<h2>典型的な使用フロー</h2>
+
+<h3>初回セットアップ時</h3>
+
+<pre><code class="language-">1. npm install --save-dev ./trimix-ai-team-0.5.1.tgz
+2. /ai-team-setup            ← チーム選択・ラベル作成
+3. /ai-team-run &lt;Issue番号&gt;  ← 最初のタスクを実行</code></pre>
+
+<h3>ソロ運用（自動監視）</h3>
+
+<pre><code class="language-">1. /ai-team-setup            ← 運用モードで「solo」を選択
+2. /ai-team-watch            ← 監視ループ開始
+3. （新規 Issue を作成 → 自動処理される）
+4. エスカレーション発生 → 人間が対応 → 自動再開</code></pre>
+
+<h3>マルチユーザー運用</h3>
+
+<pre><code class="language-">1. /ai-team-setup            ← 運用モードで「multi-user」を選択
+2. 各メンバーが /ai-team-run &lt;Issue番号&gt; を実行
+3. エスカレーション発生 → 人間対応 → /ai-team-resume で再開</code></pre>
+
+<h3>ワークフローのカスタマイズ</h3>
+
+<pre><code class="language-">1. /ai-team-configure backend   ← ステップ追加・並列実行・条件分岐などを設定
+2. 生成された workflow.yml を確認
+3. /ai-team-run でテスト実行</code></pre>
+
+<h3>追加チームの導入</h3>
+
+<pre><code class="language-">1. /ai-team-gallery          ← 利用可能なプラグインを確認
+2. /ai-team-install frontend ← フロントエンドチームを追加
+3. /ai-team-setup            ← ラベル作成と CLAUDE.md 更新</code></pre>
+
+<hr>
+
+<h2>スキルファイルの構造</h2>
+
+<p>各スキルファイルは Markdown 形式で、YAML フロントマターと本文（手順）から構成されます。例として <code>skills/ai-team-run.md</code> の冒頭を示します。</p>
+
+<pre><code class="language-markdown">---
+name: ai-team-run
+description: チケット（GitHub Issue・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+---
+
+# /ai-team run — ワークフロー起動
+
+あなたはAIチームのオーケストレーターです。担当チケットを読み込み、適切なワークフローを起動してください。
+...</code></pre>
+
+<code>name</code> と <code>description</code> は Claude Code がスキル一覧を表示する際に使用します。本文には Claude Code が実行すべき手順がステップごとに記述されています。
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
