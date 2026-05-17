@@ -4,7 +4,7 @@
  * Skillファイルをプロジェクトの .claude/commands/ にコピーします。
  */
 
-import { mkdirSync, copyFileSync, existsSync } from 'fs';
+import { mkdirSync, copyFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -33,7 +33,22 @@ const skillFiles = [
   'ai-team-configure.md',
 ];
 
+// ディレクトリを再帰的にコピーするヘルパー
+function copyDirRecursive(src, dest) {
+  mkdirSync(dest, { recursive: true });
+  for (const entry of readdirSync(src)) {
+    const srcPath = join(src, entry);
+    const destPath = join(dest, entry);
+    if (statSync(srcPath).isDirectory()) {
+      copyDirRecursive(srcPath, destPath);
+    } else {
+      copyFileSync(srcPath, destPath);
+    }
+  }
+}
+
 try {
+  // Skillファイルを .claude/commands/ に展開
   mkdirSync(skillsDest, { recursive: true });
 
   let count = 0;
@@ -47,7 +62,19 @@ try {
   console.log(`\n✅ @trimix/ai-team: ${count} 件のSkillファイルを .claude/commands/ に展開しました`);
   console.log('   Claude Code で /ai-team setup を実行してセットアップを完了してください\n');
 } catch (err) {
-  // postinstall の失敗でインストール全体を止めない
   console.warn('\n⚠️  @trimix/ai-team: Skillファイルの展開に失敗しました');
   console.warn('   手動で npx ai-team install を実行してください\n');
+}
+
+try {
+  // コンパイル済みドキュメントを public/docs/ に展開
+  const docsSrc = join(packageRoot, 'public');
+  const docsDest = join(projectRoot, 'public');
+  if (existsSync(docsSrc)) {
+    copyDirRecursive(docsSrc, docsDest);
+    console.log('✅ @trimix/ai-team: ドキュメントを public/docs/ に展開しました');
+    console.log('   ブラウザで public/docs/index.html を開くと閲覧できます\n');
+  }
+} catch (err) {
+  console.warn('\n⚠️  @trimix/ai-team: ドキュメントの展開に失敗しました\n');
 }
