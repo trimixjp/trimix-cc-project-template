@@ -30,7 +30,6 @@ function printHelp() {
   console.log('  npx @trimix/ai-team gallery              利用可能なプラグイン一覧を表示');
   console.log('  npx @trimix/ai-team list                 インストール済みプラグインを表示');
   console.log('  npx @trimix/ai-team uninstall <team_id>  プラグインをアンインストール');
-  console.log('  npx @trimix/ai-team configure <team_id>  ワークフローを対話式に設定');
   console.log('  npx @trimix/ai-team --version            バージョンを表示');
   console.log('  npx @trimix/ai-team --help               このヘルプを表示');
   console.log('');
@@ -95,9 +94,6 @@ async function main() {
   } else if (command === 'list') {
     const { listPlugins } = await import('./lib/gallery.js');
     await listPlugins({ cwd });
-  } else if (command === 'configure') {
-    const { configureWorkflow } = await import('./lib/workflow-config.js');
-    await configureWorkflow(args[1], { cwd });
   } else if (command === 'uninstall') {
     const { uninstallPlugin } = await import('./lib/plugin-uninstall.js');
     await uninstallPlugin(args[1], { cwd });
