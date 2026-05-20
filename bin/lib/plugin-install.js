@@ -52,6 +52,27 @@ function copyDirRecursive(src, dest) {
   }
 }
 
+/** ai-team-config.yml の solo.target_labels にラベルを追加する */
+export function updateConfigTargetLabels(cwd, labelsToAdd) {
+  const configPath = join(cwd, '.claude', 'ai-team-config.yml');
+  if (!existsSync(configPath)) return null;
+
+  let content = readFileSync(configPath, 'utf-8');
+  if (!content.includes('  target_labels:')) return null;
+
+  const added = [];
+  for (const label of labelsToAdd) {
+    if (content.includes(`    - ${label}`)) continue;
+    content = content.replace(
+      /(  target_labels:\n(?:    - .+\n)*)/,
+      `$1    - ${label}\n`
+    );
+    added.push(label);
+  }
+  if (added.length > 0) writeFileSync(configPath, content, 'utf-8');
+  return added;
+}
+
 /** GitHub ラベルを自動作成する */
 function createLabels(labels) {
   let ghAvailable = true;
@@ -211,9 +232,24 @@ export async function installPlugin(idOrTeamId, { cwd }) {
     package: plugin.package,
     version: plugin.version,
     installed_at: new Date().toISOString(),
-    files: installedFiles
+    files: installedFiles,
+    solo_target_labels: plugin.solo_target_labels ?? []
   };
   saveInstalledPlugins(cwd, pluginsData);
+
+  // 10. ai-team-config.yml の solo.target_labels を更新
+  const addedLabels = updateConfigTargetLabels(cwd, plugin.solo_target_labels ?? []);
+  if (addedLabels === null) {
+    console.log('\n  ℹ️  ai-team-config.yml が見つからないため target_labels の更新をスキップしました');
+    console.log('     （multi-user モードの場合は正常です）');
+  } else if (addedLabels.length > 0) {
+    console.log('\n  ✅ ai-team-config.yml の target_labels を更新しました:');
+    for (const label of addedLabels) {
+      console.log(`     追加: ${label}`);
+    }
+  } else {
+    console.log('\n  ✅ ai-team-config.yml の target_labels は既に最新です');
+  }
 
   console.log(`\n✅ ${plugin.name} をインストールしました！`);
   console.log('\n次のステップ:');

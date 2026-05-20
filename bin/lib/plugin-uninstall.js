@@ -8,6 +8,23 @@ import {
   loadInstalledPlugins, saveInstalledPlugins, findPlugin
 } from './registry.js';
 
+/** ai-team-config.yml の solo.target_labels からラベルを除去する */
+function removeFromConfigTargetLabels(cwd, labelsToRemove) {
+  const configPath = join(cwd, '.claude', 'ai-team-config.yml');
+  if (!existsSync(configPath)) return null;
+
+  let content = readFileSync(configPath, 'utf-8');
+  const removed = [];
+  for (const label of labelsToRemove) {
+    const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const before = content;
+    content = content.replace(new RegExp(`    - ${escaped}\\n`), '');
+    if (content !== before) removed.push(label);
+  }
+  if (removed.length > 0) writeFileSync(configPath, content, 'utf-8');
+  return removed;
+}
+
 /** プラグインをアンインストールする */
 export async function uninstallPlugin(idOrTeamId, { cwd }) {
   if (!idOrTeamId) {
@@ -58,10 +75,24 @@ export async function uninstallPlugin(idOrTeamId, { cwd }) {
   }
 
   // ai-team-plugins.json を更新
+  const soloTargetLabels = pluginInfo.solo_target_labels ?? [];
   delete pluginsData.installed[pluginId];
   saveInstalledPlugins(cwd, pluginsData);
 
   console.log(`  ✅ ${removed} ファイルを削除しました`);
+
+  // ai-team-config.yml の target_labels からラベルを除去
+  if (soloTargetLabels.length > 0) {
+    const removedLabels = removeFromConfigTargetLabels(cwd, soloTargetLabels);
+    if (removedLabels === null) {
+      console.log('\n  ℹ️  ai-team-config.yml が見つからないため target_labels の更新をスキップしました');
+    } else if (removedLabels.length > 0) {
+      console.log('\n  ✅ ai-team-config.yml の target_labels を更新しました:');
+      for (const label of removedLabels) {
+        console.log(`     除去: ${label}`);
+      }
+    }
+  }
 
   // GitHub ラベルの削除案内（自動削除はしない）
   if (pluginInfo.labels || true) {
