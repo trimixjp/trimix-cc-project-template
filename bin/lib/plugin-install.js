@@ -108,7 +108,7 @@ function createLabels(labels) {
 }
 
 /** プラグインをインストールする */
-export async function installPlugin(idOrTeamId, { cwd }) {
+export async function installPlugin(idOrTeamId, { cwd, force = false }) {
   // 1. registry からプラグインを探す
   const pluginEntry = findPlugin(idOrTeamId);
   if (!pluginEntry) {
@@ -188,6 +188,7 @@ export async function installPlugin(idOrTeamId, { cwd }) {
   // 7. ファイルをコピー展開
   console.log('\n  ファイルを展開中...');
   const installedFiles = [];
+  let skippedCustomized = 0;
   for (const [srcPattern, destDir] of Object.entries(plugin.install ?? {})) {
     const parts = srcPattern.split('*');
     if (parts.length === 1) {
@@ -197,11 +198,22 @@ export async function installPlugin(idOrTeamId, { cwd }) {
         console.log(`  ⚠️  スキップ: ${srcPattern} が見つかりません`);
         continue;
       }
-      const destPath = destDir.endsWith('/') ? join(cwd, destDir, basename(srcFile)) : join(cwd, destDir);
+      const destRelPath = destDir.endsWith('/') ? join(destDir, basename(srcFile)) : destDir;
+      const destPath = join(cwd, destRelPath);
       mkdirSync(dirname(destPath), { recursive: true });
+      // カスタマイズ済みファイルの上書き保護
+      if (!force && existsSync(destPath)) {
+        const existing = readFileSync(destPath, 'utf-8');
+        if (existing.includes('# customized: true')) {
+          console.log(`  ⏭️  スキップ: ${destRelPath}（カスタマイズ済み。上書きする場合は --force を使用）`);
+          installedFiles.push(destRelPath);
+          skippedCustomized++;
+          continue;
+        }
+      }
       copyFileSync(srcFile, destPath);
-      installedFiles.push(destDir.endsWith('/') ? join(destDir, basename(srcFile)) : destDir);
-      console.log(`  ✅ ${destDir.endsWith('/') ? join(destDir, basename(srcFile)) : destDir}`);
+      installedFiles.push(destRelPath);
+      console.log(`  ✅ ${destRelPath}`);
     } else {
       // ワイルドカード: パターンの * 前部分をディレクトリとして扱う
       const srcDirPath = join(pluginDir, parts[0].replace(/\/$/, ''));
@@ -252,6 +264,11 @@ export async function installPlugin(idOrTeamId, { cwd }) {
   }
 
   console.log(`\n✅ ${plugin.name} をインストールしました！`);
+  if (skippedCustomized > 0) {
+    console.log(`\n  ℹ️  ${skippedCustomized} 件のカスタマイズ済みファイルをスキップしました`);
+    console.log('     強制上書きする場合: npx @trimix/ai-team install <team_id> --force');
+    console.log('     ※ 既存の /ai-team configure で生成したファイルに # customized: true がない場合は手動追記が必要です');
+  }
   console.log('\n次のステップ:');
   console.log('  Claude Code を起動し、/ai-team setup を実行してください');
   console.log('');
