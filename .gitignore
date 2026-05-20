@@ -2,6 +2,7 @@ node_modules/
 *.log
 .DS_Store
 *.tgz
+.claude/settings.local.json
 
 # グローバルgitignoreの docs/ 除外をpublic/docs/では解除
 !public/docs/
