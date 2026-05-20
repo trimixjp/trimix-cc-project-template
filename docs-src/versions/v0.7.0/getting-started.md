@@ -29,18 +29,18 @@ cd /path/to/your-project
 npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 ```
 
-インストール完了時に `bin/postinstall.js` が自動実行され、7 つのスキルファイルが `.claude/commands/` に展開されます。
+完了すると以下のメッセージが表示されます。
 
 ```
 ✅ @trimix/ai-team: 7 件のSkillファイルを .claude/commands/ に展開しました
    Claude Code で /ai-team-setup を実行してセットアップを完了してください
 ```
 
-展開されるファイルの詳細は [インストール](installation.html) を参照してください。
+> **この時点ではまだ使えません。** スキルファイルが展開されただけで、チーム・ワークフロー・ラベルはまだ作成されていません。**必ずステップ 2 に進んでください。**
 
 ---
 
-## ステップ 2: AI チームのセットアップ
+## ステップ 2: セットアップウィザードを実行する（必須）
 
 Claude Code を起動し、以下のスラッシュコマンドを実行します。
 
