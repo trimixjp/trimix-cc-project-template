@@ -26,7 +26,7 @@ GitHub CLI が未認証の場合は `gh auth login` を実行してください�
 
 ```bash
 cd /path/to/your-project
-npm install --save-dev ./trimix-ai-team-0.5.1.tgz
+npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 ```
 
 インストール完了時に `bin/postinstall.js` が自動実行され、7 つのスキルファイルが `.claude/commands/` に展開されます。
@@ -50,22 +50,26 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 
 ウィザードが対話形式で次の項目を確認します。
 
-1. **導入するチーム**: backend / frontend / content / infra（複数選択可）
+1. **導入するチーム**: backend / frontend / content / infra / sns（複数選択可）
 2. **運用モード**: `multi-user`（担当者ごとに `/ai-team-run` 起動）または `solo`（`/ai-team-watch` で自動監視）
-3. **GitHub ラベルの作成**: 選択したチームに対応するラベルを `gh label create` で一括作成するかどうか
+3. **バージョン管理**: `auto`（Reviewer 合格後に自動インクリメント）または `manual`（人間が管理）
+4. **Issue 強制チェック**: `CLAUDE.md のみ`（Claude が判断して Issue 作成を促す）または `hooks で強制`（変更系の指示に Issue がない場合にスクリプトでブロック）
+5. **GitHub ラベルの作成**: 選択したチームに対応するラベルを `gh label create` で一括作成するかどうか
 
 セットアップが完了すると、プロジェクトルートに次のディレクトリが配置されます。
 
 ```
 .claude/
-├── CLAUDE.md                # プロジェクト用 AIチーム設定
-├── ai-team-config.yml       # 運用モード・solo設定
+├── CLAUDE.md                # プロジェクト用 AIチーム設定（タスク受付ルールを含む）
+├── ai-team-config.yml       # 運用モード・solo設定・バージョン管理設定
 ├── escalation-rules.yml     # エスカレーション条件
 ├── agents/                  # 共通エージェント（contributor / dispatcher / human-escalator）
 ├── teams/<team_id>/         # 選択したチームのワークフロー・エージェント・DOD
 ├── dod/                     # 共通DODテンプレート（incident.md など）
 ├── incidents/               # インシデントレポート（初期状態は空）
 ├── docs/workflow-guide.md   # ワークフロー運用ガイド
+├── hooks/                   # UserPromptSubmit フック（hooks を選択した場合のみ）
+│   └── ensure-issue.sh      # ファイル変更系の指示に Issue 番号がなければブロック
 └── commands/                # postinstall で展開された 7 個のスキル
 ```
 

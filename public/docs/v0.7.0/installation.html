@@ -43,13 +43,13 @@
 <p>配布された <code>.tgz</code> ファイルをプロジェクトルートに配置して、開発依存としてインストールします。</p>
 
 <pre><code class="language-bash">cd /path/to/your-project
-npm install --save-dev ./trimix-ai-team-0.5.1.tgz</code></pre>
+npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 <p>インストール後、<code>package.json</code> の <code>devDependencies</code> に次のエントリが追加されます。</p>
 
 <pre><code class="language-json">{
   "devDependencies": {
-    "@trimix/ai-team": "file:./trimix-ai-team-0.5.1.tgz"
+    "@trimix/ai-team": "file:./trimix-ai-team-0.7.0.tgz"
   }
 }</code></pre>
 
@@ -57,7 +57,7 @@ npm install --save-dev ./trimix-ai-team-0.5.1.tgz</code></pre>
 
 <p>新しい <code>.tgz</code> ファイルを受け取ったら、同じく <code>npm install</code> を実行します。古い <code>.tgz</code> は削除して構いません。</p>
 
-<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.5.2.tgz</code></pre>
+<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 <code>postinstall</code> スクリプトが再実行され、<code>.claude/commands/</code> のスキルファイルが最新版に更新されます。既にプロジェクトで <code>/ai-team-setup</code> 済みの場合、<code>.claude/teams/</code> 配下のカスタマイズ済みファイルは上書きされません。
 
@@ -100,7 +100,7 @@ ai-team-configure.md</code></pre>
 <code>bin/setup.js</code> で提供される CLI コマンドは次のとおりです。
 
 <table><thead><tr><th>コマンド</th><th>用途</th></tr></thead><tbody><tr><td><code>npx @trimix/ai-team install</code></td><td>スキルファイルを <code>.claude/commands/</code> に展開（postinstall と同等）</td></tr><tr><td><code>npx @trimix/ai-team install &lt;team_id&gt;</code></td><td>ワークフロープラグインをインストール</td></tr><tr><td><code>npx @trimix/ai-team gallery</code></td><td>利用可能なプラグイン一覧を表示</td></tr><tr><td><code>npx @trimix/ai-team list</code></td><td>インストール済みプラグインを表示</td></tr><tr><td><code>npx @trimix/ai-team uninstall &lt;team_id&gt;</code></td><td>プラグインをアンインストール</td></tr><tr><td><code>npx @trimix/ai-team --version</code></td><td>バージョンを表示</td></tr><tr><td><code>npx @trimix/ai-team --help</code></td><td>ヘルプを表示</td></tr></tbody></table>
-<p>利用可能なチーム ID は <code>backend</code> / <code>frontend</code> / <code>content</code> / <code>infra</code> の 4 つです。</p>
+<p>利用可能なチーム ID は <code>backend</code> / <code>frontend</code> / <code>content</code> / <code>infra</code> / <code>sns</code> の 5 つです。</p>
 
 <hr>
 
@@ -135,6 +135,8 @@ ai-team-configure.md</code></pre>
 │   └── index.yml                   # インシデント一覧（初期状態は空）
 ├── docs/
 │   └── workflow-guide.md           # ワークフロー運用ガイド
+├── hooks/                          # UserPromptSubmit フック（hooks 選択時のみ）
+│   └── ensure-issue.sh             # 変更系の指示に Issue 番号がなければブロック
 └── commands/
     ├── ai-team-setup.md            # postinstall で展開（変更しないこと）
     ├── ai-team-run.md
