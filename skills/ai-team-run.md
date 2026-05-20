@@ -103,6 +103,35 @@ workflow.yml の steps[0] = tech-lead-analysis
 **ワークフローの継続:**  
 現在のエージェントの処理が完了したら、`workflow.yml` の `on_complete` に従い次のステップへ進んでください。人間のアクションが必要な場合（`escalated:human`、PR承認等）はそこで停止し、ユーザーに案内してください。
 
+**並列起動（`next` が配列の場合）:**  
+`on_complete.next` または `conditions[].next` が配列（例: `[reviewer-a, reviewer-b]`）の場合、列挙されたすべてのステップのラベルを一度に付与して並列起動します。
+
+```bash
+gh issue edit <番号> \
+  --add-label "backend:reviewer-a" \
+  --add-label "backend:reviewer-b" \
+  --remove-label "<現在のラベル>"
+```
+
+**AND完了待機（次のステップに `requires` がある場合）:**  
+完了後の次のステップに `requires: [A, B, ...]` が設定されている場合、以下の手順で待機判断を行ってください。
+
+1. `gh issue view <番号> --json labels` で現在のラベル一覧を取得する
+2. `requires` に列挙されたすべてのステップのラベルが除去済みかを確認する  
+   （並列ステップが完了するとそのラベルは除去されるため、ラベルの有無が完了状態の指標となる）
+3. **いずれかのラベルがまだ存在する** → 自分のラベルのみ除去して終了（相手の完了を待機中）  
+   **すべてのラベルが除去済み** → 次のステップのラベルを付与して引き継ぎ
+
+例（reviewer-a が先に完了した場合）：
+```bash
+# 現在のラベルを確認
+gh issue view <番号> --json labels
+# → backend:reviewer-b がまだ存在する場合
+gh issue edit <番号> --remove-label "backend:reviewer-a"
+# → backend:reviewer-b も除去済みの場合
+gh issue edit <番号> --remove-label "backend:reviewer-a" --add-label "backend:cross-review"
+```
+
 ## ワークフロー停止条件
 
 以下のいずれかに該当する場合はワークフローを停止し、ユーザーに状況を報告してください：
