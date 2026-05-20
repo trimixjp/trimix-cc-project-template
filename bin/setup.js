@@ -85,7 +85,8 @@ async function main() {
   if (command === 'install' && args[1]) {
     // プラグインインストール
     const { installPlugin } = await import('./lib/plugin-install.js');
-    await installPlugin(args[1], { cwd });
+    const force = args.includes('--force');
+    await installPlugin(args[1], { cwd, force });
   } else if (command === 'install') {
     // 引数なし: 従来通りスキルファイル展開
     installSkills();

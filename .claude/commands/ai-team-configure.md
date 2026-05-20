@@ -252,6 +252,7 @@ ls .claude/teams/<team_id>/agents/*.md 2>/dev/null | xargs -I{} basename {} .md
 収集した情報をもとに以下の形式でYAMLを生成してください。
 
 ```yaml
+# customized: true
 name: <name>
 description: <description>
 
@@ -300,6 +301,7 @@ steps:
 ```
 
 **フォーマットルール:**
+- 先頭行に必ず `# customized: true` を記述する（`/ai-team install` の上書き保護に使用）
 - `description` が空の場合はそのフィールドを省略する
 - `on_rework`、`on_escalation`、`parallel_with`、`requires` は設定がない場合は省略する
 - `conditions` がある場合は `on_complete` を省略する

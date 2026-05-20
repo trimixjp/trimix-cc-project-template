@@ -58,8 +58,17 @@ node node_modules/@trimix/ai-team/bin/setup.js install <team_id>
 - `team_id が見つかりません` → 正しいチームIDを確認して再実行
 - `team_id 衝突エラー` → 既存プラグインを `/ai-team uninstall` してから再実行
 - `gh コマンドが見つかりません` → GitHub CLI のインストールを案内（`brew install gh` または公式サイト）
+- `カスタマイズ済みのため上書きをスキップ` → 強制上書きする場合は `--force` オプションを使用
+
+```bash
+npx @trimix/ai-team install <team_id> --force
+```
+
+> ⚠️ `--force` を使うとカスタマイズ済みの `workflow.yml` が上書きされます。事前にバックアップを取ってください。
 
 ## 注意事項
 
 - プロジェクトルートで実行してください
 - `ai-team-plugins.json` がプロジェクトルートに生成されます（コミット対象）
+- `/ai-team configure` で生成した `workflow.yml` には `# customized: true` が自動付与されます
+  - 古いバージョンで生成したファイルには手動で先頭行に `# customized: true` を追記することで上書き保護が有効になります
