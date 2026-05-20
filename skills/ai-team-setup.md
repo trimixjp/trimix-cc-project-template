@@ -34,6 +34,13 @@ description: AIチームをプロジェクトにセットアップするウィ�
 - **自動インクリメント（auto）**: Reviewer 合格後に conventional commit に基づき `package.json` のバージョンを自動更新します。ソロ運用・小規模チームに適しています
 - **手動管理（manual）**: バージョンアップはワークフロー外で人間が管理します。チーム開発・独自リリースフロー・monorepo に適しています
 
+**質問4**: Issue 強制チェックの方法を選択してください（`AskUserQuestion` ツールを使用）
+
+ファイル変更を伴う指示は GitHub Issue を起点にすることで、インシデント記録・ラベル管理・作業履歴が機能します。チェック方法を選択してください。
+
+- **CLAUDE.md のみ（推奨）**: タスク受付ルールを CLAUDE.md に記載します。Claude が内容を判断して Issue 経由を促します。設定変更なしで導入できます
+- **hooks で強制**: `UserPromptSubmit` フックを設定します。変更系キーワードを含む指示に Issue 番号がない場合、スクリプトが自動でブロックして案内します。より確実に強制できますが、誤検知でブロックされる場合もあります
+
 ## ステップ3: ファイルの配置
 
 選択されたチームに基づいて、このパッケージの `templates/` から以下をコピーしてください。
@@ -87,6 +94,44 @@ solo:
 ```
 templates/skills/ai-team-watch.md → .claude/commands/ai-team-watch.md
 ```
+
+### Issue 強制チェック（hooks を選択した場合）
+
+#### フックスクリプトの配置
+
+```
+templates/_shared/hooks/ensure-issue.sh → .claude/hooks/ensure-issue.sh
+```
+
+配置後、実行権限を付与してください：
+
+```bash
+chmod +x .claude/hooks/ensure-issue.sh
+```
+
+#### `.claude/settings.json` へのフック登録
+
+`.claude/settings.json` が存在する場合は `hooks` キーをマージし、存在しない場合は新規作成してください：
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/ensure-issue.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+> **注意**: `.claude/settings.json` はプロジェクト設定です。個人設定を `.claude/settings.local.json` に分けている場合はそちらへの記載も検討してください。
 
 ### バックエンドチーム（選択時）
 
@@ -274,6 +319,32 @@ gh label create "sns:operator"   --color "e91e63" --description "Operatorがガ�
 - ワークフローガイド: `.claude/docs/workflow-guide.md`
 - DODテンプレート: `.claude/dod/README.md`
 - エスカレーションルール: `.claude/escalation-rules.yml`
+
+---
+
+## タスク受付ルール（重要）
+
+### ファイル変更を伴う指示は必ず Issue 経由で処理する
+
+ソースコード・設定・ドキュメントなど**ファイルへの書き込みが発生する作業**を依頼された場合、
+Issue 番号や URL が指定されていなくても、作業を開始する前に必ず以下を行ってください：
+
+1. `gh issue list --state open --search "<キーワード>"` で関連する既存 Issue を探す
+2. 該当 Issue があればそれを使う（ユーザーに確認して選択させる）
+3. なければ `gh issue create` で内容に即した Issue を作成する
+4. Issue 番号が確定したら `/ai-team run <番号>` でワークフローを起動する
+
+**Issue 経由が必須な理由**: インシデント記録・ラベルによる状態管理・作業履歴の追跡がすべて Issue ベースで機能します。Issue を経由しない変更はこれらのフローが一切機能しません。
+
+### Issue 不要な指示（直接回答してよい）
+
+以下はファイルを変更しないため Issue は不要です：
+
+- コードの説明・解説・質問への回答
+- 現状調査・ログ確認・原因分析（実装を伴わないもの）
+- レビューや提案の読み上げ・要約
+
+**判断基準**: 「この作業でファイルを Edit / Write / 削除するか？」→ Yes なら Issue 必須、No なら不要。
 ```
 
 ## ステップ6: 完了報告
