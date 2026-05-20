@@ -40,6 +40,7 @@ node node_modules/@trimix/ai-team/bin/setup.js install <team_id>
 
 - インストールされたファイルの一覧
 - GitHub ラベルの作成結果
+- `.claude/ai-team-config.yml` の `target_labels` 更新結果（ソロモード運用の場合）
 - エラーがあればその内容と解決策
 
 ## ステップ4: セットアップを案内
@@ -49,7 +50,8 @@ node node_modules/@trimix/ai-team/bin/setup.js install <team_id>
 「インストールが完了しました。次のステップ:
 1. `/ai-team setup` を実行してプロジェクトへのセットアップを完了してください
 2. GitHub のラベルが作成されたか確認してください
-3. `/ai-team run <Issue番号>` でワークフローを起動できます」
+3. ソロモードの場合、`.claude/ai-team-config.yml` の `target_labels` に新チームのラベルが追加されています
+4. `/ai-team run <Issue番号>` でワークフローを起動できます」
 
 ## エラー対応
 
