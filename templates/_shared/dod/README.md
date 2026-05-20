@@ -4,6 +4,32 @@ Contributor は Issue のタスクタイプに応じて以下のDODテンプレ�
 
 ---
 
+## Contributor 用クイックリファレンス
+
+### Step 1: ラベルから担当チームを特定
+
+| Issue のラベル | DOD ディレクトリ |
+|--------------|----------------|
+| `backend:*` | `.claude/teams/backend/dod/` |
+| `frontend:*` | `.claude/teams/frontend/dod/` |
+| `content:*` | `.claude/teams/content/dod/` |
+| `infra:*` | `.claude/teams/infra/dod/` |
+| `incident` | `.claude/dod/incident.md`（共通・直接参照） |
+| `epic` | 全 Sub Issue のラベルから各チームを特定して全 DOD を確認 |
+
+### Step 2: タイトル・本文からDODファイルを特定
+
+| タスクタイプの判定基準 | DOD ファイル |
+|----------------------|-------------|
+| 「新機能」「実装」「追加」「feature」を含む | `feature.md` |
+| 「不具合」「バグ」「修正」「bug」「fix」を含む | `bugfix.md` |
+| 「ドキュメント」「README」「仕様書」「docs」を含む | `documentation.md`（存在する場合） |
+| 「リファクタリング」「refactor」「整理」を含む | `refactor.md` |
+| 「レビュー」「review」「監査」を含む | `review.md` |
+| 上記いずれにも該当しない | `feature.md` をデフォルト適用 |
+
+---
+
 ## テンプレート一覧
 
 ### エンジニアチーム
