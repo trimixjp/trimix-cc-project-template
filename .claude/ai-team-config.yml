@@ -1,6 +1,11 @@
 # @trimix/ai-team 運用設定
 mode: solo
 
+# バージョン管理設定
+# auto:   Reviewer合格後にconventional commitに基づきpackage.jsonを自動インクリメント（ソロ・小規模チーム向け）
+# manual: バージョンアップはワークフロー外で人間が管理（チーム開発・独自リリースフロー向け）
+version_management: auto
+
 # solo モードの設定
 solo:
   poll_interval_minutes: 5

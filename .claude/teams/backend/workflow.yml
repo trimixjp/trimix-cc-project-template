@@ -13,6 +13,7 @@ labels:
     - "backend:reviewer"
     - "backend:reviewer-a"
     - "backend:reviewer-b"
+    - "backend:version-bumper"
     - "backend:tech-writer"
     - "backend:pr-creator"
     - "contributor:ready"
@@ -73,7 +74,7 @@ steps:
     description: シングルレビュー。コード品質・設計整合・テストをレビューする
     on_complete:
       condition: 合格
-      next: tech-writer
+      next: version-bumper
     on_rework:
       condition: 不合格
       next: implementer
@@ -104,12 +105,27 @@ steps:
     requires: [reviewer-a, reviewer-b]  # 両方の完了が必要
     on_complete:
       condition: 合格（両者合意）
-      next: tech-writer
+      next: version-bumper
     on_rework:
       condition: 不合格
       next: implementer
     on_escalation:
       condition: 意見が割れて判断できない
+      next: human-escalator
+
+  # version_management: auto の場合はpackage.jsonをインクリメントしてtech-writerへ
+  # version_management: manual の場合はスキップしてtech-writerへ
+  # このステップを削除するとバージョン管理がワークフロー外になります
+  - id: version-bumper
+    agent: version-bumper
+    label: "backend:version-bumper"
+    description: |
+      ai-team-config.yml の version_management 設定に従いバージョンを管理する。
+      auto: conventional commitに基づきpackage.jsonを自動インクリメント
+      manual: スキップしてtech-writerへ引き継ぎ
+    on_complete:
+      next: tech-writer
+    on_escalation:
       next: human-escalator
 
   - id: tech-writer
