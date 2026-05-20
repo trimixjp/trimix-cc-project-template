@@ -24,6 +24,7 @@ description: AIチームをプロジェクトにセットアップするウィ�
 - フロントエンドチーム（UI実装・コンポーネント開発・アクセシビリティ）
 - コンテンツチーム（記事・ドキュメント作成）
 - インフラチーム（クラウド構成・ネットワーク・セキュリティ）
+- SNS運用チーム（X・Instagram の投稿戦略・執筆・公開指示）
 
 **質問2**: 運用モードを選択してください（`AskUserQuestion` ツールを使用）
 - **マルチユーザーモード**: 担当者が `/ai-team run <Issue>` を実行して処理を開始します。複数人チームに適しています
@@ -74,6 +75,7 @@ solo:
     - frontend:frontend-lead
     - content:editor-in-chief
     - infra:infra-lead
+    - sns:strategist
   skip_labels:                  # このラベルが付いていれば処理済みとしてスキップ
     - ai-team:in-progress
     - escalated:human
@@ -119,6 +121,14 @@ templates/teams/content/compliance-rules/*.md → .claude/teams/content/complian
 templates/teams/infra/agents/*.md  → .claude/teams/infra/agents/
 templates/teams/infra/workflow.yml → .claude/teams/infra/workflow.yml
 templates/teams/infra/dod/*.md     → .claude/teams/infra/dod/
+```
+
+### SNS運用チーム（選択時）
+
+```
+templates/teams/sns/agents/*.md  → .claude/teams/sns/agents/
+templates/teams/sns/workflow.yml → .claude/teams/sns/workflow.yml
+templates/teams/sns/dod/*.md     → .claude/teams/sns/dod/
 ```
 
 ### GitHub Issueテンプレート（常に配置）
@@ -231,6 +241,15 @@ gh label create "infra:network-engineer"  --color "0e8a16" --description "Networ
 gh label create "infra:infra-specialist"  --color "0e8a16" --description "Infra-Specialistが実装中"      --force
 gh label create "infra:security-engineer" --color "0e8a16" --description "Security-Engineerがレビュー中" --force
 gh label create "infra:architect"         --color "5319e7" --description "Architectが助言中（依頼時のみ）" --force
+```
+
+### SNS運用チーム（選択時）
+
+```bash
+gh label create "sns:strategist" --color "e91e63" --description "Strategistが戦略策定中"          --force
+gh label create "sns:researcher" --color "e91e63" --description "Researcherが調査中"              --force
+gh label create "sns:writer"     --color "e91e63" --description "Writerが投稿文執筆中"            --force
+gh label create "sns:operator"   --color "e91e63" --description "Operatorがガイドライン確認中"    --force
 ```
 
 `--force` オプションにより既存ラベルは上書き更新されます。
