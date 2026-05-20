@@ -191,6 +191,43 @@ templates/teams/sns/dod/*.md     → .claude/teams/sns/dod/
 templates/.github/ISSUE_TEMPLATE/*.yml → .github/ISSUE_TEMPLATE/
 ```
 
+### .gitignore への追記（常に実行）
+
+AIチームの設定ファイルは各自の環境で `/ai-team-setup` を実行してセットアップするため、Git 管理から除外します。`.gitignore` に以下を追記してください（すでに記載済みの行はスキップ）：
+
+```bash
+# .gitignore に追記するコマンドを実行
+cat >> .gitignore << 'EOF'
+
+# @trimix/ai-team - AIチーム設定（各自の環境で /ai-team-setup を実行してください）
+.claude/teams/
+.claude/agents/
+.claude/dod/
+.claude/docs/
+.claude/commands/
+.claude/hooks/
+.claude/ai-team-config.yml
+.claude/escalation-rules.yml
+
+# @trimix/ai-team - GitHub Issue テンプレート
+.github/ISSUE_TEMPLATE/
+EOF
+```
+
+> **マルチユーザーモードで設定を共有する場合:**
+>
+> チーム全員が同じエージェント定義・ワークフローを使う場合は、`.gitignore` 追記後に `git add -f` で強制追加してください：
+>
+> ```bash
+> git add -f .claude/teams/ .claude/agents/ .claude/dod/ .claude/docs/ \
+>            .claude/ai-team-config.yml .claude/escalation-rules.yml \
+>            .github/ISSUE_TEMPLATE/
+> git commit -m "chore: AIチーム設定を追加"
+> ```
+>
+> 以降は通常通り `git add` / `git commit` で変更を管理できます。
+> 個人環境でのみ使う設定（`hooks/` など）は引き続き `.gitignore` で除外してください。
+
 ## ステップ4: GitHub Issuesラベルの作成
 
 ### 4-1: リポジトリの確認
