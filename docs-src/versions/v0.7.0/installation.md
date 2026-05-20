@@ -12,7 +12,7 @@
 
 ```bash
 cd /path/to/your-project
-npm install --save-dev ./trimix-ai-team-0.5.1.tgz
+npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 ```
 
 インストール後、`package.json` の `devDependencies` に次のエントリが追加されます。
@@ -20,7 +20,7 @@ npm install --save-dev ./trimix-ai-team-0.5.1.tgz
 ```json
 {
   "devDependencies": {
-    "@trimix/ai-team": "file:./trimix-ai-team-0.5.1.tgz"
+    "@trimix/ai-team": "file:./trimix-ai-team-0.7.0.tgz"
   }
 }
 ```
@@ -30,7 +30,7 @@ npm install --save-dev ./trimix-ai-team-0.5.1.tgz
 新しい `.tgz` ファイルを受け取ったら、同じく `npm install` を実行します。古い `.tgz` は削除して構いません。
 
 ```bash
-npm install --save-dev ./trimix-ai-team-0.5.2.tgz
+npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 ```
 
 `postinstall` スクリプトが再実行され、`.claude/commands/` のスキルファイルが最新版に更新されます。既にプロジェクトで `/ai-team-setup` 済みの場合、`.claude/teams/` 配下のカスタマイズ済みファイルは上書きされません。
@@ -96,7 +96,7 @@ npx @trimix/ai-team install
 | `npx @trimix/ai-team --version` | バージョンを表示 |
 | `npx @trimix/ai-team --help` | ヘルプを表示 |
 
-利用可能なチーム ID は `backend` / `frontend` / `content` / `infra` の 4 つです。
+利用可能なチーム ID は `backend` / `frontend` / `content` / `infra` / `sns` の 5 つです。
 
 ---
 
@@ -132,6 +132,8 @@ npx @trimix/ai-team install
 │   └── index.yml                   # インシデント一覧（初期状態は空）
 ├── docs/
 │   └── workflow-guide.md           # ワークフロー運用ガイド
+├── hooks/                          # UserPromptSubmit フック（hooks 選択時のみ）
+│   └── ensure-issue.sh             # 変更系の指示に Issue 番号がなければブロック
 └── commands/
     ├── ai-team-setup.md            # postinstall で展開（変更しないこと）
     ├── ai-team-run.md

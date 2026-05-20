@@ -50,7 +50,7 @@
 <p>配布された <code>.tgz</code> ファイルをプロジェクトルートに配置して、<code>npm install</code> で開発依存に追加します。</p>
 
 <pre><code class="language-bash">cd /path/to/your-project
-npm install --save-dev ./trimix-ai-team-0.5.1.tgz</code></pre>
+npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 <p>インストール完了時に <code>bin/postinstall.js</code> が自動実行され、7 つのスキルファイルが <code>.claude/commands/</code> に展開されます。</p>
 
@@ -69,18 +69,20 @@ npm install --save-dev ./trimix-ai-team-0.5.1.tgz</code></pre>
 
 <p>ウィザードが対話形式で次の項目を確認します。</p>
 
-<ol><li><strong>導入するチーム</strong>: backend / frontend / content / infra（複数選択可）</li><li><strong>運用モード</strong>: <code>multi-user</code>（担当者ごとに <code>/ai-team-run</code> 起動）または <code>solo</code>（<code>/ai-team-watch</code> で自動監視）</li><li><strong>GitHub ラベルの作成</strong>: 選択したチームに対応するラベルを <code>gh label create</code> で一括作成するかどうか</li></ol>
+<ol><li><strong>導入するチーム</strong>: backend / frontend / content / infra / sns（複数選択可）</li><li><strong>運用モード</strong>: <code>multi-user</code>（担当者ごとに <code>/ai-team-run</code> 起動）または <code>solo</code>（<code>/ai-team-watch</code> で自動監視）</li><li><strong>バージョン管理</strong>: <code>auto</code>（Reviewer 合格後に自動インクリメント）または <code>manual</code>（人間が管理）</li><li><strong>Issue 強制チェック</strong>: <code>CLAUDE.md のみ</code>（Claude が判断して Issue 作成を促す）または <code>hooks で強制</code>（変更系の指示に Issue がない場合にスクリプトでブロック）</li><li><strong>GitHub ラベルの作成</strong>: 選択したチームに対応するラベルを <code>gh label create</code> で一括作成するかどうか</li></ol>
 <p>セットアップが完了すると、プロジェクトルートに次のディレクトリが配置されます。</p>
 
 <pre><code class="language-">.claude/
-├── CLAUDE.md                # プロジェクト用 AIチーム設定
-├── ai-team-config.yml       # 運用モード・solo設定
+├── CLAUDE.md                # プロジェクト用 AIチーム設定（タスク受付ルールを含む）
+├── ai-team-config.yml       # 運用モード・solo設定・バージョン管理設定
 ├── escalation-rules.yml     # エスカレーション条件
 ├── agents/                  # 共通エージェント（contributor / dispatcher / human-escalator）
 ├── teams/&lt;team_id&gt;/         # 選択したチームのワークフロー・エージェント・DOD
 ├── dod/                     # 共通DODテンプレート（incident.md など）
 ├── incidents/               # インシデントレポート（初期状態は空）
 ├── docs/workflow-guide.md   # ワークフロー運用ガイド
+├── hooks/                   # UserPromptSubmit フック（hooks を選択した場合のみ）
+│   └── ensure-issue.sh      # ファイル変更系の指示に Issue 番号がなければブロック
 └── commands/                # postinstall で展開された 7 個のスキル</code></pre>
 
 <p>詳細は <a href="skills/setup.html">ai-team-setup スキル</a> を参照してください。</p>
