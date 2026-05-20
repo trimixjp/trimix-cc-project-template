@@ -46,6 +46,17 @@
       "description": "クラウド構成・ネットワーク・セキュリティワークフロー",
       "category": "infrastructure",
       "tags": ["terraform", "kubernetes", "security"]
+    },
+    {
+      "id": "trimix-sns",
+      "team_id": "sns",
+      "label_prefix": "sns",
+      "name": "SNS運用チーム",
+      "package": "@trimix/workflow-trimix-sns",
+      "version": "1.0.0",
+      "description": "X・Instagram の投稿戦略・調査・執筆・公開指示ワークフロー",
+      "category": "marketing",
+      "tags": ["sns", "twitter", "instagram", "marketing"]
     }
   ]
 }
