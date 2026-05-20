@@ -11,7 +11,7 @@ GitHub Issues（またはJira・Linear等）のチケットをトリガーに、
 配布された `.tgz` ファイルをプロジェクトルートに置いて実行してください：
 
 ```bash
-npm install --save-dev ./trimix-ai-team-0.1.0.tgz
+npm install --save-dev ./trimix-ai-team-<version>.tgz
 ```
 
 インストール完了時に Skillファイルが `.claude/commands/` に自動展開されます。
@@ -72,7 +72,7 @@ Infra-Lead → Network-Engineer / Infra-Specialist → Security-Engineer
 新しいバージョンの `.tgz` を受け取ったら、再度 `npm install` を実行してください：
 
 ```bash
-npm install --save-dev ./trimix-ai-team-0.2.0.tgz
+npm install --save-dev ./trimix-ai-team-<version>.tgz
 ```
 
 ---
@@ -85,3 +85,5 @@ npm pack
 ```
 
 生成されたファイルをパートナーに配布してください。
+
+> ⚠️ 生成した tgz ファイルはリポジトリにコミットしないでください（`.gitignore` で除外済み）。
