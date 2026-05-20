@@ -1,0 +1,105 @@
+# SNS チーム ワークフロー定義
+# Researcherは Strategist が「調査が必要」と判断した場合のみ呼び出される
+
+name: sns-workflow
+description: X・Instagram の SNS 運用タスクのワークフロー
+
+# ラベル命名規則
+labels:
+  prefix: "sns"
+  examples:
+    - "sns:strategist"
+    - "sns:researcher"
+    - "sns:writer"
+    - "sns:operator"
+    - "contributor:ready"
+    - "escalated:human"
+
+steps:
+
+  - id: strategist-planning
+    agent: strategist
+    label: "sns:strategist"
+    description: 投稿目的・ターゲット・プラットフォーム方針の策定・インシデント確認。調査が必要か否かを判断する
+    on_complete:
+      conditions:
+        - id: needs-research
+          description: トレンド・エンゲージメント・競合調査が必要と判断した場合
+          criteria:
+            - トレンド確認が必要（バイラルコンテンツ・ハッシュタグ動向）
+            - エンゲージメントデータ分析が必要
+            - masterclass情報を反映したい
+            - 競合アカウント調査が必要
+          next: researcher
+
+        - id: no-research-needed
+          description: 既存戦略に沿った投稿で調査不要と判断した場合
+          criteria:
+            - 既存戦略に沿った定期投稿
+            - テキスト修正のみ
+            - 既知テーマの投稿
+          next: writer
+
+    on_escalation:
+      next: human-escalator
+
+  - id: researcher
+    agent: researcher
+    label: "sns:researcher"
+    description: |
+      トレンド・競合・エンゲージメントデータ・masterclass 情報を調査し、改善示唆レポートを作成する。
+      Strategist が「調査が必要」と判断した場合のみ起動する。
+    on_complete:
+      next: strategist-review  # 調査結果を Strategist が確認してから Writer へ
+
+  - id: strategist-review
+    agent: strategist
+    label: "sns:strategist"
+    description: 調査レポートを確認し、Writerへの投稿指示を更新・確定する
+    on_complete:
+      next: writer
+    on_escalation:
+      next: human-escalator
+
+  - id: writer
+    agent: writer
+    label: "sns:writer"
+    description: Strategistの方針・Researcherの調査レポート（あれば）に従い、X・Instagram向け投稿文を作成する
+    on_complete:
+      next: operator-review
+    on_escalation:
+      next: human-escalator
+    on_rework:
+      condition: Operatorからのプラットフォームルール違反指摘時
+      next: writer
+
+  - id: operator-review
+    agent: operator
+    label: "sns:operator"
+    description: |
+      投稿文のガイドライン・文字数・ハッシュタグ数を最終確認し、投稿スケジュールを策定する。
+      実際の投稿操作は人間に依頼するための指示コメントを作成する。
+    on_complete:
+      condition: チェック合格
+      next: contributor-close
+    on_rework:
+      condition: プラットフォームルール違反・ガイドライン違反
+      next: writer
+    on_escalation:
+      condition: 炎上リスク・ガイドライン違反・投稿判断が必要
+      next: human-escalator
+
+  - id: human-escalator
+    agent: human-escalator
+    label: "escalated:human"
+    description: 判断できない事項を人間にエスカレーション
+    on_complete:
+      condition: 人間が判断・返答
+      next: return_to_previous
+
+  - id: contributor-close
+    agent: contributor
+    label: "contributor:ready"
+    description: DOD確認・コメント品質チェック・Issueクローズ・インシデント調査
+    on_complete:
+      action: close_issue
