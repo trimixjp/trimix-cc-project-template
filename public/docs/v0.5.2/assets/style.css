@@ -36,7 +36,7 @@ body {
 /* サイドバー */
 .sidebar {
   width: var(--sidebar-width);
-  min-height: 100vh;
+  height: 100vh;
   background: var(--color-sidebar-bg);
   border-right: 1px solid var(--color-sidebar-border);
   position: fixed;
