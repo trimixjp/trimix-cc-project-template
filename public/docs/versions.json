@@ -11,7 +11,12 @@
   },
   {
     "version": "v0.6.0",
-    "label": "v0.6.0 (最新)",
+    "label": "v0.6.0",
     "path": "./v0.6.0/index.html"
+  },
+  {
+    "version": "v0.7.0",
+    "label": "v0.7.0 (最新)",
+    "path": "./v0.7.0/index.html"
   }
 ]
