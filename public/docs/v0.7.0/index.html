@@ -38,7 +38,7 @@
 
 <pre><code class="language-">AIチームをプロジェクトにセットアップするウィザード</code></pre>
 
-<p>このパッケージは 4 つの専門チーム（合計 21 個のエージェント定義）と 7 つの Claude Code スキル（スラッシュコマンド）から構成されており、プロジェクト固有のワークフローを <code>.claude/teams/&lt;team_id&gt;/workflow.yml</code> で柔軟に定義できます。</p>
+<p>このパッケージは 5 つの専門チーム（合計 25 個のエージェント定義）と 7 つの Claude Code スキル（スラッシュコマンド）から構成されており、プロジェクト固有のワークフローを <code>.claude/teams/&lt;team_id&gt;/workflow.yml</code> で柔軟に定義できます。</p>
 
 <hr>
 
@@ -72,13 +72,19 @@
 
 <h2>対応チーム</h2>
 
-<p>4 つのチームに対応しています。詳細は<a href="teams/overview.html">チーム概要</a>を参照してください。</p>
+<p>5 つのチームに対応しています。詳細は<a href="teams/overview.html">チーム概要</a>を参照してください。</p>
 
 <hr>
 
 <h2>バージョン情報</h2>
 
-<ul><li><strong>現行バージョン</strong>: v0.5.2</li><li><strong>必要な Node.js</strong>: 18.0.0 以上（<code>engines.node</code> で定義）</li><li><strong>配布形式</strong>: npm パッケージ（<code>.tgz</code>）</li><li><strong>ライセンス</strong>: MIT</li></ul>
+<ul><li><strong>現行バージョン</strong>: v0.7.0</li><li><strong>必要な Node.js</strong>: 18.0.0 以上（<code>engines.node</code> で定義）</li><li><strong>配布形式</strong>: npm パッケージ（<code>.tgz</code>）</li><li><strong>ライセンス</strong>: MIT</li></ul>
+<h3>v0.7.x シリーズの主な変更点</h3>
+
+<ul><li>v0.7.0: SNS運用チームテンプレートを追加（Strategist / Researcher / Writer / Operator の 4 エージェント構成）</li></ul>
+<h3>v0.6.x シリーズの主な変更点</h3>
+
+<ul><li>v0.6.0: Version-Bumper ステップをバックエンドワークフローに追加・バージョン管理設定（<code>ai-team-config.yml</code> の <code>version_management</code>）をサポート</li></ul>
 <h3>v0.5.x シリーズの主な変更点</h3>
 
 <ul><li>v0.5.0: ワークフロー設定ウィザード（<code>/ai-team-configure</code>）を追加</li><li>v0.5.1: postinstall で全スキルファイルが展開されない問題を修正</li><li>v0.5.2: Mermaid.js によるフローチャート描画対応・マニュアル全体の構造を再編成</li></ul>
