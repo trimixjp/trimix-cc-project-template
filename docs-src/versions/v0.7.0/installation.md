@@ -1,12 +1,15 @@
-# インストール
+# インストールとセットアップ
 
-`@trimix/ai-team` は npm パッケージとして配布されます。`.tgz` ファイルを `npm install` することで、自動的に Claude Code スキルがプロジェクトに展開されます。
+`@trimix/ai-team` の導入は **2 ステップ** で完了します。
+
+> **⚠️ `npm install` だけでは使えません**
+>
+> インストールはスキルファイルの展開のみです。チーム・ワークフロー・ラベルを
+> 設定するには、**必ずステップ 2 の `/ai-team-setup` を実行**してください。
 
 ---
 
-## インストール方法
-
-### 標準的な手順
+## ステップ 1: npm install
 
 配布された `.tgz` ファイルをプロジェクトルートに配置して、開発依存としてインストールします。
 
@@ -15,59 +18,114 @@ cd /path/to/your-project
 npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 ```
 
-インストール後、`package.json` の `devDependencies` に次のエントリが追加されます。
-
-```json
-{
-  "devDependencies": {
-    "@trimix/ai-team": "file:./trimix-ai-team-0.7.0.tgz"
-  }
-}
-```
-
-### バージョンアップ時
-
-新しい `.tgz` ファイルを受け取ったら、同じく `npm install` を実行します。古い `.tgz` は削除して構いません。
-
-```bash
-npm install --save-dev ./trimix-ai-team-0.7.0.tgz
-```
-
-`postinstall` スクリプトが再実行され、`.claude/commands/` のスキルファイルが最新版に更新されます。既にプロジェクトで `/ai-team-setup` 済みの場合、`.claude/teams/` 配下のカスタマイズ済みファイルは上書きされません。
-
----
-
-## postinstall の挙動
-
-`bin/postinstall.js` は `npm install` のたびに自動実行されます。挙動は次のとおりです。
-
-### 動作内容
-
-1. `INIT_CWD`（`npm install` を実行したディレクトリ）を取得
-2. パッケージ開発リポジトリ自身であれば（`projectRoot === packageRoot`）即終了
-3. それ以外なら `.claude/commands/` ディレクトリを作成（存在しなければ）
-4. パッケージ内の `skills/` から以下 7 ファイルをコピー
-
-```
-ai-team-setup.md
-ai-team-run.md
-ai-team-watch.md
-ai-team-resume.md
-ai-team-gallery.md
-ai-team-install.md
-ai-team-configure.md
-```
-
-5. 成功時のメッセージを表示
+完了すると以下のメッセージが表示されます。
 
 ```
 ✅ @trimix/ai-team: 7 件のSkillファイルを .claude/commands/ に展開しました
    Claude Code で /ai-team-setup を実行してセットアップを完了してください
 ```
 
-### 失敗時の挙動
+この時点では `.claude/commands/` にスキルファイルが置かれただけです。
+**エージェント・ワークフロー・ラベルはまだ作成されていません。**
 
-postinstall は失敗してもエラーで終了せず、警告のみ表示します（npm install 全体が止まらないように設計されています）。
+---
+
+## ステップ 2: /ai-team-setup を実行する
+
+Claude Code を起動し、セットアップウィザードを実行します。
+
+```
+/ai-team-setup
+```
+
+ウィザードが対話形式で以下を設定します。
+
+| # | 設定項目 | 選択肢 |
+|---|---------|--------|
+| 1 | 導入するチーム | backend / frontend / content / infra / sns（複数選択可） |
+| 2 | 運用モード | multi-user（手動起動）/ solo（自動監視） |
+| 3 | バージョン管理 | auto（自動インクリメント）/ manual（手動管理） |
+| 4 | Issue 強制チェック | CLAUDE.md のみ / hooks で強制 |
+| 5 | GitHub ラベルの作成 | 今すぐ一括作成 / スキップ |
+
+セットアップ完了後のメッセージ例：
+
+```
+✅ AIチームのセットアップが完了しました
+
+## セットアップ内容
+- 有効なチーム: バックエンドチーム、フロントエンドチーム
+- 作成ラベル数: 15件
+- 配置ファイル数: 32件
+
+## 次のステップ
+1. .claude/CLAUDE.md を確認・カスタマイズしてください
+2. Issue を作成し /ai-team run <Issue番号> でワークフローを開始します
+```
+
+詳細は [セットアップガイド](guide/setup.html) を参照してください。
+
+---
+
+## セットアップ後のディレクトリ構成
+
+`/ai-team-setup` を実行すると、選択したチームに応じて以下が配置されます（バックエンド + hooks 選択の例）。
+
+```
+.claude/
+├── CLAUDE.md                       # AIチーム設定・タスク受付ルール
+├── ai-team-config.yml              # 運用モード・バージョン管理設定
+├── escalation-rules.yml            # エスカレーション条件
+├── agents/
+│   ├── contributor.md              # 全体管理エージェント
+│   ├── dispatcher.md               # Epic 分解エージェント
+│   └── human-escalator.md          # 人間エスカレーションエージェント
+├── teams/
+│   └── backend/
+│       ├── workflow.yml            # ワークフロー定義
+│       ├── review-config.yml       # ダブルレビュー判定基準
+│       ├── agents/                 # tech-lead / implementer / reviewer など
+│       └── dod/                    # feature / bugfix / refactor テンプレート
+├── dod/
+│   ├── README.md
+│   └── incident.md
+├── incidents/
+│   ├── README.md
+│   ├── TEMPLATE.md
+│   └── index.yml
+├── docs/
+│   └── workflow-guide.md
+├── hooks/                          # hooks を選択した場合のみ
+│   └── ensure-issue.sh
+└── commands/                       # postinstall で展開済み（編集不要）
+    ├── ai-team-setup.md
+    ├── ai-team-run.md
+    ├── ai-team-watch.md
+    ├── ai-team-resume.md
+    ├── ai-team-gallery.md
+    ├── ai-team-install.md
+    └── ai-team-configure.md
+```
+
+`.github/ISSUE_TEMPLATE/` には、選択したチームに応じた Issue テンプレートが配置されます。
+
+---
+
+## バージョンアップ時
+
+新しい `.tgz` ファイルを受け取ったら、同じく `npm install` を実行します。古い `.tgz` は削除して構いません。
+
+```bash
+npm install --save-dev ./trimix-ai-team-x.x.x.tgz
+```
+
+`postinstall` が再実行され `.claude/commands/` のスキルファイルが最新版に更新されます。`.claude/teams/` 配下のカスタマイズ済みファイルは上書きされません。
+
+---
+
+## postinstall が失敗した場合
+
+postinstall は失敗してもエラーで終了せず、警告のみ表示します。
 
 ```
 ⚠️  @trimix/ai-team: Skillファイルの展開に失敗しました
@@ -84,11 +142,9 @@ npx @trimix/ai-team install
 
 ## CLI コマンド一覧
 
-`bin/setup.js` で提供される CLI コマンドは次のとおりです。
-
 | コマンド | 用途 |
 |---------|------|
-| `npx @trimix/ai-team install` | スキルファイルを `.claude/commands/` に展開（postinstall と同等） |
+| `npx @trimix/ai-team install` | スキルファイルを `.claude/commands/` に展開 |
 | `npx @trimix/ai-team install <team_id>` | ワークフロープラグインをインストール |
 | `npx @trimix/ai-team gallery` | 利用可能なプラグイン一覧を表示 |
 | `npx @trimix/ai-team list` | インストール済みプラグインを表示 |
@@ -100,69 +156,18 @@ npx @trimix/ai-team install
 
 ---
 
-## セットアップ後のディレクトリ構成
-
-`/ai-team-setup` を実行すると、選択したチームに応じて以下のディレクトリが配置されます。バックエンドとインフラの 2 チームを導入した例を示します。
-
-```
-.claude/
-├── CLAUDE.md                       # AIチーム設定（CLAUDE.md 末尾に追記される）
-├── ai-team-config.yml              # 運用モード（multi-user / solo）と solo 設定
-├── escalation-rules.yml            # エスカレーション条件の定義
-├── agents/
-│   ├── contributor.md              # 全体管理エージェント
-│   ├── dispatcher.md               # Epic 分解エージェント
-│   └── human-escalator.md          # 人間エスカレーションエージェント
-├── teams/
-│   ├── backend/
-│   │   ├── workflow.yml            # バックエンドのワークフロー定義
-│   │   ├── review-config.yml       # ダブルレビュー判定基準
-│   │   ├── agents/                 # tech-lead / implementer / reviewer / pr-creator など
-│   │   └── dod/                    # feature / bugfix / refactor / review テンプレート
-│   └── infra/
-│       ├── workflow.yml
-│       ├── agents/                 # infra-lead / network-engineer / infra-specialist など
-│       └── dod/                    # infrastructure-change / network-change / security-review
-├── dod/
-│   ├── README.md                   # DODテンプレートの選択ガイド
-│   └── incident.md                 # 共通のインシデント対応DOD
-├── incidents/
-│   ├── README.md                   # インシデント運用ガイド
-│   ├── TEMPLATE.md                 # インシデントレポートの雛形
-│   └── index.yml                   # インシデント一覧（初期状態は空）
-├── docs/
-│   └── workflow-guide.md           # ワークフロー運用ガイド
-├── hooks/                          # UserPromptSubmit フック（hooks 選択時のみ）
-│   └── ensure-issue.sh             # 変更系の指示に Issue 番号がなければブロック
-└── commands/
-    ├── ai-team-setup.md            # postinstall で展開（変更しないこと）
-    ├── ai-team-run.md
-    ├── ai-team-watch.md
-    ├── ai-team-resume.md
-    ├── ai-team-gallery.md
-    ├── ai-team-install.md
-    └── ai-team-configure.md
-```
-
-`.github/ISSUE_TEMPLATE/` には、選択したチームに応じた Issue テンプレート（`backend-feature.yml` / `infra-change.yml` など）が配置されます。
-
----
-
 ## アンインストール
-
-パッケージを削除するには次のコマンドを実行します。
 
 ```bash
 npm uninstall @trimix/ai-team
 ```
 
-`.claude/commands/` 内のスキルファイルは `npm uninstall` では削除されません。完全に削除する場合は手動で `.claude/` ディレクトリを整理してください。
+`.claude/commands/` 内のスキルファイルは自動削除されません。完全に削除する場合は手動で `.claude/` ディレクトリを整理してください。
 
 ---
 
 ## 注意事項
 
-- `.claude/commands/` 配下のファイルはバージョンアップ時に上書きされるため、直接編集しないでください。スキルをカスタマイズしたい場合はパッケージ側で修正してください。
-- `.claude/teams/<team_id>/` 配下はプロジェクト固有のカスタマイズを行う場所です。バージョンアップでは上書きされません。
-- `.claude/incidents/` はプロジェクトの履歴であるため、Git で管理することを推奨します。
-- `.claude/ai-team-config.yml` は運用モードを切り替える際に編集します。詳細は [設定ファイル](reference/config.html) を参照してください。
+- `.claude/commands/` はバージョンアップ時に上書きされます。直接編集しないでください
+- `.claude/teams/<team_id>/` はプロジェクト固有のカスタマイズ領域です。バージョンアップでは上書きされません
+- `.claude/incidents/` はプロジェクトの履歴です。Git で管理することを推奨します
