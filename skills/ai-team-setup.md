@@ -29,6 +29,10 @@ description: AIチームをプロジェクトにセットアップするウィ�
 - **マルチユーザーモード**: 担当者が `/ai-team run <Issue>` を実行して処理を開始します。複数人チームに適しています
 - **ソロモード**: `/ai-team watch` を起動すると新しいIssueを自動検出して処理します。1人での運用に適しています
 
+**質問3**: バージョン管理の方法を選択してください（`AskUserQuestion` ツールを使用）
+- **自動インクリメント（auto）**: Reviewer 合格後に conventional commit に基づき `package.json` のバージョンを自動更新します。ソロ運用・小規模チームに適しています
+- **手動管理（manual）**: バージョンアップはワークフロー外で人間が管理します。チーム開発・独自リリースフロー・monorepo に適しています
+
 ## ステップ3: ファイルの配置
 
 選択されたチームに基づいて、このパッケージの `templates/` から以下をコピーしてください。
@@ -55,6 +59,11 @@ templates/docs/workflow-guide.md            → .claude/docs/workflow-guide.md
 ```yaml
 # @trimix/ai-team 運用設定
 mode: multi-user  # または solo
+
+# バージョン管理設定
+# auto:   Reviewer合格後にconventional commitに基づきpackage.jsonを自動インクリメント（ソロ・小規模チーム向け）
+# manual: バージョンアップはワークフロー外で人間が管理（チーム開発・独自リリースフロー向け）
+version_management: auto  # または manual
 
 # solo モードの設定（mode: solo の場合のみ有効）
 solo:
