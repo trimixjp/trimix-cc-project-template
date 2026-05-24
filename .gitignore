@@ -2,8 +2,16 @@ node_modules/
 *.log
 .DS_Store
 *.tgz
-.claude/settings.local.json
 
-# グローバルgitignoreの docs/ 除外をpublic/docs/と.claude/docs/では解除
+# グローバルgitignoreの docs/ 除外を public/docs/ では解除
 !public/docs/
-!.claude/docs/
+
+# AIチームがインストール・管理するファイル（パッケージが正源 = templates/ で管理）
+# プロジェクト固有ファイル（.claude/CLAUDE.md, .claude/ai-team-config.yml, .claude/incidents/）はgit管理対象
+.claude/agents/
+.claude/commands/
+.claude/dod/
+.claude/docs/
+.claude/escalation-rules.yml
+.claude/teams/
+.claude/settings.local.json

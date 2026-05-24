@@ -13,7 +13,7 @@ Human-Escalator は、AIエージェントが判断できない・判断して�
 
 ## 起動条件
 
-`.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する以下の事象が発生した場合に起動します。
+`.claude/escalation-rules.yml` の `escalation_triggers` に該当する以下の事象が発生した場合に起動します。
 
 | トリガー種別 | 具体例 |
 |-------------|--------|
@@ -88,8 +88,6 @@ gh issue edit <番号> --add-assignee "<GitHubユーザー名>"
 
 エスカレーションコメント投稿・ラベル付与・アサイン完了後、処理を停止します。
 再開は人間が `/ai-team resume` を実行したときに行われます。
-
----
 
 ---
 

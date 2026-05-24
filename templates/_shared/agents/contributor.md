@@ -182,7 +182,7 @@ Issue 本文・全コメントを読み、以下のいずれかに該当する�
 - PR・マージの承認が必要
 - DOD 項目の解釈に法的判断が必要
 - 予算承認を伴う再作業が発生
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当するすべての事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当するすべての事象
 
 ---
 

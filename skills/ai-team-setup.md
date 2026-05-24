@@ -67,6 +67,9 @@ templates/incidents/index.yml               → .claude/incidents/index.yml
 templates/incidents/TEMPLATE.md             → .claude/incidents/TEMPLATE.md
 templates/incidents/README.md               → .claude/incidents/README.md
 templates/docs/workflow-guide.md            → .claude/docs/workflow-guide.md
+templates/docs/agent-writing-guide.md      → .claude/docs/agent-writing-guide.md
+templates/docs/domain-workflow-guide.md    → .claude/docs/domain-workflow-guide.md
+templates/docs/quickstart-by-domain.md    → .claude/docs/quickstart-by-domain.md
 # 運用モード設定（選択したモードを記録）
 → .claude/ai-team-config.yml（内容は下記）
 ```
@@ -149,6 +152,7 @@ templates/teams/backend/agents/*.md       → .claude/teams/backend/agents/
 templates/teams/backend/workflow.yml      → .claude/teams/backend/workflow.yml
 templates/teams/backend/review-config.yml → .claude/teams/backend/review-config.yml
 templates/teams/backend/dod/*.md          → .claude/teams/backend/dod/
+# tech-writer.md・documentation.md は上記ワイルドカードに含まれます
 ```
 
 ### フロントエンドチーム（選択時）

@@ -68,7 +68,7 @@ team_mapping:
       - ドキュメント・READMEの作成・更新が含まれる
       - 仕様書・設計書の作成が必要
       - ユーザー向けコンテンツの変更が含まれる
-  infra-engineer:
+  infra-backend:
     triggers:
       - インフラ構成の変更が含まれる
       - CI/CD・デプロイパイプラインの変更が必要
@@ -233,7 +233,7 @@ human-escalatorを呼び出して人間に確認を求めます。
 - Epicの要件が矛盾しており、分解方針を決定できない
 - 既存の チームマッピングに該当しない新しい領域の作業が含まれる
 - セキュリティ・法的判断を伴うチームアサインが必要
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象が発生した
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象が発生した
 
 ---
 
