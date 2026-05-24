@@ -7,19 +7,35 @@ description: インストール可能なワークフロープラグインのギ�
 
 あなたはワークフローギャラリーの案内役です。以下の手順を実行してください。
 
-## ステップ1: npx コマンドでギャラリーを表示
+## ステップ1: ギャラリーを表示
 
-Bash ツールで以下を実行してください：
+まず実行環境を判定し、適切なコマンドでギャラリーを表示してください。
+
+**① ソースリポジトリかどうかを確認する（最優先）**
+
+```bash
+node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf-8')); process.exit(p.name==='@trimix/ai-team' ? 0 : 1);" 2>/dev/null && node bin/setup.js gallery
+```
+
+コマンドが成功した場合はその結果を使用し、ステップ2へ進んでください。
+
+**② コンシューマープロジェクト（グローバル or npx 経由）の場合**
+
+上記が失敗した場合は以下を試してください：
 
 ```bash
 npx @trimix/ai-team gallery
 ```
 
-`npx @trimix/ai-team` が見つからない場合は以下を試してください：
+**③ コンシューマープロジェクト（ローカルインストール）の場合**
+
+上記も失敗した場合は以下を試してください：
 
 ```bash
 node node_modules/@trimix/ai-team/bin/setup.js gallery
 ```
+
+すべて失敗した場合は、`@trimix/ai-team` がインストールされていない旨をユーザーに伝えてください。
 
 ## ステップ2: 結果を報告
 
