@@ -77,6 +77,17 @@ npm install --save-dev ./trimix-ai-team-<version>.tgz
 
 ---
 
+## ドキュメント
+
+| ドキュメント | 説明 |
+|------------|------|
+| [業務ドメイン別クイックスタート](.claude/docs/quickstart-by-domain.md) | B2B SaaS / EC / コンテンツメディア / 受託開発 / 社内ツールの導入手順 |
+| [ワークフロー設計ガイド](.claude/docs/domain-workflow-guide.md) | 業務ドメイン別のワークフロー設計理論・調整ポイント |
+| [ワークフロー定義リファレンス](.claude/docs/workflow-guide.md) | `workflow.yml` の構文・フィールド一覧 |
+| [エージェント定義ガイドライン](.claude/docs/agent-writing-guide.md) | エージェント定義ファイルの記述スタイル・テンプレート |
+
+---
+
 ## パッケージのビルド（配布元）
 
 ```bash
