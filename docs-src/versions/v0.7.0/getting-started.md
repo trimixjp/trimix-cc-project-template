@@ -150,3 +150,5 @@ AI エージェントが法的判断・予算承認・PR マージ・仕様の�
 - チームごとのワークフロー（フロー図あり） → [チーム概要](teams/overview.html)
 - ワークフロー YAML の文法 → [ワークフロー定義](reference/workflow.html)
 - DOD（Definition of Done）の運用 → [DOD テンプレート](reference/dod.html)
+- よくある質問 → [FAQ](faq.html)
+- 問題が発生した場合 → [トラブルシューティング](guide/troubleshooting.html)

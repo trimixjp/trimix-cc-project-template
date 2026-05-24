@@ -171,3 +171,11 @@ npm uninstall @trimix/ai-team
 - `.claude/commands/` はバージョンアップ時に上書きされます。直接編集しないでください
 - `.claude/teams/<team_id>/` はプロジェクト固有のカスタマイズ領域です。バージョンアップでは上書きされません
 - `.claude/incidents/` はプロジェクトの履歴です。Git で管理することを推奨します
+
+---
+
+## 関連ドキュメント
+
+- [バージョン移行ガイド](guide/migration.html) — バージョンアップ時の詳細な移行手順
+- [トラブルシューティング](guide/troubleshooting.html) — インストール時のエラー対処法
+- [セットアップガイド](guide/setup.html) — `/ai-team-setup` の詳細
