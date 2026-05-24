@@ -4,5 +4,6 @@ node_modules/
 *.tgz
 .claude/settings.local.json
 
-# グローバルgitignoreの docs/ 除外をpublic/docs/では解除
+# グローバルgitignoreの docs/ 除外をpublic/docs/と.claude/docs/では解除
 !public/docs/
+!.claude/docs/
