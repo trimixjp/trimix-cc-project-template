@@ -443,6 +443,10 @@
           {
             "title": "インストール",
             "file": "installation"
+          },
+          {
+            "title": "よくある質問（FAQ）",
+            "file": "faq"
           }
         ]
       },
@@ -547,6 +551,18 @@
           {
             "title": "ドキュメントの管理",
             "file": "guide/docs"
+          },
+          {
+            "title": "ベストプラクティス",
+            "file": "guide/best-practices"
+          },
+          {
+            "title": "バージョン移行",
+            "file": "guide/migration"
+          },
+          {
+            "title": "トラブルシューティング",
+            "file": "guide/troubleshooting"
           }
         ]
       },
