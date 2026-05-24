@@ -141,7 +141,7 @@ Implementer 完了報告を確認後、`.claude/teams/backend/review-config.yml`
 - 要件が矛盾しており設計方針を決定できない（`ambiguous_spec`）
 - セキュリティ・法的判断を伴う設計判断が必要（`legal`）
 - 費用が発生するサービス・インフラの利用が必要（`budget`）
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

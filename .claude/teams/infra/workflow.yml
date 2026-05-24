@@ -1,5 +1,10 @@
 # インフラチーム ワークフロー定義
 # Architectは依頼を受けた時のみ起動する（常駐しない）
+# 注: pr-creator ステップはインフラワークフローに含まれません。
+#     インフラ変更はセキュリティレビュー合格後に直接 contributor-close へ移行します。
+#     これは Terraform・Kubernetes 等のIaCコードはPRベースのマージよりも
+#     適用（apply）フローで管理するケースが多いためです。
+#     PRベースのフローが必要な場合は pr-creator ステップを security-engineer の後に追加してください。
 
 name: infra-workflow
 description: インフラ構成・ネットワーク・セキュリティ関連タスクのワークフロー
@@ -70,7 +75,8 @@ steps:
     description: |
       専門エージェントの実装完了を確認し、整合性をチェックする。
       複雑なアーキテクチャ判断が必要な場合のみ Architect に助言を依頼する。
-    requires_all_of:  # 並列実行している場合は両方の完了を待つ
+    requires_all_of:  # 並列実行（network-engineer + infra-specialist）している場合は両方の完了を待つ
+      # 単独実行（network-only または infra-only）の場合は完了したエージェントのみが対象となる
       - network-engineer
       - infra-specialist
     on_complete:
@@ -122,7 +128,7 @@ steps:
     description: 判断できない事項を人間にエスカレーション
     on_complete:
       condition: 人間が判断・返答
-      next: return_to_previous
+      next: return_to_previous  # エスカレーション元のステップに戻る
 
   - id: contributor-close
     agent: contributor

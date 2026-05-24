@@ -110,7 +110,7 @@ Frontend-Lead の指示に従いコードを実装します。
 - セキュリティ・法的判断が必要な実装箇所を発見した（`legal`）
 - 費用が発生するサービスの利用が実装上必要と判明した（`budget`）
 - 設計方針が実装不可能であり Frontend-Lead への確認でも解決しない（`ambiguous_spec`）
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

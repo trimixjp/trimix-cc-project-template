@@ -8,13 +8,17 @@ version_management: auto
 
 # solo モードの設定
 solo:
+  # GitHub Issuesの監視間隔（分）。小さくするほどリアルタイムに近いが、API使用量が増加する
   poll_interval_minutes: 5
+  # このラベルが付与されたIssueを自動検出して対応するエージェントを起動する
+  # dispatcher: Epic分解専用エージェント（.claude/teams/_shared/agents/dispatcher.md を参照）
   target_labels:
     - dispatcher
     - backend:tech-lead
     - frontend:frontend-lead
     - content:editor-in-chief
     - infra:infra-lead
+  # このラベルが付与されたIssueはソロモードの監視対象外（処理中・人間対応待ち・完了済みを除外）
   skip_labels:
     - ai-team:in-progress
     - escalated:human

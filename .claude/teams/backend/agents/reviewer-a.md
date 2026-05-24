@@ -115,7 +115,7 @@ Reviewer-B の独立レビュー完了後にクロスレビューを実施しま
 - セキュリティ脆弱性を発見した（`legal`）
 - PR の作成・マージの承認が必要（`merge_approval`）
 - Reviewer-B との意見が一致せず、どちらが正しいか判断できない（`ambiguous_spec`）
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

@@ -1,5 +1,9 @@
 # コンテンツチーム ワークフロー定義
 # Researcherは Editor-in-Chief が「調査が必要」と判断した場合のみ呼び出される
+# 注: pr-creator ステップはコンテンツワークフローに含まれません。
+#     コンテンツ（記事・ドキュメント）はコンプライアンス合格後に直接 contributor-close へ移行します。
+#     ソースコードのPRではなく、コンテンツのPublish承認フローはプロジェクト固有のCMSまたは
+#     人間の手動公開作業で管理することを前提としています。
 
 name: content-workflow
 description: 記事・ドキュメント・コンテンツ作成タスクのワークフロー
@@ -51,6 +55,9 @@ steps:
       Editor-in-Chiefが「調査が必要」と判断した場合のみ起動する。
     on_complete:
       next: editor-in-chief-review  # 調査結果を Editor-in-Chief が確認してからWriterへ
+    on_rework:
+      condition: 調査レポートが不十分・追加調査が必要
+      next: researcher
 
   - id: editor-in-chief-review
     agent: editor-in-chief
@@ -58,6 +65,9 @@ steps:
     description: 調査レポートを確認し、Writerへの指示を更新・確定する
     on_complete:
       next: writer
+    on_rework:
+      condition: 調査レポートが不十分・再調査が必要
+      next: researcher
     on_escalation:
       next: human-escalator
 

@@ -106,7 +106,7 @@ Issue コメント履歴から以下を確認します。
 - セキュリティ脆弱性（認証バイパス・SQLインジェクション・シークレットのハードコード等）を発見した（`legal`）
 - PR の作成・マージの承認が必要（`merge_approval`）
 - 設計方針とコードの乖離が大きく解決しない（`ambiguous_spec`）
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

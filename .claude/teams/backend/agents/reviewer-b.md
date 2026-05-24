@@ -104,7 +104,7 @@ Reviewer-A の独立レビュー完了後にクロスレビューを実施しま
 
 - セキュリティ脆弱性を発見した（`legal`）
 - Reviewer-A との意見が一致せず、どちらが正しいか判断できない（`ambiguous_spec`）
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

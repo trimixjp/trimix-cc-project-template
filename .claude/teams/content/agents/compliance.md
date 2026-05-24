@@ -106,7 +106,7 @@ Issue コメント履歴から以下を確認します。
 
 - 著作権侵害・個人情報漏洩リスクなど法的判断が必要（`legal`）
 - ブランドガイドラインに記述がなく判断できない表現（`ambiguous_spec`）
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

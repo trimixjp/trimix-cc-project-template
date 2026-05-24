@@ -233,7 +233,7 @@ human-escalatorを呼び出して人間に確認を求めます。
 - Epicの要件が矛盾しており、分解方針を決定できない
 - 既存の チームマッピングに該当しない新しい領域の作業が含まれる
 - セキュリティ・法的判断を伴うチームアサインが必要
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象が発生した
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象が発生した
 
 ---
 

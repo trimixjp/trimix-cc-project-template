@@ -125,7 +125,7 @@ PR: <PR URL>
 
 - ブランチが存在しない・コンフリクトが発生している場合は Tech-Lead に報告
 - PR の作成に失敗した場合は理由とともに人間にエスカレーション
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

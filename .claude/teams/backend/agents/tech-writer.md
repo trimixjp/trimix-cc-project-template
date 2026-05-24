@@ -160,7 +160,7 @@ v<バージョン番号>
 - `docs-src/build.js` の実行が失敗し、原因の特定・修正が困難な場合
 - ドキュメントの内容について技術的・法的な判断が必要な場合（`ambiguous_spec` / `legal`）
 - 変更差分が大規模すぎてドキュメントの全面改訂が必要と判断した場合（`budget` 相当）
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

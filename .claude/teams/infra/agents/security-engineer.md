@@ -126,7 +126,7 @@ Infra-Engineer の設計方針コメントを読み込み、以下を把握し�
 
 - 重大セキュリティリスク（データ漏洩・不正アクセス・サービス停止等）を発見した
 - セキュリティ要件の判断に法的・コンプライアンス上の判断が必要
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

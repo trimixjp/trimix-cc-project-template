@@ -105,7 +105,7 @@ Issue 要件と参考資料から以下を分析します。
 
 - 参考サイトのデザインをそのまま模倣することが著作権・商標侵害にあたる可能性がある（`legal`）
 - 要件が矛盾しており、どのUIパターンが適切か判断できない（`ambiguous_spec`）
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

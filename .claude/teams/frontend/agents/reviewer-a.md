@@ -121,7 +121,7 @@ Reviewer-B の独立レビュー完了後にクロスレビューを実施しま
 - XSS 脆弱性・セキュリティ問題を発見した（`legal`）
 - PR の作成・マージの承認が必要（`merge_approval`）
 - Reviewer-B との意見が一致せず、どちらが正しいか判断できない（`ambiguous_spec`）
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

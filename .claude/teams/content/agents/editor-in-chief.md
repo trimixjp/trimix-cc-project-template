@@ -101,7 +101,7 @@ Complianceの承認コメントを確認後、`contributor:ready` ラベルを�
 
 - コンテンツの法的リスク（名誉毀損・著作権・個人情報）が疑われる
 - ブランドガイドラインに記述がなく判断がつかない表現
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

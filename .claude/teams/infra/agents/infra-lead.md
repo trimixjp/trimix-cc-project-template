@@ -127,7 +127,7 @@ Infra-Lead はインフラチームの「リーダーAI」です。インフラ�
 - 公式ドキュメントに記述がなく設計方針が決定できない
 - インフラ変更が本番環境の停止を伴う可能性がある
 - シークレット・APIキー等の新規発行・ローテーションに予算承認が必要
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 
