@@ -90,6 +90,8 @@ steps:
     on_complete:
       condition: 独立レビュー完了
       next: cross-review  # 両者完了後にクロスレビューへ
+    on_escalation:
+      next: human-escalator
 
   - id: reviewer-b
     agent: reviewer-b
@@ -99,6 +101,8 @@ steps:
     on_complete:
       condition: 独立レビュー完了
       next: cross-review  # 両者完了後にクロスレビューへ
+    on_escalation:
+      next: human-escalator
 
   - id: cross-review
     agent: reviewer-a  # Reviewer-Aがクロスレビューをリード、Reviewer-Bが応答
