@@ -1,0 +1,102 @@
+name: "🔄 ワークフロー定期見直し"
+description: "AIチームのワークフロー・エージェント定義・設定ファイルの月次見直しを行います"
+title: "[Review] ワークフロー月次見直し — YYYY-MM"
+labels:
+  - "backend:tech-lead"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > このIssueは月次でワークフロー・エージェント・設定ファイルの見直しを行うためのテンプレートです。
+        > タイトルの `YYYY-MM` を対象月（例: `2026-06`）に書き換えてください。
+        > ラベル `backend:tech-lead` が付与されると Tech-Lead が自動起動します。
+
+  - type: markdown
+    attributes:
+      value: |
+        ## 見直し対象ファイル
+
+        - `.claude/teams/*/workflow.yml`
+        - `.claude/teams/*/agents/*.md`
+        - `.claude/ai-team-config.yml`
+        - `.github/ISSUE_TEMPLATE/*.yml`
+
+  - type: checkboxes
+    id: workflow-review
+    attributes:
+      label: "ワークフロー定義のレビュー項目"
+      description: "各項目を確認し、問題があればIssueコメントに詳細を記載してください"
+      options:
+        - label: "全ての `on_complete` に `next` または `action` が定義されている"
+        - label: "全ての `on_escalation` が `human-escalator` を指している"
+        - label: "並列ステップの `requires_all_of` が正しく設定されている"
+        - label: "ラベル命名規則（`<チーム名>:<エージェント名>`）が統一されている"
+        - label: "`on_rework` の差し戻し先が適切なステップを指している"
+        - label: "`contributor-close` が全ワークフローの終端として定義されている"
+
+  - type: checkboxes
+    id: agent-review
+    attributes:
+      label: "エージェント定義のレビュー項目"
+      options:
+        - label: "エージェント定義とワークフローのステップIDが一致している"
+        - label: "エスカレーション条件が最新の運用状況に合っている"
+        - label: "GitHub Issueコメントフォーマットが陳腐化していない"
+        - label: "新規エージェントを追加した場合、`ai-team-config.yml` の `target_labels` が更新されている"
+
+  - type: checkboxes
+    id: config-review
+    attributes:
+      label: "設定ファイルのレビュー項目"
+      options:
+        - label: "`ai-team-config.yml` の `version_management` 設定が現在の運用に合っている"
+        - label: "`poll_interval_minutes` が適切な値に設定されている"
+        - label: "`skip_labels` に除外すべきラベルが漏れなく含まれている"
+
+  - type: checkboxes
+    id: incident-review
+    attributes:
+      label: "インシデント・学習のレビュー項目"
+      options:
+        - label: "`.claude/incidents/index.yml` に前月のインシデントが記録されている"
+        - label: "繰り返し発生しているエスカレーションパターンがないか確認した"
+        - label: "DODのチェックリストに抜け漏れがないか確認した"
+        - label: "compliance-rules が法改正・業界動向を反映している"
+
+  - type: textarea
+    id: improvements
+    attributes:
+      label: "改善提案・気づき"
+      description: "前月の運用を通じて気づいた改善点や提案があれば記載してください"
+      placeholder: |
+        - （例）〇〇チームのエスカレーションが多いため、判断基準を明確化したい
+        - （例）〇〇エージェントのコメントフォーマットが古くなっている
+        - （例）新しいコンプライアンスルールを追加する必要がある
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 完了条件（DOD）
+
+        - [ ] 上記チェックリストの全項目を確認した
+        - [ ] 問題があれば修正してコミットした
+        - [ ] 改善提案があれば別Issueを作成した
+        - [ ] 次月の見直しIssueを作成するか、Cronトリガーが設定されている
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 定期起票の仕組み
+
+        このIssueを毎月自動で作成するには、以下のいずれかの方法を利用してください。
+
+        ### 方法A: GitHub Actions（推奨）
+
+        `.github/workflows/monthly-workflow-review.yml` を作成し、月初に自動起票します。
+        設定例は `.claude/docs/domain-workflow-guide.md` の「定期見直しの推奨事項」を参照してください。
+
+        ### 方法B: 手動起票
+
+        毎月初旬に担当者がこのテンプレートからIssueを作成します。
