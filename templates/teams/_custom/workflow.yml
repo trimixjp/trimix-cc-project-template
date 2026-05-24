@@ -1,0 +1,38 @@
+# {{team_name}} ワークフロー定義
+# /ai-team-create で生成されたカスタムチームのワークフローです
+
+name: {{team_id}}-workflow
+description: {{team_description}}
+
+labels:
+  prefix: "{{team_id}}"
+  examples:
+    - "{{team_id}}:{{first_agent_id}}"
+    - "contributor:ready"
+    - "escalated:human"
+
+steps:
+
+  - id: {{first_agent_id}}
+    agent: {{first_agent_id}}
+    label: "{{team_id}}:{{first_agent_id}}"
+    description: 最初のエージェントが担当する処理
+    on_complete:
+      next: contributor-close
+    on_escalation:
+      next: human-escalator
+
+  - id: human-escalator
+    agent: human-escalator
+    label: "escalated:human"
+    description: 判断できない事項を人間にエスカレーション
+    on_complete:
+      condition: 人間が判断・返答
+      next: return_to_previous
+
+  - id: contributor-close
+    agent: contributor
+    label: "contributor:ready"
+    description: DOD確認・コメント品質チェック・Issueクローズ・インシデント調査
+    on_complete:
+      action: close_issue
