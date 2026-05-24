@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dispatcher エージェント - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.9.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class="active"><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">Dispatcher エージェント</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/agents/dispatcher.html" >v0.5.1</option><option value="../../v0.5.2/agents/dispatcher.html" >v0.5.2</option><option value="../../v0.6.0/agents/dispatcher.html" >v0.6.0</option><option value="../../v0.7.0/agents/dispatcher.html" >v0.7.0</option><option value="../../v0.8.0/agents/dispatcher.html" >v0.8.0</option><option value="../../v0.9.0/agents/dispatcher.html" selected>v0.9.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>Dispatcher エージェント</h1>
+
+<p>Dispatcher は、大きな作業要件（Epic Issue）を受け取り、各チームが実行できる単位のタスクに分解して割り当てる「仕事の振り分け役」です。このエージェントが動くことで、複雑な要件でも適切なチームへスムーズに引き継がれます。</p>
+
+<p>> <strong>定義場所</strong>: <code>.claude/agents/dispatcher.md</code></p>
+
+<hr>
+
+<h2>何をするエージェントか</h2>
+
+<p>Dispatcher は次の 2 つのことを行います。</p>
+
+<ol><li><strong>Epic の内容を読み解く</strong> — Issue に書かれた要件を解析し、どのチームが関係するかを判断する</li><li><strong>タスクを振り分ける</strong> — 単一チームで完結するならそのままディスパッチし、複数チームにまたがるなら Sub Issue を生成して各チームへ割り当てる</li></ol>
+<p>実行計画（フェーズ・依存関係）は必ず Epic Issue のコメントとして記録されるため、<strong>人間も含めた全員がどの順序で何が進んでいるかを把握</strong>できます。</p>
+
+<hr>
+
+<h2>起動条件</h2>
+
+<table><thead><tr><th>条件</th><th>説明</th></tr></thead><tbody><tr><td><code>epic</code> ラベル付き Issue の作成・更新</td><td>新しい Epic が登録されたとき</td></tr><tr><td><code>dispatcher</code> ラベルの付与</td><td>既存 Issue を Dispatcher に再処理させたいとき</td></tr><tr><td><code>dispatcher:run</code> ラベルの手動付与</td><td>人間や他のエージェントが明示的に起動を要求したとき</td></tr></tbody></table>
+<hr>
+
+<h2>動作フロー</h2>
+
+<div class="mermaid">flowchart TD
+    A[Epic Issue が登録される] --> B[🔍 分析開始コメントを投稿]
+    B --> C{複数チームにまたがるか?}
+    C -- 単一チームで完結 --> D[ケースA: Epic に担当ラベルを直接付与]
+    C -- 複数チームにまたがる --> E[ケースB: チームごとに Sub Issue を生成]
+    D --> F[📋 ディスパッチ完了コメントを投稿]
+    E --> G[Sub Issue を Epic にリンク]
+    G --> H[実行フェーズ・依存関係を Epic コメントに記録]
+    H --> F
+    F --> I[各チームのリーダーエージェントへ引き継ぎ]</div>
+
+<hr>
+
+<h2>ケースA: 単一チームで完結する場合</h2>
+
+<p>作業がひとつのチームの範囲に収まる場合は、Sub Issue を新たに作らず Epic Issue 本体に担当チームのラベルを付与して直接ディスパッチします。</p>
+
+<p><strong>典型的な判断基準</strong></p>
+
+<table><thead><tr><th>チーム</th><th>担当の目安</th></tr></thead><tbody><tr><td>バックエンドチーム（tech-lead）</td><td>コード実装・API 変更・テスト追加が主体</td></tr><tr><td>コンテンツチーム（editor-in-chief）</td><td>ドキュメント・仕様書・コンテンツ作成が主体</td></tr><tr><td>インフラチーム（infra-engineer）</td><td>インフラ構成・CI/CD・環境設定変更が主体</td></tr></tbody></table>
+<hr>
+
+<h2>ケースB: 複数チームにまたがる場合</h2>
+
+<p>作業が複数のチームに関わる場合は、チームごとに Sub Issue を 1 件ずつ生成します。各 Sub Issue には担当チームのラベルが付与され、対応するチームリーダーエージェントが自動的に起動します。</p>
+
+<p>Sub Issue 間に依存関係がある場合（例: インフラ設定が完了してからバックエンド実装を開始するなど）は、フェーズを分けた実行計画がコメントに記録されます。</p>
+
+<div class="mermaid">sequenceDiagram
+    actor 人間
+    participant Dispatcher
+    participant GitHub Issues
+
+    人間->>GitHub Issues: Epic Issue を登録
+    GitHub Issues->>Dispatcher: epic ラベルを検知して起動
+    Dispatcher->>GitHub Issues: 🔍 分析開始コメントを投稿
+    Dispatcher->>Dispatcher: 要件を解析・チーム境界を判定
+    Dispatcher->>GitHub Issues: Sub Issue #A を生成（チームA担当）
+    Dispatcher->>GitHub Issues: Sub Issue #B を生成（チームB担当）
+    Dispatcher->>GitHub Issues: 📋 Sub Issue 分解完了コメントを投稿<br/>（フェーズ・依存関係を含む）
+    GitHub Issues-->>チームA: backend:tech-lead ラベルで起動
+    GitHub Issues-->>チームB: infra:engineer ラベルで起動</div>
+
+<hr>
+
+<h2>GitHub コメントの形式</h2>
+
+<h3>分析開始時</h3>
+
+<p>Epic Issue に次のコメントが投稿されます。</p>
+
+<pre><code class="language-">🔍 Dispatcher: 分析を開始します
+
+対象Issue: #&lt;番号&gt; &lt;タイトル&gt;
+分析中のシステム領域: &lt;フロントエンド / バックエンド / インフラ / ドキュメント 等&gt;</code></pre>
+
+<h3>ケースA 完了時（単一チームへのディスパッチ）</h3>
+
+<pre><code class="language-">📋 Dispatcher: 単一チームにディスパッチ完了
+
+担当チーム: &lt;チーム名&gt;
+担当リーダー: &lt;リーダーエージェント名&gt;</code></pre>
+
+<h3>ケースB 完了時（複数チームへの分解）</h3>
+
+<pre><code class="language-">📋 Dispatcher: Sub Issue 分解完了
+
+生成した Sub Issue:
+- #&lt;番号&gt; [tech-lead] &lt;タイトル&gt;
+- #&lt;番号&gt; [infra-engineer] &lt;タイトル&gt;
+- #&lt;番号&gt; [editor-in-chief] &lt;タイトル&gt;
+
+実行フェーズ: &lt;フェーズ数&gt;
+並列実行可能な Sub Issue: &lt;番号リスト&gt;
+依存関係あり（順序制約）: &lt;番号 → 番号&gt;</code></pre>
+
+<h3>判断不能時（エスカレーション前）</h3>
+
+<pre><code class="language-">⚠️ Dispatcher: 判断不能項目あり
+
+以下の項目についてチームアサインの判断ができませんでした。
+human-escalator を呼び出して人間に確認を求めます。
+
+判断不能の理由:
+- （理由を具体的に記述）</code></pre>
+
+<hr>
+
+<h2>エスカレーション</h2>
+
+<p>以下のケースでは Dispatcher は自分で判断せず、Human-Escalator を呼び出して人間に確認を求めます。</p>
+
+<ul><li>Epic の要件が矛盾しており、分解方針を決定できない</li><li>既存のチームマッピングに該当しない新しい領域の作業が含まれる</li><li>セキュリティや法的判断を伴うチームアサインが必要</li><li><code>escalation-rules.yml</code> のエスカレーショントリガーに該当する事象が発生した</li></ul>
+<hr>
+
+<h2>重要な原則</h2>
+
+<ul><li>Dispatcher 自身はコードを書かず、実装判断も行いません</li><li>Sub Issue のタイトル・本文には、担当リーダーが作業を開始できる十分な情報が含まれます</li><li>依存関係を明確にせずに Sub Issue を生成することはありません</li><li>1 つの Sub Issue の担当チームは必ず 1 つです</li></ul>
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="contributor.html">Contributor</a> — 作業完了確認・Issue クローズ担当</li><li><a href="human-escalator.html">Human-Escalator</a> — 人間へのエスカレーション担当</li><li><a href="../reference/escalation.html">エスカレーションルール</a> — エスカレーション条件の詳細</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
