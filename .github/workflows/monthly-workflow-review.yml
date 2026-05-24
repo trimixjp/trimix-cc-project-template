@@ -83,7 +83,7 @@ jobs:
               repo: context.repo.repo,
               title: title,
               body: body,
-              labels: ['backend:tech-lead', 'sub-issue']
+              labels: ['backend:tech-lead']
             });
 
             console.log(`月次見直しIssueを作成しました: ${title}`);
