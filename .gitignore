@@ -6,12 +6,5 @@ node_modules/
 # グローバルgitignoreの docs/ 除外を public/docs/ では解除
 !public/docs/
 
-# AIチームがインストール・管理するファイル（パッケージが正源 = templates/ で管理）
-# プロジェクト固有ファイル（.claude/CLAUDE.md, .claude/ai-team-config.yml, .claude/incidents/）はgit管理対象
-.claude/agents/
-.claude/commands/
-.claude/dod/
-.claude/docs/
-.claude/escalation-rules.yml
-.claude/teams/
-.claude/settings.local.json
+# .claude/ はすべて非公開（ローカル専用）
+.claude/
