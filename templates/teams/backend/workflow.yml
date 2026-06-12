@@ -4,6 +4,10 @@
 name: backend-workflow
 description: コード実装・API・テスト等バックエンドリングタスクのワークフロー
 
+# 同一Issueでの差し戻し上限。3回目の不合格は escalated:human へ
+# （reviewer / cross-review の「不合格」判定をカウントする。カウント手順は各レビュアー定義の「差し戻しカウント手順」を参照）
+rework_limit: 2
+
 # ラベル命名規則
 labels:
   prefix: "backend"
@@ -79,6 +83,8 @@ steps:
     on_rework:
       condition: 不合格
       next: implementer
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は implementer へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
     on_escalation:
       next: human-escalator
 
@@ -114,6 +120,8 @@ steps:
     on_rework:
       condition: 不合格
       next: implementer
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は implementer へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
     on_escalation:
       condition: 意見が割れて判断できない
       next: human-escalator
