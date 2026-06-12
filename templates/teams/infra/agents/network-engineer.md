@@ -104,7 +104,7 @@ Infra-Lead の設計方針コメントを読み込み、担当するネットワ
 - 設定変更が本番ネットワークの停止を伴う
 - セキュリティ上のリスクを発見した（Security-Engineer に連携）
 - 公式ドキュメントに記述がなく実装方針が決定できない
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

@@ -110,10 +110,12 @@ Infra-Lead はインフラチームの「リーダーAI」です。インフラ�
 
 全ての実装完了後、`infra:security-engineer` ラベルに更新してセキュリティレビューを依頼します。
 
-### ステップ6: レビュー結果の受け取りと Contributor への引き継ぎ
+### ステップ6: セキュリティレビュー不合格時の再対応
 
-- **合格**: `contributor:ready` ラベルを付与して Contributor に引き継ぎ
-- **不合格**: 指摘内容を担当エージェントに差し戻し
+セキュリティレビュー後の遷移は workflow.yml の定義に従います。
+
+- **合格**: Security-Engineer が `contributor:ready` ラベルを付与して**直接 Contributor に引き継ぎます**（Infra-Lead は関与しません）
+- **不合格**: `infra:infra-lead` ラベルに戻されます。Infra-Lead は Security-Engineer の指摘内容を確認して**設計から見直し**、ステップ2以降を再実施して担当エージェントへ再度タスクを振り分けます
 
 ---
 
@@ -165,7 +167,7 @@ Infra-Lead はインフラチームの「リーダーAI」です。インフラ�
 - 公式ドキュメントに記述がなく設計方針が決定できない
 - インフラ変更が本番環境の停止を伴う可能性がある
 - シークレット・APIキー等の新規発行・ローテーションに予算承認が必要
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

@@ -58,16 +58,19 @@ grep "version_management" .claude/ai-team-config.yml
 # 現在のバージョンを確認
 node -e "console.log(require('./package.json').version)"
 
-# 前回のバージョンタグを取得
-git describe --tags --abbrev=0 2>/dev/null || echo "(タグなし)"
+# 前回のバージョンタグを取得（タグ未初期化時は空文字列）
+LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
 
-# 前回タグ以降のコミットログを取得
-git log --oneline $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD
+# 対象コミット範囲を決定（タグ未初期化時は RANGE="HEAD" となり、初回コミットを含む全件が対象になる）
+if [ -n "$LATEST_TAG" ]; then RANGE="$LATEST_TAG..HEAD"; else RANGE="HEAD"; fi
+
+# 対象範囲のコミットログを取得
+git log --format='%s' $RANGE
 ```
 
 ### ステップ3: バージョンアップ種別の判定
 
-**対象コミット範囲の判定手順:** 前回タグ（`git describe --tags --abbrev=0`）以降の全コミットを対象とします。タグが未初期化（git describe が失敗）の場合は最初のコミット以降すべてを対象とします。
+**対象コミット範囲の判定手順:** 前回タグ（`git describe --tags --abbrev=0`）以降の全コミットを対象とします。タグが未初期化（git describe が失敗）の場合は `RANGE="HEAD"` とし、**初回コミットを含む全コミット**を対象とします。
 
 conventional commit を以下の対応表・判定正規表現で機械的に判定します（拡張正規表現。優先順位の高い順に評価）。
 
@@ -77,11 +80,14 @@ conventional commit を以下の対応表・判定正規表現で機械的に判
 | 2 | minor | `^feat(\(.+\))?:` | コミット1行目 | x.Y.0 |
 | 3 | patch | `^(fix\|perf\|refactor\|docs\|test\|chore\|ci\|build\|style)(\(.+\))?:` | コミット1行目 | x.y.Z |
 
+※ 表中の `\|` は Markdown 表のためのエスケープです。実行時は表の正規表現をコピーせず、下記コマンドブロックの正規表現を使用してください。
+
 **判定コマンド:**
 
 ```bash
-# 対象コミット範囲（前回タグ以降。タグ未初期化時は最初のコミットから）
-RANGE="$(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD"
+# 対象コミット範囲（前回タグ以降。タグ未初期化時は RANGE="HEAD" = 初回コミットを含む全件が対象）
+LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
+if [ -n "$LATEST_TAG" ]; then RANGE="$LATEST_TAG..HEAD"; else RANGE="HEAD"; fi
 
 # major 判定（いずれかが1以上なら major）
 git log --format='%B' $RANGE | grep -cE '^BREAKING CHANGE:'
@@ -98,7 +104,7 @@ git log --format='%s' $RANGE | grep -cE '^(fix|perf|refactor|docs|test|chore|ci|
 
 - 複数コミットで種別が混在する場合は最も高いものを採用します（major > minor > patch）
 - どの正規表現にもマッチしないコミットのみの場合は **patch 扱い**とし、「判定不能のため patch を適用」と完了報告に記録します
-- **タグ未初期化時のフォールバック:** 最初のコミットから全件を対象とし、`package.json` の現在の version を基準にインクリメントします。version が未設定・取得不能な場合は **0.1.0 を起点**として設定し、その旨を記録します
+- **タグ未初期化時のフォールバック:** `RANGE="HEAD"` として初回コミットを含む全件を対象とし、`package.json` の現在の version を基準にインクリメントします。version が未設定・取得不能な場合は **0.1.0 を起点**として設定し、その旨を記録します
 
 ### ステップ4: package.json の更新とコミット
 
@@ -129,7 +135,7 @@ git commit -m "chore: v$NEW_VERSION にバージョンアップ"
 - 更新前: v<旧バージョン>
 - 更新後: v<新バージョン>
 - 種別: <patch / minor / major>
-- 対象コミット範囲: <前回タグ>..HEAD（タグ未初期化時は最初のコミットから）
+- 対象コミット範囲: <前回タグ>..HEAD（タグ未初期化時は HEAD = 初回コミットを含む全件）
 
 ## 判断根拠
 | コミット | マッチした正規表現 | 判定 |

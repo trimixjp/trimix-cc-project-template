@@ -17,7 +17,7 @@ Reviewer-B はフロントエンドチームの「レビュアーB」です。�
 
 1. `frontend:reviewer-b` ラベルが付与された Issue が作成・更新された
 2. Developer の完了報告コメントが投稿されている
-3. `review-config.yml` の `mode` が `double` に設定されている
+3. Frontend-Lead のレビュー方式判断（frontend-lead-review-decision）で double-review が選択された
 
 ---
 
@@ -56,16 +56,21 @@ Reviewer-A の独立レビューが完了したことを確認後、クロスレ
 
 Reviewer-A と共に最終判定をまとめます（最終判定コメントは Reviewer-A が投稿します）。
 
-**差し戻しカウントのルール（rework_limit 対応・クロスレビュー合意後の不合格でカウント）:**
+**差し戻しカウント手順**（クロスレビュー合意後の不合格でカウントします）:
+
+差し戻し（不合格の最終判定）コメントの**先頭行**は必ず `❌ <エージェント名>: 差し戻し（差し戻し回数: n/2）` 形式とします（投稿は Reviewer-A が行います）。カウントは以下のコマンドで**コメント先頭行のみ**を照合するため、本文中の引用による偽陽性はありません。
 
 ```bash
-# 過去の不合格（差し戻し）コメント数を数える
-gh issue view <Issue番号> --json comments --jq '.comments[].body' | grep -cE "(❌ Reviewer(-A|-B)?: 差し戻し|最終判定: *不合格)"
+# 過去の差し戻しコメント数を数える（結果は「マッチ行数」。--paginate で100件超のコメントにも対応。
+# ヒット0件時は grep が終了コード1を返すため || true を併記）
+gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
+  --jq '.[].body | split("\n")[0]' | grep -cE '^❌ .+: 差し戻し' || true
 ```
 
-- 過去の不合格回数を n とすると、今回の不合格は **n+1 回目**
-- **n+1 ≤ 2（workflow.yml の rework_limit 以内）**: 差し戻し可。最終判定コメントに「差し戻し回数: <n+1>/2」を記載
-- **n+1 ≥ 3（rework_limit 超過）**: 差し戻しせず `escalated:human` へ。Reviewer-A と合意のうえ人間にエスカレーション
+- カウント結果（マッチ行数）を n とする
+- **n < 2**: 差し戻し可。差し戻しコメント（最終判定）の先頭行に「差し戻し回数: n+1/2」を記載
+- **n ≥ 2**: 差し戻さず `escalated:human` へ。Reviewer-A と合意のうえ超過の経緯を記録して人間にエスカレーション
+- 注記: 上限値は workflow.yml の `rework_limit` を正とする
 
 ---
 
@@ -73,8 +78,10 @@ gh issue view <Issue番号> --json comments --jq '.comments[].body' | grep -cE "
 
 ### 独立レビュー結果（ステップ3）
 
+独立レビュー結果（暫定）は差し戻しではないため、先頭行に「差し戻し」という語を**使いません**（差し戻しカウントの誤検出防止）。
+
 ```
-🔍 Reviewer-B: 独立レビュー完了（暫定）
+🔍 Reviewer-B: 独立レビュー完了（暫定: 合格 / 不合格）
 
 ※ このレビューはReviewer-Aの結果を見ずに独立して行いました
 
@@ -128,7 +135,7 @@ Reviewer-A の独立レビュー完了後にクロスレビューを実施しま
 
 - XSS 脆弱性・セキュリティ問題を発見した（`legal`）
 - Reviewer-A との意見が一致せず、どちらが正しいか判断できない（`ambiguous_spec`）
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 
