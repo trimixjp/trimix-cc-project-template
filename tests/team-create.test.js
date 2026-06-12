@@ -34,6 +34,53 @@ test('_custom/workflow.yml が存在し必須プレースホルダーを含む',
   assert.ok(content.includes('human-escalator'), 'human-escalator ステップが含まれていない');
 });
 
+test('_custom/workflow.yml が旧スキーマのキーを使っていない', () => {
+  const workflowPath = join(packageRoot, 'templates', 'teams', '_custom', 'workflow.yml');
+  const content = readFileSync(workflowPath, 'utf-8');
+
+  // AND待機は requires_all_of が正（旧キー requires: は禁止）
+  assert.ok(!/^\s*requires:/m.test(content), '旧キー requires: が使われていないこと（requires_all_of が正）');
+  // on_rework の判定キーは condition が正（旧キー trigger: は禁止）
+  assert.ok(!/^\s*trigger:/m.test(content), '旧キー trigger: が使われていないこと（condition が正）');
+});
+
+test('/ai-team create の生成器（workflow-yaml.js）が新スキーマで生成する', async () => {
+  const { buildWorkflowYaml } = await import('../bin/lib/workflow-yaml.js');
+
+  const yaml = buildWorkflowYaml({
+    name: 'custom-team-workflow',
+    description: 'カスタムチーム生成テスト',
+    prefix: 'custom',
+    steps: [
+      {
+        id: 'reviewer',
+        agent: 'reviewer',
+        label: 'custom:reviewer',
+        on_complete: { next: 'cross-review' },
+        on_rework: { condition: '不合格', next: 'implementer' },
+      },
+      {
+        id: 'cross-review',
+        agent: 'reviewer-a',
+        label: 'custom:reviewer-a',
+        requires_all_of: ['reviewer-a', 'reviewer-b'],
+        on_complete: { next: 'contributor-close' },
+      },
+    ],
+  });
+
+  // rework_limit がトップレベルに生成される
+  assert.ok(yaml.includes('rework_limit: 2'), 'rework_limit: 2 が生成されること');
+  // on_rework を持つステップに limit_exceeded_next が生成される
+  assert.ok(yaml.includes('      limit_exceeded_next: human-escalator'), 'limit_exceeded_next: human-escalator が生成されること');
+  // AND待機は requires_all_of で生成される
+  assert.ok(yaml.includes('    requires_all_of: [reviewer-a, reviewer-b]'), 'requires_all_of が生成されること');
+  assert.ok(!/^\s*requires:/m.test(yaml), '旧キー requires: が生成されないこと');
+  // on_rework は condition キーで生成される
+  assert.ok(yaml.includes('      condition: "不合格"'), 'on_rework.condition が生成されること');
+  assert.ok(!/^\s*trigger:/m.test(yaml), '旧キー trigger: が生成されないこと');
+});
+
 test('_custom/review-config.yml が存在する', () => {
   const configPath = join(packageRoot, 'templates', 'teams', '_custom', 'review-config.yml');
   assert.ok(existsSync(configPath), '_custom/review-config.yml が存在しない');
