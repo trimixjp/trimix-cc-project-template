@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>トラブルシューティング - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.11.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class="active"><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">トラブルシューティング</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/guide/troubleshooting.html" >v0.5.1</option><option value="../../v0.5.2/guide/troubleshooting.html" >v0.5.2</option><option value="../../v0.6.0/guide/troubleshooting.html" >v0.6.0</option><option value="../../v0.7.0/guide/troubleshooting.html" >v0.7.0</option><option value="../../v0.8.0/guide/troubleshooting.html" >v0.8.0</option><option value="../../v0.9.0/guide/troubleshooting.html" >v0.9.0</option><option value="../../v0.10.0/guide/troubleshooting.html" >v0.10.0</option><option value="../../v0.11.0/guide/troubleshooting.html" selected>v0.11.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>トラブルシューティング</h1>
+
+<p>セットアップや日常的な運用で発生しがちな問題とその解決方法をまとめています。</p>
+
+<hr>
+
+<h2>セットアップ時のトラブル</h2>
+
+<h3>npm install が失敗する</h3>
+
+<p><strong>症状</strong></p>
+
+<p>次のようなエラーが表示される場合があります。</p>
+
+<pre><code class="language-">EACCES: permission denied
+npm ERR! code EACCES</code></pre>
+
+<p><strong>原因と解決手順</strong></p>
+
+<table><thead><tr><th>原因</th><th>解決手順</th></tr></thead><tbody><tr><td><code>~/.npm</code> ディレクトリの権限が不足している</td><td><code>sudo chown -R $(whoami) ~/.npm</code> を実行して権限を修正する</td></tr><tr><td>グローバルインストールが必要なパッケージに依存している</td><td><code>npm install</code> の代わりに <code>npm install --save-dev</code> を使用する</td></tr><tr><td>Node.js バージョンが <code>18.0.0</code> 未満</td><td><code>node --version</code> で確認し、必要に応じて更新する（<a href="../getting-started.html">前提条件</a> 参照）</td></tr></tbody></table>
+<hr>
+
+<h3>スキルファイルが展開されない</h3>
+
+<p><strong>症状</strong></p>
+
+<code>npm install</code> を実行したが <code>.claude/commands/</code> に <code>ai-team-*.md</code> ファイルが存在しない。
+
+<p><strong>原因</strong></p>
+
+<code>bin/postinstall.js</code> の実行に失敗している可能性があります。
+
+<p><strong>解決手順</strong></p>
+
+<ol><li><code>.claude/commands/</code> ディレクトリが存在するか確認します。</li></ol>
+<p>   <pre><code class="language-bash">   ls -la .claude/commands/</code></pre></p>
+
+<ol><li>存在しない場合は以下でディレクトリを作成して手動展開します。</li></ol>
+<p>   <pre><code class="language-bash">   mkdir -p .claude/commands
+   node node_modules/@trimix/ai-team/bin/postinstall.js</code></pre></p>
+
+<ol><li>完了後、<code>ai-team-setup.md</code> などのファイルが展開されているか確認します。</li></ol>
+<hr>
+
+<h3>GitHub CLI 認証エラー</h3>
+
+<p><strong>症状</strong></p>
+
+<code>/ai-team-setup</code> でラベル作成ステップが失敗する。<code>gh auth status</code> が以下のようなエラーを返す。
+
+<pre><code class="language-">You are not logged into any GitHub hosts. Run gh auth login to authenticate.</code></pre>
+
+<p><strong>解決手順</strong></p>
+
+<ol><li>GitHub CLI でログインします。</li></ol>
+<p>   <pre><code class="language-bash">   gh auth login</code></pre></p>
+
+<ol><li>ブラウザが開いてデバイス認証画面が表示されます。指示に従って認証を完了してください。</li></ol>
+<ol><li>認証完了後、以下で確認します。</li></ol>
+<p>   <pre><code class="language-bash">   gh auth status</code></pre></p>
+
+<ol><li>GitHub リポジトリへのアクセス権を持つアカウントで認証されていることを確認してください。</li></ol>
+<hr>
+
+<h2>ワークフロー実行時のトラブル</h2>
+
+<h3><code>/ai-team run</code> が Issue を見つけられない</h3>
+
+<p><strong>症状</strong></p>
+
+<code>/ai-team run 42</code> を実行しても Issue が見つからない、または「権限がない」エラーが返る。
+
+<p><strong>原因と解決手順</strong></p>
+
+<table><thead><tr><th>原因</th><th>解決手順</th></tr></thead><tbody><tr><td>GitHub CLI が正しいリポジトリを向いていない</td><td><code>gh repo view</code> でリポジトリを確認する</td></tr><tr><td>Issue 番号が存在しない</td><td><code>gh issue list</code> で番号を確認する</td></tr><tr><td>Issues 機能が無効になっている</td><td>GitHub リポジトリの Settings > Features > Issues を有効化する</td></tr><tr><td>GitHub CLI が未認証</td><td><code>gh auth login</code> で認証する</td></tr></tbody></table>
+<hr>
+
+<h3>エージェントが途中で停止する・進まない</h3>
+
+<p><strong>症状</strong></p>
+
+<code>/ai-team run</code> を実行したが、途中でエージェントが応答しなくなる。Issue にコメントが投稿されない。
+
+<p><strong>確認手順</strong></p>
+
+<ol><li>Issue のラベルを確認します。</li></ol>
+<p>   <pre><code class="language-bash">   gh issue view &lt;番号&gt; --json labels</code></pre></p>
+
+<ol><li><code>escalated:human</code> ラベルが付いている場合は、人間の判断が必要な状態です。Issue のコメントを読み、対応してください。対応後は <code>/ai-team resume</code> で再開できます（<a href="../skills/resume.html">エスカレーション再開</a> 参照）。</li></ol>
+<ol><li><code>ai-team:in-progress</code> ラベルが付いている場合は、別のセッションで処理中の可能性があります。意図しない場合はラベルを手動で除去してください。</li></ol>
+<p>   <pre><code class="language-bash">   gh issue edit &lt;番号&gt; --remove-label "ai-team:in-progress"</code></pre></p>
+
+<hr>
+
+<h3><code>/ai-team resume</code> が動かない（エスカレーション解除後）</h3>
+
+<p><strong>症状</strong></p>
+
+<code>escalated:human</code> ラベルを手動で外して <code>/ai-team resume</code> を実行したが、「再開対象 Issue が見つかりません」と表示される。
+
+<p><strong>原因</strong></p>
+
+<code>escalated:human</code> ラベルの除去が GitHub に反映される前に実行した可能性があります。
+
+<p><strong>解決手順</strong></p>
+
+<ol><li>ラベルが正しく除去されているか確認します。</li></ol>
+<p>   <pre><code class="language-bash">   gh issue view &lt;番号&gt; --json labels</code></pre></p>
+
+<ol><li>ラベルが残っている場合は再度除去してください。</li></ol>
+<p>   <pre><code class="language-bash">   gh issue edit &lt;番号&gt; --remove-label "escalated:human"</code></pre></p>
+
+<ol><li><code>/ai-team resume</code> を再実行します。</li></ol>
+<ol><li>それでも再開できない場合は、Issue 番号を直接指定して <code>/ai-team run &lt;番号&gt;</code> を実行してください。エージェントが Issue コメント履歴を読み、前回のどのステップまで完了したかを判断して続きから再開します。</li></ol>
+<hr>
+
+<h2>ソロモードのトラブル</h2>
+
+<h3><code>/ai-team watch</code> が新しい Issue を検出しない</h3>
+
+<p><strong>症状</strong></p>
+
+<p>ソロモードで <code>/ai-team watch</code> を実行しているが、新規 Issue が作成されても自動処理が始まらない。</p>
+
+<p><strong>確認手順</strong></p>
+
+<ol><li><code>.claude/ai-team-config.yml</code> を確認し、<code>mode: solo</code> になっているかチェックします。</li></ol>
+<p>   <pre><code class="language-bash">   cat .claude/ai-team-config.yml</code></pre></p>
+
+<ol><li><code>solo.target_labels</code> に、Issue に付与しているラベルが含まれているか確認します。</li></ol>
+<p>   <pre><code class="language-yaml">   solo:
+     target_labels:
+       - content:editor-in-chief   # ← この設定が必要</code></pre></p>
+
+<ol><li>Issue に <code>ai-team:in-progress</code> や <code>escalated:human</code> など <code>skip_labels</code> に定義されたラベルが付いていないか確認します。これらがあるとスキップされます。</li></ol>
+<ol><li><code>poll_interval_minutes</code> の待機時間が経過したか確認します。デフォルトは 5 分です。</li></ol>
+<hr>
+
+<h3>ポーリング間隔を変更したい</h3>
+
+<code>.claude/ai-team-config.yml</code> の <code>solo.poll_interval_minutes</code> を編集してください。
+
+<pre><code class="language-yaml">solo:
+  poll_interval_minutes: 2  # 2分ごとに確認（デフォルト: 5）</code></pre>
+
+<p>変更後は <code>/ai-team watch</code> を再起動してください（Ctrl+C で停止後、再実行）。</p>
+
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="../getting-started.html">クイックスタート</a> — セットアップ手順の確認</li><li><a href="../installation.html">インストール</a> — インストール詳細</li><li><a href="../skills/resume.html">ai-team-resume</a> — エスカレーション後の再開方法</li><li><a href="../skills/watch.html">ai-team-watch</a> — ソロモードの設定</li><li><a href="../reference/config.html">設定ファイル</a> — <code>ai-team-config.yml</code> の全フィールド</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
