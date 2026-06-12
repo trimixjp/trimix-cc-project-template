@@ -5,6 +5,7 @@
  *   name: string,
  *   description: string,
  *   prefix: string,
+ *   rework_limit?: number,          // 差し戻し上限（省略時は 2）
  *   steps: Array<{
  *     id: string,
  *     agent: string,
@@ -17,10 +18,12 @@
  *       criteria: string[],
  *       next: string | string[]   // string[] の場合は並列
  *     }>,
- *     on_rework?: { trigger: string, next: string },
+ *     // condition は旧キー trigger でも受け取れるが、出力は condition に統一する
+ *     on_rework?: { condition: string, next: string, limit_exceeded_next?: string },
  *     on_escalation?: { next: string },
  *     parallel_with?: string,
- *     requires?: string[]
+ *     // AND待機。旧キー requires でも受け取れるが、出力は requires_all_of に統一する
+ *     requires_all_of?: string[]
  *   }>
  * }
  */
@@ -69,6 +72,9 @@ export function buildWorkflowYaml(config) {
     lines.push(headerDesc);
   }
   lines.push('');
+  lines.push('# 同一Issueでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ');
+  lines.push(`rework_limit: ${config.rework_limit ?? 2}`);
+  lines.push('');
   lines.push('labels:');
   lines.push(`  prefix: "${config.prefix}"`);
   lines.push('');
@@ -109,9 +115,13 @@ export function buildWorkflowYaml(config) {
 
     // on_rework は undefined/null の場合は省略
     if (step.on_rework) {
+      // 旧キー trigger で渡された場合も condition に統一して出力する
+      const reworkCondition = step.on_rework.condition ?? step.on_rework.trigger;
       lines.push('    on_rework:');
-      lines.push(`      trigger: "${step.on_rework.trigger}"`);
+      lines.push(`      condition: "${reworkCondition}"`);
       lines.push(`      next: ${step.on_rework.next}`);
+      // rework_limit 超過時の遷移先（省略時は human-escalator）
+      lines.push(`      limit_exceeded_next: ${step.on_rework.limit_exceeded_next ?? 'human-escalator'}`);
     }
 
     // on_escalation は undefined/null の場合は省略
@@ -125,9 +135,11 @@ export function buildWorkflowYaml(config) {
       lines.push(`    parallel_with: ${step.parallel_with}`);
     }
 
-    // requires は undefined/null の場合は省略、1件でも配列形式
-    if (step.requires && step.requires.length > 0) {
-      lines.push(`    requires: [${step.requires.join(', ')}]`);
+    // requires_all_of は undefined/null の場合は省略、1件でも配列形式
+    // 旧キー requires で渡された場合も requires_all_of に統一して出力する
+    const requiresAllOf = step.requires_all_of ?? step.requires;
+    if (requiresAllOf && requiresAllOf.length > 0) {
+      lines.push(`    requires_all_of: [${requiresAllOf.join(', ')}]`);
     }
   }
 

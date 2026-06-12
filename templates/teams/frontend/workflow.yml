@@ -8,6 +8,10 @@
 name: frontend-workflow
 description: UI実装・コンポーネント開発・アクセシビリティ対応等フロントエンドタスクのワークフロー
 
+# 同一Issueでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
+# （カウント手順は各レビュー役エージェント定義の「差し戻しカウント手順」を参照）
+rework_limit: 2
+
 # ラベル命名規則
 labels:
   prefix: "frontend"
@@ -18,6 +22,7 @@ labels:
     - "frontend:reviewer"
     - "frontend:reviewer-a"
     - "frontend:reviewer-b"
+    - "frontend:cross-review"
     - "frontend:pr-creator"
     - "contributor:ready"
     - "escalated:human"
@@ -84,6 +89,8 @@ steps:
             - 公開APIとのインターフェース変更を含む
             - "complexity:high / security-sensitive / breaking-change ラベルあり"
           next: [reviewer-a, reviewer-b]  # 並列起動
+    on_escalation:
+      next: human-escalator
 
   - id: reviewer
     agent: reviewer
@@ -95,6 +102,8 @@ steps:
     on_rework:
       condition: 不合格
       next: developer
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は developer へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
     on_escalation:
       next: human-escalator
 
@@ -122,6 +131,7 @@ steps:
 
   - id: cross-review
     agent: reviewer-a  # Reviewer-Aがクロスレビューをリード、Reviewer-Bが応答
+    label: "frontend:cross-review"
     description: Reviewer-AとBが互いのレビュー結果を比較・議論して最終判定を出す
     requires_all_of: [reviewer-a, reviewer-b]  # 両方の完了が必要
     on_complete:
@@ -130,6 +140,8 @@ steps:
     on_rework:
       condition: 不合格
       next: developer
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は developer へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
     on_escalation:
       condition: 意見が割れて判断できない
       next: human-escalator
@@ -140,6 +152,8 @@ steps:
     description: レビュー合格後にプルリクエストを作成し、人間に承認を依頼する
     on_complete:
       next: human-merge-approval
+    on_escalation:
+      next: human-escalator
 
   - id: human-merge-approval
     agent: human-escalator

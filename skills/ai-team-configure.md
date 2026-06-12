@@ -228,8 +228,10 @@ ls .claude/teams/<team_id>/agents/*.md 2>/dev/null | xargs -I{} basename {} .md
 
 **差し戻し設定：**
 
-> - **差し戻しトリガー**（デフォルト: `差し戻し`）: コメントにこの文字列が含まれると発動します
+> - **差し戻し条件**（デフォルト: `差し戻し`）: コメントにこの文字列が含まれると発動します
 > - **差し戻し先**: どのステップに戻りますか？（ステップ一覧から選択）
+
+差し戻し上限超過時の遷移先（`limit_exceeded_next`）は質問せず、デフォルトの `human-escalator` を設定します（トップレベル `rework_limit` 超過時の遷移先）。
 
 **エスカレーション設定：**
 
@@ -256,6 +258,9 @@ ls .claude/teams/<team_id>/agents/*.md 2>/dev/null | xargs -I{} basename {} .md
 name: <name>
 description: <description>
 
+# 同一Issueでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
+rework_limit: 2
+
 labels:
   prefix: "<prefix>"
 
@@ -271,13 +276,14 @@ steps:
   - id: <step_id>
     agent: <agent>
     label: "<label>"
-    parallel_with: <step_id>          # 設定がある場合のみ
-    requires: [<step_a>, <step_b>]    # 設定がある場合のみ
+    parallel_with: <step_id>              # 設定がある場合のみ
+    requires_all_of: [<step_a>, <step_b>] # 設定がある場合のみ
     on_complete:
       next: <next_step_id>
     on_rework:                        # 設定がある場合のみ
-      trigger: "<trigger>"
+      condition: <condition>
       next: <step_id>
+      limit_exceeded_next: human-escalator  # rework_limit 超過時の遷移先（デフォルト）
     on_escalation:                    # 設定がある場合のみ
       next: <step_id>
 
@@ -302,8 +308,10 @@ steps:
 
 **フォーマットルール:**
 - 先頭行に必ず `# customized: true` を記述する（`/ai-team install` の上書き保護に使用）
+- `rework_limit` はトップレベルに必ず記述する（デフォルト: 2）
 - `description` が空の場合はそのフィールドを省略する
-- `on_rework`、`on_escalation`、`parallel_with`、`requires` は設定がない場合は省略する
+- `on_rework`、`on_escalation`、`parallel_with`、`requires_all_of` は設定がない場合は省略する
+- `on_rework` を持つステップには `limit_exceeded_next: human-escalator` を併記する
 - `conditions` がある場合は `on_complete` を省略する
 - `next` が単一の場合は文字列、複数の場合は配列 `[<a>, <b>]` で出力する
 

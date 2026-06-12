@@ -4,6 +4,10 @@
 name: backend-workflow
 description: コード実装・API・テスト等バックエンドリングタスクのワークフロー
 
+# 同一Issueでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
+# （カウント手順は各レビュー役エージェント定義の「差し戻しカウント手順」を参照）
+rework_limit: 2
+
 # ラベル命名規則
 labels:
   prefix: "backend"
@@ -13,6 +17,7 @@ labels:
     - "backend:reviewer"
     - "backend:reviewer-a"
     - "backend:reviewer-b"
+    - "backend:cross-review"
     - "backend:version-bumper"
     - "backend:tech-writer"
     - "backend:pr-creator"
@@ -68,6 +73,8 @@ steps:
             - 複数レイヤー（DB/API/Frontend）にまたがる変更
             - "complexity:high / security-sensitive / breaking-change ラベルあり"
           next: [reviewer-a, reviewer-b]  # 並列起動
+    on_escalation:
+      next: human-escalator
 
   - id: reviewer
     agent: reviewer
@@ -79,6 +86,8 @@ steps:
     on_rework:
       condition: 不合格
       next: implementer
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は implementer へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
     on_escalation:
       next: human-escalator
 
@@ -106,6 +115,7 @@ steps:
 
   - id: cross-review
     agent: reviewer-a  # Reviewer-Aがクロスレビューをリード、Reviewer-Bが応答
+    label: "backend:cross-review"
     description: Reviewer-AとBが互いのレビュー結果を比較・議論して最終判定を出す
     requires_all_of: [reviewer-a, reviewer-b]  # 両方の完了が必要
     on_complete:
@@ -114,6 +124,8 @@ steps:
     on_rework:
       condition: 不合格
       next: implementer
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は implementer へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
     on_escalation:
       condition: 意見が割れて判断できない
       next: human-escalator
@@ -151,6 +163,8 @@ steps:
     description: レビュー合格・ドキュメント更新後にプルリクエストを作成し、人間に承認を依頼する
     on_complete:
       next: human-merge-approval
+    on_escalation:
+      next: human-escalator
 
   - id: human-merge-approval
     agent: human-escalator

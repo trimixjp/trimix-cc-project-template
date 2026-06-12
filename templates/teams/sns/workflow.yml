@@ -4,6 +4,10 @@
 name: sns-workflow
 description: X・Instagram の SNS 運用タスクのワークフロー
 
+# 同一Issueでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
+# （カウント手順は各レビュー役エージェント定義の「差し戻しカウント手順」を参照）
+rework_limit: 2
+
 # ラベル命名規則
 labels:
   prefix: "sns"
@@ -51,6 +55,8 @@ steps:
       Strategist が「調査が必要」と判断した場合のみ起動する。
     on_complete:
       next: strategist-review  # 調査結果を Strategist が確認してから Writer へ
+    on_escalation:
+      next: human-escalator
 
   - id: strategist-review
     agent: strategist
@@ -72,6 +78,8 @@ steps:
     on_rework:
       condition: Operatorからのプラットフォームルール違反指摘時
       next: writer
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は writer へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
 
   - id: operator-review
     agent: operator
@@ -85,6 +93,8 @@ steps:
     on_rework:
       condition: プラットフォームルール違反・ガイドライン違反
       next: writer
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は writer へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
     on_escalation:
       condition: 炎上リスク・ガイドライン違反・投稿判断が必要
       next: human-escalator

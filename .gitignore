@@ -6,5 +6,8 @@ node_modules/
 # グローバルgitignoreの docs/ 除外を public/docs/ では解除
 !public/docs/
 
+# グローバルgitignoreの docs/ 除外を templates/docs/ でも解除
+!templates/docs/
+
 # .claude/ はすべて非公開（ローカル専用）
 .claude/

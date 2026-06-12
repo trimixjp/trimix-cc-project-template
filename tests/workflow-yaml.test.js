@@ -44,6 +44,55 @@ test('シンプルな直列フロー: on_complete.next が正しく出力され�
   assert.ok(!yaml.includes('description: \n') && !yaml.includes('description:\n'), 'description が省略されること');
 });
 
+// ケース1補足: rework_limit がトップレベルに生成される
+test('rework_limit: デフォルト値2がコメント付きでトップレベルに生成される', () => {
+  const config = {
+    name: 'simple-workflow',
+    description: '',
+    prefix: 'backend',
+    steps: [
+      {
+        id: 'step-a',
+        agent: 'tech-lead',
+        label: 'backend:tech-lead',
+        on_complete: { next: 'contributor-close' },
+      },
+    ],
+  };
+
+  const yaml = buildWorkflowYaml(config);
+
+  // rework_limit がトップレベル（steps: より前）に生成される
+  const headerSection = yaml.split('steps:')[0];
+  assert.ok(headerSection.includes('rework_limit: 2'), 'rework_limit: 2 がトップレベルに生成されること');
+  assert.ok(
+    headerSection.includes('# 同一Issueでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ'),
+    'rework_limit の説明コメントが生成されること'
+  );
+});
+
+test('rework_limit: config で明示指定した値が優先される', () => {
+  const config = {
+    name: 'custom-limit-workflow',
+    description: '',
+    prefix: 'backend',
+    rework_limit: 3,
+    steps: [
+      {
+        id: 'step-a',
+        agent: 'tech-lead',
+        label: 'backend:tech-lead',
+        on_complete: { next: 'contributor-close' },
+      },
+    ],
+  };
+
+  const yaml = buildWorkflowYaml(config);
+
+  assert.ok(yaml.includes('rework_limit: 3'), '指定した rework_limit が生成されること');
+  assert.ok(!yaml.includes('rework_limit: 2'), 'デフォルト値で上書きされないこと');
+});
+
 // ケース1補足: description が空文字列の場合は省略される
 test('シンプルな直列フロー: description が空の場合は省略される', () => {
   const config = {
@@ -145,7 +194,7 @@ test('条件分岐（並列next）: next が配列形式で出力される', () 
 });
 
 // ケース4: on_rework
-test('on_rework: trigger と next が正しく出力される', () => {
+test('on_rework: condition / next / limit_exceeded_next が正しく出力される', () => {
   const config = {
     name: 'rework-workflow',
     description: 'on_reworkテスト',
@@ -156,7 +205,7 @@ test('on_rework: trigger と next が正しく出力される', () => {
         agent: 'reviewer',
         label: 'backend:reviewer',
         on_complete: { next: 'pr-creator' },
-        on_rework: { trigger: '差し戻し', next: 'implementer' },
+        on_rework: { condition: '差し戻し', next: 'implementer' },
       },
       {
         id: 'implementer',
@@ -169,14 +218,72 @@ test('on_rework: trigger と next が正しく出力される', () => {
 
   const yaml = buildWorkflowYaml(config);
 
-  // trigger と next が正しく出力される
+  // condition と next が正しく出力される
   assert.ok(yaml.includes('    on_rework:'), 'on_rework ブロックが出力されること');
-  assert.ok(yaml.includes('      trigger: "差し戻し"'), 'on_rework の trigger が出力されること');
+  assert.ok(yaml.includes('      condition: "差し戻し"'), 'on_rework の condition が出力されること');
   assert.ok(yaml.includes('      next: implementer'), 'on_rework の next が出力されること');
+
+  // 旧キー trigger では出力されない
+  assert.ok(!yaml.includes('trigger:'), '旧キー trigger が出力されないこと');
+
+  // limit_exceeded_next がデフォルトで human-escalator として出力される
+  assert.ok(
+    yaml.includes('      limit_exceeded_next: human-escalator'),
+    'on_rework に limit_exceeded_next: human-escalator が出力されること'
+  );
 
   // on_rework がない場合はフィールドが省略される
   const implementerSection = yaml.split('  - id: implementer')[1];
   assert.ok(!implementerSection.includes('on_rework:'), 'on_rework がない場合は省略されること');
+  assert.ok(!implementerSection.includes('limit_exceeded_next:'), 'on_rework がない場合 limit_exceeded_next も省略されること');
+});
+
+// ケース4補足: 旧キー trigger で渡しても condition に統一される
+test('on_rework: 旧キー trigger で渡しても condition として出力される', () => {
+  const config = {
+    name: 'legacy-rework-workflow',
+    description: '旧キー互換テスト',
+    prefix: 'backend',
+    steps: [
+      {
+        id: 'reviewer',
+        agent: 'reviewer',
+        label: 'backend:reviewer',
+        on_complete: { next: 'pr-creator' },
+        on_rework: { trigger: '差し戻し', next: 'implementer' },
+      },
+    ],
+  };
+
+  const yaml = buildWorkflowYaml(config);
+
+  assert.ok(yaml.includes('      condition: "差し戻し"'), '旧キー trigger が condition に統一されること');
+  assert.ok(!yaml.includes('trigger:'), '旧キー trigger が出力されないこと');
+});
+
+// ケース4補足: limit_exceeded_next を明示指定した場合はその値が優先される
+test('on_rework: limit_exceeded_next を明示指定した場合はその値が出力される', () => {
+  const config = {
+    name: 'custom-limit-next-workflow',
+    description: 'limit_exceeded_next指定テスト',
+    prefix: 'backend',
+    steps: [
+      {
+        id: 'reviewer',
+        agent: 'reviewer',
+        label: 'backend:reviewer',
+        on_complete: { next: 'pr-creator' },
+        on_rework: { condition: '差し戻し', next: 'implementer', limit_exceeded_next: 'tech-lead-analysis' },
+      },
+    ],
+  };
+
+  const yaml = buildWorkflowYaml(config);
+
+  assert.ok(
+    yaml.includes('      limit_exceeded_next: tech-lead-analysis'),
+    '明示指定した limit_exceeded_next が出力されること'
+  );
 });
 
 // ケース5: on_escalation
@@ -246,8 +353,8 @@ test('parallel_with: フィールドが正しく出力される', () => {
   assert.ok(!reviewerBSection.includes('parallel_with:'), 'parallel_with がない場合は省略されること');
 });
 
-// ケース7: requires（単一・複数）
-test('requires（単一）: 配列形式で出力される', () => {
+// ケース7: requires_all_of（単一・複数）
+test('requires_all_of（単一）: 配列形式で出力される', () => {
   const config = {
     name: 'requires-workflow',
     description: '完了待ちテスト',
@@ -257,7 +364,7 @@ test('requires（単一）: 配列形式で出力される', () => {
         id: 'cross-review',
         agent: 'tech-lead',
         label: 'backend:tech-lead',
-        requires: ['reviewer-a'],
+        requires_all_of: ['reviewer-a'],
         on_complete: { next: 'pr-creator' },
       },
     ],
@@ -265,14 +372,38 @@ test('requires（単一）: 配列形式で出力される', () => {
 
   const yaml = buildWorkflowYaml(config);
 
-  // requires が配列形式で出力される（1件でも [step-a]）
-  assert.ok(yaml.includes('    requires: [reviewer-a]'), '単一requires が配列形式で出力されること');
+  // requires_all_of が配列形式で出力される（1件でも [step-a]）
+  assert.ok(yaml.includes('    requires_all_of: [reviewer-a]'), '単一requires_all_of が配列形式で出力されること');
+  // 旧キー requires: では出力されない
+  assert.ok(!/^\s*requires:/m.test(yaml), '旧キー requires: が出力されないこと');
 });
 
-test('requires（複数）: 配列形式で出力される', () => {
+test('requires_all_of（複数）: 配列形式で出力される', () => {
   const config = {
     name: 'requires-workflow',
     description: '完了待ちテスト',
+    prefix: 'backend',
+    steps: [
+      {
+        id: 'cross-review',
+        agent: 'tech-lead',
+        label: 'backend:tech-lead',
+        requires_all_of: ['reviewer-a', 'reviewer-b'],
+        on_complete: { next: 'pr-creator' },
+      },
+    ],
+  };
+
+  const yaml = buildWorkflowYaml(config);
+
+  // requires_all_of が複数の場合も配列形式で出力される
+  assert.ok(yaml.includes('    requires_all_of: [reviewer-a, reviewer-b]'), '複数requires_all_of が配列形式で出力されること');
+});
+
+test('requires_all_of: 旧キー requires で渡しても requires_all_of として出力される', () => {
+  const config = {
+    name: 'legacy-requires-workflow',
+    description: '旧キー互換テスト',
     prefix: 'backend',
     steps: [
       {
@@ -287,14 +418,17 @@ test('requires（複数）: 配列形式で出力される', () => {
 
   const yaml = buildWorkflowYaml(config);
 
-  // requires が複数の場合も配列形式で出力される
-  assert.ok(yaml.includes('    requires: [reviewer-a, reviewer-b]'), '複数requires が配列形式で出力されること');
+  assert.ok(
+    yaml.includes('    requires_all_of: [reviewer-a, reviewer-b]'),
+    '旧キー requires が requires_all_of に統一されること'
+  );
+  assert.ok(!/^\s*requires:/m.test(yaml), '旧キー requires: が出力されないこと');
 });
 
-test('requires なし: フィールドが省略される', () => {
+test('requires_all_of なし: フィールドが省略される', () => {
   const config = {
     name: 'no-requires-workflow',
-    description: 'requires省略テスト',
+    description: 'requires_all_of省略テスト',
     prefix: 'backend',
     steps: [
       {
@@ -308,8 +442,8 @@ test('requires なし: フィールドが省略される', () => {
 
   const yaml = buildWorkflowYaml(config);
 
-  // requires がない場合は省略される
-  assert.ok(!yaml.includes('    requires:'), 'requires がない場合は省略されること');
+  // requires_all_of がない場合は省略される
+  assert.ok(!yaml.includes('    requires_all_of:'), 'requires_all_of がない場合は省略されること');
 });
 
 // ケース9: conditions + on_rework の同一ステップ
@@ -331,7 +465,7 @@ test('conditions + on_rework: 同一ステップに共存できる', () => {
             next: 'pr-creator',
           },
         ],
-        on_rework: { trigger: '差し戻し', next: 'implementer' },
+        on_rework: { condition: '差し戻し', next: 'implementer' },
       },
     ],
   };
@@ -342,15 +476,16 @@ test('conditions + on_rework: 同一ステップに共存できる', () => {
   assert.ok(yaml.includes('    conditions:'), 'conditions が出力されること');
   // on_rework が出力される
   assert.ok(yaml.includes('    on_rework:'), 'on_rework が出力されること');
+  assert.ok(yaml.includes('      limit_exceeded_next: human-escalator'), 'limit_exceeded_next が出力されること');
   // on_complete が出力されない（conditions と排他）
   assert.ok(!yaml.includes('    on_complete:'), 'on_complete が出力されないこと');
 });
 
-// ケース10: parallel_with + requires の同一ステップ
-test('parallel_with + requires: 同一ステップに共存できる', () => {
+// ケース10: parallel_with + requires_all_of の同一ステップ
+test('parallel_with + requires_all_of: 同一ステップに共存できる', () => {
   const config = {
     name: 'parallel-requires-workflow',
-    description: 'parallel_withとrequires共存テスト',
+    description: 'parallel_withとrequires_all_of共存テスト',
     prefix: 'backend',
     steps: [
       {
@@ -358,7 +493,7 @@ test('parallel_with + requires: 同一ステップに共存できる', () => {
         agent: 'reviewer-a',
         label: 'backend:reviewer-a',
         parallel_with: 'reviewer-b',
-        requires: ['implementer'],
+        requires_all_of: ['implementer'],
         on_complete: { next: 'cross-review' },
       },
     ],
@@ -368,8 +503,8 @@ test('parallel_with + requires: 同一ステップに共存できる', () => {
 
   // parallel_with が出力される
   assert.ok(yaml.includes('    parallel_with: reviewer-b'), 'parallel_with が出力されること');
-  // requires が出力される
-  assert.ok(yaml.includes('    requires: [implementer]'), 'requires が出力されること');
+  // requires_all_of が出力される
+  assert.ok(yaml.includes('    requires_all_of: [implementer]'), 'requires_all_of が出力されること');
 });
 
 // ケース11: 全オプション同時指定
@@ -391,10 +526,10 @@ test('全オプション同時指定: すべて正しく出力される（on_com
             next: 'pr-creator',
           },
         ],
-        on_rework: { trigger: '差し戻し', next: 'implementer' },
+        on_rework: { condition: '差し戻し', next: 'implementer' },
         on_escalation: { next: 'human-escalator' },
         parallel_with: 'reviewer-b',
-        requires: ['implementer'],
+        requires_all_of: ['implementer'],
       },
     ],
   };
@@ -405,12 +540,14 @@ test('全オプション同時指定: すべて正しく出力される（on_com
   assert.ok(yaml.includes('    conditions:'), 'conditions が出力されること');
   // on_rework が出力される
   assert.ok(yaml.includes('    on_rework:'), 'on_rework が出力されること');
+  assert.ok(yaml.includes('      condition: "差し戻し"'), 'on_rework の condition が出力されること');
+  assert.ok(yaml.includes('      limit_exceeded_next: human-escalator'), 'limit_exceeded_next が出力されること');
   // on_escalation が出力される
   assert.ok(yaml.includes('    on_escalation:'), 'on_escalation が出力されること');
   // parallel_with が出力される
   assert.ok(yaml.includes('    parallel_with: reviewer-b'), 'parallel_with が出力されること');
-  // requires が出力される
-  assert.ok(yaml.includes('    requires: [implementer]'), 'requires が出力されること');
+  // requires_all_of が出力される
+  assert.ok(yaml.includes('    requires_all_of: [implementer]'), 'requires_all_of が出力されること');
   // on_complete が出力されない（conditions と排他）
   assert.ok(!yaml.includes('    on_complete:'), 'on_complete が出力されないこと');
 });
@@ -427,7 +564,7 @@ test('on_rework.next が自己参照: 自分自身のIDを指せる', () => {
         agent: 'writer',
         label: 'backend:writer',
         on_complete: { next: 'reviewer' },
-        on_rework: { trigger: '差し戻し', next: 'writer' },
+        on_rework: { condition: '差し戻し', next: 'writer' },
       },
     ],
   };
@@ -439,18 +576,18 @@ test('on_rework.next が自己参照: 自分自身のIDを指せる', () => {
   assert.ok(yaml.includes('    on_rework:'), 'on_rework ブロックが出力されること');
 });
 
-// ケース13: requires が空配列のとき省略される
-test('requires が空配列のとき省略される', () => {
+// ケース13: requires_all_of が空配列のとき省略される
+test('requires_all_of が空配列のとき省略される', () => {
   const config = {
     name: 'empty-requires-workflow',
-    description: 'requires空配列テスト',
+    description: 'requires_all_of空配列テスト',
     prefix: 'backend',
     steps: [
       {
         id: 'step-a',
         agent: 'tech-lead',
         label: 'backend:tech-lead',
-        requires: [],
+        requires_all_of: [],
         on_complete: { next: 'step-b' },
       },
     ],
@@ -458,8 +595,8 @@ test('requires が空配列のとき省略される', () => {
 
   const yaml = buildWorkflowYaml(config);
 
-  // requires: [] → フィールドが出力されない
-  assert.ok(!yaml.includes('    requires:'), 'requires が空配列の場合は省略されること');
+  // requires_all_of: [] → フィールドが出力されない
+  assert.ok(!yaml.includes('    requires_all_of:'), 'requires_all_of が空配列の場合は省略されること');
 });
 
 // ケース14: description に改行が含まれるとき（バグ修正の検証）
@@ -534,7 +671,7 @@ test('組み合わせ: contentワークフローに近い構成が正しく出�
         label: 'content:writer',
         description: '記事執筆',
         on_complete: { next: 'compliance' },
-        on_rework: { trigger: '差し戻し', next: 'writer' },
+        on_rework: { condition: '差し戻し', next: 'writer' },
         on_escalation: { next: 'human-escalator' },
       },
       {
@@ -543,7 +680,7 @@ test('組み合わせ: contentワークフローに近い構成が正しく出�
         label: 'content:compliance',
         description: 'コンプライアンスチェック',
         on_complete: { next: 'contributor-close' },
-        on_rework: { trigger: '差し戻し', next: 'writer' },
+        on_rework: { condition: '差し戻し', next: 'writer' },
         on_escalation: { next: 'human-escalator' },
       },
       {
@@ -560,6 +697,7 @@ test('組み合わせ: contentワークフローに近い構成が正しく出�
   // ヘッダーの確認
   assert.ok(yaml.includes('name: content-workflow'), 'ワークフロー名が出力されること');
   assert.ok(yaml.includes('description: コンテンツ制作ワークフロー'), 'descriptionが出力されること');
+  assert.ok(yaml.includes('rework_limit: 2'), 'rework_limit がトップレベルに出力されること');
   assert.ok(yaml.includes('  prefix: "content"'), 'prefixが出力されること');
 
   // editor-in-chief: 条件分岐 + on_escalation
@@ -586,7 +724,8 @@ test('組み合わせ: contentワークフローに近い構成が正しく出�
   const writerSection = yaml.split('  - id: writer')[1].split('  - id: compliance')[0];
   assert.ok(writerSection.includes('      next: compliance'), 'writer の next が compliance であること');
   assert.ok(writerSection.includes('    on_rework:'), 'writer の on_rework が出力されること');
-  assert.ok(writerSection.includes('      trigger: "差し戻し"'), 'writer の on_rework.trigger が出力されること');
+  assert.ok(writerSection.includes('      condition: "差し戻し"'), 'writer の on_rework.condition が出力されること');
+  assert.ok(writerSection.includes('      limit_exceeded_next: human-escalator'), 'writer の limit_exceeded_next が出力されること');
   assert.ok(writerSection.includes('    on_escalation:'), 'writer の on_escalation が出力されること');
 
   // compliance: on_complete.next + on_rework + on_escalation

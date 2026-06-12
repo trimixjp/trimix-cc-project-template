@@ -104,7 +104,7 @@ solo:
 ### ソロモード（選択時）
 
 ```
-templates/skills/ai-team-watch.md → .claude/commands/ai-team-watch.md
+skills/ai-team-watch.md → .claude/commands/ai-team-watch.md
 ```
 
 ### Issue 強制チェック（hooks を選択した場合）
@@ -299,12 +299,15 @@ gh label create "ai-team:in-progress" --color "fbca04" --description "AIエー�
 ### バックエンドチーム（選択時）
 
 ```bash
-gh label create "backend:tech-lead"   --color "1d76db" --description "Tech-Leadが要件分析・設計中"    --force
-gh label create "backend:implementer" --color "1d76db" --description "Implementerが実装中"            --force
-gh label create "backend:reviewer"    --color "1d76db" --description "Reviewerがレビュー中"            --force
-gh label create "backend:reviewer-a"  --color "1d76db" --description "Reviewer-Aがレビュー中"         --force
-gh label create "backend:reviewer-b"  --color "1d76db" --description "Reviewer-Bがレビュー中"         --force
-gh label create "backend:pr-creator"  --color "1d76db" --description "PR-CreatorがPR作成中"           --force
+gh label create "backend:tech-lead"      --color "1d76db" --description "Tech-Leadが要件分析・設計中"        --force
+gh label create "backend:implementer"    --color "1d76db" --description "Implementerが実装中"                --force
+gh label create "backend:reviewer"       --color "1d76db" --description "Reviewerがレビュー中"                --force
+gh label create "backend:reviewer-a"     --color "1d76db" --description "Reviewer-Aがレビュー中"             --force
+gh label create "backend:reviewer-b"     --color "1d76db" --description "Reviewer-Bがレビュー中"             --force
+gh label create "backend:cross-review"   --color "1d76db" --description "クロスレビューで合意形成中"          --force
+gh label create "backend:version-bumper" --color "1d76db" --description "Version-Bumperがバージョン更新中"   --force
+gh label create "backend:tech-writer"    --color "1d76db" --description "Tech-Writerがドキュメント更新中"     --force
+gh label create "backend:pr-creator"     --color "1d76db" --description "PR-CreatorがPR作成中"               --force
 ```
 
 ### フロントエンドチーム（選択時）
@@ -316,6 +319,7 @@ gh label create "frontend:developer"     --color "f9a825" --description "Develop
 gh label create "frontend:reviewer"      --color "f9a825" --description "Reviewerがレビュー中"         --force
 gh label create "frontend:reviewer-a"    --color "f9a825" --description "Reviewer-Aがレビュー中"      --force
 gh label create "frontend:reviewer-b"    --color "f9a825" --description "Reviewer-Bがレビュー中"      --force
+gh label create "frontend:cross-review"  --color "f9a825" --description "クロスレビューで合意形成中"   --force
 gh label create "frontend:pr-creator"    --color "f9a825" --description "PR-CreatorがPR作成中"        --force
 ```
 

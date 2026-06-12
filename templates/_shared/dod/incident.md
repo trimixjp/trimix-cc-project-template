@@ -26,7 +26,7 @@
 ## ✅ インシデント記録
 
 - [ ] `.claude/incidents/` にインシデントファイルが作成されている
-  - ファイル名: `YYYYMMDD-<概要>.md`
+  - ファイル名: `YYYYMMDD-<slug>.md`（slug は概要を表す英小文字ハイフン区切り。例: `20260115-db-connection-pool-exhausted.md`）
   - 内容: 概要・根本原因・やってはいけないこと・注意事項・再発防止策
 - [ ] `incidents/index.yml` にインシデントが追記されている
 
