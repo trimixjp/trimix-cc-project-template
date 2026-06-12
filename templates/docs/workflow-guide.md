@@ -183,9 +183,10 @@ on_complete:
 
 1. **遷移直前**に `gh issue view <番号> --json labels` で最新のラベルを再取得する（古い取得結果を使い回さない）
 2. ラベルの除去と付与は**単一の** `gh issue edit` コマンドで実行する（中間状態を作らない）
-3. 遷移後にもう一度ラベルを取得し、期待した状態になっているか検証する
+3. **待機パス側の再確認（競合解消）**: 相手のラベルがまだ存在すると判断して自分のラベルのみ除去した側も、除去後にもう一度ラベルを再取得し、「`requires_all_of` の全ラベルが除去済み かつ 次のステップのラベルが未付与」であれば次のステップのラベルを付与する（ラベル付与は冪等であり、両者が重複して付与しても無害。これにより両者同時完了時に互いを待ち合ってサイレント停止する競合ウィンドウを解消する）
+4. 遷移後にもう一度ラベルを取得し、期待した状態になっているか検証する
 
-**不整合検知時のリカバリ**: 並列ステップのラベルがすべて除去済みなのに次のステップのラベルが付与されていない場合（遷移の中断）、エージェントは次のステップのラベルを付与し、リカバリした旨を Issue にコメントします。
+**不整合検知時のリカバリ**: 並列ステップのラベルがすべて除去済みなのに次のステップのラベルが付与されていない場合（遷移の中断）、エージェントは次のステップのラベルを付与し、リカバリした旨を Issue にコメントします。**ただし誤発動ガードとして、ワークフロー上の後続ステップのラベルがいずれも付与されていないことを確認してから実行します**（すでに先のステップへ進んでいる Issue に過去のステップのラベルを再付与してはいけません）。
 
 ---
 
@@ -193,31 +194,37 @@ on_complete:
 
 各チームの `review-config.yml` は、レビュー方式（シングル / ダブル）の判断基準を定義します。AIの解釈だけに頼らず、**機械的に検証可能な判定**を併用することで判断のブレを防ぎます。
 
-### pattern による正規表現マッチ
+### sensitive_areas（pattern による正規表現マッチ）
 
-`sensitive_areas` の各項目に `pattern`（正規表現）を定義すると、変更ファイルのパス・差分内容と機械的に照合できます。
+`sensitive_areas` は `id` / `description` / `pattern` を持つ項目のリストです。`pattern` には**単語境界 `\b` 付きの拡張正規表現**を定義し、変更ファイルのパス・差分内容と機械的に照合します。
 
 ```yaml
 double_review_criteria:
+  file_count_threshold: 5
   sensitive_areas:
-    - name: 認証・認可
-      pattern: "auth|login|session|token|jwt"
-    - name: 決済・課金
-      pattern: "payment|billing|stripe|invoice"
+    - id: auth
+      description: 認証・認可（auth / login / session / token / JWT）
+      pattern: '\b(auth|login|session|token|jwt)\b'
+    - id: payment
+      description: 決済・課金（payment / billing / stripe / invoice）
+      pattern: '\b(payment|billing|stripe|invoice)\b'
 ```
 
-判定するエージェント（Tech-Lead 等）は変更ファイル名・差分を `pattern` と照合し、1つでもマッチした場合はダブルレビューを選択します。
+### 機械判定手順（detection_procedure）
 
-### git diff による計測
+`detection_procedure` には計測の基点ブランチ（`base_branch: main`、設定値）と判定手順を定義します。判定するエージェント（Tech-Lead 等）は以下の手順どおりに計測し、主観で判定してはいけません。
 
-変更ファイル数のしきい値（`file_count_threshold`）は推測ではなく `git diff` で計測します。
-
-```bash
-# 変更ファイル数を計測
-git diff --name-only <ベースブランチ>...HEAD | wc -l
+```yaml
+detection_procedure:
+  base_branch: main   # 計測の基点ブランチ（設定値）
 ```
 
-計測結果と判定根拠（マッチした `pattern`・計測したファイル数）は、Issue コメントの「判断根拠」フィールドに記録します。
+1. **基点ブランチの検証**: `git rev-parse --verify <base_branch>` を実行する。失敗した場合は**計測不能**としてダブルレビューを選択する（安全側に倒す）
+2. **変更ファイル数の計測**: `git diff --name-only <base_branch>...HEAD | wc -l` で計測し、`file_count_threshold` 以上ならダブルレビュー該当
+3. **パス照合（該当確定）**: 変更ファイルのパスを各 `pattern` と照合する（`git diff --name-only <base_branch>...HEAD | grep -ciE "<pattern>"`）。1件でもマッチした場合は**該当確定**としてダブルレビューを選択する
+4. **本文照合（参考値のみ）**: 差分の追加行を照合する（`git diff <base_branch>...HEAD --unified=0 | grep '^+' | grep -ciE "<pattern>"`）。これは**参考値**であり、単独では該当確定としない（変数名等の偶然のマッチを含み得るため、判断材料としてコメントに記録するに留める）
+
+計測結果と判定根拠（マッチした `pattern` の `id` と件数・計測したファイル数）は、Issue コメントの「判断根拠」フィールドに記録します。
 
 ---
 
@@ -233,17 +240,29 @@ on_rework:
 
 ### 差し戻し上限（rework_limit）
 
-ワークフローのトップレベルに `rework_limit` を設定すると、同一 Issue での差し戻し回数に上限を設けられます。
+ワークフローのトップレベルに `rework_limit` を設定すると、同一 Issue での差し戻し回数に上限を設けられます。**上限値は workflow.yml の `rework_limit` が正**です。
 
 ```yaml
 rework_limit: 2   # 差し戻しは2回まで
 ```
 
-- reviewer は不合格判定を出す前に、Issue のコメント履歴から**過去の不合格コメント数を数えます**
-- 上限以内（1〜2回目）の不合格 → 通常どおり `on_rework.next` へ差し戻し
-- **上限超過（3回目）の不合格** → 差し戻しせず `escalated:human` へ遷移（human-escalator が起動し、差し戻しが上限に達した旨と争点を記録して人間の判断を仰ぐ）
+差し戻し（不合格）コメントの**先頭行**は、必ず次の形式で記述します。
 
-同じ指摘での差し戻しループは、要件の曖昧さや設計上の対立などAIだけでは解決できない問題が背景にあることが多いため、上限超過時は人間にエスカレーションします。
+```
+❌ <エージェント名>: 差し戻し（差し戻し回数: n/2）
+```
+
+reviewer は不合格判定を出す前に、以下のコマンドで**過去の差し戻しコメント数を数えます**。コメントの先頭行のみを照合するため、本文中の引用・言及による偽陽性は発生しません。
+
+```bash
+gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
+  --jq '.[].body | split("\n")[0]' | grep -cE '^❌ .+: 差し戻し' || true
+```
+
+- カウント **n < 2**（`rework_limit` 未満）→ 差し戻し可。通常どおり `on_rework.next` へ差し戻し
+- カウント **n ≥ 2**（`rework_limit` 以上）→ 差し戻しせず `escalated:human` へ遷移（human-escalator が起動し、差し戻しが上限に達した旨と争点を記録して人間の判断を仰ぐ）
+
+同じ指摘での差し戻しループは、要件の曖昧さや設計上の対立などAIだけでは解決できない問題が背景にあることが多いため、上限到達時は人間にエスカレーションします。
 
 ---
 
@@ -573,7 +592,9 @@ Reviewer-A・Reviewer-B はお互いのコメントを見ずにそれぞれレ�
 #### 5. クロスレビューで合意形成
 
 ```
-🔀 Reviewer-A: クロスレビュー完了 → 最終判定
+❌ Reviewer-A: 差し戻し（差し戻し回数: 1/2）
+
+🔀 クロスレビュー完了 → 最終判定
 
 ## Reviewer-B との差異確認
 | 指摘項目 | Reviewer-A | Reviewer-B | 最終判断 |
@@ -659,7 +680,7 @@ Writer が「○○サプリメントは睡眠を改善します」という表�
 Compliance がチェック：
 
 ```
-❌ Compliance: 差し戻し
+❌ Compliance: 差し戻し（差し戻し回数: 1/2）
 
 ## CRITICAL（必ず修正）
 - [ ] 「睡眠を改善します」という表現
