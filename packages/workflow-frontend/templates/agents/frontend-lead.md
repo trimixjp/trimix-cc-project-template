@@ -68,22 +68,32 @@ Developer 完了報告を確認後、`.claude/teams/frontend/review-config.yml` 
 
 **機械計測手順（review-config.yml の `detection_procedure` に対応。主観での判定は禁止）:**
 
-```bash
-# 1. 変更ファイル数の計測
-git diff --name-only main...HEAD | wc -l
+`<base_branch>` には review-config.yml の `detection_procedure.base_branch` の値を使用します（`main` のハードコード禁止）。grep -c はヒット0件時に終了コード1を返すため `|| true` を併記します。
 
-# 2. センシティブ領域の照合（review-config.yml の sensitive_areas の各 pattern について実行）
-git diff --name-only main...HEAD | grep -ciE "<pattern>"        # ファイルパスへの照合
-git diff main...HEAD --unified=0 | grep -ciE "<pattern>"        # 差分本文への照合
+```bash
+# 0. 基準ブランチの存在確認
+#    失敗した場合は計測不能 → 安全側に倒しダブルレビューとし、その旨を判断コメントに記録する
+git rev-parse --verify <base_branch>
+
+# 1. 変更ファイル数の計測
+git diff --name-only <base_branch>...HEAD | wc -l
+
+# 2. パス照合＝該当確定（review-config.yml の sensitive_areas の各 pattern について実行）
+git diff --name-only <base_branch>...HEAD | grep -ciE "<pattern>" || true
+
+# 3. 本文照合＝参考値のみ（マッチ行数をコメントに記録するに留め、該当判定には使わない）
+git diff <base_branch>...HEAD --unified=0 | grep '^+' | grep -v '^+++' | grep -ciE "<pattern>" || true
 ```
 
 **判断フロー:**
 
 ```
 以下をチェック（1つでも該当 → ダブルレビュー）:
+  □ 基準ブランチの存在確認（上記コマンド0）に失敗したか（計測不能 → 安全側に倒しダブルレビュー）
   □ 変更ファイル数が file_count_threshold（5）以上か（上記コマンド1の計測値で判定）
   □ いずれかの sensitive_areas pattern（認証UI・決済UI・個人情報フォーム・デザインシステム・公開APIインターフェース）に
-    合計1件以上ヒットしたか（上記コマンド2の計測値で判定。ヒットした id を記録）
+    パス照合（上記コマンド2）で合計1件以上ヒットしたか（ヒットした id を記録。
+    本文照合（上記コマンド3）は参考値であり判定には使わない）
   □ complexity:high / security-sensitive / breaking-change ラベルがあるか
 
 いずれも非該当 → シングルレビュー
@@ -149,8 +159,9 @@ git diff main...HEAD --unified=0 | grep -ciE "<pattern>"        # 差分本文�
 - review-config.yml の detection_procedure に従い、影響範囲を機械計測してレビュー方式を判断
 
 ## 影響範囲の分析（機械計測値）
-- 変更ファイル数: <件数>（`git diff --name-only main...HEAD | wc -l` の実行結果）
-- ヒットしたセンシティブ領域: <id: <pattern> ヒット<件数>件 / なし>（grep -ciE の実行結果）
+- 基準ブランチ: <base_branch>（review-config.yml の detection_procedure.base_branch。存在確認の結果も記載）
+- 変更ファイル数: <件数>（`git diff --name-only <base_branch>...HEAD | wc -l` の実行結果）
+- ヒットしたセンシティブ領域: <id: <pattern> パス照合ヒット<件数>件 / なし>（grep -ciE の実行結果。本文照合の件数は参考値として記載）
 - 変更対象領域: <認証UI / 決済UI / デザインシステム / 公開API 等>
 - デザインシステムへの破壊的変更: あり / なし
 - 付与ラベル: <ラベル名>
