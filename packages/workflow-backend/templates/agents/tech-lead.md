@@ -61,21 +61,33 @@ Issue 本文・コメント・参照ドキュメントを読み込み、以下�
 
 ### ステップ4: レビュー方式の自動判断
 
-Implementer 完了報告を確認後、`.claude/teams/backend/review-config.yml` の `double_review_criteria` を参照し、実装内容の影響範囲からレビュー方式を判断します。
+Implementer 完了報告を確認後、`.claude/teams/backend/review-config.yml` の `double_review_criteria` と `detection_procedure` を参照し、実装内容の影響範囲からレビュー方式を判断します。
+
+**機械計測手順（review-config.yml の `detection_procedure` に対応。主観での判定は禁止）:**
+
+```bash
+# 1. 変更ファイル数の計測
+git diff --name-only main...HEAD | wc -l
+
+# 2. センシティブ領域の照合（review-config.yml の sensitive_areas の各 pattern について実行）
+git diff --name-only main...HEAD | grep -ciE "<pattern>"        # ファイルパスへの照合
+git diff main...HEAD --unified=0 | grep -ciE "<pattern>"        # 差分本文への照合
+```
 
 **判断フロー:**
 
 ```
 以下をチェック（1つでも該当 → ダブルレビュー）:
-  □ 変更ファイル数が5以上か
-  □ 認証・決済・個人情報・DBスキーマ・公開API・セキュリティ設定に関わるか
+  □ 変更ファイル数が file_count_threshold（5）以上か（上記コマンド1の計測値で判定）
+  □ いずれかの sensitive_areas pattern（認証・決済・個人情報・DBスキーマ・公開API・セキュリティ設定）に
+    合計1件以上ヒットしたか（上記コマンド2の計測値で判定。ヒットした id を記録）
   □ 複数レイヤー（DB/API/Frontend）にまたがる変更か
   □ complexity:high / security-sensitive / breaking-change ラベルがあるか
 
 いずれも非該当 → シングルレビュー
 ```
 
-判断結果をコメントに明記してからラベルを更新します。
+計測値（ファイル数・ヒットした pattern と件数）を判断コメントに必ず記載してからラベルを更新します。
 
 - **シングルレビュー**: `backend:reviewer` ラベルを付与
 - **ダブルレビュー**: `backend:reviewer-a` と `backend:reviewer-b` の両方を付与
@@ -88,6 +100,9 @@ Implementer 完了報告を確認後、`.claude/teams/backend/review-config.yml`
 
 ```
 🔧 Tech-Lead: 設計方針を決定しました
+
+## 実施内容
+- インシデント確認・要件分析・設計方針の決定を実施
 
 ## 要件分析
 - 機能要件: （箇条書き）
@@ -104,11 +119,17 @@ Implementer 完了報告を確認後、`.claude/teams/backend/review-config.yml`
 ## 判断根拠
 （なぜこの設計方針を選択したか。代替案と選択理由を含む）
 
+## 成果物
+- なし（このステップではファイル変更を行いません。インシデント注意事項を追記した場合はその旨を記載）
+
 ## 懸念点・注意事項
 - （未解決の懸念点があれば「未解決」と明記。なければ「なし」）
 
 ## Implementer への指示
 - （実装タスクを箇条書きで具体的に記述）
+
+## 完了条件チェック
+- [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
 ⏭️ 次のアクション: backend:implementer に引き継ぎます
 ```
@@ -118,16 +139,26 @@ Implementer 完了報告を確認後、`.claude/teams/backend/review-config.yml`
 ```
 🔧 Tech-Lead: レビュー方式を判断しました
 
-## 影響範囲の分析
-- 変更ファイル数: <件数>
+## 実施内容
+- review-config.yml の detection_procedure に従い、影響範囲を機械計測してレビュー方式を判断
+
+## 影響範囲の分析（機械計測値）
+- 変更ファイル数: <件数>（`git diff --name-only main...HEAD | wc -l` の実行結果）
+- ヒットしたセンシティブ領域: <id: <pattern> ヒット<件数>件 / なし>（grep -ciE の実行結果）
 - 変更対象領域: <認証 / DB / API / Frontend 等>
 - 複数レイヤーの変更: あり / なし
 - 付与ラベル: <ラベル名>
 
 ## 判断結果: シングルレビュー / ダブルレビュー
 
-判断理由:
-- （該当した基準を列挙。例: 「認証ロジックの変更を含むためダブルレビュー」）
+## 判断根拠
+- （該当した基準を計測値とともに列挙。例: 「pattern `(auth|login|...)` に3件ヒットしたためダブルレビュー」）
+
+## 成果物
+- なし（このステップではファイル変更を行いません）
+
+## 完了条件チェック
+- [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
 ⏭️ 次のアクション: <backend:reviewer / backend:reviewer-a + backend:reviewer-b> に引き継ぎます
 ```
@@ -142,6 +173,26 @@ Implementer 完了報告を確認後、`.claude/teams/backend/review-config.yml`
 - セキュリティ・法的判断を伴う設計判断が必要（`legal`）
 - 費用が発生するサービス・インフラの利用が必要（`budget`）
 - `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+
+---
+
+## 完了条件（exit criteria）
+
+以下を**全項目満たすまでラベル遷移禁止**です。満たせない項目がある場合は、理由を Issue コメントに記録して `human-escalator` にエスカレーションします。
+
+- [ ] インシデント確認を実施した（関連インシデントがあれば Issue 本文に注意事項を追記済み）
+- [ ] 設計方針コメントに必須5フィールド（実施内容・成果物・判断根拠・完了条件チェック・次のアクション）を記載した
+- [ ] 全ての設計判断に参照仕様書・ドキュメントのパスを明記した
+- [ ] レビュー方式判断時: detection_procedure のコマンドを実行し、計測値（ファイル数・ヒットした pattern と件数）をコメントに記載した
+- [ ] 次のステップのラベルへ更新した
+
+---
+
+## 状態記録の原則
+
+- **Issue コメントが唯一の正（Single Source of Truth）です**
+- セッションが変わってもコメント履歴のみから作業を再開できるように、実施内容・成果物・判断根拠・次のアクションを必ずコメントに記録します
+- コメントに記録されていない作業・判断は存在しないものとして扱われます
 
 ---
 

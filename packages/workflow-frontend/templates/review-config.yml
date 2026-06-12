@@ -9,16 +9,41 @@ review:
   # 以下のいずれかに1つでも該当する場合はダブルレビュー
   double_review_criteria:
     file_count_threshold: 5          # 変更ファイル数がこれ以上
-    sensitive_areas:                 # これらの領域を含む変更
-      - 認証UI（login / auth / session）
-      - 決済UI（payment / checkout / billing）
-      - 個人情報フォーム（user / profile / password）
-      - デザインシステムの破壊的変更（共通コンポーネント・スタイル変数・テーマの変更）
-      - 公開APIとのインターフェース変更（リクエスト・レスポンスの型変更・エンドポイント変更）
+    sensitive_areas:                 # これらの領域を含む変更（pattern は拡張正規表現。detection_procedure で機械照合する）
+      - id: auth-ui
+        description: 認証UI（login / auth / session）
+        pattern: "(auth|login|logout|session|signin|signup|token)"
+      - id: payment-ui
+        description: 決済UI（payment / checkout / billing）
+        pattern: "(payment|checkout|billing|stripe|cart)"
+      - id: personal-form
+        description: 個人情報フォーム（user / profile / password）
+        pattern: "(user|profile|password|email|address|account)"
+      - id: design-system
+        description: デザインシステムの破壊的変更（共通コンポーネント・スタイル変数・テーマの変更）
+        pattern: "(design-system|theme|token|variables|components/(common|shared|ui))"
+      - id: public-api-interface
+        description: 公開APIとのインターフェース変更（リクエスト・レスポンスの型変更・エンドポイント変更）
+        pattern: "(api|endpoint|openapi|swagger|types/api)"
     labels:                          # これらのラベルが付与されている場合
       - "complexity:high"
       - "security-sensitive"
       - "breaking-change"
+
+  # 機械判定手順
+  # Frontend-Lead はこの手順どおりにコマンドを実行し、計測値（ファイル数・ヒットした pattern と件数）を
+  # レビュー方式判断コメントに必ず記載する。主観での判定は禁止
+  detection_procedure:
+    file_count:
+      command: 'git diff --name-only main...HEAD | wc -l'
+      judge: "結果が file_count_threshold（5）以上ならダブルレビュー該当"
+    sensitive_areas:
+      commands:
+        # 1. 変更ファイルパスへの照合
+        - 'git diff --name-only main...HEAD | grep -ciE "<pattern>"'
+        # 2. 変更内容（差分本文）への照合
+        - 'git diff main...HEAD --unified=0 | grep -ciE "<pattern>"'
+      judge: "各 sensitive_areas の pattern について上記2コマンドを実行し、合計1件以上ヒットしたら該当（ヒットした id と件数をコメントに記録する）"
 
   # シングルレビュー（reviewer のみ）を選択する基準
   # ダブルレビュー基準に該当しない場合はシングルレビュー
@@ -28,6 +53,41 @@ review:
     - テストの追加（実装ロジックの変更なし）
     - スタイル・フォーマットの修正
     - 静的なコンテンツ（テキスト・画像）の変更
+
+# 全レビュアー共通のレビュー基準（チェックリスト）
+# reviewer / reviewer-a / reviewer-b はこのチェックリストを参照してレビューする
+# （各エージェント定義に共通基準を重複記載しない。重点観点の差別化は各エージェント定義を参照）
+review_criteria:
+  - id: correctness
+    item: 機能の正しさ
+    check: 要件・設計方針どおりに動作し、エッジケースが考慮されている
+  - id: test-coverage
+    item: テスト網羅
+    check: 新規実装箇所にテストが存在し、正常系・異常系をカバーしている
+  - id: readability
+    item: 可読性・保守性
+    check: 命名が意図を表現し、1コンポーネント・1関数が単一の責務を持つ。重複ロジック・重複スタイルがない
+  - id: security
+    item: セキュリティ
+    check: XSS（dangerouslySetInnerHTML の不適切な使用等）・CSP 違反・外部リソースの不正インポートがない。シークレットのハードコードがない
+  - id: performance
+    item: パフォーマンス
+    check: 不要な再レンダリング・大きなバンドルサイズ・未最適化の画像がない。Core Web Vitals に悪影響を与えない
+  - id: error-handling
+    item: エラー処理
+    check: 失敗しうる処理（API 呼び出し・非同期処理）に適切なエラーハンドリングがあり、エラーを握りつぶしていない
+  - id: accessibility
+    item: アクセシビリティ
+    check: WCAG 2.1 AA を満たす（適切な ARIA 属性・キーボード操作・フォーカス管理・コントラスト比）。違反は CRITICAL 扱い
+  - id: responsive
+    item: レスポンシブデザイン
+    check: モバイル・タブレット・デスクトップの各ブレークポイントで正常に表示される
+  - id: design-system-compliance
+    item: デザインシステム準拠
+    check: プロジェクトのデザインシステム・スタイルガイドに準拠している
+  - id: browser-compat
+    item: ブラウザ互換性
+    check: 対象ブラウザで動作する実装になっている
 
 # レビュー完了後のフロー
 post_review:

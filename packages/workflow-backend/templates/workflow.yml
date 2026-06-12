@@ -4,6 +4,10 @@
 name: backend-workflow
 description: コード実装・API・テスト等バックエンドリングタスクのワークフロー
 
+# 同一Issueでの差し戻し上限。3回目の不合格は escalated:human へ
+# （reviewer / cross-review の「不合格」判定をカウントする。カウント手順は各レビュアー定義の「差し戻しカウント手順」を参照）
+rework_limit: 2
+
 # ラベル命名規則
 labels:
   prefix: "backend"
@@ -13,6 +17,7 @@ labels:
     - "backend:reviewer"
     - "backend:reviewer-a"
     - "backend:reviewer-b"
+    - "backend:version-bumper"
     - "backend:tech-writer"
     - "backend:pr-creator"
     - "contributor:ready"
@@ -39,7 +44,7 @@ steps:
       next: human-escalator
     on_rework:
       # Reviewerからの差し戻し時
-      trigger: "差し戻し"
+      condition: "差し戻し"
       next: implementer
 
   - id: tech-lead-review-decision
@@ -48,24 +53,25 @@ steps:
     description: |
       実装内容の影響範囲を分析してレビュー方式を自動判断する。
       review-config.yml の double_review_criteria を参照。
-    conditions:
-      - id: single-review
-        description: ダブルレビュー基準に非該当
-        criteria:
-          - 変更ファイル数が5未満
-          - 認証・決済・個人情報・DBスキーマ・公開API・セキュリティ設定に非該当
-          - 単一レイヤーの変更
-          - 複雑度・セキュリティ関連ラベルなし
-        next: reviewer
+    on_complete:
+      conditions:
+        - id: single-review
+          description: ダブルレビュー基準に非該当
+          criteria:
+            - 変更ファイル数が5未満
+            - 認証・決済・個人情報・DBスキーマ・公開API・セキュリティ設定に非該当
+            - 単一レイヤーの変更
+            - 複雑度・セキュリティ関連ラベルなし
+          next: reviewer
 
-      - id: double-review
-        description: 以下のいずれかに1つでも該当する場合
-        criteria:
-          - 変更ファイル数が5以上
-          - 認証・認可・決済・個人情報・DBスキーマ・公開API・セキュリティ設定に関わる変更
-          - 複数レイヤー（DB/API/Frontend）にまたがる変更
-          - "complexity:high / security-sensitive / breaking-change ラベルあり"
-        next: [reviewer-a, reviewer-b]  # 並列起動
+        - id: double-review
+          description: 以下のいずれかに1つでも該当する場合
+          criteria:
+            - 変更ファイル数が5以上
+            - 認証・認可・決済・個人情報・DBスキーマ・公開API・セキュリティ設定に関わる変更
+            - 複数レイヤー（DB/API/Frontend）にまたがる変更
+            - "complexity:high / security-sensitive / breaking-change ラベルあり"
+          next: [reviewer-a, reviewer-b]  # 並列起動
 
   - id: reviewer
     agent: reviewer
@@ -73,10 +79,12 @@ steps:
     description: シングルレビュー。コード品質・設計整合・テストをレビューする
     on_complete:
       condition: 合格
-      next: tech-writer
+      next: version-bumper
     on_rework:
       condition: 不合格
       next: implementer
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は implementer へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
     on_escalation:
       next: human-escalator
 
@@ -88,6 +96,8 @@ steps:
     on_complete:
       condition: 独立レビュー完了
       next: cross-review  # 両者完了後にクロスレビューへ
+    on_escalation:
+      next: human-escalator
 
   - id: reviewer-b
     agent: reviewer-b
@@ -97,19 +107,38 @@ steps:
     on_complete:
       condition: 独立レビュー完了
       next: cross-review  # 両者完了後にクロスレビューへ
+    on_escalation:
+      next: human-escalator
 
   - id: cross-review
     agent: reviewer-a  # Reviewer-Aがクロスレビューをリード、Reviewer-Bが応答
     description: Reviewer-AとBが互いのレビュー結果を比較・議論して最終判定を出す
-    requires: [reviewer-a, reviewer-b]  # 両方の完了が必要
+    requires_all_of: [reviewer-a, reviewer-b]  # 両方の完了が必要
     on_complete:
       condition: 合格（両者合意）
-      next: tech-writer
+      next: version-bumper
     on_rework:
       condition: 不合格
       next: implementer
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は implementer へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
     on_escalation:
       condition: 意見が割れて判断できない
+      next: human-escalator
+
+  # version_management: auto の場合はpackage.jsonをインクリメントしてtech-writerへ
+  # version_management: manual の場合はスキップしてtech-writerへ
+  # このステップを削除するとバージョン管理がワークフロー外になります
+  - id: version-bumper
+    agent: version-bumper
+    label: "backend:version-bumper"
+    description: |
+      ai-team-config.yml の version_management 設定に従いバージョンを管理する。
+      auto: conventional commitに基づきpackage.jsonを自動インクリメント
+      manual: スキップしてtech-writerへ引き継ぎ
+    on_complete:
+      next: tech-writer
+    on_escalation:
       next: human-escalator
 
   - id: tech-writer
@@ -138,6 +167,8 @@ steps:
     on_complete:
       condition: 人間がマージ完了
       next: contributor-close
+    on_escalation:
+      next: human-escalator
 
   - id: human-escalator
     agent: human-escalator
