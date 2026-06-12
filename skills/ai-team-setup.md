@@ -104,7 +104,7 @@ solo:
 ### ソロモード（選択時）
 
 ```
-templates/skills/ai-team-watch.md → .claude/commands/ai-team-watch.md
+skills/ai-team-watch.md → .claude/commands/ai-team-watch.md
 ```
 
 ### Issue 強制チェック（hooks を選択した場合）

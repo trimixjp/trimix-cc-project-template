@@ -18,6 +18,9 @@ const packageRoot = join(__dirname, '..');
 // ミラー一致の対象チーム（packages/workflow-<team> としてプラグイン配布されるチーム）
 const TEAMS = ['backend', 'content', 'frontend', 'infra'];
 
+// ラベル整合の対象チーム（プラグイン配布されない sns もラベル整合の検査対象に含める）
+const LABEL_TEAMS = [...TEAMS, 'sns'];
+
 /**
  * ディレクトリ配下の全ファイルを再帰的に列挙し、相対パス（POSIX形式）のソート済み配列を返す
  */
@@ -91,7 +94,7 @@ for (const team of TEAMS) {
 // (b) 各チームの workflow.yml の全ラベルが skills/ai-team-setup.md のラベル作成ブロックに含まれる
 // ============================================================
 
-for (const team of TEAMS) {
+for (const team of LABEL_TEAMS) {
   test(`ラベル整合(${team}): workflow.yml の全ラベルが skills/ai-team-setup.md で作成される`, () => {
     const workflowPath = join(packageRoot, 'templates', 'teams', team, 'workflow.yml');
     const setupSkillPath = join(packageRoot, 'skills', 'ai-team-setup.md');

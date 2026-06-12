@@ -89,15 +89,15 @@ conventional commit を以下の対応表・判定正規表現で機械的に判
 LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
 if [ -n "$LATEST_TAG" ]; then RANGE="$LATEST_TAG..HEAD"; else RANGE="HEAD"; fi
 
-# major 判定（いずれかが1以上なら major）
-git log --format='%B' $RANGE | grep -cE '^BREAKING CHANGE:'
-git log --format='%s' $RANGE | grep -cE '^[a-z]+(\(.+\))?!:'
+# major 判定（いずれかが1以上なら major。ヒット0件時は grep が終了コード1を返すため || true を併記）
+git log --format='%B' $RANGE | grep -cE '^BREAKING CHANGE:' || true
+git log --format='%s' $RANGE | grep -cE '^[a-z]+(\(.+\))?!:' || true
 
 # minor 判定（1以上なら minor 候補）
-git log --format='%s' $RANGE | grep -cE '^feat(\(.+\))?:'
+git log --format='%s' $RANGE | grep -cE '^feat(\(.+\))?:' || true
 
 # patch 判定（1以上なら patch 候補）
-git log --format='%s' $RANGE | grep -cE '^(fix|perf|refactor|docs|test|chore|ci|build|style)(\(.+\))?:'
+git log --format='%s' $RANGE | grep -cE '^(fix|perf|refactor|docs|test|chore|ci|build|style)(\(.+\))?:' || true
 ```
 
 **判定ルール:**

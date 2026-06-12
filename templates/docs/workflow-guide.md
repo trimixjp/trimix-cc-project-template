@@ -222,7 +222,7 @@ detection_procedure:
 1. **基点ブランチの検証**: `git rev-parse --verify <base_branch>` を実行する。失敗した場合は**計測不能**としてダブルレビューを選択する（安全側に倒す）
 2. **変更ファイル数の計測**: `git diff --name-only <base_branch>...HEAD | wc -l` で計測し、`file_count_threshold` 以上ならダブルレビュー該当
 3. **パス照合（該当確定）**: 変更ファイルのパスを各 `pattern` と照合する（`git diff --name-only <base_branch>...HEAD | grep -ciE "<pattern>"`）。1件でもマッチした場合は**該当確定**としてダブルレビューを選択する
-4. **本文照合（参考値のみ）**: 差分の追加行を照合する（`git diff <base_branch>...HEAD --unified=0 | grep '^+' | grep -ciE "<pattern>"`）。これは**参考値**であり、単独では該当確定としない（変数名等の偶然のマッチを含み得るため、判断材料としてコメントに記録するに留める）
+4. **本文照合（参考値のみ）**: 差分の追加行を照合する（`git diff <base_branch>...HEAD --unified=0 | grep '^+' | grep -v '^+++' | grep -ciE "<pattern>"`）。これは**参考値**であり、単独では該当確定としない（変数名等の偶然のマッチを含み得るため、判断材料としてコメントに記録するに留める）
 
 計測結果と判定根拠（マッチした `pattern` の `id` と件数・計測したファイル数）は、Issue コメントの「判断根拠」フィールドに記録します。
 

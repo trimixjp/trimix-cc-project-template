@@ -51,7 +51,7 @@ review:
         judge: "各 sensitive_areas の pattern についてマッチ行数が1以上なら該当確定（ヒットした id と件数をコメントに記録する）"
       # 3. 本文照合（参考値）
       - id: body-match
-        command: 'git diff <base_branch>...HEAD --unified=0 | grep "^+" | grep -ciE "<pattern>" || true'
+        command: 'git diff <base_branch>...HEAD --unified=0 | grep "^+" | grep -v "^+++" | grep -ciE "<pattern>" || true'
         judge: "マッチ行数をコメントに記録するのみ（参考値）。該当判定には使わない"
 
   # シングルレビュー（reviewer のみ）を選択する基準
