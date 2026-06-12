@@ -4,6 +4,10 @@
 name: sns-workflow
 description: X・Instagram の SNS 運用タスクのワークフロー
 
+# 差し戻し回数の上限（同一ステップへの差し戻しは2回まで）
+# 3回目の不合格は escalated:human へエスカレーションする
+rework_limit: 2
+
 # ラベル命名規則
 labels:
   prefix: "sns"

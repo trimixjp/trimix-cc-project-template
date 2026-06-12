@@ -9,6 +9,10 @@
 name: infra-workflow
 description: インフラ構成・ネットワーク・セキュリティ関連タスクのワークフロー
 
+# 差し戻し回数の上限（同一ステップへの差し戻しは2回まで）
+# 3回目の不合格は escalated:human へエスカレーションする
+rework_limit: 2
+
 # ラベル命名規則
 labels:
   prefix: "infra"
@@ -102,7 +106,7 @@ steps:
     description: |
       システムアーキテクト（助言役）。依頼を受けた時のみ起動する。
       インフラ・言語・デザインパターン等システム全体への助言を行う。
-      Opusモデルを使用するため、必要な場合のみ呼び出すこと。
+      深い推論が必要な助言専用エージェントで推論コストが高いため、必要な場合のみ呼び出すこと。
     on_complete:
       next: security-engineer
     on_escalation:

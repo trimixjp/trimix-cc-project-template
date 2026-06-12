@@ -8,6 +8,10 @@
 name: content-workflow
 description: 記事・ドキュメント・コンテンツ作成タスクのワークフロー
 
+# 差し戻し回数の上限（同一ステップへの差し戻しは2回まで）
+# 3回目の不合格は escalated:human へエスカレーションする
+rework_limit: 2
+
 # ラベル命名規則
 labels:
   prefix: "content"
