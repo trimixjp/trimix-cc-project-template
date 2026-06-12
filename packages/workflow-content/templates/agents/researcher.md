@@ -144,7 +144,7 @@ Writer が執筆に使えるよう、構造化された調査レポートをま�
 
 - 調査対象の分野が法的判断を要する（薬事法・医師法等）場合は Compliance に事前確認を依頼
 - 情報源の信頼性が低く、事実の確認が困難な場合は Editor-in-Chief に報告
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 

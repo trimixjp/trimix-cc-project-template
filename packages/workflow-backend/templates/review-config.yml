@@ -9,25 +9,25 @@ review:
   # 以下のいずれかに1つでも該当する場合はダブルレビュー
   double_review_criteria:
     file_count_threshold: 5          # 変更ファイル数がこれ以上
-    sensitive_areas:                 # これらの領域を含む変更（pattern は拡張正規表現。detection_procedure で機械照合する）
+    sensitive_areas:                 # これらの領域を含む変更（pattern は拡張正規表現。全 pattern に単語境界 \b を付与。detection_procedure で機械照合する）
       - id: auth
         description: 認証・認可（auth / login / session / token / JWT）
-        pattern: "(auth|login|session|token|jwt|oauth)"
+        pattern: '\b(auth|login|session|token|jwt|oauth)\b'
       - id: payment
         description: 決済・課金（payment / billing / stripe / invoice）
-        pattern: "(payment|billing|stripe|invoice|charge)"
+        pattern: '\b(payment|billing|stripe|invoice|charge)\b'
       - id: personal-data
         description: 個人情報・機密データ（user / password / email / PII）
-        pattern: "(user|password|email|pii|credential|secret)"
+        pattern: '\b(user|password|email|pii|credential|secret)\b'
       - id: db-schema
         description: データベーススキーマ・マイグレーション（migration / schema）
-        pattern: "(migration|schema|migrate)"
+        pattern: '\b(migration|schema|migrate)\b'
       - id: public-api
         description: 公開API（破壊的変更・エンドポイントの追加・削除）
-        pattern: "(api|endpoint|route|openapi|swagger)"
+        pattern: '\b(api|endpoint|route|openapi|swagger)\b'
       - id: security-config
         description: セキュリティ設定（cors / csrf / rate-limit / firewall）
-        pattern: "(cors|csrf|rate[-_]?limit|firewall|csp)"
+        pattern: '\b(cors|csrf|rate[-_]?limit|firewall|csp)\b'
     cross_layer_changes: true        # 複数レイヤー（DB/API/Frontend）にまたがる変更
     labels:                          # これらのラベルが付与されている場合
       - "complexity:high"
@@ -37,17 +37,26 @@ review:
   # 機械判定手順
   # Tech-Lead はこの手順どおりにコマンドを実行し、計測値（ファイル数・ヒットした pattern と件数）を
   # レビュー方式判断コメントに必ず記載する。主観での判定は禁止
+  # 注: grep -c の結果は「マッチ行数」。ヒット0件時は grep が終了コード1を返すため `|| true` を併記する
   detection_procedure:
-    file_count:
-      command: 'git diff --name-only main...HEAD | wc -l'
-      judge: "結果が file_count_threshold（5）以上ならダブルレビュー該当"
-    sensitive_areas:
-      commands:
-        # 1. 変更ファイルパスへの照合
-        - 'git diff --name-only main...HEAD | grep -ciE "<pattern>"'
-        # 2. 変更内容（差分本文）への照合
-        - 'git diff main...HEAD --unified=0 | grep -ciE "<pattern>"'
-      judge: "各 sensitive_areas の pattern について上記2コマンドを実行し、合計1件以上ヒットしたら該当（ヒットした id と件数をコメントに記録する）"
+    base_branch: main   # 計測の基準ブランチ。プロジェクトのデフォルトブランチに合わせて変更
+    steps:
+      # 0. 基準ブランチの存在確認
+      - id: verify-base
+        command: 'git rev-parse --verify <base_branch>'
+        judge: "失敗した場合は計測不能。安全側に倒しダブルレビューとし、その旨をレビュー方式判断コメントに記録する"
+      # 1. 変更ファイル数
+      - id: file-count
+        command: 'git diff --name-only <base_branch>...HEAD | wc -l'
+        judge: "結果が file_count_threshold（5）以上ならダブルレビュー該当"
+      # 2. パス照合（該当確定）
+      - id: path-match
+        command: 'git diff --name-only <base_branch>...HEAD | grep -ciE "<pattern>" || true'
+        judge: "各 sensitive_areas の pattern についてマッチ行数が1以上なら該当確定（ヒットした id と件数をコメントに記録する）"
+      # 3. 本文照合（参考値）
+      - id: body-match
+        command: 'git diff <base_branch>...HEAD --unified=0 | grep "^+" | grep -ciE "<pattern>" || true'
+        judge: "マッチ行数をコメントに記録するのみ（参考値）。該当判定には使わない"
 
   # シングルレビュー（reviewer のみ）を選択する基準
   # ダブルレビュー基準に該当しない場合はシングルレビュー

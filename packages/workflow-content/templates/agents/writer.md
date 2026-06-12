@@ -108,7 +108,7 @@ Editor-in-Chief の方針に従いコンテンツを作成します。
 
 - 記述内容に法的リスク（名誉毀損・著作権侵害・個人情報）の可能性がある（`legal`）
 - 方針の解釈が複数あり、どちらで執筆すべきか判断できない（`ambiguous_spec`）
-- `.claude/_shared/escalation-rules.yml` の `escalation_triggers` に該当する事象
+- `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
 
 ---
 
