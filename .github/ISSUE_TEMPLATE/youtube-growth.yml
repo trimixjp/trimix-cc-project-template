@@ -1,0 +1,55 @@
+name: "📈 YouTube — グロース（改善・拡散・収益化）"
+description: "既存動画・チャンネルのCTR/視聴維持改善・SNS拡散・収益最大化を行います（新規制作なし）"
+title: "[Growth] "
+labels:
+  - "youtube:director"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > このIssueはYouTube動画制作チームが担当します。
+        > Director が「グロース単発」と判定し、Growth-Strategist をリードに改善施策を提案します。
+        > 実際の変更・投稿・公開は人間の承認後に行われます。
+
+  - type: input
+    id: target
+    attributes:
+      label: "対象（動画URL / チャンネルID）"
+      placeholder: "https://youtu.be/xxxx または nihon101"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: goal
+    attributes:
+      label: "改善したい指標"
+      options:
+        - "CTR（タイトル・サムネ）"
+        - "視聴維持率"
+        - "収益（広告・アフィリエイト）"
+        - "拡散・登録者増（SNS・Shorts）"
+        - "複数 / その他"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current
+    attributes:
+      label: "現状・課題"
+      description: "現在の数値・気になっている点があれば"
+      placeholder: "例: 公開後CTRが3%で伸び悩み。サムネが地味かもしれない"
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "参照資料（任意）"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Definition of Done
+
+        > `teams/youtube/dod/growth.md` を基準に判定します。

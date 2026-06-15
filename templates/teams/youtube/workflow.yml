@@ -1,0 +1,234 @@
+# YouTube動画制作チーム ワークフロー定義
+# Director がIssueを分析し、タスク種別を3分岐で判定します
+# （チャンネル立ち上げ / エピソード制作 / グロース単発）
+
+name: youtube-workflow
+description: YouTube動画の企画・台本・生成・公開・収益最大化を一貫して行うワークフロー
+
+# 同一Issueでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
+# （カウント手順は各レビュー役エージェント定義の「差し戻しカウント手順」を参照）
+rework_limit: 2
+
+# ラベル命名規則
+labels:
+  prefix: "youtube"
+  examples:
+    - "youtube:director"
+    - "youtube:channel-producer"
+    - "youtube:scriptwriter"
+    - "youtube:editor"
+    - "youtube:growth-strategist"
+    - "youtube:affiliate"
+    - "youtube:publisher"
+    - "youtube:sns-distributor"
+    - "youtube:monetizer"
+    - "contributor:ready"
+    - "escalated:human"
+
+steps:
+
+  - id: director-planning
+    agent: director
+    label: "youtube:director"
+    description: Issue分析・インシデント確認・タスク種別の判定（3分岐）
+    on_complete:
+      conditions:
+        - id: channel-creation
+          description: 新規チャンネルの立ち上げ・チャンネル設定変更が主の場合
+          criteria:
+            - 新規チャンネルを作る
+            - チャンネルの趣旨/言語/字幕/配信計画を新規に決める
+          next: channel-producer-setup
+
+        - id: episode-production
+          description: 1本以上の動画を企画から公開まで制作する場合
+          criteria:
+            - 新規エピソードの台本作成・動画生成・公開を行う
+          next: channel-producer-planning
+
+        - id: growth-only
+          description: 既存動画の改善・拡散・収益化のみで新規制作を伴わない場合
+          criteria:
+            - 既存動画のCTR/サムネ/タグ改善
+            - 切り抜き・SNS拡散
+            - アフィリ/収益最適化
+          next: growth-standalone
+    on_escalation:
+      next: human-escalator
+
+  - id: channel-producer-setup
+    agent: channel-producer
+    label: "youtube:channel-producer"
+    description: |
+      チャンネル作成: 趣旨・言語・字幕言語・テンプレ(配色)・配信スケジュール・glossary・
+      voice-guide・brand・roadmap・YouTube設定ドキュメント・初期トピックバックログ・月次配信プランを作成
+    on_complete:
+      next: director-channel-review
+    on_escalation:
+      next: human-escalator
+
+  - id: director-channel-review
+    agent: director
+    label: "youtube:director"
+    description: |
+      チャンネル設定一式の完成を確認し、人間しかできない残作業
+      （YouTube Studio手動設定・OAuth・声の用意）を整理して人間へ引き継ぐ
+    on_complete:
+      next: human-channel-setup
+    on_escalation:
+      next: human-escalator
+
+  - id: human-channel-setup
+    agent: human-escalator
+    label: "escalated:human"
+    description: YouTube Studioの手動設定・OAuthトークン・声の用意など人間しかできない作業を依頼
+    on_complete:
+      condition: 人間が設定完了
+      next: contributor-close
+    on_escalation:
+      next: human-escalator
+
+  - id: channel-producer-planning
+    agent: channel-producer
+    label: "youtube:channel-producer"
+    description: |
+      トピック選定・重複防止(topic_key正規化＋embedding類似0.85)・
+      月次配信プランへの組み込み・エピソードスタブ(frontmatter)作成
+    on_complete:
+      next: scriptwriter
+    on_escalation:
+      next: human-escalator
+
+  - id: scriptwriter
+    agent: scriptwriter
+    label: "youtube:scriptwriter"
+    description: |
+      リサーチ（事実/数字/出典/重複）＋台本執筆
+      （13構造規約・在住者一人称・visual/cues/sources）。労力5割
+    on_complete:
+      next: editor-review
+    on_escalation:
+      next: human-escalator
+    on_rework:
+      # Editorからの差し戻し時
+      condition: "差し戻し"
+      next: scriptwriter
+
+  - id: editor-review
+    agent: editor
+    label: "youtube:editor"
+    description: |
+      台本品質ゲート: 編集文法・9型整合・権利/安全・写真プリフライト照合・機械検証・有益性レビュー
+    on_complete:
+      condition: 合格
+      next: growth-strategist
+    on_rework:
+      condition: 不合格
+      next: scriptwriter
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は scriptwriter へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
+    on_escalation:
+      next: human-escalator
+
+  - id: growth-strategist
+    agent: growth-strategist
+    label: "youtube:growth-strategist"
+    description: CTRタイトル3案・サムネ指示・タグ・章(Chapters)設計・視聴維持/パッケージング
+    on_complete:
+      next: affiliate
+    on_escalation:
+      next: human-escalator
+
+  - id: affiliate
+    agent: affiliate
+    label: "youtube:affiliate"
+    description: アフィリ各社選定・説明欄リンク(sub_id付与)・FTC開示文・frontmatterのaffiliates設定
+    on_complete:
+      next: human-picture-lock
+    on_escalation:
+      next: human-escalator
+
+  - id: human-picture-lock
+    agent: human-escalator
+    label: "escalated:human"
+    description: |
+      ピクチャーロック承認ゲート: preview.htmlをユーザーが承認（=最終動画を確定）。承認でstatus:reviewedへ
+    on_complete:
+      condition: ユーザーが承認
+      next: editor-render
+    on_escalation:
+      next: human-escalator
+
+  - id: editor-render
+    agent: editor
+    label: "youtube:editor"
+    description: |
+      動画生成(yt-render)実行＋自己検証: still目視・写真の事実照合 全数・
+      無音/ラウドネス計測・同期スポットチェック
+    on_complete:
+      next: publisher
+    on_rework:
+      condition: 写真不一致や同期ズレが台本起因で根本修正が必要な場合
+      next: scriptwriter
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は scriptwriter へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
+    on_escalation:
+      next: human-escalator
+
+  - id: publisher
+    agent: publisher
+    label: "youtube:publisher"
+    description: |
+      限定公開(privacy:private)でアップロード＋予約公開(publish_at)＋多言語字幕(8言語)登録＋
+      APIで検証＋配信カレンダー更新
+    on_complete:
+      next: sns-distributor
+    on_escalation:
+      next: human-escalator
+
+  - id: sns-distributor
+    agent: sns-distributor
+    label: "youtube:sns-distributor"
+    description: "公開後の拡散: Shorts/切り抜き案・各SNS展開・バイラルフック・シェア設計"
+    on_complete:
+      next: monetizer
+    on_escalation:
+      next: human-escalator
+
+  - id: monetizer
+    agent: monetizer
+    label: "youtube:monetizer"
+    description: |
+      収益最適化レビュー: CPM・チャンネル横断送客・スポンサー機会・収益指標の評価と次アクション
+    on_complete:
+      next: contributor-close
+    on_escalation:
+      next: human-escalator
+
+  # グロース単発タスク専用ステップ。動画制作パイプラインを通らないため
+  # monetizer / sns-distributor を経由せず、grow-strategist が拡散・収益の方針提示まで行い
+  # contributor-close へ直行する（収益施策の表現が monetizer と一部重なるのは意図的）
+  - id: growth-standalone
+    agent: growth-strategist
+    label: "youtube:growth-strategist"
+    description: |
+      グロース単発タスク（既存動画の改善・拡散・収益化）をグロースリードとして担当し、施策を提案する
+    on_complete:
+      next: contributor-close
+    on_escalation:
+      next: human-escalator
+
+  - id: human-escalator
+    agent: human-escalator
+    label: "escalated:human"
+    description: 判断できない事項を人間にエスカレーション
+    on_complete:
+      condition: 人間が判断・返答
+      next: return_to_previous  # エスカレーション元のステップに戻る
+
+  - id: contributor-close
+    agent: contributor
+    label: "contributor:ready"
+    description: DOD確認・コメント品質チェック・Issueクローズ・インシデント調査
+    on_complete:
+      action: close_issue

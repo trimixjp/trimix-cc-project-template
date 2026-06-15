@@ -1,0 +1,52 @@
+name: "🎬 YouTube — 動画制作（企画〜公開）"
+description: "1本の動画を企画・台本・生成・公開まで制作します"
+title: "[Episode] "
+labels:
+  - "youtube:director"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > このIssueはYouTube動画制作チームが担当します。
+        > ラベル `youtube:director` が付与されると Director が起動し、タスク種別を判定して各工程へ振り分けます。
+        > **台本が全工程の労力の5割**です。準備（チャンネル・トピック）を具体的に記載するほど精度が上がります。
+
+  - type: input
+    id: channel
+    attributes:
+      label: "チャンネルID"
+      description: "対象チャンネル（例: nihon101）。未作成の場合は先に「新規チャンネル立ち上げ」Issueを起票してください"
+      placeholder: "nihon101"
+    validations:
+      required: true
+
+  - type: textarea
+    id: topic
+    attributes:
+      label: "トピック・企画"
+      description: "何の動画か。視聴者が得る価値・切り口を1〜3文で"
+      placeholder: "例: 東京の電車の乗り方（ICカード・乗換・マナー）を在住者目線で"
+    validations:
+      required: true
+
+  - type: textarea
+    id: angle
+    attributes:
+      label: "狙い・差別化（任意）"
+      description: "知識ギャップ型の切り口・在住者しか言えない一次情報など"
+      placeholder: "例: 観光客がやりがちな改札の間違い／地元民の本音"
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "参照資料（任意）"
+      description: "関連動画・出典・既存シリーズなど"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Definition of Done
+
+        > Director / Editor が `teams/youtube/dod/episode-production.md` を基準に完了を判定します。
+        > 公開はピクチャーロック（preview承認）と人間の公開GOの後に行われます。
