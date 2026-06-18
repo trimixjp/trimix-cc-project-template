@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>バックエンドチーム - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.15.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class="active"><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">バックエンドチーム</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/teams/backend.html" >v0.5.1</option><option value="../../v0.5.2/teams/backend.html" >v0.5.2</option><option value="../../v0.6.0/teams/backend.html" >v0.6.0</option><option value="../../v0.7.0/teams/backend.html" >v0.7.0</option><option value="../../v0.8.0/teams/backend.html" >v0.8.0</option><option value="../../v0.9.0/teams/backend.html" >v0.9.0</option><option value="../../v0.10.0/teams/backend.html" >v0.10.0</option><option value="../../v0.11.0/teams/backend.html" >v0.11.0</option><option value="../../v0.12.0/teams/backend.html" >v0.12.0</option><option value="../../v0.13.0/teams/backend.html" >v0.13.0</option><option value="../../v0.14.0/teams/backend.html" >v0.14.0</option><option value="../../v0.15.0/teams/backend.html" selected>v0.15.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>バックエンドチーム</h1>
+
+<p>バックエンドチームは、コード実装・テスト・レビュー・ドキュメント更新・PR 作成までを自律的に行う AI チームです。実装内容の影響範囲に応じて、シングルレビュー / ダブルレビューを自動で使い分ける仕組みが特徴です。</p>
+
+<p>> <strong>ワークフロー定義</strong>: <code>.claude/teams/backend/workflow.yml</code></p>
+<p>> <strong>レビュー判定</strong>: <code>.claude/teams/backend/review-config.yml</code></p>
+<p>> <strong>エージェント定義</strong>: <code>.claude/teams/backend/agents/*.md</code></p>
+<p>> <strong>DOD テンプレート</strong>: <code>.claude/teams/backend/dod/*.md</code></p>
+
+<hr>
+
+<h2>エージェント一覧</h2>
+
+<table><thead><tr><th>エージェント</th><th>役割</th><th>ラベル</th></tr></thead><tbody><tr><td><code>tech-lead</code></td><td>リーダー。要件分析・設計方針決定・レビュー方式判断</td><td><code>backend:tech-lead</code></td></tr><tr><td><code>implementer</code></td><td>実装担当。Tech-Lead の方針に従いコード・テストを実装</td><td><code>backend:implementer</code></td></tr><tr><td><code>reviewer</code></td><td>シングルレビュー担当</td><td><code>backend:reviewer</code></td></tr><tr><td><code>reviewer-a</code></td><td>ダブルレビュー A 担当（独立レビュー + クロスレビュー）</td><td><code>backend:reviewer-a</code></td></tr><tr><td><code>reviewer-b</code></td><td>ダブルレビュー B 担当（独立レビュー + クロスレビュー）</td><td><code>backend:reviewer-b</code></td></tr><tr><td><code>version-bumper</code></td><td>バージョン管理担当。conventional commit に基づき <code>package.json</code> を自動インクリメント</td><td><code>backend:version-bumper</code></td></tr><tr><td><code>tech-writer</code></td><td>ドキュメント更新担当。<code>docs-src/</code> 更新と <code>build.js</code> 実行</td><td><code>backend:tech-writer</code></td></tr><tr><td><code>pr-creator</code></td><td>プルリクエスト作成担当</td><td><code>backend:pr-creator</code></td></tr></tbody></table>
+<p>各エージェントの詳細は各 agents/ ページを参照してください。</p>
+
+<hr>
+
+<h2>ワークフロー全体フロー</h2>
+
+<div class="mermaid">flowchart TD
+    A(["/ai-team-run &lt;番号&gt;"]) --> B["tech-lead\n要件分析・設計方針決定\nインシデント確認"]
+    B --> C["implementer\n実装・テスト\n完了報告"]
+    C --> D["tech-lead\nレビュー方式判断\nreview-config.yml 参照"]
+    D --> E{レビュー方式}
+    E -->|シングルレビュー| F["reviewer\nシングルレビュー"]
+    E -->|ダブルレビュー| G["reviewer-a\n独立レビュー"]
+    E -->|ダブルレビュー| H["reviewer-b\n独立レビュー"]
+    G --> I["cross-review\nrequires: a + b\n最終判定"]
+    H --> I
+    F -->|合格| VB["version-bumper\npackage.json 更新\nauto/manual 選択"]
+    I -->|合格| VB
+    F -->|不合格| C
+    I -->|不合格| C
+    VB --> J["tech-writer\ndocs-src/ 更新\nbuild.js 実行"]
+    J --> K["pr-creator\ngh pr create\nescalated:human"]
+    K --> L["⏸️ human-merge-approval\n人間がマージ"]
+    L --> M["contributor-close\nDOD 確認\nインシデント記録\nIssue クローズ"]</div>
+
+<hr>
+
+<h2>レビュー方式の自動判断</h2>
+
+<p>Tech-Lead が Implementer の完了報告を確認した後、<code>.claude/teams/backend/review-config.yml</code> の <code>double_review_criteria</code> に基づいてレビュー方式を判断します。</p>
+
+<h3>ダブルレビュー判定基準（いずれか 1 つでも該当）</h3>
+
+<table><thead><tr><th>基準</th><th>しきい値</th></tr></thead><tbody><tr><td>変更ファイル数</td><td>5 ファイル以上</td></tr><tr><td>機密領域への変更</td><td>認証・認可・決済・個人情報・DB スキーマ・公開 API・セキュリティ設定</td></tr><tr><td>クロスレイヤー変更</td><td>DB / API / Frontend の複数レイヤーにまたがる</td></tr><tr><td>危険ラベル</td><td><code>complexity:high</code> / <code>security-sensitive</code> / <code>breaking-change</code></td></tr></tbody></table>
+<h3>シングルレビュー判定基準（すべてに該当）</h3>
+
+<ul><li>単一ファイルの変更</li><li>ドキュメント・コメントのみの変更</li><li>テストの追加（実装ロジックの変更なし）</li><li>設定値・定数の変更（アルゴリズムの変更なし）</li><li>スタイル・フォーマットの修正</li></ul>
+<h3>機密領域の判定キーワード</h3>
+
+<code>review-config.yml</code> の <code>sensitive_areas</code> で定義：
+
+<table><thead><tr><th>領域</th><th>キーワード</th></tr></thead><tbody><tr><td>認証・認可</td><td>auth / login / session / token / JWT</td></tr><tr><td>決済・課金</td><td>payment / billing / stripe / invoice</td></tr><tr><td>個人情報</td><td>user / password / email / PII</td></tr><tr><td>DB スキーマ</td><td>migration / schema</td></tr><tr><td>公開 API</td><td>エンドポイントの追加・削除・破壊的変更</td></tr><tr><td>セキュリティ設定</td><td>cors / csrf / rate-limit / firewall</td></tr></tbody></table>
+<h3>機械判定手順（v0.11.0）</h3>
+
+<p>v0.11.0 から、Tech-Lead は主観で判定せず、<code>review-config.yml</code> の <code>detection_procedure</code> に定義されたコマンドを実行して計測値で判定します。</p>
+
+<ol><li><strong>verify-base</strong>: 基準ブランチ（<code>base_branch</code>）の存在を <code>git rev-parse --verify</code> で確認（失敗時は安全側に倒しダブルレビュー）</li><li><strong>file-count</strong>: <code>git diff --name-only &lt;base_branch&gt;...HEAD | wc -l</code> で変更ファイル数を計測</li><li><strong>path-match（該当確定）</strong>: 変更ファイルのパスを各 <code>sensitive_areas</code> の <code>pattern</code>（単語境界付き正規表現）と照合。マッチ行数 1 以上で該当確定</li><li><strong>body-match（参考値）</strong>: 差分の追加行の内容を pattern と照合。結果は記録のみで該当判定には使わない</li></ol>
+<p>計測値（ファイル数・ヒットした pattern と件数）はレビュー方式判断コメントに必ず記載されます。詳細は<a href="../reference/config.html">設定ファイル</a>を参照してください。</p>
+
+<hr>
+
+<h2>ダブルレビューの仕組み</h2>
+
+<p>ダブルレビューは「独立レビュー → クロスレビュー」の 2 段階で行われます。</p>
+
+<h3>段階 1: 独立レビュー（並列実行）</h3>
+
+<pre><code class="language-">reviewer-a と reviewer-b が並列起動
+  - お互いのコメントは読まない
+  - それぞれが Tech-Lead の方針と Implementer の実装をレビュー
+  - 暫定判定コメントを投稿</code></pre>
+
+<p>各レビュアーは Reviewer-A / Reviewer-B として独立して動作し、<code>workflow.yml</code> の <code>parallel_with</code> 設定で並列実行が宣言されています。</p>
+
+<p><strong>観点の差別化（v0.11.0）</strong>: 両者は <code>review-config.yml</code> の <code>review_criteria</code>（共通チェックリスト）を全項目確認したうえで、以下の観点を重点的に深掘りします。観点を分担することで独立並列レビューの価値を高めます。</p>
+
+<table><thead><tr><th>レビュアー</th><th>重点観点</th></tr></thead><tbody><tr><td>Reviewer-A</td><td>設計との整合・保守性・テスト</td></tr><tr><td>Reviewer-B</td><td>セキュリティ・パフォーマンス・エラー処理</td></tr></tbody></table>
+<h3>段階 2: クロスレビュー</h3>
+
+<pre><code class="language-">両者完了後、reviewer-a がクロスレビューをリード
+  - requires: [reviewer-a, reviewer-b] で両者完了を待つ
+  - 指摘の差異を比較・議論
+  - 最終判定（合格 / 不合格 / エスカレーション）を投稿</code></pre>
+
+<p>両者の意見が割れて判断できない場合は <code>human-escalator</code> を呼び出します。</p>
+
+<hr>
+
+<h2>レビュー結果による分岐</h2>
+
+<p>レビューの結果に応じて次のステップが決まります。</p>
+
+<table><thead><tr><th>結果</th><th>次のステップ</th></tr></thead><tbody><tr><td>合格</td><td><code>version-bumper</code></td></tr><tr><td>不合格</td><td><code>implementer</code>（差し戻し、<code>on_rework</code>）</td></tr><tr><td>不合格（3 回目 = <code>rework_limit: 2</code> 超過）</td><td><code>human-escalator</code>（差し戻さずエスカレーション）</td></tr><tr><td>意見不一致（ダブルレビュー）</td><td><code>human-escalator</code></td></tr></tbody></table>
+<h3>差し戻し上限と決定論的カウント（v0.11.0）</h3>
+
+<code>workflow.yml</code> の <code>rework_limit: 2</code> により、同一 Issue での差し戻しは 2 回までです。3 回目の不合格は implementer へ差し戻さず <code>escalated:human</code> へエスカレーションします。
+
+<p>カウントは決定論的です。差し戻しコメントの<strong>先頭行</strong>を <code>❌ &lt;エージェント名&gt;: 差し戻し（差し戻し回数: n/2）</code> 形式に固定し、レビュー役エージェントが <code>gh api</code> でコメント先頭行のみを正規表現照合して数えます。本文中の引用による偽陽性はありません。独立レビューの暫定結果コメントは先頭行に「差し戻し」という語を使わないルールになっています（誤検出防止）。</p>
+
+<hr>
+
+<h2>Version-Bumper のバージョン管理</h2>
+
+<p>レビュー合格後、Version-Bumper が起動して <code>package.json</code> のバージョンを管理します。動作は <code>.claude/ai-team-config.yml</code> の <code>version_management</code> 設定で制御されます。</p>
+
+<table><thead><tr><th>設定値</th><th>動作</th></tr></thead><tbody><tr><td><code>auto</code></td><td>conventional commit を解析して自動インクリメント</td></tr><tr><td><code>manual</code></td><td>スキップして Tech-Writer へ引き継ぎ</td></tr></tbody></table>
+<h3>auto モードの判定ルール</h3>
+
+<table><thead><tr><th>コミット種別</th><th>バージョン種別</th></tr></thead><tbody><tr><td><code>BREAKING CHANGE:</code> / <code>feat!:</code></td><td>major（X.0.0）</td></tr><tr><td><code>feat:</code></td><td>minor（x.Y.0）</td></tr><tr><td><code>fix:</code> / <code>docs:</code> / <code>chore:</code> / <code>refactor:</code> / <code>test:</code></td><td>patch（x.y.Z）</td></tr></tbody></table>
+<p>複数種別が混在する場合は最も高いものを採用します（major > minor > patch）。</p>
+
+<p>> git タグは作成しません（<code>--no-git-tag-version</code>）。タグのタイミングはプロジェクトのリリース戦略に委ねます。</p>
+
+<p>設定変更は <code>.claude/ai-team-config.yml</code> の <code>version_management</code> を <code>auto</code> / <code>manual</code> に書き換えてください。</p>
+
+<hr>
+
+<h2>Tech-Writer のドキュメント更新</h2>
+
+<p>レビュー合格後、Tech-Writer が起動してドキュメントを更新します。詳細は <a href="../agents/tech-writer.html">Tech-Writer エージェント詳細</a> を参照してください。</p>
+
+<p>主な処理：</p>
+
+<ol><li><code>git diff</code> で変更差分を取得</li><li><code>package.json</code> からバージョンを読み取り、<code>docs-src/versions/v&lt;バージョン&gt;/</code> を準備</li><li>Markdown を更新</li><li><code>node docs-src/build.js</code> を実行して HTML をビルド</li><li><code>docs-src/</code> と <code>public/docs/</code> を 1 つのコミットに含める</li></ol>
+<hr>
+
+<h2>PR 作成と人間マージ</h2>
+
+<p>Tech-Writer 完了後、PR-Creator が起動します。</p>
+
+<pre><code class="language-bash">gh pr create \
+  --title "&lt;タイトル&gt;" \
+  --body "&lt;本文&gt;" \
+  --base main \
+  --head &lt;feature-branch&gt;</code></pre>
+
+<p>PR 本文には次が含まれます：</p>
+
+<ul><li>概要・関連 Issue（<code>Closes #&lt;番号&gt;</code>）</li><li>変更内容（Implementer の完了報告から転記）</li><li>設計方針（Tech-Lead の方針から要約）</li><li>テスト結果</li><li>レビュー結果</li><li>チェックリスト</li></ul>
+<p>PR 作成後は <code>escalated:human</code> ラベルが付与され、人間のマージを待ちます。マージは AI ではなく必ず人間が行います。</p>
+
+<hr>
+
+<h2>DOD（Definition of Done）</h2>
+
+<p>バックエンドチーム用に 5 種類の DOD テンプレートが用意されています。</p>
+
+<table><thead><tr><th>ファイル</th><th>用途</th><th>主なチェック項目</th></tr></thead><tbody><tr><td><code>dod/feature.md</code></td><td>新機能実装</td><td>設計方針・実装・テスト・カバレッジ 80%・レビュー・バージョン管理・PR・ドキュメント</td></tr><tr><td><code>dod/bugfix.md</code></td><td>バグ修正</td><td>再現手順・根本原因・リグレッションテスト・同種バグ確認・バージョン管理・PR</td></tr><tr><td><code>dod/refactor.md</code></td><td>リファクタリング</td><td>目的明記・機能変更なし・カバレッジ維持・PR</td></tr><tr><td><code>dod/review.md</code></td><td>コードレビュー</td><td>スコープ・重大度別整理・レビュー方式判断・全件対応</td></tr><tr><td><code>dod/documentation.md</code></td><td>ドキュメント更新（Tech-Writer 用）</td><td>全変更箇所反映・バージョン管理・ビルド成功・コミット形式</td></tr></tbody></table>
+<code>contributor</code> エージェントが Issue クローズ前に該当 DOD の全項目チェックを実施します。
+
+<hr>
+
+<h2>ステップ定義詳細（workflow.yml より）</h2>
+
+<code>.claude/teams/backend/workflow.yml</code> の主要ステップ：
+
+<table><thead><tr><th>step id</th><th>agent</th><th>label</th><th>概要</th></tr></thead><tbody><tr><td><code>tech-lead-analysis</code></td><td>tech-lead</td><td><code>backend:tech-lead</code></td><td>要件分析・設計方針決定・インシデント確認</td></tr><tr><td><code>implementer</code></td><td>implementer</td><td><code>backend:implementer</code></td><td>実装・テスト実施</td></tr><tr><td><code>tech-lead-review-decision</code></td><td>tech-lead</td><td><code>backend:tech-lead</code></td><td>レビュー方式を <code>conditions</code> で分岐判定</td></tr><tr><td><code>reviewer</code></td><td>reviewer</td><td><code>backend:reviewer</code></td><td>シングルレビュー</td></tr><tr><td><code>reviewer-a</code></td><td>reviewer-a</td><td><code>backend:reviewer-a</code></td><td>ダブルレビュー A（<code>parallel_with: reviewer-b</code>）</td></tr><tr><td><code>reviewer-b</code></td><td>reviewer-b</td><td><code>backend:reviewer-b</code></td><td>ダブルレビュー B（<code>parallel_with: reviewer-a</code>）</td></tr><tr><td><code>cross-review</code></td><td>reviewer-a</td><td><code>backend:reviewer-a</code></td><td>クロスレビュー（<code>requires: [reviewer-a, reviewer-b]</code>）</td></tr><tr><td><code>version-bumper</code></td><td>version-bumper</td><td><code>backend:version-bumper</code></td><td><code>ai-team-config.yml</code> の設定に従いバージョンを管理（auto/manual）</td></tr><tr><td><code>tech-writer</code></td><td>tech-writer</td><td><code>backend:tech-writer</code></td><td>docs-src 更新・build.js 実行</td></tr><tr><td><code>pr-creator</code></td><td>pr-creator</td><td><code>backend:pr-creator</code></td><td>PR 作成・人間に承認依頼</td></tr><tr><td><code>human-merge-approval</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>人間がマージ</td></tr><tr><td><code>human-escalator</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>判断不能事項を人間にエスカレーション</td></tr><tr><td><code>contributor-close</code></td><td>contributor</td><td><code>contributor:ready</code></td><td>DOD 確認・Issue クローズ（<code>action: close_issue</code>）</td></tr></tbody></table>
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="../agents/tech-writer.html">Tech-Writer</a> — ドキュメント更新の詳細</li><li><a href="../reference/workflow.html">ワークフロー定義</a> — workflow.yml の文法</li><li><a href="../reference/dod.html">DOD テンプレート</a> — DOD の運用ルール</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
