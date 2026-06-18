@@ -34,7 +34,7 @@ PRODUCTION-GUIDE.md §1①「台本が土台」の通り、台本＝最終動画
 Issue 本文・コメント履歴を読み込み、以下を把握します。
 - channel-producer が確定したトピック・`topic_key`・エピソードスタブ（frontmatter）・配信計画上の位置づけ
 - 対象チャンネルの `channel.yaml`（言語・format・target_minutes）・`voice-guide.md`（声・人格・口調）・`glossary.yaml`（固有名詞の綴り）
-- 差し戻しの場合は editor のコメントを特定し、指摘点（編集文法・10型整合・権利安全・写真プリフライト・機械検証・有益性のどれか）を一覧化する
+- 差し戻しの場合は editor のコメントを特定し、指摘点（編集文法・18型整合・権利安全・写真プリフライト・機械検証・有益性のどれか）を一覧化する
 
 参照する単一情報源は PRODUCTION-GUIDE.md です。ここに無い判断はチャンネルの voice-guide → 制作エンジン repo の CLAUDE.md の順で遡ります。
 
@@ -71,11 +71,20 @@ PRODUCTION-GUIDE §5「13構造規約」に従って本文を書きます。**1�
 
 - **マーカー順序**: `@section`（章境界・role）→ `@topic`（トピック境界＝ショット境界）→ 地の文（ナレ原稿）→ ` ```visual ``` ` ブロック の順で書く。
 - **1トピックの分量**: 英語ナレで **8〜20秒**（日本語にして **2〜5文**）。1ショット1アイデア。新情報・新トピック・キーワード・数字・章転換でのみ切る。
-- **型（templateType）**: 10型（`progressive` / `contrast` / `howto` / `list` / `stat` / `map` / `timeline` / `concept` / `warning` / `gallery`）から選ぶ。トピックの性質に合う型を当て、テキスト量上限（行/項目 ≤ 5、contrast lines ≤ 4、map pins ≤ 6、timeline points ≤ 5 等）を守る。
+- **型（templateType）**: 18型（`progressive` / `contrast` / `howto` / `list` / `stat` / `map` / `timeline` / `concept` / `warning` / `gallery` / `clip` / `quote` / `versus` / `pie` / `ranking` / `table` / `bar` / `qa`）から選ぶ。トピックの性質に合う型を当て、テキスト量上限（行/項目 ≤ 5、contrast lines ≤ 4、map pins ≤ 6、timeline points ≤ 5 等）を守る。
 - **`gallery` 型の台本記法**（「〜の種類／特徴」用・複数写真を1枚ずつ見せる・PRODUCTION-GUIDE §6）: visual ブロックに `items: [{ label, photo:{ query | wikipedia | file } }]` を書く。
   - `label` は英語ラベル（英語のみ・日英混在禁止）。`photo` は確定 pin（`wikipedia:<記事>` / `commons:<File>` / `file:<名>`）か、未確定の `query`（後工程 confirm で1枚ずつ pick して確定 pin に書き戻す）。
   - **一致する写真が確定できないアイテムは無理に写真を当てず、`Reserved` タグで視覚化**する指示を書く（§1③「間違った写真は写真なしより悪い」）。
   - 中央フォーカスで順次表示＋進捗チップ（例 `3/6`）になる前提で、items の順序と件数を意図して並べる。
+- **新8型の台本記法**（PRODUCTION-GUIDE §6・各 `type` 文字列・主要フィールド・`layout`）:
+  - **`clip`**（実写動画埋め込み）: `data.video` に動画ファイルを指定（**ローカル/staticFile のファイル名・パスのみ。`query` 検索は未対応**）。`layout: full | caption | split`。実写 footage は脇役枠（§6）・事実一致原則（§1③）を守る。
+  - **`quote`**（引用）: 引用本文＋著者/出典。`layout: centered | card | with-photo`。`with-photo` のとき著者写真を `data.photo`（確定 pin か未確定 `query`）で添える。
+  - **`versus`**（対称比較）: `left` / `right` の2側にラベル・属性、各側に写真可（`left.photo` / `right.photo`）。`layout: split | stacked | table`。**対等な2対象の属性比較に使う**（否定/Before-After は `contrast`、地理差は `map`、3対象以上は `table`）。
+  - **`pie`**（構成比）: 構成要素（ラベル＋数値/割合）の配列。`layout: pie | donut | callouts`。写真なし（SVG 可視化）。
+  - **`ranking`**（ランキング）: `items: [{ rank, label, photo? }]`。`layout: list | podium | countdown`。`items[].photo` は gallery と同じ確定 pin/未確定 `query`。
+  - **`table`**（比較表）: 列（対象 3つ以上）× 行（属性）の表データ。`layout: grid | compact | highlight`。`.max` 制約内で文字を切り捨てない。写真なし。
+  - **`bar`**（量の比較）: 系列（ラベル＋数値）の配列。`layout: horizontal | vertical | ranked`。写真なし（SVG 可視化）。
+  - **`qa`**（問い→答え）: `question` ＋ `answer`（`list` のときは Q&A の配列）。`layout: single | list | reveal`。写真なし。
 - **cues**: 発話の語 → 画面で起きる状態変化、の対応で書く（list 項目・map ピン・howto ステップの出現タイミングを発話に同期させる）。クリップ内ローカル秒で解決できる形にする。
 - **画面ラベルは英語のみ**: `CHECK・確認` のような日英混在は禁止。構造ラベル（eyebrow/見出し/badge）は英語限定。図解ラベルは英語20〜26字程度・キャプションは1行。**画面テキストを省略（「…」）・重複させない**（情報は主・デザインは従）。
 - **冒頭30秒**: 具体的なフック（数字・失敗例・問い）を置く。イントロは5秒以内 or 廃止。open loop を作り、2〜3分ごとに再提示・一部回収する。
