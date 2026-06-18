@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, statSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, statSync, copyFileSync } from 'fs';
 import { join, dirname, parse, relative } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -82,6 +82,9 @@ function markdownToHtml(md) {
   // 太字・斜体
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+
+  // 画像（リンク変換より先に処理する：![alt](src) は [text](href) の上位構文のため）
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy">');
 
   // リンク
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
@@ -423,6 +426,14 @@ body {
   margin-left: -20px;
 }
 
+.content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 20px 0;
+  border-radius: var(--radius);
+}
+
 .content a {
   color: var(--color-primary);
   text-decoration: none;
@@ -533,6 +544,38 @@ function findMarkdownFiles(dir, base = dir) {
   return results;
 }
 
+// コピー対象とする画像拡張子（小文字で判定）
+const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.svg', '.gif', '.webp'];
+
+// 画像ファイルを再帰的に検索（バージョンルートからの相対パスを返す）
+function findImageFiles(dir, base = dir) {
+  const results = [];
+  if (!existsSync(dir)) return results;
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) {
+      results.push(...findImageFiles(full, base));
+    } else if (IMAGE_EXTENSIONS.includes(parse(entry).ext.toLowerCase())) {
+      const rel = relative(base, full).replace(/\\/g, '/');
+      results.push(rel);
+    }
+  }
+  return results;
+}
+
+// バージョン配下の画像を相対パス（サブディレクトリ構造）を保ったままコピー
+function copyImages(srcDir, outDir) {
+  const imageFiles = findImageFiles(srcDir);
+  for (const rel of imageFiles) {
+    const srcFile = join(srcDir, rel);
+    const outFile = join(outDir, rel);
+    mkdirSync(dirname(outFile), { recursive: true });
+    copyFileSync(srcFile, outFile);
+    console.log(`    🖼️  ${rel}`);
+  }
+  return imageFiles.length;
+}
+
 // メインビルド処理
 function build() {
   console.log('📚 ドキュメントビルドを開始...');
@@ -554,6 +597,9 @@ function build() {
     // CSS/JSを出力
     writeFileSync(join(assetsDir, 'style.css'), generateCSS(), 'utf8');
     writeFileSync(join(assetsDir, 'script.js'), generateJS(), 'utf8');
+
+    // 画像を相対パス（サブディレクトリ構造）を保ったままコピー
+    copyImages(srcDir, outDir);
 
     // Markdownファイルを検索
     const mdFiles = findMarkdownFiles(srcDir);

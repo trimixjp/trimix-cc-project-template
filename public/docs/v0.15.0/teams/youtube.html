@@ -102,6 +102,12 @@
 
 <code>figure</code> を割り当てるかどうかは、<strong>LLM の自動分類でも人手の指定でもどちらでも選べます</strong>。自動で当ててもよいですし、台本作成時に「ここは 1 枚で見せたい」と人が判断して当てても構いません。<code>figure</code> も既存型と同じ<strong>不変原則</strong>（情報が主・デザインは従／文字の切り捨て・重なりは禁止／ラベルは英語のみ／焼き込み字幕なし）の上に乗ります。
 
+<p>実際の見た目は次のサンプルのとおりです。</p>
+
+<p><img src="figure-sample.png" alt="figure 表示サンプル（nihon101トンマナ・図版は sample image プレースホルダ）" loading="lazy"></p>
+
+<p>白枠＋影を付けたカードの中に図版 1 枚を <code>objectFit: contain</code>（切り抜かない）で中央表示し、配色は nihon101 のトンマナ（藍・朱・生成り）に揃えています。このサンプルは図版部分を <code>sample image</code> のプレースホルダにしていますが、実運用では <code>photo</code> に路線図などの実際の図版名を入れます。全体像が欠けると意味を失う図版を、欠けさせずに大きく確認できる型だとイメージしてください。</p>
+
 <h3>③ 縦 Shorts の自動切り出し＋自動アップロード</h3>
 
 <p>本編のタイムラインから <code>hook</code> / <code>stat</code> / <code>contrast</code> / <code>warning</code> に該当する区間を決定論で抽出し、縦型の YouTube Shorts を自動生成・アップロードする機構です。</p>
