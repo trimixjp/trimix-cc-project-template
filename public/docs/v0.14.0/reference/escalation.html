@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エスカレーションルール - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.14.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class="active"><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">エスカレーションルール</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/reference/escalation.html" >v0.5.1</option><option value="../../v0.5.2/reference/escalation.html" >v0.5.2</option><option value="../../v0.6.0/reference/escalation.html" >v0.6.0</option><option value="../../v0.7.0/reference/escalation.html" >v0.7.0</option><option value="../../v0.8.0/reference/escalation.html" >v0.8.0</option><option value="../../v0.9.0/reference/escalation.html" >v0.9.0</option><option value="../../v0.10.0/reference/escalation.html" >v0.10.0</option><option value="../../v0.11.0/reference/escalation.html" >v0.11.0</option><option value="../../v0.12.0/reference/escalation.html" >v0.12.0</option><option value="../../v0.13.0/reference/escalation.html" >v0.13.0</option><option value="../../v0.14.0/reference/escalation.html" selected>v0.14.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>エスカレーションルール</h1>
+
+<p>AI エージェントが判断できない・判断してはいけない事項に遭遇したとき、エージェントは自動的に <code>human-escalator</code> を呼び出して人間に判断を依頼します。このページではエスカレーションの仕組みと運用方法を解説します。</p>
+
+<p>> <strong>定義場所</strong>:</p>
+<p>> - エスカレーション条件: <code>.claude/escalation-rules.yml</code></p>
+<p>> - エスカレーターエージェント: <code>.claude/agents/human-escalator.md</code></p>
+
+<hr>
+
+<h2>エスカレーションの仕組み</h2>
+
+<div class="mermaid">flowchart TD
+    A["エージェント実行中"] --> B{"escalation_triggers\nに該当?"}
+    B -->|Yes| C["human-escalator エージェント呼び出し\n関連ドキュメントを全て調査"]
+    C --> D["🚨 エスカレーションコメントを Issue に投稿\nescalated:human ラベル付与\n担当者アサイン"]
+    D --> E["⏸️ 処理停止"]
+    E --> F["人間が確認・対応"]
+    F --> G["人間がコメントで判断を投稿\nescalated:human ラベル除去"]
+    G --> H["/ai-team-resume または\nai-team-watch で再開検出"]
+    H --> I["🔄 エスカレーション解決コメント投稿\n元のエージェントを人間の判断つきで再起動"]
+    I --> J["ワークフロー継続"]
+    B -->|No| K["通常処理継続"]</div>
+
+<hr>
+
+<h2>エスカレーション条件（<code>escalation_triggers</code>）</h2>
+
+<code>.claude/escalation-rules.yml</code> で 4 種類定義されています。
+
+<p>> <strong>v0.11.0 の変更</strong>: 各トリガーに <code>id</code>（識別子）・<code>priority</code>（P1〜P3 の優先度）・<code>detection</code>（エスカレーションと判定するための具体手順）フィールドが追加され、エージェントは <code>detection</code> の手順どおりに確認してから判定します。主観的な判断のブレを防ぐ再現性強化の一環です。</p>
+
+<h3><code>legal</code> — 法的判断</h3>
+
+<pre><code class="language-yaml">- id: legal
+  type: legal
+  priority: P1
+  description: 法的判断、契約、コンプライアンスに関わる内容
+  detection: |
+    以下を順に確認し、1つでも該当すればエスカレーションと判定する:
+      1. 利用規約・ライセンス・契約文書の作成・変更・解釈が含まれるか
+      2. 個人情報・機密情報の取り扱い方針の新規決定・変更が必要か
+      3. 外部サービス・ライブラリの規約/ライセンスの遵守可否の判断が必要か</code></pre>
+
+<p><strong>典型例</strong>:</p>
+<ul><li>利用規約・ライセンス・契約条項の解釈</li><li>個人情報の取り扱い・GDPR・APPI</li><li>著作権・商標・特許</li><li>名誉毀損・侮辱罪リスク</li></ul>
+<p><strong>自動エスカレーションを行うエージェント</strong>: tech-lead / implementer / reviewer / reviewer-a / reviewer-b / developer / writer / compliance / security-engineer / その他全エージェント</p>
+
+<h3><code>budget</code> — 予算承認</h3>
+
+<pre><code class="language-yaml">- type: budget
+  description: 予算承認、費用の発生を伴う判断</code></pre>
+
+<p><strong>典型例</strong>:</p>
+<ul><li>有料 SaaS・API の契約</li><li>サーバー・データベースの増強</li><li>シークレット・API キーの新規発行・ローテーション</li><li>第三者ライブラリの商用ライセンス購入</li></ul>
+<h3><code>merge_approval</code> — PR マージ承認</h3>
+
+<pre><code class="language-yaml">- type: merge_approval
+  description: プルリクエストの承認とマージは常に人間が行う</code></pre>
+
+<p><strong>典型例</strong>: 全てのコードマージ。例外なく人間の判断が必要です。</p>
+
+<p><strong>自動エスカレーションを行うエージェント</strong>: pr-creator / human-merge-approval ステップ</p>
+
+<h3><code>ambiguous_spec</code> — 仕様の曖昧さ</h3>
+
+<pre><code class="language-yaml">- type: ambiguous_spec
+  description: |
+    以下を全て検索して記述が見つからず、どちらを採用しても優劣がつかない場合:
+      - .claude/rules/ 配下の .md ファイル
+      - CLAUDE.md
+      - docs/ 配下の仕様書</code></pre>
+
+<p><strong>典型例</strong>:</p>
+<ul><li>設計方針が複数あり優劣がつかない</li><li>レビュアー間で意見が一致しない</li><li>要件が矛盾している</li></ul>
+<hr>
+
+<h2>透明性ルール（<code>transparency_rules</code>）</h2>
+
+<p>エージェントが守るべき透明性ルールです。</p>
+
+<pre><code class="language-yaml">transparency_rules:
+  - 全ての判断には根拠を記録する
+  - 参照したファイル・仕様書・ルールを明示する
+  - 懸念点は「未解決」として明示する
+  - 判断できなかった場合は理由を記録してエスカレーション</code></pre>
+
+<p>これらのルールにより、エスカレーションを受けた人間は「どこまで AI が調査し、何が判断できなかったか」を把握できます。</p>
+
+<hr>
+
+<h2><code>human-escalator</code> エージェントの動作</h2>
+
+<p>エスカレーションが必要と判断したエージェントは、<code>human-escalator</code> を呼び出します。</p>
+
+<h3>ステップ 1: 調査内容の記録</h3>
+
+<p>エスカレーション前に以下を全て確認します。</p>
+
+<ul><li><code>.claude/rules/</code> 配下の全 <code>.md</code> ファイル</li><li><code>CLAUDE.md</code></li><li><code>docs/</code> 配下の仕様書</li><li>関連する Issue のコメント履歴</li></ul>
+<h3>ステップ 2: エスカレーションコメントの投稿</h3>
+
+<p>v0.11.0 から、エスカレーションコメントには<strong>機械可読の構造化フィールド</strong>が含まれます。</p>
+
+<pre><code class="language-">🚨 エスカレーション: 人間の判断が必要です
+
+## エスカレーション理由
+
+エスカレーション元ステップ: &lt;workflow.yml のステップID（例: implementer）&gt;
+エスカレーション種別: &lt;legal / budget / merge_approval / ambiguous_spec&gt;
+理由: （具体的に何が判断できないかを記述）
+
+## 調査済みのドキュメント
+
+- `.claude/rules/xxx.md` → 該当記述なし
+- `CLAUDE.md` → 該当記述なし
+- `docs/xxx.md` → 該当記述なし
+
+## 判断が必要な選択肢
+
+人間への質問: （Yes/No か選択式で答えられる形の質問）
+
+選択肢と推奨:
+- **選択肢A**: （内容と想定される影響）
+- **選択肢B**: （内容と想定される影響）
+- **推奨**: （推奨する選択肢とその理由）
+
+## 次のアクション
+
+このIssueにコメントで判断を返してください。
+返答例: 「選択肢Aで進めてください」
+
+⏸️ 人間の返答があるまでエージェント処理は停止します。
+
+## 対応完了後の手順
+
+1. このIssueに判断内容をコメントしてください
+2. escalated:human ラベルを外してください
+3. 以下のコマンドでワークフローを再開してください：
+   /ai-team-resume
+   （ソロモードの場合は自動で再開されます）</code></pre>
+
+<p>> <strong>重要（再開時の復帰先決定）</strong>: <code>エスカレーション元ステップ</code> と <code>エスカレーション種別</code> の 2 フィールドは、ワークフロー再開時（<code>/ai-team-resume</code>）に <code>return_to_previous</code> の復帰先ステップを<strong>機械的に</strong>決定するために読み取られます。<code>エスカレーション元ステップ</code> には workflow.yml に実在するステップ ID をそのまま記載します（自由記述は禁止）。</p>
+
+<h3>ステップ 3: ラベルとアサインの更新</h3>
+
+<pre><code class="language-bash">gh issue edit &lt;番号&gt; --add-label "escalated:human"
+gh issue edit &lt;番号&gt; --add-assignee "&lt;GitHubユーザー名&gt;"</code></pre>
+
+<h3>ステップ 4: 処理停止</h3>
+
+<p>エスカレーションコメント投稿・ラベル付与・アサイン完了後、処理を停止します。</p>
+
+<hr>
+
+<h2>人間が無応答の場合のリマインド（v0.11.0）</h2>
+
+<p>人間からの返答がない場合も、即時のリマインドは行いません。</p>
+
+<ol><li>次回の <code>/ai-team-watch</code> または <code>/ai-team-resume</code> 実行時に、最終エスカレーションコメントの投稿日時を確認する</li><li>最終エスカレーションコメントから <strong>48 時間以上</strong>経過している場合のみ、リマインドコメントを <strong>1 回だけ</strong>投稿する</li><li>リマインド投稿後は追加のリマインドを行わず、人間の返答があるまで待機を継続する</li></ol>
+<hr>
+
+<h2>人間の対応手順</h2>
+
+<p>エスカレーションを受けた人間は次の手順で対応します。</p>
+
+<ol><li><strong>Issue を確認</strong>: <code>🚨 エスカレーション</code> コメントから理由・選択肢を把握</li><li><strong>判断のコメント投稿</strong>: 「選択肢 A で進めてください」「変更ファイル数 6 ですがダブルレビュー不要、シングルでお願いします」など、AI に対する明確な指示を記録</li><li><strong>ラベル除去</strong>: <code>gh issue edit &lt;番号&gt; --remove-label "escalated:human"</code> または GitHub UI でラベルを外す</li><li><strong>再開</strong>:</li></ol>   - マルチユーザーモード: <code>/ai-team-resume</code> を実行
+<p>   - ソロモード: <code>/ai-team-watch</code> が自動検出（手動再開不要）</p>
+
+<hr>
+
+<h2>エージェント別エスカレーション条件</h2>
+
+<p>各エージェント定義（<code>.claude/teams/&lt;team_id&gt;/agents/*.md</code> および <code>.claude/agents/*.md</code>）には、エスカレーション条件が個別に記載されています。</p>
+
+<h3>バックエンドチーム</h3>
+
+<table><thead><tr><th>エージェント</th><th>主なエスカレーション条件</th></tr></thead><tbody><tr><td>Tech-Lead</td><td>要件矛盾 / セキュリティ・法的判断 / 費用発生</td></tr><tr><td>Implementer</td><td>セキュリティ・法的判断発見 / 実装不可能な設計</td></tr><tr><td>Reviewer / Reviewer-A/B</td><td>セキュリティ脆弱性発見 / PR 承認 / レビュアー間の意見不一致</td></tr><tr><td>Tech-Writer</td><td>build.js 失敗 / ドキュメントの法的判断 / 大規模改訂</td></tr><tr><td>PR-Creator</td><td>PR 作成失敗 / コンフリクト発生</td></tr></tbody></table>
+<h3>フロントエンドチーム</h3>
+
+<table><thead><tr><th>エージェント</th><th>主なエスカレーション条件</th></tr></thead><tbody><tr><td>Designer</td><td>著作権・商標侵害の可能性 / 要件矛盾</td></tr><tr><td>Frontend-Lead</td><td>要件矛盾 / セキュリティ判断 / 費用発生</td></tr><tr><td>Developer</td><td>セキュリティ判断発見 / 実装不可能な設計</td></tr><tr><td>Reviewer</td><td>XSS 等のセキュリティ脆弱性 / PR 承認</td></tr></tbody></table>
+<h3>インフラチーム</h3>
+
+<table><thead><tr><th>エージェント</th><th>主なエスカレーション条件</th></tr></thead><tbody><tr><td>Infra-Lead</td><td>公式ドキュメント不在 / 本番停止伴う変更 / 予算承認</td></tr><tr><td>Network-Engineer</td><td>本番ネットワーク停止 / 公式ドキュメント不在</td></tr><tr><td>Infra-Specialist</td><td>ダウンタイム伴う変更 / 大幅な費用増</td></tr><tr><td><strong>Security-Engineer</strong></td><td><strong>重大セキュリティリスク発見（即時エスカレーション）</strong></td></tr></tbody></table>
+<h3>コンテンツチーム</h3>
+
+<table><thead><tr><th>エージェント</th><th>主なエスカレーション条件</th></tr></thead><tbody><tr><td>Editor-in-Chief</td><td>法的リスク疑い / ブランドガイドライン不在</td></tr><tr><td>Researcher</td><td>法的判断を要する分野 / 情報源信頼性低</td></tr><tr><td>Writer</td><td>法的リスク / 方針解釈の複数化</td></tr><tr><td><strong>Compliance</strong></td><td><strong>法的判断必要（即時エスカレーション）</strong></td></tr></tbody></table>
+<h3>共通エージェント</h3>
+
+<table><thead><tr><th>エージェント</th><th>主なエスカレーション条件</th></tr></thead><tbody><tr><td>Dispatcher</td><td>Epic 要件矛盾 / 新領域でチーム振り分け不能</td></tr><tr><td>Contributor</td><td>PR 承認 / DOD 解釈に法的判断</td></tr></tbody></table>
+<hr>
+
+<h2>エスカレーションの典型的なフロー例</h2>
+
+<h3>例 1: 認証ロジック実装中に法的判断が必要になった</h3>
+
+<pre><code class="language-">1. Implementer: 認証実装中に GDPR 対応が必要と気付く
+2. Implementer → Human-Escalator 呼び出し
+   - 種別: legal
+   - 理由: GDPR 対応の有無で実装方針が変わる
+3. Human-Escalator: Issue に 🚨 エスカレーション投稿 + escalated:human ラベル
+4. 人間: 「日本居住ユーザーのみ対象なので GDPR 対応不要、APPI 準拠で実装」
+5. 人間: escalated:human ラベル除去
+6. /ai-team-resume → Implementer 再起動（人間の判断をコンテキストに含む）
+7. Implementer: 続きを実装 → tech-lead-review-decision へ</code></pre>
+
+<h3>例 2: PR マージ承認</h3>
+
+<pre><code class="language-">1. PR-Creator: gh pr create 完了
+2. PR-Creator → Human-Escalator（merge_approval）
+3. Issue に 「⚠️ 承認・マージは人間が行います」コメント投稿
+4. 人間: PR をレビューしてマージ
+5. /ai-team-resume → Contributor 起動 → DOD 確認 → Issue クローズ</code></pre>
+
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="config.html">設定ファイル</a> — <code>escalation-rules.yml</code> の全フィールド</li><li><a href="../skills/resume.html">ai-team-resume</a> — 再開コマンド</li><li><a href="../skills/watch.html">ai-team-watch</a> — ソロモードでの自動再開</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
