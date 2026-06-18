@@ -118,7 +118,7 @@ steps:
     agent: editor
     label: "youtube:editor"
     description: |
-      台本品質ゲート: 編集文法・9型整合・権利/安全・写真プリフライト照合・機械検証・有益性レビュー
+      台本品質ゲート: 編集文法・10型整合(gallery含む)・権利/安全・写真プリフライト照合・機械検証・有益性レビュー
     on_complete:
       condition: 合格
       next: growth-strategist
@@ -152,7 +152,8 @@ steps:
     agent: human-escalator
     label: "escalated:human"
     description: |
-      ピクチャーロック承認ゲート: preview.htmlをユーザーが承認（=最終動画を確定）。承認でstatus:reviewedへ
+      プレビュー承認ゲート（必須・人間ゲート）: preview.htmlをユーザーが承認（=最終動画を確定）。
+      承認でstatus:reviewedへ。yt-episode統括フローでは、この承認なしにレンダ(editor-render)へ進ませない
     on_complete:
       condition: ユーザーが承認
       next: editor-render
@@ -163,8 +164,9 @@ steps:
     agent: editor
     label: "youtube:editor"
     description: |
-      動画生成(yt-render)実行＋自己検証: still目視・写真の事実照合 全数・
-      無音/ラウドネス計測・同期スポットチェック
+      動画生成(yt-render)実行＋自己検証: セクション単位レンダ(60秒チャンク・章境界で自動分割・
+      章ごと検証/差分再レンダ・章数はsections配列長で自動判定)・縦Shorts自動切り出し(upload.shorts_upload有効時)・
+      still目視・写真の事実照合 全数・無音/ラウドネス計測・同期スポットチェック
     on_complete:
       next: publisher
     on_rework:
@@ -180,7 +182,8 @@ steps:
     label: "youtube:publisher"
     description: |
       限定公開(privacy:private)でアップロード＋予約公開(publish_at)＋多言語字幕(8言語)登録＋
-      APIで検証＋配信カレンダー更新
+      多言語メタ(localizations冪等投入)＋縦Shorts自動UP(upload.shorts_upload有効時・本編成功後に冪等)＋
+      update-meta reschedule(private限定・冪等)＋APIで検証＋配信カレンダー更新
     on_complete:
       next: sns-distributor
     on_escalation:
@@ -189,7 +192,10 @@ steps:
   - id: sns-distributor
     agent: sns-distributor
     label: "youtube:sns-distributor"
-    description: "公開後の拡散: Shorts/切り抜き案・各SNS展開・バイラルフック・シェア設計"
+    description: |
+      公開後の拡散: Shorts/切り抜き案・各SNS展開・バイラルフック・シェア設計。
+      X/TikTokは決定論で下書き生成(social-manifest)＋share-x --send/share-tiktok --sendで下書き/inboxへ送るが、
+      最終公開は人間ゲート(TikTokはアプリで人間公開の二重ゲート)。social.enabled/social.tiktok.enabledで有効化
     on_complete:
       next: monetizer
     on_escalation:

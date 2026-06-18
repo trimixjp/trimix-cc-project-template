@@ -31,15 +31,23 @@
 - [ ] 説明欄が整備されている
 - [ ] タグが設定されている
 - [ ] 全言語字幕が登録されている
+- [ ] **多言語メタ（localizations）が冪等投入済み**（タイトル/説明欄を全言語へ・プローズのみ翻訳・base 言語除外・URL/時刻/クレジットは不変）
 - [ ] アフィリエイト掲載時は開示文あり（FTC 順守）
 - [ ] AI 開示（containsSyntheticMedia）は内容で判断済み
 - [ ] サムネイル準備済み
 - [ ] 予約日時 `publish_at` が設定されている
 - [ ] 配信カレンダーを更新済み
 
-## ✅ 承認
+## ✅ 承認（人間ゲート）
 
-- [ ] ピクチャーロック = preview.html をユーザーが承認済み
+- [ ] **プレビュー承認ゲート**: preview.html をユーザーが承認済み（= ピクチャーロック。承認なしにレンダへ進んでいない）
+- [ ] 公開（外部公開）はユーザーの明示 GO を経て実行された（人間ゲート）
+
+## ✅ Shorts・SNS配信（config-driven・該当チャンネルのみ。無効なら「該当なし」）
+
+- [ ] **縦 Shorts**（`upload.shorts_upload` 有効時）: 本編から決定論で切り出し（1080x1920/15〜45秒/StageFit/末尾CTA）、本編成功後に冪等 UP（説明欄先頭に本編URL・タイトルに `#Shorts`・publish_at_offset で予約）
+- [ ] **X 配信**（`social.enabled` 有効時）: 下書きを決定論生成（280字厳守・glossary 保持）し social-manifest に保存、`share-x --send` で送信（実公開は人間ゲート・冪等）
+- [ ] **TikTok 配信**（`social.tiktok.enabled` 有効時）: キャプション下書き→`share-tiktok --send` で inbox へ（`shorts/01.mp4` 前提・無ければ skip）、実公開はアプリで人間（二重ゲート・冪等）
 
 ---
 
