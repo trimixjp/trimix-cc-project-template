@@ -128,6 +128,9 @@ Issue 本文・コメント履歴・director の引き継ぎ内容を読み込�
 5. **エピソードスタブ作成**: `channels/<id>/episodes/NNNN-slug.md` を frontmatter のみで作成します（本文は scriptwriter が執筆）。frontmatter 最小項目:
    - `id`（`<channel>-NNNN`）/ `channel` / `title` / `status: idea` / `topic_key` / `series`（単発は null）/ `series_part` / `publish_at` / `keywords` / `embedding_id`（重複判定で確定）
    - `status: idea` は「スタブ生成済み（重複防止クリア）」を意味する（PRODUCTION-GUIDE §2 状態機械）
+   - 章構成（`sections`）の初期案を置く場合、その**配列長がセクション単位レンダの自動判定値**になる（決定論・PRODUCTION-GUIDE §13 yt-episode 統括フロー）。最終的な章構成は scriptwriter が確定するが、企画段で章の見通しを持って publish_at・尺を割り当てる。
+
+> **統括フロー（yt-episode）の前提**: 企画したエピソードは `yt-episode`（PRODUCTION-GUIDE §13）で「台本 → **プレビュー承認（必須・人間ゲート）** → セクション単位レンダ → ユーザー確認 → 公開」と進む。channel-producer は**外部公開が人間ゲートで進むこと・プレビュー承認なしにレンダへ進まないこと**を前提に企画・スケジュールを組む（公開規約は §12）。
 
 ### ステップ4: 完了報告
 
@@ -285,6 +288,8 @@ Issue 本文・コメント履歴・director の引き継ぎ内容を読み込�
 - **字幕言語はコスト理由で削らない。** 字幕翻訳は安価モデル（Haiku）＋ Batch ＋プロンプトキャッシュで全言語でも月 $1〜2 程度であり、コストを理由に既定8言語を減らさない（PRODUCTION-GUIDE §4）。
 - **重複は必ず二段で照合し、結果を記録する。** topic_key 正規化（決定的）と embedding 類似 0.85 の両方を実施し、突合相手・類似度・採否をコメントに残す（PRODUCTION-GUIDE §5・§11）。
 - **配信予約はチャンネル単一値でなく episode 別 publish_at に持つ。** `channel.yaml upload.schedule` は null 固定。チャンネル単一値だと複数本が同時刻に予約され大事故になる（PRODUCTION-GUIDE §3・§14 事故源#5）。
+- **エピソードは yt-episode 統括フローで制作される前提で企画する。** 台本 → **プレビュー承認（必須・人間ゲート）** → セクション単位レンダ → ユーザー確認 → 公開（PRODUCTION-GUIDE §13）。frontmatter `sections` の配列長がセクション単位レンダの章数自動判定値になる（決定論）。外部公開は人間ゲートで進む（§1 製作哲学・§12）。
+- **新機構は config-driven（後方互換）。** Shorts 自動 UP（`upload.shorts_upload`）・X/TikTok 配信（`social.enabled`／`social.tiktok.enabled`）は、有効化するチャンネルでのみ `channel.yaml` に任意フィールドとして設定する。未設定なら何もしない（既存チャンネルを壊さない・PRODUCTION-GUIDE §1 製作哲学）。
 - 全ての判断には根拠を明記し、判断の出所（PRODUCTION-GUIDE の該当節・voice-guide・engine CLAUDE.md）をコメントに記録する。
 - 方針の曖昧さを後工程（scriptwriter / editor / publisher）に解決させず、Channel Producer が決定して明示する。決められない場合のみエスカレーションする。
 - 懸念点は「未解決」として明示し、隠蔽・省略してはいけない。

@@ -25,6 +25,13 @@
 
 - [ ] privacy:private を明記済み
 - [ ] ai_disclosure の既定を明記済み
+- [ ] **多言語メタ（localizations）の前提**: `subtitles.targets`（既定8言語）が公開時のタイトル/説明欄の多言語化対象になることを把握済み
+
+## ✅ 新機構の有効化（config-driven・任意・後方互換／使わないなら未設定でよい）
+
+- [ ] **縦 Shorts 自動 UP** を使う場合のみ `upload.shorts_upload` を設定済み（未設定なら Shorts は生成・UP されない）
+- [ ] **X 配信** を使う場合のみ `social.enabled` を設定済み（未設定なら X 下書き生成・送信を行わない）
+- [ ] **TikTok 配信** を使う場合のみ `social.tiktok.enabled` を設定済み（未設定なら TikTok 送信を行わない）
 
 ## ✅ 人間残作業の提示
 
