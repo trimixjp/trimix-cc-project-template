@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>/ai-team-install — プラグインインストール - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.14.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class="active"><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">/ai-team-install — プラグインインストール</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/skills/install.html" >v0.5.1</option><option value="../../v0.5.2/skills/install.html" >v0.5.2</option><option value="../../v0.6.0/skills/install.html" >v0.6.0</option><option value="../../v0.7.0/skills/install.html" >v0.7.0</option><option value="../../v0.8.0/skills/install.html" >v0.8.0</option><option value="../../v0.9.0/skills/install.html" >v0.9.0</option><option value="../../v0.10.0/skills/install.html" >v0.10.0</option><option value="../../v0.11.0/skills/install.html" >v0.11.0</option><option value="../../v0.12.0/skills/install.html" >v0.12.0</option><option value="../../v0.13.0/skills/install.html" >v0.13.0</option><option value="../../v0.14.0/skills/install.html" selected>v0.14.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>/ai-team-install — プラグインインストール</h1>
+
+<p>ワークフロープラグイン（チーム単位）を後から追加インストールするスキルです。<code>/ai-team-setup</code> 時に選択しなかったチームを後で導入したい場合に使用します。</p>
+
+<p>> <strong>スキル定義</strong>: <code>skills/ai-team-install.md</code></p>
+
+<hr>
+
+<h2>使い方</h2>
+
+<pre><code class="language-">/ai-team-install &lt;team_id&gt;</code></pre>
+
+<code>team_id</code> は以下のいずれかです。
+
+<table><thead><tr><th>team_id</th><th>チーム</th><th>概要</th></tr></thead><tbody><tr><td><code>backend</code></td><td>バックエンドチーム</td><td>コード実装・レビュー・PR作成</td></tr><tr><td><code>frontend</code></td><td>フロントエンドチーム</td><td>UI実装・コンポーネント開発</td></tr><tr><td><code>content</code></td><td>コンテンツチーム</td><td>記事・ドキュメント作成</td></tr><tr><td><code>infra</code></td><td>インフラチーム</td><td>クラウド構成・セキュリティ</td></tr><tr><td><code>sns</code></td><td>SNS運用チーム</td><td>X・Instagram の投稿運用</td></tr><tr><td><code>youtube</code></td><td>YouTube動画制作チーム</td><td>YouTube動画の企画・台本・生成・公開</td></tr></tbody></table>
+<p>引数を省略した場合、対話的にチーム ID を確認します。</p>
+
+<hr>
+
+<h2>ステップ 1: 引数の確認</h2>
+
+<p>ユーザーが指定した <code>&lt;team_id&gt;</code> を確認します。指定がない場合は次の質問が行われます。</p>
+
+<pre><code class="language-">インストールしたいチームIDを教えてください（例: backend, frontend, content, infra）</code></pre>
+
+<hr>
+
+<h2>ステップ 2: インストールコマンドの実行</h2>
+
+<p>Bash ツールで次のコマンドを実行します。</p>
+
+<pre><code class="language-bash">npx @trimix/ai-team install &lt;team_id&gt;</code></pre>
+
+<code>npx</code> で見つからない場合は次のフォールバックを使用します。
+
+<pre><code class="language-bash">node node_modules/@trimix/ai-team/bin/setup.js install &lt;team_id&gt;</code></pre>
+
+<p>このコマンドは <code>bin/lib/plugin-install.js</code> で実装されており、<code>templates/teams/&lt;team_id&gt;/</code> をプロジェクトの <code>.claude/teams/&lt;team_id&gt;/</code> にコピーします。</p>
+
+<hr>
+
+<h2>ステップ 3: 結果確認と報告</h2>
+
+<p>実行結果から以下を報告します。</p>
+
+<ul><li>インストールされたファイルの一覧</li><li>GitHub ラベルの作成結果</li><li>エラーがあれば内容と解決策</li></ul>
+<p>インストールされた内容は <code>ai-team-plugins.json</code> に記録されます（コミット対象）。</p>
+
+<pre><code class="language-json">{
+  "installed": {
+    "trimix-backend": {
+      "id": "trimix-backend",
+      "team_id": "backend",
+      "label_prefix": "backend",
+      "name": "バックエンドチーム",
+      "package": "@trimix/workflow-trimix-backend",
+      "version": "1.0.0",
+      "installed_at": "2026-05-17T02:14:21.048Z",
+      "files": [
+        ".claude/teams/backend/agents/implementer.md",
+        ".claude/teams/backend/agents/pr-creator.md",
+        ".claude/teams/backend/workflow.yml",
+        ".claude/teams/backend/review-config.yml",
+        ".github/ISSUE_TEMPLATE/backend-bugfix.yml",
+        ...
+      ]
+    }
+  }
+}</code></pre>
+
+<hr>
+
+<h2>ステップ 4: セットアップを案内</h2>
+
+<p>インストール完了後、次のメッセージで後続アクションを案内します。</p>
+
+<pre><code class="language-">インストールが完了しました。次のステップ:
+1. /ai-team-setup を実行してプロジェクトへのセットアップを完了してください
+2. GitHub のラベルが作成されたか確認してください
+3. /ai-team-run &lt;Issue番号&gt; でワークフローを起動できます</code></pre>
+
+<hr>
+
+<h2>エラー対応</h2>
+
+<table><thead><tr><th>エラーメッセージ</th><th>対処法</th></tr></thead><tbody><tr><td><code>team_id が見つかりません</code></td><td>正しいチームID（backend/frontend/content/infra）を確認して再実行</td></tr><tr><td><code>team_id 衝突エラー</code></td><td>既存プラグインを <code>/ai-team-uninstall</code> してから再実行（または <code>npx @trimix/ai-team uninstall &lt;team_id&gt;</code>）</td></tr><tr><td><code>gh コマンドが見つかりません</code></td><td>GitHub CLI をインストール（<code>brew install gh</code> または <a href="https://cli.github.com/">公式サイト</a>）</td></tr></tbody></table>
+<hr>
+
+<h2>注意事項</h2>
+
+<ul><li>このスキルは<strong>プロジェクトルートで実行</strong>する必要があります</li><li>インストール後に <code>ai-team-plugins.json</code> が生成・更新されます（Git でコミットしてください）</li><li>既に <code>.claude/teams/&lt;team_id&gt;/</code> がある場合、ファイルが上書きされる可能性があります。カスタマイズした内容はバックアップを取ってから実行してください</li></ul>
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="gallery.html">ai-team-gallery</a> — 利用可能なプラグイン一覧</li><li><a href="setup.html">ai-team-setup</a> — プロジェクト全体のセットアップ</li><li><a href="../teams/overview.html">チーム概要</a> — 各チームの詳細</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
