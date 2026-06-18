@@ -118,7 +118,7 @@ steps:
     agent: editor
     label: "youtube:editor"
     description: |
-      台本品質ゲート: 編集文法・18型整合(gallery含む)・権利/安全・写真プリフライト照合・機械検証・有益性レビュー
+      台本品質ゲート: 編集文法・19型整合(gallery含む)・権利/安全・写真プリフライト照合・機械検証・有益性レビュー
     on_complete:
       condition: 合格
       next: growth-strategist
