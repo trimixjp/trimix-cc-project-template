@@ -24,7 +24,7 @@
     <div class="version-switcher">
       <label for="version-select">バージョン:</label>
       <select id="version-select" onchange="location.href=this.value">
-        <option value="../../v0.5.1/teams/youtube.html" >v0.5.1</option><option value="../../v0.5.2/teams/youtube.html" >v0.5.2</option><option value="../../v0.6.0/teams/youtube.html" >v0.6.0</option><option value="../../v0.7.0/teams/youtube.html" >v0.7.0</option><option value="../../v0.8.0/teams/youtube.html" >v0.8.0</option><option value="../../v0.9.0/teams/youtube.html" >v0.9.0</option><option value="../../v0.10.0/teams/youtube.html" >v0.10.0</option><option value="../../v0.11.0/teams/youtube.html" >v0.11.0</option><option value="../../v0.12.0/teams/youtube.html" >v0.12.0</option><option value="../../v0.13.0/teams/youtube.html" >v0.13.0</option><option value="../../v0.14.0/teams/youtube.html" >v0.14.0</option><option value="../../v0.15.0/teams/youtube.html" selected>v0.15.0 (最新)</option>
+        <option value="../../v0.5.1/teams/youtube.html" >v0.5.1</option><option value="../../v0.5.2/teams/youtube.html" >v0.5.2</option><option value="../../v0.6.0/teams/youtube.html" >v0.6.0</option><option value="../../v0.7.0/teams/youtube.html" >v0.7.0</option><option value="../../v0.8.0/teams/youtube.html" >v0.8.0</option><option value="../../v0.9.0/teams/youtube.html" >v0.9.0</option><option value="../../v0.10.0/teams/youtube.html" >v0.10.0</option><option value="../../v0.11.0/teams/youtube.html" >v0.11.0</option><option value="../../v0.12.0/teams/youtube.html" >v0.12.0</option><option value="../../v0.13.0/teams/youtube.html" >v0.13.0</option><option value="../../v0.14.0/teams/youtube.html" >v0.14.0</option><option value="../../v0.15.0/teams/youtube.html" selected>v0.15.0</option><option value="../../v0.16.0/teams/youtube.html" >v0.16.0 (最新)</option>
       </select>
     </div>
   
@@ -101,6 +101,12 @@
 <p>他の多くの型がレイアウト分岐（<code>split</code> や <code>list</code> など）を持つのに対し、<code>figure</code> は<strong>レイアウトを持たない単一表示型</strong>です。1 枚を中央に出すだけなので、分割や複数配置の分岐は存在しません。データは <code>data.photo</code> 単一を写真パイプラインが注入する形で、<code>title?</code> / <code>photo?</code> / <code>photoCaption?</code> の最小構成です。写真の指定方法は他の写真型と同じで、確定 pin（<code>wikipedia:&lt;記事&gt;</code> / <code>commons:&lt;File&gt;</code> / <code>file:&lt;名&gt;</code>）か未確定の <code>query</code>（プレビュー承認時に pick して書き戻す）を使います。一致する図版を確定できないときは無理に当てません（誤った写真は写真なしより悪い、という制作原則）。</p>
 
 <code>figure</code> を割り当てるかどうかは、<strong>LLM の自動分類でも人手の指定でもどちらでも選べます</strong>。自動で当ててもよいですし、台本作成時に「ここは 1 枚で見せたい」と人が判断して当てても構いません。<code>figure</code> も既存型と同じ<strong>不変原則</strong>（情報が主・デザインは従／文字の切り捨て・重なりは禁止／ラベルは英語のみ／焼き込み字幕なし）の上に乗ります。
+
+<p>実際の見た目は次のサンプルのとおりです。</p>
+
+<p><img src="figure-sample.png" alt="figure 表示サンプル（nihon101トンマナ・図版は sample image プレースホルダ）" loading="lazy"></p>
+
+<p>白枠＋影を付けたカードの中に図版 1 枚を <code>objectFit: contain</code>（切り抜かない）で中央表示し、配色は nihon101 のトンマナ（藍・朱・生成り）に揃えています。このサンプルは図版部分を <code>sample image</code> のプレースホルダにしていますが、実運用では <code>photo</code> に路線図などの実際の図版名を入れます。全体像が欠けると意味を失う図版を、欠けさせずに大きく確認できる型だとイメージしてください。</p>
 
 <h3>③ 縦 Shorts の自動切り出し＋自動アップロード</h3>
 

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>コンテンツチーム - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.16.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class="active"><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">コンテンツチーム</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/teams/content.html" >v0.5.1</option><option value="../../v0.5.2/teams/content.html" >v0.5.2</option><option value="../../v0.6.0/teams/content.html" >v0.6.0</option><option value="../../v0.7.0/teams/content.html" >v0.7.0</option><option value="../../v0.8.0/teams/content.html" >v0.8.0</option><option value="../../v0.9.0/teams/content.html" >v0.9.0</option><option value="../../v0.10.0/teams/content.html" >v0.10.0</option><option value="../../v0.11.0/teams/content.html" >v0.11.0</option><option value="../../v0.12.0/teams/content.html" >v0.12.0</option><option value="../../v0.13.0/teams/content.html" >v0.13.0</option><option value="../../v0.14.0/teams/content.html" >v0.14.0</option><option value="../../v0.15.0/teams/content.html" >v0.15.0</option><option value="../../v0.16.0/teams/content.html" selected>v0.16.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>コンテンツチーム</h1>
+
+<p>コンテンツチームは、記事・ドキュメント・コンテンツ作成を担当する AI チームです。Editor-in-Chief が記事ごとに「調査の要否」を判断し、必要なときだけ Researcher を起動するのが特徴です。PR 作成エージェントはなく、Compliance のチェック後に直接 Contributor へ引き継がれます。</p>
+
+<p>> <strong>ワークフロー定義</strong>: <code>.claude/teams/content/workflow.yml</code></p>
+<p>> <strong>エージェント定義</strong>: <code>.claude/teams/content/agents/*.md</code></p>
+<p>> <strong>DOD テンプレート</strong>: <code>.claude/teams/content/dod/*.md</code></p>
+<p>> <strong>コンプライアンスルール</strong>: <code>.claude/teams/content/compliance-rules/*.md</code></p>
+
+<hr>
+
+<h2>エージェント一覧</h2>
+
+<table><thead><tr><th>エージェント</th><th>役割</th><th>ラベル</th><th>起動</th></tr></thead><tbody><tr><td><code>editor-in-chief</code></td><td>編集長（リーダー）。方針決定・進行管理・Researcher 要否判断</td><td><code>content:editor-in-chief</code></td><td>自律</td></tr><tr><td><code>researcher</code></td><td>情報収集・データ分析の専門家</td><td><code>content:researcher</code></td><td><strong>依頼時のみ</strong></td></tr><tr><td><code>writer</code></td><td>執筆担当</td><td><code>content:writer</code></td><td>自律</td></tr><tr><td><code>compliance</code></td><td>コンプライアンス・校正担当</td><td><code>content:compliance</code></td><td>自律</td></tr></tbody></table>
+<hr>
+
+<h2>ワークフロー全体フロー</h2>
+
+<div class="mermaid">flowchart TD
+    A(["/ai-team-run &lt;番号&gt;"]) --> B["editor-in-chief\nインシデント確認\n要件分析・方針決定\nResearcher 要否判断"]
+    B --> C{Researcher 必要?}
+    C -->|needs-research| D["researcher\n情報収集・データ分析\n出典付き調査レポート"]
+    D --> E["editor-in-chief-review\n調査レポート確認\nWriter 指示更新"]
+    C -->|no-research-needed| F["writer\n執筆・編集\nセルフチェック"]
+    E --> F
+    F --> G["compliance\n事実確認・著作権\n個人情報・差別表現\n禁止表現・ブランド\n分野別カスタムチェック"]
+    G -->|合格| H["contributor-close\nDOD 確認・クローズ"]
+    G -->|不合格| F
+    G -->|法的判断が必要| I["🚨 human-escalator\n即時エスカレーション"]</div>
+
+<p>法的判断が必要な場合（著作権・個人情報・名誉毀損リスク等）、Compliance は差し戻しではなく<strong>即座に Human-Escalator を呼び出します</strong>。</p>
+
+<hr>
+
+<h2>Editor-in-Chief による Researcher 要否判断</h2>
+
+<code>workflow.yml</code> の <code>editor-in-chief-planning</code> ステップに <code>conditions</code> で分岐が定義されています。
+
+<h3>Researcher が必要と判断する条件（<code>needs-research</code>）</h3>
+
+<ul><li>統計・数値データが必要</li><li>専門的な事実確認が必要</li><li>情報源の裏付けが必要</li><li>調査レポートなしに正確な記事が書けないと判断</li></ul>
+<h3>Researcher が不要と判断する条件（<code>no-research-needed</code>）</h3>
+
+<ul><li>内部ドキュメントの整理・編集</li><li>ガイドライン・マニュアルの作成</li><li>既知の事実のみで構成される記事</li></ul>
+<p>Researcher の起動後は、Editor-in-Chief が調査レポートを確認し（<code>editor-in-chief-review</code> ステップ）、Writer への指示を更新してから引き継ぎます。</p>
+
+<hr>
+
+<h2>Researcher の調査レポート</h2>
+
+<p>Researcher は事実と推定を明確に区別し、すべての情報に出典（URL・発行年・著者・機関名）を記録します。</p>
+
+<h3>情報源の優先順位</h3>
+
+<table><thead><tr><th>優先度</th><th>情報源</th><th>信頼性</th></tr></thead><tbody><tr><td>最優先</td><td>学術論文・査読付き研究</td><td>最高</td></tr><tr><td>優先</td><td>政府・公的機関の統計・報告書</td><td>高</td></tr><tr><td>通常</td><td>業界団体・信頼できる報道機関</td><td>中〜高</td></tr><tr><td>補助</td><td>専門家ブログ・業界レポート</td><td>中</td></tr></tbody></table>
+<h3>出力レポートのセクション</h3>
+
+<ul><li>調査概要（テーマ・期間・範囲）</li><li>確認された事実（出典付き）</li><li>推定・見解（「推定」「見解」と明記）</li><li>データ・統計（表形式）</li><li>注意事項・情報の限界</li><li>Writer への申し送り</li></ul>
+<hr>
+
+<h2>Compliance のチェック項目</h2>
+
+<p>Compliance は 7 観点でチェックを実施します。</p>
+
+<table><thead><tr><th>観点</th><th>基準</th></tr></thead><tbody><tr><td>事実確認</td><td>記述された事実が参照元で確認できるか</td></tr><tr><td>著作権</td><td>引用・転載が適切に処理されているか</td></tr><tr><td>個人情報</td><td>個人を特定できる情報が含まれていないか</td></tr><tr><td>差別的表現</td><td>差別・偏見につながる表現がないか</td></tr><tr><td>誇大表現</td><td>根拠のない誇大表現・保証がないか</td></tr><tr><td>ブランド整合</td><td>ブランドガイドラインに従っているか</td></tr><tr><td>禁止表現</td><td>Editor-in-Chief が指定した禁止表現が含まれていないか</td></tr></tbody></table>
+<h3>分野別カスタムチェック</h3>
+
+<code>.claude/teams/content/compliance-rules/</code> 配下のルールが分野別に適用されます。
+
+<table><thead><tr><th>ファイル</th><th>適用分野</th></tr></thead><tbody><tr><td><code>health-pharma.md</code></td><td>健康・医薬品関連の記事（薬機法・景表法等）</td></tr></tbody></table>
+<p>プロジェクトに応じて新規ルールを追加できます（例: 金融・教育・法律分野）。</p>
+
+<h3>即時エスカレーション条件</h3>
+
+<p>以下に該当した場合、差し戻しではなく<strong>即座に Human-Escalator を呼び出します</strong>。</p>
+
+<ul><li>著作権侵害・個人情報漏洩リスク等の法的判断</li><li>ブランドガイドラインに記述がなく判断できない表現</li></ul>
+<hr>
+
+<h2>DOD（Definition of Done）</h2>
+
+<table><thead><tr><th>ファイル</th><th>用途</th><th>主なチェック項目</th></tr></thead><tbody><tr><td><code>dod/article.md</code></td><td>新規記事作成</td><td>方針コメント・Researcher 要否・Compliance 合格・分野別カスタムチェック</td></tr><tr><td><code>dod/document.md</code></td><td>ドキュメント作成</td><td>仕様書・マニュアルの完成度・構成・正確性</td></tr><tr><td><code>dod/revision.md</code></td><td>既存コンテンツの修正・加筆</td><td>修正箇所明記・差分内容・整合性確認</td></tr></tbody></table>
+<hr>
+
+<h2>ステップ定義詳細（workflow.yml より）</h2>
+
+<table><thead><tr><th>step id</th><th>agent</th><th>label</th><th>概要</th></tr></thead><tbody><tr><td><code>editor-in-chief-planning</code></td><td>editor-in-chief</td><td><code>content:editor-in-chief</code></td><td>要件分析・方針決定・Researcher 要否を <code>conditions</code> で分岐</td></tr><tr><td><code>researcher</code></td><td>researcher</td><td><code>content:researcher</code></td><td>調査レポート作成（依頼時のみ）</td></tr><tr><td><code>editor-in-chief-review</code></td><td>editor-in-chief</td><td><code>content:editor-in-chief</code></td><td>調査レポート確認・Writer 指示更新</td></tr><tr><td><code>writer</code></td><td>writer</td><td><code>content:writer</code></td><td>執筆・セルフチェック</td></tr><tr><td><code>compliance</code></td><td>compliance</td><td><code>content:compliance</code></td><td>コンプライアンスチェック</td></tr><tr><td><code>human-escalator</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>エスカレーション</td></tr><tr><td><code>contributor-close</code></td><td>contributor</td><td><code>contributor:ready</code></td><td>DOD 確認・クローズ</td></tr></tbody></table>
+<code>workflow.yml</code> の <code>editor-in-chief-planning</code> ステップでは、<code>on_complete</code> が <code>conditions</code> ではなく単独で記述されている点に注意してください（実際の YAML では <code>on_complete.conditions:</code> として記述）。
+
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="overview.html">チーム概要</a> — 全チームの比較</li><li><a href="../reference/workflow.html">ワークフロー定義</a> — workflow.yml の文法</li><li><a href="../reference/dod.html">DOD テンプレート</a> — DOD の運用ルール</li><li><a href="../reference/escalation.html">エスカレーションルール</a> — Compliance の即時エスカレーション</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
