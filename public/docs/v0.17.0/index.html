@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@trimix/ai-team とは - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.17.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class="active"><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class=""><a href="faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">@trimix/ai-team とは</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/index.html" >v0.5.1</option><option value="../v0.5.2/index.html" >v0.5.2</option><option value="../v0.6.0/index.html" >v0.6.0</option><option value="../v0.7.0/index.html" >v0.7.0</option><option value="../v0.8.0/index.html" >v0.8.0</option><option value="../v0.9.0/index.html" >v0.9.0</option><option value="../v0.10.0/index.html" >v0.10.0</option><option value="../v0.11.0/index.html" >v0.11.0</option><option value="../v0.12.0/index.html" >v0.12.0</option><option value="../v0.13.0/index.html" >v0.13.0</option><option value="../v0.14.0/index.html" >v0.14.0</option><option value="../v0.15.0/index.html" >v0.15.0</option><option value="../v0.16.0/index.html" >v0.16.0</option><option value="../v0.17.0/index.html" selected>v0.17.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>@trimix/ai-team とは</h1>
+
+<code>@trimix/ai-team</code> は、Claude Code を使った AI チームをプロジェクトに導入するセットアップパッケージです。GitHub Issues（または Jira・Linear 等）のチケットをトリガーに、バックエンド・フロントエンド・コンテンツ・インフラ・SNS運用・YouTube動画制作の各 AI チームが自律的にタスクを処理します。
+
+<code>package.json</code> の <code>description</code> には次のように定義されています。
+
+<pre><code class="language-">AIチームをプロジェクトにセットアップするウィザード</code></pre>
+
+<p>このパッケージは 6 つの専門チームと Claude Code スキル（スラッシュコマンド）から構成されており、プロジェクト固有のワークフローを <code>.claude/teams/&lt;team_id&gt;/workflow.yml</code> で柔軟に定義できます。各チームは専用のエージェント群を持ちます（例: YouTube動画制作チームは 9 体）。</p>
+
+<hr>
+
+<h2>主な特徴</h2>
+
+<h3>1. 自律的なワークフロー実行</h3>
+
+<p>担当者が <code>/ai-team-run &lt;Issue番号&gt;</code> を実行するだけで、Tech-Lead → Implementer → Reviewer → Tech-Writer → PR-Creator の順にエージェントが自動で引き継ぎながらタスクを進めます。各エージェントは Issue コメントに作業内容と判断根拠を記録するため、後から作業履歴を追跡できます。</p>
+
+<h3>2. ソロモード（自動監視）</h3>
+
+<code>/ai-team-watch</code> を実行すると、GitHub Issues を定期的に監視して新しいタスクを自動検出します。1 人で運用する場合や、新規 Issue を取りこぼしたくない場合に有効です。監視間隔・対象ラベル・スキップラベルは <code>.claude/ai-team-config.yml</code> で設定できます。
+
+<h3>3. 動的なレビュー方式（バックエンド・フロントエンド）</h3>
+
+<p>実装内容の影響範囲に応じて、Tech-Lead（または Frontend-Lead）が自動的にシングルレビューとダブルレビューを使い分けます。判定基準は <code>.claude/teams/&lt;team_id&gt;/review-config.yml</code> で定義されており、認証・決済・公開 API 等の機密領域は自動的にダブルレビューに切り替わります。</p>
+
+<h3>4. エスカレーション機構</h3>
+
+<p>法的判断・予算承認・PR マージ・仕様の曖昧さなど、AI が判断すべきでない事項に遭遇した場合、エージェントは自動的に <code>human-escalator</code> を呼び出して人間にエスカレーションします。人間が対応を完了した後は <code>/ai-team-resume</code> で続きから再開できます。</p>
+
+<h3>5. インシデント記録と再発防止</h3>
+
+<p>Contributor エージェントは Issue クローズ時にインシデントとして記録すべき情報がないか調査し、<code>.claude/incidents/</code> 配下にインシデントレポートを作成します。次回以降の作業開始時には、各リーダーエージェントが過去のインシデントを参照して「やってはいけないこと」を Issue に追記します。</p>
+
+<h3>6. ドキュメント自動更新（Tech-Writer）</h3>
+
+<p>バックエンドチームでは、PR 作成前に Tech-Writer エージェントが起動し、コードの変更差分を <code>docs-src/</code> 配下の Markdown に反映してから <code>node docs-src/build.js</code> で <code>public/docs/</code> に HTML をビルドします。コードとドキュメントが乖離しない仕組みです。</p>
+
+<hr>
+
+<h2>対応チーム</h2>
+
+<p>6 つのチーム（バックエンド・フロントエンド・インフラ・コンテンツ・SNS運用・YouTube動画制作）に対応しています。詳細は<a href="teams/overview.html">チーム概要</a>を参照してください。</p>
+
+<hr>
+
+<h2>バージョン情報</h2>
+
+<ul><li><strong>現行バージョン</strong>: v0.16.0</li><li><strong>必要な Node.js</strong>: 18.0.0 以上（<code>engines.node</code> で定義）</li><li><strong>配布形式</strong>: npm パッケージ（<code>.tgz</code>）</li><li><strong>ライセンス</strong>: MIT</li></ul>
+<h3>v0.16.x シリーズの主な変更点</h3>
+
+<ul><li>v0.16.0: <strong>ドキュメントビルド（<code>docs-src/build.js</code>）の画像対応と、YouTube動画制作チームページへの <code>figure</code> 表示サンプルの追加</strong>。これまで <code>build.js</code> は Markdown から HTML への変換と <code>assets/</code>（共通 CSS/JS）の生成のみを行っており、画像ファイルは <code>public/docs/</code> に反映されませんでした。図版を使った説明ができるよう、ビルド処理に画像対応を加えました。主な変更:</li></ul>  - <strong>画像ファイルのコピー処理を追加</strong>: 各バージョンの <code>docs-src/versions/&lt;ver&gt;/</code> 配下にある画像（<code>.png</code> / <code>.jpg</code> / <code>.jpeg</code> / <code>.svg</code> / <code>.gif</code> / <code>.webp</code>）を、サブディレクトリ構造（相対パス）を保ったまま <code>public/docs/&lt;ver&gt;/</code> へ再帰的にコピーします。既存の Markdown→HTML 変換・<code>assets/</code> 生成には手を加えていないため、従来のビルド挙動は変わりません
+<p>  - <strong>Markdown の画像構文に対応</strong>: <code>markdownToHtml</code> が画像構文 <code>![alt](src)</code> を <code>&lt;img&gt;</code> タグへ変換するようにしました（リンク変換 <code>[text](url)</code> より前に処理することで通常リンクへの影響を避けています）。あわせて画像表示用の CSS（<code>.content img</code>）を共通スタイルに追加しました。これにより、ページと同じ階層に置いた画像を <code>![説明](画像名.png)</code> の相対参照で埋め込めます</p>
+<p>  - <strong>YouTube動画制作チームページに全 19 型の表示サンプルを追加</strong>: <a href="teams/youtube.html">YouTube動画制作チーム</a> §6（ビジュアル型）に、19 型すべて（前半 10 型・後半 8 型・<code>figure</code>）の表示サンプル画像を <code>teams/figures/&lt;型&gt;.png</code> として埋め込みました。すべて ai-youtube エンジンの実レンダー静止画（1920×1080・PNG）で、配色は nihon101 のトンマナ（藍・朱・生成り・墨）に統一しています。各型は代表レイアウトを 1 枚ずつ掲載し、前半 10 型・後半 8 型はそれぞれサンプルブロックに、<code>figure</code> は型の節に配置しました</p>
+<p>  - この変更により、19 型のビジュアル型を実際の見た目つきのカタログとして一目で見渡せるようになりました</p>
+
+<h3>v0.15.x シリーズの主な変更点</h3>
+
+<ul><li>v0.15.0: <strong>Contributor のインシデント判定基準を改善</strong>。運用中に判明した過検出（本来インシデントではない正常なフローまでインシデント化する問題）を解消しました。主な変更:</li></ul>  - <strong>PR 承認・マージ待ちをインシデント対象外に</strong>: PR の承認・main マージは設計上すべての PR で必ず発生する正規ゲート（<code>human-merge-approval</code> ステップ）です。<code>escalated:human</code> の有無だけで判定すると正常に完了したほぼ全 Issue がインシデント記録されてしまうため、エスカレーションコメントの構造化フィールド「エスカレーション種別」を読み、<code>merge_approval</code> 種別を除外しました。<code>legal</code> / <code>budget</code> / <code>ambiguous_spec</code> の真のエスカレーションのみインシデント候補とします
+<p>  - <strong>本文キーワードの部分一致による誤検出を廃止</strong>: バグ修正の判定で本文に「fix」等が含まれるかを部分一致で確認していたため、<code>fix:</code> 等のコミットプレフィックスに誤ヒットしていました。<code>incident</code> ラベルまたは適用 DOD（<code>bugfix.md</code> 判定）で判定する方式に変更し、補助キーワードを使う場合もタイトル限定・完全一致に制限しました</p>
+<p>  - <strong>DOD カバレッジ 80% に計測手段なし時の除外を明記</strong>: バックエンド feature DOD のカバレッジ項目に「カバレッジ計測手段がないプロジェクトは対象外（根拠を Issue コメントに記録）」を追記し、計測手段のないプロジェクトでの過剰な差し戻しを防ぎます</p>
+<p>  - 詳細は <a href="agents/contributor.html">Contributor</a> の「インシデント判定基準」、<a href="reference/dod.html">DOD テンプレート</a>、<a href="reference/escalation.html">エスカレーションルール</a> を参照</p>
+
+<h3>v0.13.x シリーズの主な変更点</h3>
+
+<ul><li>v0.13.0: <strong>YouTube動画制作チームのビジュアル型を 18 型へ拡張（テンプレート v1.2.0）</strong>。<code>PRODUCTION-GUIDE.md</code> §6 のビジュアル型カタログを 10 型から 18 型へパス非依存で同期しました（チーム定義は Markdown／YAML のみ。エンジン本体は同梱しません）。追加された 8 型:</li></ul>  - <strong><code>clip</code>（動画クリップ埋め込み）</strong>: 実写動画を主役級に 1 本見せる型。<code>data.video</code> に動画ファイルを指定（<code>full</code>／<code>caption</code>／<code>split</code> レイアウト）。写真型と異なり <code>query</code> 検索は未対応で、ローカル/staticFile（手元の確定ファイル）のみ対応
+<p>  - <strong><code>quote</code>（引用）</strong>: レビュー引用・名言・ユーザーの声（<code>centered</code>／<code>card</code>／<code>with-photo</code>）。<code>with-photo</code> では著者写真を <code>data.photo</code> で添える</p>
+<p>  - <strong><code>versus</code>（対称比較）</strong>: 左右対等な 2 対象の属性比較（<code>split</code>／<code>stacked</code>／<code>table</code>）。<code>contrast</code>（否定/Before-After）・<code>map</code>（地理差）とは役割が異なり、3 対象以上は <code>table</code> を使う</p>
+<p>  - <strong><code>pie</code>（構成比）／<code>bar</code>（量の比較）</strong>: SVG によるデータ可視化系で互いに対。<code>pie</code> は割合・内訳、<code>bar</code> は数量差を表す（写真なし）</p>
+<p>  - <strong><code>ranking</code>（ランキング）</strong>: 順位付きリスト（<code>list</code>／<code>podium</code>／<code>countdown</code>）。<code>items: [{ rank, label, photo? }]</code></p>
+<p>  - <strong><code>table</code>（比較表）</strong>: 3 対象以上 × 複数属性のマトリクス（<code>grid</code>／<code>compact</code>／<code>highlight</code>）。<code>.max</code> 制約で文字を切り捨てない</p>
+<p>  - <strong><code>qa</code>（問い→答え）</strong>: 誤解解消・フックの問い→答え形式（<code>single</code>／<code>list</code>／<code>reveal</code>）</p>
+<p>  - 追加 8 型も既存型と同じ<strong>不変原則</strong>（情報が主・デザインは従／文字切り捨て・重なり禁止／英語ラベルのみ／焼き込み字幕なし）の上に乗ります。詳細は <a href="teams/youtube.html">YouTube動画制作チーム</a> を参照</p>
+<p>  - <code>registry.json</code> の youtube プラグインを version 1.1.0 → 1.2.0 に更新し、tags に <code>chart</code>／<code>comparison</code> を追加</p>
+
+<h3>v0.12.x シリーズの主な変更点</h3>
+
+<ul><li>v0.12.0: <strong>YouTube動画制作チーム（テンプレート v1.1.0）の機構強化</strong>。ai-youtube の知見をもとに、配布テンプレートへ 6 つの新機構をパス非依存で反映しました（チーム定義は Markdown／YAML のみ。エンジン本体は同梱しません）。主な変更:</li></ul>  - <strong>タイトル・説明欄の多言語化（localizations）</strong>: 字幕とは別に、タイトル・説明欄そのものを各言語版で持たせる。<code>subtitles.targets</code> 駆動・base 言語は除外・1 言語の失敗は警告で続行（冪等）
+<p>  - <strong>gallery 型の追加</strong>: <code>PRODUCTION-GUIDE.md</code> §6 の視覚・モーション型を 9 型から 10 型へ拡張。複数対象を 1 枚ずつ写真で見せる型</p>
+<p>  - <strong>縦 Shorts の自動切り出し＋自動アップロード</strong>: 本編から決定論で区間抽出し縦 1080x1920 を生成。<code>upload.shorts_upload</code> で有効化・<code>shorts-manifest.json</code> で冪等管理</p>
+<p>  - <strong>X／TikTok の決定論下書き＋人間ゲート配信</strong>: <code>social.enabled</code>／<code>social.tiktok.enabled</code> で有効化。下書き生成と <code>--send</code>（下書き・inbox 送信）まで自動化し、最終公開は人間</p>
+<p>  - <strong>yt-episode 統括フロー</strong>: プレビュー承認ゲート（必須・人間ゲート）→ セクション単位レンダ → ユーザー確認 → 公開。章数は <code>sections</code> 配列長で自動判定</p>
+<p>  - <strong>update-meta による予約再スケジュール</strong>: <code>privacy: private</code> の予約公開のみ更新し、<code>public</code>（既公開）は触らない（冪等）</p>
+<p>  - これらの機構は<strong>人間ゲート・冪等性・config-driven（後方互換）</strong>の 3 原則に従い、<code>channel.yaml</code> の任意フィールドで有効化します（未設定なら従来どおり動作）。詳細は <a href="teams/youtube.html">YouTube動画制作チーム</a> を参照</p>
+<p>  - <code>registry.json</code> の youtube プラグインを version 1.0.0 → 1.1.0 に更新し、tags に <code>shorts</code>／<code>localization</code>／<code>tiktok</code> を追加</p>
+
+<h3>v0.11.x シリーズの主な変更点</h3>
+
+<ul><li>v0.11.0: <strong>Opus 最適化と再現性強化</strong>。全エージェントが Claude Opus で動作する前提に最適化（モデルはエイリアス指定。助言役の <code>architect</code> のみ frontmatter に <code>model: opus</code> を明示）。主な変更:</li></ul>  - <strong>レビュー方式の機械判定化</strong>: <code>review-config.yml</code> の <code>sensitive_areas</code> に正規表現 <code>pattern</code> を追加し、<code>detection_procedure</code>（base_branch 検証 → <code>git diff</code> 計測 → パス照合=該当確定 / 本文照合=参考値）で機械的に判定
+<p>  - <strong>差し戻し上限 <code>rework_limit: 2</code></strong>: 同一 Issue で 3 回目の不合格は implementer へ差し戻さず <code>escalated:human</code> へ。コメント先頭行照合による決定論的カウント（全 5 チーム）</p>
+<p>  - <strong>AND 待機のアトミック遷移</strong>: <code>requires_all_of</code> 合流時のレースコンディションを防ぐ手順（待機パス再確認・冪等なラベル付与・誤発動ガード付きリカバリ）を全エージェントに導入</p>
+<p>  - <strong><code>return_to_previous</code> の構造化</strong>: human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、<code>/ai-team resume</code> が機械的に復帰先を決定</p>
+<p>  - <strong>人間無応答時のリマインド方針</strong>: 最終エスカレーションコメントから 48 時間経過後に 1 回のみリマインド</p>
+<p>  - <strong>エージェント統一規約</strong>: コメント必須 5 フィールド・完了条件（exit criteria）チェックリスト・状態記録の原則を全エージェントに適用</p>
+<p>  - <strong>reviewer-a / reviewer-b の観点差別化</strong>: A = 設計・保守性・テスト、B = セキュリティ・パフォーマンス・エラー処理</p>
+<p>  - <code>/ai-team create</code>・<code>/ai-team configure</code> の生成器も新規約に対応し、テンプレート整合性テストを追加</p>
+
+<h3>v0.10.x シリーズの主な変更点</h3>
+
+<ul><li>v0.10.0: <code>/ai-team-create</code> スキルを追加。会話形式でカスタムチームを新規作成できるウィザード。チームID・エージェント構成・ワークフローを対話的に設計し、<code>.claude/teams/&lt;team_id&gt;/</code> 配下に必要なファイル一式（エージェント定義・workflow.yml・review-config.yml・DOD）を自動生成する。<code>templates/teams/_custom/</code> にベーステンプレートを追加。</li></ul>
+<h3>v0.9.x シリーズの主な変更点</h3>
+
+<ul><li>v0.9.0: <code>/ai-team-gallery</code> スキルがソースリポジトリ（<code>@trimix/ai-team</code> 自体の開発環境）で失敗していたバグを修正。実行環境を自動判定する 3 段階フォールバック方式を導入。<code>npm run sync</code> スクリプトを追加（<code>templates/</code> → <code>.claude/</code> の自動同期）。</li></ul>
+<h3>v0.8.x シリーズの主な変更点</h3>
+
+<ul><li>v0.8.0: ワークフロー設計の汎用化・業務ドメイン別拡張設計ドキュメントを追加。全チームの <code>workflow.yml</code> の整合性修正（<code>on_complete.conditions</code> 形式統一・<code>requires_all_of</code> 統一・<code>on_escalation</code> の網羅性向上）。月次ワークフロー見直しの仕組み（Issueテンプレート・GitHub Actions）を追加。</li></ul>
+<h3>v0.7.x シリーズの主な変更点</h3>
+
+<ul><li>v0.7.0: SNS運用チームテンプレートを追加（Strategist / Researcher / Writer / Operator の 4 エージェント構成）</li></ul>
+<h3>v0.6.x シリーズの主な変更点</h3>
+
+<ul><li>v0.6.0: Version-Bumper ステップをバックエンドワークフローに追加・バージョン管理設定（<code>ai-team-config.yml</code> の <code>version_management</code>）をサポート</li></ul>
+<h3>v0.5.x シリーズの主な変更点</h3>
+
+<ul><li>v0.5.0: ワークフロー設定ウィザード（<code>/ai-team-configure</code>）を追加</li><li>v0.5.1: postinstall で全スキルファイルが展開されない問題を修正</li><li>v0.5.2: Mermaid.js によるフローチャート描画対応・マニュアル全体の構造を再編成</li></ul>
+<code>bin/setup.js</code> で展開される 8 つのスキルファイルは以下のとおりです。
+
+<pre><code class="language-">ai-team-setup.md
+ai-team-run.md
+ai-team-watch.md
+ai-team-resume.md
+ai-team-gallery.md
+ai-team-install.md
+ai-team-configure.md
+ai-team-create.md</code></pre>
+
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

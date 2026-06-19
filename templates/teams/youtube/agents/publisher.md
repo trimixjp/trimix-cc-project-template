@@ -77,11 +77,11 @@ PRODUCTION-GUIDE §9「公開前チェックリスト（Definition of Done）」
 
 - **写真の事実照合 全数済み**（不一致ゼロ。ナレが指す対象と一致するか・§8 ゲートC／§9）
 - **権利・安全**（PRODUCTION-GUIDE §10 の全項目に抵触なし）
-- **サムネイル準備済み** — 現状はサムネ自動生成が未整備のため、**手動作成をユーザーに依頼する公開ブロッカー扱い**（サムネ未準備のまま公開しない）
+- **サムネイル自動生成済み** — `upload.thumbnail.enabled: true` のとき、growth-strategist のサムネ設計（コピー圧縮・レイアウト型）に従い publish 時に生成する（§3「サムネ自動生成」）。無効化チャンネルのみ従来どおり手動準備を確認する
 - 機械検証ゼロ件・still 検証済み・同期スポットチェック・ラウドネス計測（§9 同期/映像/音声）
 - メタデータ（英語タイトル・説明欄・タグ・字幕全言語・アフィリ開示・AI 開示・予約日時）が揃っている（§11・§12）
 
-DoD 未達の項目があれば公開せず、欠落内容を Issue に記録し、根本対応が必要な工程へ戻すか（scriptwriter / editor）、ユーザー対応事項（サムネ手動作成など）として依頼します。
+DoD 未達の項目があれば公開せず、欠落内容を Issue に記録し、根本対応が必要な工程へ戻すか（scriptwriter / editor）対応します（サムネ無効化チャンネルでサムネ未準備の場合はユーザーへ依頼）。
 
 ### ステップ2: dry-run → 本実行
 
@@ -94,6 +94,7 @@ DoD 充足とユーザーの公開 GO・公開方針が確定したら、`yt-pub
    - **予約公開**はエピソード別 `frontmatter.publish_at` で設定する（チャンネル単一値での同時刻予約事故を避ける・§14 事故源5）。
    - **多言語字幕8言語**（`EN · JA · KO · zh-CN · zh-TW · FR · IT · TH`）を自動登録する。1言語の失敗は警告して続行（動画アップロードは成功扱い・§12）。
    - **多言語メタ（localizations）を冪等投入**する（本編 video_id 確定直後）。タイトル/章名/開示文/spot 名などプローズのみ翻訳し、**URL・地図リンク・時刻表記・画像クレジットは翻訳しない**。固有名詞は glossary で綴り固定（西欧=ローマ字固定／CJK=現地表記可）。**base 言語は localizations から除外**。`videos.update part=localizations` で投入し、1言語の失敗は警告して続行（本編成功扱い・PRODUCTION-GUIDE §4／§12）。
+   - **カスタムサムネの自動適用**（`upload.thumbnail.enabled: true` のとき）: 本編アップロード成功・videoId 確定直後（localizations より前）に、`output/<ep>/thumbnail.png`（1280×720）があれば `thumbnails.set` で自動反映する。サムネ画像が無ければ何もしない。**失敗（カスタムサムネ未対応・電話番号未確認チャンネル・スコープ不足等）は警告のみで本編アップロードは成功扱い**を維持し、`output/<ep>/thumbnail-uploaded`（videoId）を反映成功の単一情報源として書く（PRODUCTION-GUIDE §12「カスタムサムネの自動適用」）。サムネ生成主体は publisher（growth-strategist の設計に従う・editor は render まで）。
 
 CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine>` は Issue／チャンネル設定で与えられたパス・PRODUCTION-GUIDE §13）。
 
@@ -111,7 +112,8 @@ CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine
 ### ステップ4: frontmatter 更新確認・配信カレンダー更新
 
 - **frontmatter 更新確認**: アップロード成功で `status: uploaded`（予約公開待ち含む）になっていること、`youtube_video_id` が書き戻されていることを確認する（PRODUCTION-GUIDE §2／§5。publish_at 到達後に `published` へ進むのは publish 工程の自動処理）。
-- **配信カレンダー更新**: `channels/<id>/plans/YYYY-MM.md` と `.html` の**両方**の全表を更新する（PRODUCTION-GUIDE §9）。アップロード（uploaded）の節目では、配信スケジュール欄に動画リンク（`youtu.be/<id>`）＋ ✅ uploaded ＋ 予約日時を、制作スケジュール欄に全工程 ✅ を記録する。md と html の片方だけ直して不整合にしない。
+- **配信カレンダー更新（md＋html 両方）**: 単一情報源は月別 plan md の frontmatter `schedule:`。それを更新し、html（年間1枚）を生成し直す（PRODUCTION-GUIDE §9）。アップロード（uploaded）の節目では、配信スケジュール欄に動画リンク（`youtu.be/<id>`）＋ ✅ uploaded ＋ 予約日時を、制作スケジュール欄に全工程 ✅ を記録する。md と html の片方だけ直して不整合にしない。
+  - **html の表示仕様（§9）**: 進捗アイコン4段階（📝台本／🎬動画／⬆️UP／🖼️サムネ反映・状態 ok/sched/partial/wait）を出す。🖼️ は `output/<ep>/thumbnail-uploaded` マーカー（反映成功の単一情報源）で点灯させる。**残り日数チップ・予約→公開の判定は静的 HTML に焼かず、`data-deliver` 等の属性＋JS で閲覧時に再計算**する（「あとN日／本日」、予約済み◷→公開済み✓ の自動反転）。動画尺は `output/<ep>/video.mp4` を ffprobe で測り mm:ss を出す。
 
 ### ステップ5: 縦 Shorts の自動アップロード（`upload.shorts_upload` 有効時のみ）
 
@@ -152,7 +154,7 @@ CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine
 ## DoD（§9）確認結果
 - 写真の事実照合 全数: ✅ 不一致ゼロ
 - 権利・安全（§10）: ✅ 抵触なし
-- サムネイル準備: ✅ 準備済み（手動作成・ユーザー対応）
+- サムネイル: ✅ 自動生成＋反映済み（thumbnail-uploaded 確認・無効化chは手動準備）
 - 機械検証/still/同期/ラウドネス: ✅
 - メタデータ（タイトル/説明欄/タグ/字幕8言語/アフィリ開示/AI開示/予約日時）: ✅
 
@@ -164,6 +166,7 @@ CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine
 | 予約公開（publish_at・エピソード別） | ✅（NNNN: YYYY-MM-DD HH:MM） |
 | 多言語字幕（8言語登録） | ✅ EN/JA/KO/zh-CN/zh-TW/FR/IT/TH（失敗言語があれば明記） |
 | 多言語メタ（localizations 冪等投入） | ✅ プローズのみ翻訳・base 言語除外（失敗言語があれば明記） |
+| カスタムサムネ自動適用（upload.thumbnail 有効時） | ✅ thumbnails.set 反映・thumbnail-uploaded 記録 ／ 警告（本編成功扱い）／ 該当なし（未設定） |
 | 縦 Shorts 自動 UP（upload.shorts_upload 有効時） | ✅ #Shorts・本編URL先頭・予約=本編+24h ／ 該当なし（未設定） |
 | update-meta reschedule | 実施（private のみ同期）／ 該当なし |
 
