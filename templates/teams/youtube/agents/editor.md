@@ -143,6 +143,11 @@ A-1〜A-6 を全てチェックし、**合否と根拠を記録**します。
 - **冪等管理**: `shorts-manifest.json` で生成済み区間を管理し、再実行で重複生成しない。生成物は `shorts/01.mp4` 等（output 配下・git に入れない）。
 - **UP は publisher の担当**: editor は**切り出し・縦レンダまで**。YouTube Shorts への UP・予約は publisher（§12）が行う。
 
+> **サムネ生成は render 時でなく publish 時**（`upload.thumbnail.enabled: true` のとき・PRODUCTION-GUIDE.md §3 / §12）。
+> 台本は公開直前まで改訂が入りうるため、render のたびに作り直さず、写真確定・台本確定後の publish 時に1回だけ
+> 生成する（`output/<ep>/thumbnail.png` 1280×720）。生成・適用の主体は **publisher**（growth-strategist のサムネ設計＝
+> コピー圧縮・レイアウト型に従う）。editor は render までで、サムネは生成しない。
+
 ### B-2. still 目視検証（§8 ゲートC・§9 DoD）
 
 各トピックのスライド実画像（renderStill した `slides/<topicId>.png`）を目視し、以下が**ゼロ件**であることを確認する。

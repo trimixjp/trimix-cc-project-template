@@ -34,9 +34,10 @@
 - [ ] **多言語メタ（localizations）が冪等投入済み**（タイトル/説明欄を全言語へ・プローズのみ翻訳・base 言語除外・URL/時刻/クレジットは不変）
 - [ ] アフィリエイト掲載時は開示文あり（FTC 順守）
 - [ ] AI 開示（containsSyntheticMedia）は内容で判断済み
-- [ ] サムネイル準備済み
+- [ ] サムネイル自動生成済み（`upload.thumbnail.enabled: true` のとき publish 時に生成・無効化chは手動準備）
+- [ ] サムネ自動反映済み（`upload.thumbnail` 有効時：`thumbnail-uploaded` マーカーで YouTube 反映を確認。失敗は警告のみで本編は成功扱い）
 - [ ] 予約日時 `publish_at` が設定されている
-- [ ] 配信カレンダーを更新済み
+- [ ] 配信カレンダーを更新済み（md＋html 両方・html は進捗アイコン/残り日数/尺/予約→公開JS反転を含む）
 
 ## ✅ 承認（人間ゲート）
 
