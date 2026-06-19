@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube動画制作チーム - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.18.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class="active"><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">YouTube動画制作チーム</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/teams/youtube.html" >v0.5.1</option><option value="../../v0.5.2/teams/youtube.html" >v0.5.2</option><option value="../../v0.6.0/teams/youtube.html" >v0.6.0</option><option value="../../v0.7.0/teams/youtube.html" >v0.7.0</option><option value="../../v0.8.0/teams/youtube.html" >v0.8.0</option><option value="../../v0.9.0/teams/youtube.html" >v0.9.0</option><option value="../../v0.10.0/teams/youtube.html" >v0.10.0</option><option value="../../v0.11.0/teams/youtube.html" >v0.11.0</option><option value="../../v0.12.0/teams/youtube.html" >v0.12.0</option><option value="../../v0.13.0/teams/youtube.html" >v0.13.0</option><option value="../../v0.14.0/teams/youtube.html" >v0.14.0</option><option value="../../v0.15.0/teams/youtube.html" >v0.15.0</option><option value="../../v0.16.0/teams/youtube.html" >v0.16.0</option><option value="../../v0.17.0/teams/youtube.html" >v0.17.0</option><option value="../../v0.18.0/teams/youtube.html" selected>v0.18.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>YouTube動画制作チーム</h1>
+
+<p>YouTube動画制作チームは、チャンネルの立ち上げから動画の企画・台本・生成・公開・収益最大化までを一貫して行う AI チームです。台本を「最終動画のタイムライン」として扱う制作思想と、外部公開の前に必ず人間の承認を挟む安全設計が特徴です。ワークフロープラグイン（配布テンプレート）として提供され、<code>/ai-team-install youtube</code> で導入します。</p>
+
+<p>> <strong>ワークフロー定義</strong>: <code>.claude/teams/youtube/workflow.yml</code></p>
+<p>> <strong>エージェント定義</strong>: <code>.claude/teams/youtube/agents/*.md</code></p>
+<p>> <strong>制作憲法</strong>: <code>.claude/teams/youtube/PRODUCTION-GUIDE.md</code></p>
+<p>> <strong>DOD テンプレート</strong>: <code>.claude/teams/youtube/dod/*.md</code></p>
+
+<hr>
+
+<h2>エージェント一覧</h2>
+
+<p>YouTube動画制作チームは 10 体のエージェントで構成されます。リーダーである <code>director</code> は自分では制作せず、タスク種別を判定して各専門エージェントに委譲します。<code>market-analyst</code> は v1.5.0 で新設された市場・ジャンル戦略エージェントで、<code>channel-producer</code> の上流に立ちます。</p>
+
+<table><thead><tr><th>エージェント</th><th>役割の一言定義</th><th>ラベル</th></tr></thead><tbody><tr><td><code>director</code></td><td>統括リーダー。Issue を分析しタスク種別を 3 分岐判定し、各エージェントへ委譲する</td><td><code>youtube:director</code></td></tr><tr><td><code>market-analyst</code></td><td>市場・ジャンル戦略担当。需要×競合の薄さ×CPM×ターゲット視聴国を横断スコアリングし「何を作るか」を上流でデータから提案する（最終決定は人間ゲート）</td><td><code>youtube:market-analyst</code></td></tr><tr><td><code>channel-producer</code></td><td>チャンネルの「箱」（趣旨・言語・字幕・配色・配信計画）と「編成」（トピック選定・重複防止・月次プラン）を担う</td><td><code>youtube:channel-producer</code></td></tr><tr><td><code>scriptwriter</code></td><td>台本ライター。リサーチと執筆を担い、台本を最終動画のタイムラインとして仕上げる</td><td><code>youtube:scriptwriter</code></td></tr><tr><td><code>editor</code></td><td>台本品質ゲートと動画生成（レンダ）＋自己検証を担う。情報を主・デザインを従とする</td><td><code>youtube:editor</code></td></tr><tr><td><code>growth-strategist</code></td><td>グロース担当。CTR タイトル・サムネ・タグ・章設計・視聴維持の「見てもらう」設計を行う</td><td><code>youtube:growth-strategist</code></td></tr><tr><td><code>affiliate</code></td><td>アフィリエイト各社の選定・説明欄リンク生成・開示文（FTC／景表法）を決定論で作成する</td><td><code>youtube:affiliate</code></td></tr><tr><td><code>publisher</code></td><td>公開担当。private 起点アップロード・予約公開・多言語字幕・多言語メタ・Shorts UP・予約再同期を担う</td><td><code>youtube:publisher</code></td></tr><tr><td><code>sns-distributor</code></td><td>拡散担当。Shorts／切り抜き案を提示し、X・TikTok は決定論で下書きを生成して人間ゲートで配信する</td><td><code>youtube:sns-distributor</code></td></tr><tr><td><code>monetizer</code></td><td>収益最大化担当。CPM／RPM・横断送客・スポンサー・収益源多様化の観点で施策を提案する</td><td><code>youtube:monetizer</code></td></tr></tbody></table>
+<p>各エージェントは明確な責任範囲を持ち、<strong>担当しないこと</strong>を明示することで役割の重複を防いでいます。</p>
+
+<hr>
+
+<h2>ワークフロー全体フロー</h2>
+
+<code>director</code> が Issue を分析し、タスク種別を「チャンネル立ち上げ」「エピソード制作」「グロース単発」の 3 つに分岐させます。チャンネル立ち上げ（ジャンル/方向性を新規に決める場合）では、まず <code>market-analyst</code> が上流で「何を作るか（ジャンル・ターゲット視聴国）」をデータから提案してから <code>channel-producer-setup</code> に進みます。エピソード制作では、台本の品質ゲート（<code>editor-review</code>）、プレビュー承認（<code>human-picture-lock</code>）、レンダ（<code>editor-render</code>）、公開（<code>publisher</code>）、拡散（<code>sns-distributor</code>）、収益最適化（<code>monetizer</code>）の順に進みます。
+
+<table><thead><tr><th>step id</th><th>agent</th><th>label</th><th>概要</th></tr></thead><tbody><tr><td><code>director-planning</code></td><td>director</td><td><code>youtube:director</code></td><td>Issue 分析・インシデント確認・タスク種別の 3 分岐判定</td></tr><tr><td><code>market-analyst</code></td><td>market-analyst</td><td><code>youtube:market-analyst</code></td><td>市場・ジャンル戦略（ジャンル候補列挙・7 指標の重み付き合成スコアリング・実測ゲート併用・推奨3案を出典/確信度付きで提案）。<code>channel-producer-setup</code> の上流</td></tr><tr><td><code>channel-producer-setup</code></td><td>channel-producer</td><td><code>youtube:channel-producer</code></td><td>チャンネル作成（channel.yaml・glossary・配色・配信計画・初期トピックバックログ）。market-analyst の推奨ジャンルを前提に</td></tr><tr><td><code>director-channel-review</code></td><td>director</td><td><code>youtube:director</code></td><td>チャンネル設定の完成確認・人間の残作業（Studio 手動設定・OAuth・声）の整理</td></tr><tr><td><code>human-channel-setup</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>YouTube Studio 手動設定・OAuth・声の用意を人間に依頼</td></tr><tr><td><code>channel-producer-planning</code></td><td>channel-producer</td><td><code>youtube:channel-producer</code></td><td>トピック選定・重複防止・月次プラン組込・エピソードスタブ作成</td></tr><tr><td><code>scriptwriter</code></td><td>scriptwriter</td><td><code>youtube:scriptwriter</code></td><td>リサーチと台本執筆（構造規約に沿った台本＝タイムライン）</td></tr><tr><td><code>editor-review</code></td><td>editor</td><td><code>youtube:editor</code></td><td>台本品質ゲート（編集文法・19 型整合・権利安全・写真照合・機械検証・有益性）</td></tr><tr><td><code>growth-strategist</code></td><td>growth-strategist</td><td><code>youtube:growth-strategist</code></td><td>CTR タイトル案・サムネ指示・タグ・章設計・視聴維持の設計</td></tr><tr><td><code>affiliate</code></td><td>affiliate</td><td><code>youtube:affiliate</code></td><td>アフィリエイト各社の選定・説明欄リンク・開示文の生成</td></tr><tr><td><code>human-picture-lock</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>プレビュー承認ゲート（必須・人間ゲート）。<code>preview.html</code> をユーザーが承認</td></tr><tr><td><code>editor-render</code></td><td>editor</td><td><code>youtube:editor</code></td><td>動画生成（セクション単位レンダ・縦 Shorts 自動切り出し）＋自己検証</td></tr><tr><td><code>publisher</code></td><td>publisher</td><td><code>youtube:publisher</code></td><td>private 起点アップロード・予約公開・多言語字幕／メタ投入・Shorts UP・予約再同期・API 検証</td></tr><tr><td><code>sns-distributor</code></td><td>sns-distributor</td><td><code>youtube:sns-distributor</code></td><td>公開後の拡散。X・TikTok の決定論下書き生成と人間ゲート配信</td></tr><tr><td><code>monetizer</code></td><td>monetizer</td><td><code>youtube:monetizer</code></td><td>収益最適化レビュー（CPM・横断送客・スポンサー・次アクション提案）</td></tr><tr><td><code>growth-standalone</code></td><td>growth-strategist</td><td><code>youtube:growth-strategist</code></td><td>既存動画の改善・拡散・収益化を提案するグロース単発タスク</td></tr><tr><td><code>human-escalator</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>判断できない事項を人間にエスカレーション</td></tr><tr><td><code>contributor-close</code></td><td>contributor</td><td><code>contributor:ready</code></td><td>DOD 確認・コメント品質チェック・Issue クローズ・インシデント調査</td></tr></tbody></table>
+<p>同一 Issue でレビューが繰り返し差し戻されることを防ぐため、<code>rework_limit: 2</code>（3 回目の不合格は人間にエスカレーション）が設定されています。<code>editor-review</code>・<code>editor-render</code> の双方が差し戻し上限を超えると <code>human-escalator</code> へ遷移します。</p>
+
+<hr>
+
+<h2>自動運用の 3 原則</h2>
+
+<p>YouTube動画制作チームの新機構はすべて、次の 3 原則に従って設計されています。これは外部公開を伴う運用を安全に自動化するための土台です（<code>PRODUCTION-GUIDE.md</code> §1）。</p>
+
+<table><thead><tr><th>原則</th><th>意味</th><th>運用者にとっての意味</th></tr></thead><tbody><tr><td><strong>人間ゲート</strong></td><td>外部公開（publish / post / share）は必ず人間の判断を挟む</td><td>本編公開・Shorts のアップロード・X／TikTok 投稿は、人間の明示的な承認（または <code>--send</code>・アプリでの公開操作）を経てから実行されます。AI は下書き・予約・登録までで止まり、不可逆な対外アクションを単独では行いません</td></tr><tr><td><strong>冪等性</strong></td><td>同じ操作を何度繰り返しても結果が重複しない</td><td>各機構は状態の真実源（manifest の投稿済みフラグや動画 ID 等）を持ち、処理済みのものは skip します。失敗時に再実行しても二重投稿・二重アップロードにはならず、再投稿ではなく再同期になります</td></tr><tr><td><strong>config-driven（後方互換）</strong></td><td>新機構は <code>channel.yaml</code> の任意フィールドで有効化し、未設定なら何もしない</td><td>スイッチを設定したチャンネルだけが新しい挙動を得ます。既存チャンネルを壊さないため、アップグレードしても設定を変えなければ従来どおり動作します</td></tr></tbody></table>
+<p>加えて、エピソード制作ではレンダに進む前に <code>preview.html</code> をユーザーが承認する<strong>プレビュー承認ゲート</strong>が必須であり、レンダは章を単位に品質管理する<strong>セクション単位レンダ</strong>で行われます。</p>
+
+<hr>
+
+<h2>新機構（テンプレート v1.1.0）</h2>
+
+<p>v1.1.0 で、ai-youtube の知見をもとに 6 つの機構が追加されました。これらはいずれも <code>channel.yaml</code> の任意フィールドで有効化する後方互換の設計で、有効化しなければ従来どおり動作します。</p>
+
+<h3>① タイトル・説明欄の多言語化（localizations）</h3>
+
+<p>動画内のセリフを翻訳する字幕（CC）とは別に、動画の「タイトル」と「説明欄」そのものを各言語版に持たせる機構です。YouTube が視聴者の言語設定に応じて表示を出し分けます。</p>
+
+<ul><li><strong>翻訳する対象</strong>: タイトル・章（Chapters）名・開示文などのプローズ（散文）のみ</li><li><strong>翻訳しない対象</strong>: URL・地図リンク・時刻表記・画像クレジットはそのまま保持します（崩すとリンク切れや誤情報になるため）。固有名詞は glossary で綴りを固定します</li><li><strong>base 言語の扱い</strong>: 本体のタイトル・説明欄がそのまま base となるため、localizations からは除外します（二重に入れない）</li><li><strong>有効化条件</strong>: <code>subtitles.targets</code>（既定 8 言語: EN・JA・KO・zh-CN・zh-TW・FR・IT・TH）に言語があれば対象になります。言語がなければ何もしません</li><li><strong>失敗時の挙動</strong>: 1 言語の投入が失敗しても警告にとどめ、本編アップロードは成功扱いとします。冪等なので次回の公開で再同期されます</li><li><strong>担当</strong>: <code>publisher</code>（本編の動画 ID 確定直後に冪等投入）</li></ul>
+<h3>② ビジュアル型（視覚・モーション型を 19 型に拡張）</h3>
+
+<code>PRODUCTION-GUIDE.md</code> §6 のビジュアル型（台本で各トピックに割り当てる <code>templateType</code>）が <strong>19 型</strong> になりました。前半 10 型（<code>progressive</code> / <code>contrast</code> / <code>howto</code> / <code>list</code> / <code>stat</code> / <code>map</code> / <code>timeline</code> / <code>concept</code> / <code>warning</code> / <code>gallery</code>）はそのまま維持され、後半に <code>clip</code> / <code>quote</code> / <code>versus</code> / <code>pie</code> / <code>ranking</code> / <code>table</code> / <code>bar</code> / <code>qa</code> の 8 型が追加され、さらに 1 枚図版/確認用の <code>figure</code> 型が加わって合計 19 型になりました。<code>figure</code> は ai-youtube の PR #27（<code>_design/13</code> の型 19）を §6 にパス非依存で同期したもので、テンプレートとしての youtube レジストリは v1.2.0 → v1.3.0 になっています。
+
+<code>gallery</code> 型は「ラーメンの種類」「桜の名所」のように、複数の対象を 1 枚ずつ写真で見せるトピック向けの型です。各アイテムの写真を中央フォーカスで順次表示し、進捗チップ（例: <code>3/6</code>）で何番目かを示します。台本では <code>items: [{ label, photo }]</code> のスキーマで記述します。<code>label</code> は英語ラベル、<code>photo</code> は確定した写真の指定（<code>wikipedia:</code> / <code>commons:</code> / <code>file:</code>）または未確定の <code>query</code> です。一致する写真を確定できないアイテムは、無理に写真を当てず英語の <code>Reserved</code> タグで視覚化します（誤った写真は写真なしより悪い、という制作原則に基づきます）。
+
+<p>追加された 8 型も、既存型と同じ<strong>不変原則</strong>（情報が主・デザインは従／文字の切り捨て・重なりは禁止／ラベルは英語のみ／焼き込み字幕なし）の上に乗ります。型を増やしたのは表現の幅を広げるためであり、安全規約をゆるめるものではありません。台本作成は <code>scriptwriter</code>、レンダは <code>editor</code> が担当します。</p>
+
+<p>以下の表示サンプルはすべて、ai-youtube エンジンの実レンダー静止画（1920×1080・PNG）です。配色は nihon101 のトンマナ（藍 #16314F / 朱 #E0533C / 生成り #F4EEE2 / 墨）に統一しています。各型は複数のレイアウト分岐を持つものもありますが、ここでは型ごとに代表レイアウトを 1 枚ずつ掲載しています。</p>
+
+<h4>前半 10 型の表示サンプル</h4>
+
+<p>前半 10 型（<code>progressive</code> / <code>contrast</code> / <code>howto</code> / <code>list</code> / <code>stat</code> / <code>concept</code> / <code>map</code> / <code>timeline</code> / <code>warning</code> / <code>gallery</code>）の代表レイアウトは次のとおりです。</p>
+
+<p><img src="figures/progressive.png" alt="progressive 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>progressive（段階説明）— 代表レイアウト <code>card</code></em></p>
+
+<p><img src="figures/contrast.png" alt="contrast 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>contrast（対比・否定）— 代表レイアウト <code>receipt</code></em></p>
+
+<p><img src="figures/howto.png" alt="howto 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>howto（手順）— 代表レイアウト <code>generic</code></em></p>
+
+<p><img src="figures/list.png" alt="list 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>list（箇条書き）— 代表レイアウト <code>row</code></em></p>
+
+<p><img src="figures/stat.png" alt="stat 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>stat（単一数値の強調）— 代表レイアウト <code>up</code></em></p>
+
+<p><img src="figures/concept.png" alt="concept 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>concept（概念提示）— 代表レイアウト <code>editorial</code></em></p>
+
+<p><img src="figures/map.png" alt="map 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>map（地図・地理差）— 代表レイアウト <code>japan</code></em></p>
+
+<p><img src="figures/timeline.png" alt="timeline 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>timeline（時系列）— 代表レイアウト <code>horizontal</code></em></p>
+
+<p><img src="figures/warning.png" alt="warning 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>warning（注意・禁止）— 代表レイアウト <code>forbid</code></em></p>
+
+<p><img src="figures/gallery.png" alt="gallery 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>gallery（写真の連続表示）— レイアウト分岐なし（進捗チップ付き中央フォーカス）</em></p>
+
+<h4>追加された 8 型</h4>
+
+<table><thead><tr><th>型</th><th>用途</th><th>レイアウト</th><th>写真/動画</th></tr></thead><tbody><tr><td><code>clip</code></td><td>動画クリップ埋め込み（実写動画を主役級に 1 本見せる）</td><td><code>full</code> / <code>caption</code> / <code>split</code></td><td><strong>動画</strong>（<code>data.video</code>）</td></tr><tr><td><code>quote</code></td><td>引用（レビュー引用・名言・ユーザーの声）</td><td><code>centered</code> / <code>card</code> / <code>with-photo</code></td><td>著者写真可（<code>data.photo</code>）</td></tr><tr><td><code>versus</code></td><td>対称比較（左右対等な 2 対象の属性比較）</td><td><code>split</code> / <code>stacked</code> / <code>table</code></td><td>左右に写真可（<code>left.photo</code> / <code>right.photo</code>）</td></tr><tr><td><code>pie</code></td><td>構成比（割合・内訳の可視化）</td><td><code>pie</code> / <code>donut</code> / <code>callouts</code></td><td>なし</td></tr><tr><td><code>ranking</code></td><td>ランキング（人気スポット TOP5・失敗ベスト3）</td><td><code>list</code> / <code>podium</code> / <code>countdown</code></td><td>各 item に写真可（<code>items[].photo</code>）</td></tr><tr><td><code>table</code></td><td>比較表（3 対象以上 × 複数属性のマトリクス）</td><td><code>grid</code> / <code>compact</code> / <code>highlight</code></td><td>なし</td></tr><tr><td><code>bar</code></td><td>量の比較（月別・地域別・項目別の数量差）</td><td><code>horizontal</code> / <code>vertical</code> / <code>ranked</code></td><td>なし</td></tr><tr><td><code>qa</code></td><td>問い→答え（誤解解消・フック・「チップは必要？→不要」）</td><td><code>single</code> / <code>list</code> / <code>reveal</code></td><td>なし</td></tr></tbody></table>
+<p>各型の使いどころは次のとおりです。</p>
+
+<ul><li><strong><code>clip</code>（動画クリップ）</strong>: 写真を 1 枚ずつ見せる <code>gallery</code> と異なり、実写の<strong>動画そのもの</strong>を再生して主役に立てる型です。<code>data.video</code> に動画ファイルを指定します。ここで重要なのは、写真型のように <code>query</code> でストックを検索する機能はなく、<strong>ローカル/staticFile（手元の確定ファイル）のみ対応</strong>である点です。動画は「あとで探す」ではなく確定済みのものだけを使うため、台本段階で素材が手元にあることが前提になります。実写は脇役（尺合計の 2〜3 割）の枠内で扱い、ナレーションが指す対象と一致する動画のみを使う事実一致の原則に従います。</li><li><strong><code>quote</code>（引用）</strong>: レビュー・名言・ユーザーの声など、短い引用文を主役に立てる型です。<code>with-photo</code> レイアウトでは著者写真を <code>data.photo</code>（確定指定または未確定 <code>query</code>）で添えられます。</li><li><strong><code>versus</code>（対称比較）</strong>: 「東京 vs 大阪」のように左右対等な 2 対象を複数属性で比べる型です。既存の <code>contrast</code>（否定／Before-After のような価値判断・時間変化）や <code>map</code>（関東 vs 関西のような地理差）とは役割が異なり、<code>versus</code> は価値の上下も地理も含まない<strong>対等な属性比較</strong>に使います。3 対象以上を比べたいときは <code>table</code> を使います。</li><li><strong><code>pie</code>（構成比）と <code>bar</code>（量の比較）</strong>: いずれも SVG によるデータ可視化系で、互いに対になります。<code>pie</code> は割合・内訳の構成比（円グラフ／ドーナツ）、<code>bar</code> は数量差（横棒／縦棒）を表します。単一の数値を強調する <code>stat</code> とは別物で、複数の値の比較・内訳を見せたいときに使います。写真は使いません。</li><li><strong><code>ranking</code>（ランキング）</strong>: 「人気スポット TOP5」のような順位付きリストです。<code>items: [{ rank, label, photo? }]</code> で記述し、各アイテムに写真を添えられます（<code>gallery</code> と同じく確定指定か未確定 <code>query</code>）。</li><li><strong><code>table</code>（比較表）</strong>: 3 対象以上 × 複数属性のマトリクス比較です（2 対象の対称比較は <code>versus</code>、順位付けは <code>ranking</code>）。<code>.max</code> 制約で対象数・属性数を縛り、文字を切り捨てず「器を文字に合わせる」原則を守ります。</li><li><strong><code>qa</code>（問い→答え）</strong>: 「チップは必要？→不要」のような問い→答え形式で、誤解解消やフック、冒頭で開いた疑問の回収に使います。<code>reveal</code> レイアウトでは問いを先に出してから答えを開きます。</li></ul>
+<h5>後半 8 型の表示サンプル</h5>
+
+<p>追加された 8 型の代表レイアウトは次のとおりです（前半 10 型と同じく ai-youtube の実レンダー静止画・nihon101 トンマナ）。</p>
+
+<p><img src="figures/clip.png" alt="clip 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>clip（動画クリップ）— 代表レイアウト <code>full</code></em></p>
+
+<p><img src="figures/quote.png" alt="quote 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>quote（引用）— 代表レイアウト <code>centered</code></em></p>
+
+<p><img src="figures/versus.png" alt="versus 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>versus（対称比較）— 代表レイアウト <code>split</code></em></p>
+
+<p><img src="figures/pie.png" alt="pie 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>pie（構成比）— 代表レイアウト <code>pie</code></em></p>
+
+<p><img src="figures/ranking.png" alt="ranking 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>ranking（ランキング）— 代表レイアウト <code>list</code></em></p>
+
+<p><img src="figures/table.png" alt="table 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>table（比較表）— 代表レイアウト <code>grid</code></em></p>
+
+<p><img src="figures/bar.png" alt="bar 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>bar（量の比較）— 代表レイアウト <code>horizontal</code></em></p>
+
+<p><img src="figures/qa.png" alt="qa 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>qa（問い→答え）— 代表レイアウト <code>single</code></em></p>
+
+<h4>figure 型（1 枚図版/確認用）</h4>
+
+<p>v1.3.0 で 19 番目の型として <code>figure</code>（1 枚図版/確認用フィギュア）が追加されました。型表に並べると次のとおりです。</p>
+
+<table><thead><tr><th>型</th><th>用途</th><th>レイアウト</th><th>写真/動画</th></tr></thead><tbody><tr><td><code>figure</code></td><td>1 枚図版/確認用（路線図など「全体が見えないと意味がない」図版/写真を 1 枚大きく見せる確認用ショット）</td><td>なし（単一表示）</td><td><code>data.photo</code> 単一（写真パイプライン注入）</td></tr></tbody></table>
+<code>figure</code> は、路線図のように<strong>「全体が見えないと意味がない」図版/写真を、1 枚だけ大きく見せる確認用の型</strong>です。通常の写真は型の中に小窓（ピクチャーイン）で挟むのが原則ですが、<code>figure</code> はその<strong>例外</strong>として図版そのものを画面いっぱいに提示します。具体的には<strong>画面の約 80%・中央</strong>に配置し、<strong>白枠＋影</strong>を付け、<strong><code>objectFit: contain</code>（切り抜かない）</strong>で 1 枚を大きく見せます。全体像が欠けると意味を失う図版を、欠けさせずに確認できる形で出すための型だと理解してください。
+
+<p>他の多くの型がレイアウト分岐（<code>split</code> や <code>list</code> など）を持つのに対し、<code>figure</code> は<strong>レイアウトを持たない単一表示型</strong>です。1 枚を中央に出すだけなので、分割や複数配置の分岐は存在しません。データは <code>data.photo</code> 単一を写真パイプラインが注入する形で、<code>title?</code> / <code>photo?</code> / <code>photoCaption?</code> の最小構成です。写真の指定方法は他の写真型と同じで、確定 pin（<code>wikipedia:&lt;記事&gt;</code> / <code>commons:&lt;File&gt;</code> / <code>file:&lt;名&gt;</code>）か未確定の <code>query</code>（プレビュー承認時に pick して書き戻す）を使います。一致する図版を確定できないときは無理に当てません（誤った写真は写真なしより悪い、という制作原則）。</p>
+
+<code>figure</code> を割り当てるかどうかは、<strong>LLM の自動分類でも人手の指定でもどちらでも選べます</strong>。自動で当ててもよいですし、台本作成時に「ここは 1 枚で見せたい」と人が判断して当てても構いません。<code>figure</code> も既存型と同じ<strong>不変原則</strong>（情報が主・デザインは従／文字の切り捨て・重なりは禁止／ラベルは英語のみ／焼き込み字幕なし）の上に乗ります。
+
+<p>実際の見た目は次のサンプルのとおりです。</p>
+
+<p><img src="figures/figure.png" alt="figure 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>figure（1 枚図版/確認用）— レイアウト分岐なし（白枠＋影・中央単一表示）</em></p>
+
+<p>白枠＋影を付けたカードの中に図版 1 枚を <code>objectFit: contain</code>（切り抜かない）で中央表示し、配色は nihon101 のトンマナ（藍・朱・生成り）に揃えています。これは ai-youtube エンジンの実レンダー静止画で、実運用では <code>photo</code> に路線図などの実際の図版名を入れると、この器にその図版が 1 枚はめ込まれます。全体像が欠けると意味を失う図版を、欠けさせずに大きく確認できる型だとイメージしてください。</p>
+
+<h3>③ 縦 Shorts の自動切り出し＋自動アップロード</h3>
+
+<p>本編のタイムラインから <code>hook</code> / <code>stat</code> / <code>contrast</code> / <code>warning</code> に該当する区間を決定論で抽出し、縦型の YouTube Shorts を自動生成・アップロードする機構です。</p>
+
+<ul><li><strong>抽出方式</strong>: 章の役割とテンプレート型を見て機械的に区間を選択します（生成 AI 任せにしません）</li><li><strong>解像度・尺</strong>: 縦 1080x1920・15〜45 秒。横から縦への変換は安全領域への再配置で行い、末尾に本編へ誘導する CTA カードを付けます</li><li><strong>メタ</strong>: 説明欄の先頭に本編 URL、タイトルに <code>#Shorts</code> を入れます</li><li><strong>有効化スイッチ</strong>: <code>channel.yaml</code> の <code>upload.shorts_upload</code>。未設定なら Shorts を作らずアップロードもしません（後方互換）</li><li><strong>冪等の真実源</strong>: <code>shorts-manifest.json</code>（生成済み・アップロード済みを管理。既アップロード分は skip）</li><li><strong>予約</strong>: <code>publish_at_offset</code>（既定 24 時間）だけ本編より後ろにずらして予約公開します（同時露出を避けるため）</li><li><strong>担当</strong>: 切り出し・縦レンダは <code>editor</code>、アップロード・予約は <code>publisher</code>（本編が API で成功してから冪等にアップロード）</li></ul>
+<p>なお、Shorts を含めるとクォータの都合で実質 1 日 1 本（本編のみなら 1 日 2 本）が目安になります。</p>
+
+<h3>④ X／TikTok の決定論下書き＋人間ゲート配信</h3>
+
+<p>公開済みの本編から X・TikTok 投稿の下書きを決定論で生成し、送信ゲートの手前まで自動で進める機構です。最終的な公開は必ず人間が行います。</p>
+
+<ul><li><strong>X</strong>: フック＋本編タイトル＋本編 URL＋ハッシュタグから本文を生成します（280 字厳守）。<code>social-manifest.json</code> に下書きとして保存し、実送信は <code>share-x --send</code> で行います（最終公開は人間）。有効化スイッチは <code>social.enabled</code>、冪等の真実源は <code>posted</code></li><li><strong>TikTok</strong>: キャプション下書きを生成し、<code>share-tiktok --send</code> で inbox（下書き）に送るところまで行います。実際の公開は TikTok アプリで人間が行う二重ゲートです。送信動画は Shorts の <code>shorts/01.mp4</code> を前提とし、なければ skip します。有効化スイッチは <code>social.tiktok.enabled</code>、冪等の真実源は <code>tiktok.posted.publishId</code></li><li><strong>担当</strong>: <code>sns-distributor</code>（下書き生成と <code>--send</code> まで）</li></ul>
+<p>Instagram・YouTube Community への展開は従来どおり設計提示のみで、実投稿は人間が行います。</p>
+
+<h3>⑤ yt-episode 統括フロー（プレビュー承認ゲート＋セクション単位レンダ）</h3>
+
+<p>エピソード制作を、台本から公開まで一連のゲート付きフローとして統括する機構です。</p>
+
+<pre><code class="language-">yt-script
+  → 【プレビュー承認（必須・人間ゲート）】 preview.html をユーザーが承認
+  → yt-render（セクション単位レンダ）
+  → 【ユーザー確認（必須・人間ゲート）】 完成動画をユーザーが確認
+  → yt-publish</code></pre>
+
+<ul><li><strong>章数の自動判定</strong>: 台本 frontmatter の <code>sections</code> 配列長で自動判定します（章数を推測しません）</li><li><strong>セクション単位レンダ</strong>: 60 秒のチャンクに分割し、章（セクション）境界で自動分割します。章ごとに検証し、問題があった章だけ差分再レンダします（全体を一括で焼き直しません）</li><li><strong>ゲート対応</strong>: ワークフローの <code>human-picture-lock</code> → <code>editor-render</code> → <code>publisher</code> の流れと一致します。プレビュー承認なしにレンダへ、ユーザー確認なしに公開へは進みません</li><li><strong>担当</strong>: 統括は <code>director</code>（正しい順序とゲートで進むよう監督）、レンダは <code>editor</code>、公開は <code>publisher</code>、承認・確認は人間</li></ul>
+<h3>⑥ update-meta による予約再スケジュール</h3>
+
+<p>アップロード済み動画の予約公開日時を、台本の <code>frontmatter.publish_at</code> に後から同期する機構です。配信計画を後ろ倒し・前倒しした際に、YouTube 側の予約を合わせます。</p>
+
+<ul><li><strong>対象</strong>: <code>privacy: private</code>（予約公開待ち）の動画のみ更新し、<code>public</code>（既公開）の動画には触れません（公開済み動画の公開日を動かさない）</li><li><strong>冪等</strong>: すでに <code>publish_at</code> と一致していれば何もしません</li><li><strong>担当</strong>: <code>publisher</code>（公開後の運用時のみ・任意）</li></ul>
+<hr>
+
+<h2>新機構（テンプレート v1.4.0）</h2>
+
+<p>v1.4.0 で、ai-youtube のサムネ自動化と配信スケジュール表示の知見をもとに 3 つの機構が追加されました。サムネ機構は <code>channel.yaml</code> の <code>upload.thumbnail</code>（任意）で制御する後方互換の設計で、ブランド名・配色・ロゴはすべて <code>channel.yaml</code>（<code>upload.thumbnail.brand_text</code> / <code>video.theme</code> / <code>upload.thumbnail.logo</code>）を参照します（エンジンやエージェントに固有値をハードコードしません）。</p>
+
+<h3>⑦ サムネイルの自動生成（thumbnail-creator）</h3>
+
+<p>台本（hook／keywords／sections）を分析して「クリックされる」サムネイル（1280×720 PNG）を自動設計・生成する機構です。本編とは役割が逆で、本編は「情報を切り捨てない」のに対し、サムネは情報を 3 語前後に削ります。</p>
+
+<ul><li><strong>設計三原則</strong>: ①3 語圧縮（見出し＋強調語は理想 2〜4 語・最大 5 語・全大文字。フルセンテンス／本編スライド流用は禁止）／②単一被写体（台本・ナレが指す対象と一致した 1 枚のみ。一致写真が無ければ数字主役かブランドグラデへ。間違った写真は写真なしより悪い）／③好奇心ギャップ（フック・ベネフィット・意外な事実・数字を 1 つ立て、答えの一部を伏せる）</li><li><strong>4 レイアウト型</strong>: <code>left-text</code>（最汎用・ハウツー／解説）／<code>full-photo-band</code>（場所・食・風景が主役）／<code>before-after</code>（失敗 vs 正解の対比）／<code>big-number</code>（数値フック）</li><li><strong>生成は render 時でなく publish 時</strong>: 台本は公開直前まで改訂が入りうるため、render のたびに作り直さず、写真確定・台本確定後の publish 時に 1 回だけ生成します（無駄なやり直しを避ける）</li><li><strong>設定</strong>: <code>channel.yaml upload.thumbnail</code>（<code>enabled</code> 既定 true ／ <code>brand_text</code> 既定 = <code>channel.name</code> ／ <code>logo</code> 任意）。<code>enabled: false</code> で従来どおり手動運用に倒せます</li><li><strong>担当</strong>: サムネ設計（コピー圧縮・レイアウト型選定）は <code>growth-strategist</code>、生成は publish 時に <code>publisher</code>（<code>editor</code> は render まで）</li></ul>
+<h3>⑧ アップロード時のサムネ自動適用</h3>
+
+<p>publish の本編アップロード成功後に、生成済みサムネを自動でチャンネルへ反映する機構です。</p>
+
+<ul><li><strong>タイミング</strong>: 本編アップロードが API で成功し videoId が確定した直後（localizations より前）に、<code>output/&lt;ep&gt;/thumbnail.png</code> があれば <code>thumbnails.set</code> で自動適用します（無ければ何もしません）</li><li><strong>失敗時の挙動</strong>: カスタムサムネ未対応・電話番号未確認チャンネル・スコープ不足などで失敗しても警告にとどめ、本編アップロードは成功扱いとします（字幕 CC・Shorts と同方針）。サムネは後から <code>set-thumbnail</code>／<code>update-meta</code> で後付けできます</li><li><strong>単一情報源</strong>: 反映に成功したら <code>output/&lt;ep&gt;/thumbnail-uploaded</code>（videoId）を書き、これが「YouTube へ反映済み」の単一情報源になります（配信スケジュール HTML の 🖼️ アイコンがこれを見ます）</li><li><strong>前提</strong>: カスタムサムネは電話番号確認済みチャンネルのみ設定できます</li><li><strong>担当</strong>: <code>publisher</code>（本編アップロード成功後・冪等）</li></ul>
+<h3>⑨ 配信スケジュール HTML の表示拡張</h3>
+
+<p>年間 1 枚の配信スケジュール HTML（単一情報源は月別 plan md の frontmatter <code>schedule:</code>）に、工程状態を一目で見せ、閲覧時点の日付で自己更新する表示を追加した機構です。</p>
+
+<ul><li><strong>進捗アイコン 4 段階</strong>: 📝 台本レビュー ／ 🎬 動画 ／ ⬆️ アップロード ／ 🖼️ サムネ反映。各段階は <code>ok</code>（✓）／<code>sched</code>（◷・⬆️ の予約済み）／<code>partial</code>（△・サムネ生成済だが未反映）／<code>wait</code>（·・待ち）で色分けします。🖼️ は <code>thumbnail-uploaded</code> マーカーで点灯します</li><li><strong>残り日数チップ</strong>: 配信日に <code>data-deliver</code>（ISO 日付）を持つ空の器だけを出し、閲覧時に JS が「あと N 日／本日／非表示（過去）」を再計算します</li><li><strong>動画尺 mm:ss</strong>: <code>output/&lt;ep&gt;/video.mp4</code> を ffprobe で測って表示します</li><li><strong>予約 → 公開の自動反転</strong>: ⬆️ が予約済み（◷）の行は、閲覧時点が公開日を過ぎていれば JS が公開済み（✓）へ反転します</li><li><strong>静的 HTML に日付を焼き込まない設計</strong>: 「あと N 日」や予約／公開の判定を生成時に固定すると、再生成まで古い値で表示され続けます。これを避けるため、日付依存の表示は属性＋JS で閲覧時に再計算します</li><li><strong>担当</strong>: <code>publisher</code>（配信カレンダーの md＋html 両方を更新）</li></ul>
+<hr>
+
+<h2>新機構（テンプレート v1.5.0）</h2>
+
+<p>v1.5.0 で、利益最大化を上流から効かせるために 3 つの変更が入りました。市場・ジャンル戦略エージェント <code>market-analyst</code> の新設、X 長文記事の収益志向ライティングを方法論化して <code>scriptwriter</code>／<code>sns-distributor</code> に反映、そしてチャンネル立ち上げワークフローへの上流ステップ追加です。数値は出典・確信度・出典時期を併記し、憶測と事実を区別しています。</p>
+
+<h3>⑩ 市場・ジャンル戦略エージェント（market-analyst）</h3>
+
+<code>channel-producer</code>（チャンネルの箱・編成）の<strong>上流</strong>で「何を作るか（どのジャンル・どの角度・どのターゲット視聴国か）」をデータから決める新エージェントです。1 本ごとの CTR を担う <code>growth-strategist</code> や公開後の収益最適化を担う <code>monetizer</code> とは<strong>別レイヤー</strong>で、最も上流の「土俵選び」を担当します。
+
+<p>中核は<strong>ジャンル選定スコアリングフレーム</strong>です。ジャンル候補を 15〜30 列挙し、次の 7 指標で 0〜3 点に正規化して重み付き合成でスコアリングします。</p>
+
+<table><thead><tr><th>指標</th><th>意味</th><th>重み</th></tr></thead><tbody><tr><td><code>demand</code></td><td>月間検索ボリューム／TAM（<code>10K-100K</code> が最適帯。ニッチすぎは分母も単価も伸びにくい）</td><td>×1.0</td></tr><tr><td><code>competition</code></td><td>競合の薄さ（「検索多い × 結果 1 万件未満＝供給不足」を一次スクリーニングに）</td><td>×1.5</td></tr><tr><td><code>cpm</code></td><td>ジャンル CPM（USD）</td><td>×1.2</td></tr><tr><td><strong><code>geo_mix</code></strong></td><td><strong>ターゲット視聴国の英語圏ティア1比率（最優先の横断軸）</strong></td><td><strong>×1.6</strong></td></tr><tr><td><code>jp_edge</code></td><td>日本人の一次情報優位（差別化防御壁）</td><td>×1.3</td></tr><tr><td><code>faceless_fit</code></td><td>量産適性（顔出し不要か）</td><td>×0.8</td></tr><tr><td><code>authenticity_risk</code></td><td>ポリシー抵触（逆スコア・常時減点）</td><td>×1.0</td></tr></tbody></table>
+<code>geo_mix</code>（ターゲット視聴国）を最大重みにした理由は、広告単価が「英語」でなく<strong>視聴者の所在する市場の購買力</strong>で決まるためです。median CPM は米 \$11.95／豪 \$8.93／英 \$7.60／加 \$6.65／日 \$3.41 で、米は日本の約 3.5 倍です（出典: digitalinformationworld 2025-08・確信度: 高。国別の細順位・絶対値は median／average で変わる点は併記します）。日本語コンテンツでも英語圏視聴者比率が高ければ RPM が約 3 倍化しうるため、ターゲット視聴国の選択がジャンル単体の成長性・競合度を上回る収益インパクトを持ちます。
+
+<p>高 CPM ジャンルは金融・保険・法律・不動産・B2B／SaaS が最高帯、ゲーム・エンタメ・vlog が最低帯です（料理・旅行は \$2-4、保険は \$9-20・一部上限 \$50 と幅で扱います。出典: vidIQ／tastyedits 2026・確信度: 中〜高）。日本人の一次情報優位を活かせる領域（訪日旅行・日本語学習・和食・日本での投資）は、海外需要が伸びており（訪日 2025 年 4,268 万人 <code>+15.8%</code>／YouTube 旅行カテゴリ 2025 Q2 <code>+64%</code>／Duolingo 2025 で日本語が世界 4 位学習言語／アニメ市場 CAGR 9.2%・基準年 2026-2033。確信度: 高）、AI 量産時代の差別化防御壁になります。</p>
+
+<p>競合度の判定は 2 段構えです。机上の一次スクリーニング（結果 1 万件未満＝供給不足）だけでは粗いため、上位候補は<strong>テスト動画 1〜2 本を 2〜4 週運用し、CTR > 4%・視聴維持率 > 50% を満たすか</strong>の実測検証ゲートを併用します。さらに YouTube の inauthentic content ポリシー（2025-07-15 施行・既存ポリシーの明確化・確信度: 高。AI は禁止でなく開示＋人的付加価値が前提で、解説／リアクションは対象外）を <code>authenticity_risk</code> として常時減点に組み込み、テンプレ量産を構造的に避けます。<strong>最終ジャンル決定は人間ゲート</strong>で、market-analyst は提案と根拠（スコア内訳・出典・確信度）の提示までを担います。固有のチャンネル名・ブランド名はハードコードせず、<code>channel.yaml</code> の地域／言語ターゲットを入力に取る一般化設計です。</p>
+
+<h3>⑪ X 長文記事の収益志向ライティング（方法論化）</h3>
+
+<p>X 長文記事（Articles 含む）と動画台本の双方に効く<strong>文体規範</strong>を <code>PRODUCTION-GUIDE.md</code> §16 に方法論化し、<code>scriptwriter</code>（動画台本）と <code>sns-distributor</code>（X 長文記事）に反映しました。新しい出力物・専用エージェントは作らず、既存の責務に方法論として乗せています。</p>
+
+<ul><li><strong>構成（結論ファースト）</strong>: 結論／インパクトを冒頭で即出し→背景は軽く→実績→仕組み→具体的やり方→CTA。見出しはキャッチコピー（名詞止め・数字を盛らない）</li><li><strong>文体</strong>: 敬語を崩した話し口調・太字／イコール記号を使わない・「AI」でなく具体名・括弧で本音・一次情報最優先（経験・数字・失敗談）。離脱させないテンポ（トーンの急ハンドル・短文と余白・数字で殴って自虐で落とす）。<strong>根拠なき断言は禁止</strong></li><li><strong>画像（X 長文記事）</strong>: 数値成果はスクショ／フロー図は HTML 作成→スクショ／操作画面は赤枠。<strong>X への実貼付は手動</strong>（自動スクショ／貼付はスクレイピング・凍結リスク）</li><li><strong>X→YouTube 送客</strong>: スレッド／記事で価値の一部を出し、フル解説は YouTube へ誘導します。X 収益は「広告収益シェア」でなく <strong>Premium engagement ベースの payout</strong> で、2026 年から Verified Home Timeline impressions 基準へ移行中（資格＝認証フォロワー 2,000・直近 3 か月 500 万 imp・Premium 必須。出典: Social Media Today／PPC Land・確信度: 中〜高）。分配ルールが改定中で予見性が低いため、X は収益チャネルというより<strong>集客（YouTube 送客）チャネル</strong>として位置づけます</li></ul>
+<h3>⑫ 利益最大化ワークフロー</h3>
+
+<p>チャンネル立ち上げ（ジャンル／方向性を新規に決める場合）のワークフローに、<code>market-analyst</code> を <code>channel-producer-setup</code> の<strong>上流ステップ</strong>として追加しました（<code>director-planning</code> の <code>channel-creation</code> 分岐 → <code>market-analyst</code> → <code>channel-producer-setup</code>）。既存のエピソード制作フロー・グロース単発フローは変更していません（ジャンルが確定済みのため market-analyst を通しません）。</p>
+
+<p>加えて、各エージェントの判断に通底する観点として「利益 ≈ CPM × 視聴維持 × 自動化効率 × authenticity」を <code>PRODUCTION-GUIDE.md</code> §11 に明文化しました。土俵選び（CPM・ターゲット視聴国）・1 本の最適化（視聴維持）・量産効率（自動化）・ポリシー耐性（authenticity）を同時に効かせる設計です。</p>
+
+<hr>
+
+<h2>DOD（Definition of Done）</h2>
+
+<table><thead><tr><th>ファイル</th><th>用途</th><th>新機構に関する主なチェック項目</th></tr></thead><tbody><tr><td><code>dod/channel-creation.md</code></td><td>チャンネル立ち上げ</td><td>（ジャンル／方向性を新規に決める場合）market-analyst が geo_mix を最優先軸に 7 指標でスコアリングし、実測ゲート（CTR>4%・視聴維持率>50%）併用・authenticity_risk 組込・出典／確信度付きの推奨 3 案を提示し、最終ジャンル決定が人間ゲートであること。Shorts／X／TikTok の各有効化スイッチ（<code>upload.shorts_upload</code>・<code>social.enabled</code>・<code>social.tiktok.enabled</code>）を使う場合のみ設定済みであること（未設定なら動作しない）。多言語メタが <code>subtitles.targets</code> 駆動であることの把握</td></tr><tr><td><code>dod/episode-production.md</code></td><td>エピソード制作</td><td>多言語メタの冪等投入。プレビュー承認ゲート（人間ゲート）の通過。サムネ自動生成・自動反映（<code>thumbnail-uploaded</code> 確認・有効チャンネルのみ）。縦 Shorts・X・TikTok 配信が有効チャンネルのみ規定どおり実行されていること</td></tr><tr><td><code>dod/growth.md</code></td><td>グロース</td><td>Shorts／切り抜き案が根拠付きで提示されていること。X／TikTok 配信が <code>--send</code>（下書き・inbox 送信）まで提示され、最終公開が人間ゲートであること</td></tr></tbody></table>
+<hr>
+
+<h2>このチームを使うとき</h2>
+
+<ul><li>どのジャンル・どのターゲット視聴国で勝負するかを需要×競合×CPM のデータで決めたい（market-analyst）</li><li>YouTube 動画の企画・台本作成から生成・公開までを一貫して進めたい</li><li>タイトル・説明欄を多言語化してグローバルな視聴者にリーチしたい</li><li>本編から縦型 Shorts を自動で切り出してアップロードしたい</li><li>X・TikTok への配信を、人間の承認を挟んだうえで運用したい</li><li>アフィリエイトや収益化を意識した動画運用をしたい</li></ul>
+<p>導入は <code>/ai-team-install youtube</code> で行います。詳細は <a href="../skills/install.html">ai-team-install</a> と <a href="overview.html">チーム概要</a> を参照してください。</p>
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
