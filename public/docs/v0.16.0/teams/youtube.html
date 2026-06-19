@@ -85,12 +85,76 @@
 
 <p>追加された 8 型も、既存型と同じ<strong>不変原則</strong>（情報が主・デザインは従／文字の切り捨て・重なりは禁止／ラベルは英語のみ／焼き込み字幕なし）の上に乗ります。型を増やしたのは表現の幅を広げるためであり、安全規約をゆるめるものではありません。台本作成は <code>scriptwriter</code>、レンダは <code>editor</code> が担当します。</p>
 
+<p>以下の表示サンプルはすべて、ai-youtube エンジンの実レンダー静止画（1920×1080・PNG）です。配色は nihon101 のトンマナ（藍 #16314F / 朱 #E0533C / 生成り #F4EEE2 / 墨）に統一しています。各型は複数のレイアウト分岐を持つものもありますが、ここでは型ごとに代表レイアウトを 1 枚ずつ掲載しています。</p>
+
+<h4>前半 10 型の表示サンプル</h4>
+
+<p>前半 10 型（<code>progressive</code> / <code>contrast</code> / <code>howto</code> / <code>list</code> / <code>stat</code> / <code>concept</code> / <code>map</code> / <code>timeline</code> / <code>warning</code> / <code>gallery</code>）の代表レイアウトは次のとおりです。</p>
+
+<p><img src="figures/progressive.png" alt="progressive 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>progressive（段階説明）— 代表レイアウト <code>card</code></em></p>
+
+<p><img src="figures/contrast.png" alt="contrast 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>contrast（対比・否定）— 代表レイアウト <code>receipt</code></em></p>
+
+<p><img src="figures/howto.png" alt="howto 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>howto（手順）— 代表レイアウト <code>generic</code></em></p>
+
+<p><img src="figures/list.png" alt="list 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>list（箇条書き）— 代表レイアウト <code>row</code></em></p>
+
+<p><img src="figures/stat.png" alt="stat 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>stat（単一数値の強調）— 代表レイアウト <code>up</code></em></p>
+
+<p><img src="figures/concept.png" alt="concept 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>concept（概念提示）— 代表レイアウト <code>editorial</code></em></p>
+
+<p><img src="figures/map.png" alt="map 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>map（地図・地理差）— 代表レイアウト <code>japan</code></em></p>
+
+<p><img src="figures/timeline.png" alt="timeline 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>timeline（時系列）— 代表レイアウト <code>horizontal</code></em></p>
+
+<p><img src="figures/warning.png" alt="warning 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>warning（注意・禁止）— 代表レイアウト <code>forbid</code></em></p>
+
+<p><img src="figures/gallery.png" alt="gallery 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>gallery（写真の連続表示）— レイアウト分岐なし（進捗チップ付き中央フォーカス）</em></p>
+
 <h4>追加された 8 型</h4>
 
 <table><thead><tr><th>型</th><th>用途</th><th>レイアウト</th><th>写真/動画</th></tr></thead><tbody><tr><td><code>clip</code></td><td>動画クリップ埋め込み（実写動画を主役級に 1 本見せる）</td><td><code>full</code> / <code>caption</code> / <code>split</code></td><td><strong>動画</strong>（<code>data.video</code>）</td></tr><tr><td><code>quote</code></td><td>引用（レビュー引用・名言・ユーザーの声）</td><td><code>centered</code> / <code>card</code> / <code>with-photo</code></td><td>著者写真可（<code>data.photo</code>）</td></tr><tr><td><code>versus</code></td><td>対称比較（左右対等な 2 対象の属性比較）</td><td><code>split</code> / <code>stacked</code> / <code>table</code></td><td>左右に写真可（<code>left.photo</code> / <code>right.photo</code>）</td></tr><tr><td><code>pie</code></td><td>構成比（割合・内訳の可視化）</td><td><code>pie</code> / <code>donut</code> / <code>callouts</code></td><td>なし</td></tr><tr><td><code>ranking</code></td><td>ランキング（人気スポット TOP5・失敗ベスト3）</td><td><code>list</code> / <code>podium</code> / <code>countdown</code></td><td>各 item に写真可（<code>items[].photo</code>）</td></tr><tr><td><code>table</code></td><td>比較表（3 対象以上 × 複数属性のマトリクス）</td><td><code>grid</code> / <code>compact</code> / <code>highlight</code></td><td>なし</td></tr><tr><td><code>bar</code></td><td>量の比較（月別・地域別・項目別の数量差）</td><td><code>horizontal</code> / <code>vertical</code> / <code>ranked</code></td><td>なし</td></tr><tr><td><code>qa</code></td><td>問い→答え（誤解解消・フック・「チップは必要？→不要」）</td><td><code>single</code> / <code>list</code> / <code>reveal</code></td><td>なし</td></tr></tbody></table>
 <p>各型の使いどころは次のとおりです。</p>
 
 <ul><li><strong><code>clip</code>（動画クリップ）</strong>: 写真を 1 枚ずつ見せる <code>gallery</code> と異なり、実写の<strong>動画そのもの</strong>を再生して主役に立てる型です。<code>data.video</code> に動画ファイルを指定します。ここで重要なのは、写真型のように <code>query</code> でストックを検索する機能はなく、<strong>ローカル/staticFile（手元の確定ファイル）のみ対応</strong>である点です。動画は「あとで探す」ではなく確定済みのものだけを使うため、台本段階で素材が手元にあることが前提になります。実写は脇役（尺合計の 2〜3 割）の枠内で扱い、ナレーションが指す対象と一致する動画のみを使う事実一致の原則に従います。</li><li><strong><code>quote</code>（引用）</strong>: レビュー・名言・ユーザーの声など、短い引用文を主役に立てる型です。<code>with-photo</code> レイアウトでは著者写真を <code>data.photo</code>（確定指定または未確定 <code>query</code>）で添えられます。</li><li><strong><code>versus</code>（対称比較）</strong>: 「東京 vs 大阪」のように左右対等な 2 対象を複数属性で比べる型です。既存の <code>contrast</code>（否定／Before-After のような価値判断・時間変化）や <code>map</code>（関東 vs 関西のような地理差）とは役割が異なり、<code>versus</code> は価値の上下も地理も含まない<strong>対等な属性比較</strong>に使います。3 対象以上を比べたいときは <code>table</code> を使います。</li><li><strong><code>pie</code>（構成比）と <code>bar</code>（量の比較）</strong>: いずれも SVG によるデータ可視化系で、互いに対になります。<code>pie</code> は割合・内訳の構成比（円グラフ／ドーナツ）、<code>bar</code> は数量差（横棒／縦棒）を表します。単一の数値を強調する <code>stat</code> とは別物で、複数の値の比較・内訳を見せたいときに使います。写真は使いません。</li><li><strong><code>ranking</code>（ランキング）</strong>: 「人気スポット TOP5」のような順位付きリストです。<code>items: [{ rank, label, photo? }]</code> で記述し、各アイテムに写真を添えられます（<code>gallery</code> と同じく確定指定か未確定 <code>query</code>）。</li><li><strong><code>table</code>（比較表）</strong>: 3 対象以上 × 複数属性のマトリクス比較です（2 対象の対称比較は <code>versus</code>、順位付けは <code>ranking</code>）。<code>.max</code> 制約で対象数・属性数を縛り、文字を切り捨てず「器を文字に合わせる」原則を守ります。</li><li><strong><code>qa</code>（問い→答え）</strong>: 「チップは必要？→不要」のような問い→答え形式で、誤解解消やフック、冒頭で開いた疑問の回収に使います。<code>reveal</code> レイアウトでは問いを先に出してから答えを開きます。</li></ul>
+<h5>後半 8 型の表示サンプル</h5>
+
+<p>追加された 8 型の代表レイアウトは次のとおりです（前半 10 型と同じく ai-youtube の実レンダー静止画・nihon101 トンマナ）。</p>
+
+<p><img src="figures/clip.png" alt="clip 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>clip（動画クリップ）— 代表レイアウト <code>full</code></em></p>
+
+<p><img src="figures/quote.png" alt="quote 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>quote（引用）— 代表レイアウト <code>centered</code></em></p>
+
+<p><img src="figures/versus.png" alt="versus 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>versus（対称比較）— 代表レイアウト <code>split</code></em></p>
+
+<p><img src="figures/pie.png" alt="pie 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>pie（構成比）— 代表レイアウト <code>pie</code></em></p>
+
+<p><img src="figures/ranking.png" alt="ranking 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>ranking（ランキング）— 代表レイアウト <code>list</code></em></p>
+
+<p><img src="figures/table.png" alt="table 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>table（比較表）— 代表レイアウト <code>grid</code></em></p>
+
+<p><img src="figures/bar.png" alt="bar 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>bar（量の比較）— 代表レイアウト <code>horizontal</code></em></p>
+
+<p><img src="figures/qa.png" alt="qa 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>qa（問い→答え）— 代表レイアウト <code>single</code></em></p>
+
 <h4>figure 型（1 枚図版/確認用）</h4>
 
 <p>v1.3.0 で 19 番目の型として <code>figure</code>（1 枚図版/確認用フィギュア）が追加されました。型表に並べると次のとおりです。</p>
@@ -104,9 +168,10 @@
 
 <p>実際の見た目は次のサンプルのとおりです。</p>
 
-<p><img src="figure-sample.png" alt="figure 表示サンプル（nihon101トンマナ・図版は sample image プレースホルダ）" loading="lazy"></p>
+<p><img src="figures/figure.png" alt="figure 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）" loading="lazy"></p>
+<p><em>figure（1 枚図版/確認用）— レイアウト分岐なし（白枠＋影・中央単一表示）</em></p>
 
-<p>白枠＋影を付けたカードの中に図版 1 枚を <code>objectFit: contain</code>（切り抜かない）で中央表示し、配色は nihon101 のトンマナ（藍・朱・生成り）に揃えています。このサンプルは図版部分を <code>sample image</code> のプレースホルダにしていますが、実運用では <code>photo</code> に路線図などの実際の図版名を入れます。全体像が欠けると意味を失う図版を、欠けさせずに大きく確認できる型だとイメージしてください。</p>
+<p>白枠＋影を付けたカードの中に図版 1 枚を <code>objectFit: contain</code>（切り抜かない）で中央表示し、配色は nihon101 のトンマナ（藍・朱・生成り）に揃えています。これは ai-youtube エンジンの実レンダー静止画で、実運用では <code>photo</code> に路線図などの実際の図版名を入れると、この器にその図版が 1 枚はめ込まれます。全体像が欠けると意味を失う図版を、欠けさせずに大きく確認できる型だとイメージしてください。</p>
 
 <h3>③ 縦 Shorts の自動切り出し＋自動アップロード</h3>
 
