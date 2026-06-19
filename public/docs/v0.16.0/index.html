@@ -83,8 +83,8 @@
 
 <ul><li>v0.16.0: <strong>ドキュメントビルド（<code>docs-src/build.js</code>）の画像対応と、YouTube動画制作チームページへの <code>figure</code> 表示サンプルの追加</strong>。これまで <code>build.js</code> は Markdown から HTML への変換と <code>assets/</code>（共通 CSS/JS）の生成のみを行っており、画像ファイルは <code>public/docs/</code> に反映されませんでした。図版を使った説明ができるよう、ビルド処理に画像対応を加えました。主な変更:</li></ul>  - <strong>画像ファイルのコピー処理を追加</strong>: 各バージョンの <code>docs-src/versions/&lt;ver&gt;/</code> 配下にある画像（<code>.png</code> / <code>.jpg</code> / <code>.jpeg</code> / <code>.svg</code> / <code>.gif</code> / <code>.webp</code>）を、サブディレクトリ構造（相対パス）を保ったまま <code>public/docs/&lt;ver&gt;/</code> へ再帰的にコピーします。既存の Markdown→HTML 変換・<code>assets/</code> 生成には手を加えていないため、従来のビルド挙動は変わりません
 <p>  - <strong>Markdown の画像構文に対応</strong>: <code>markdownToHtml</code> が画像構文 <code>![alt](src)</code> を <code>&lt;img&gt;</code> タグへ変換するようにしました（リンク変換 <code>[text](url)</code> より前に処理することで通常リンクへの影響を避けています）。あわせて画像表示用の CSS（<code>.content img</code>）を共通スタイルに追加しました。これにより、ページと同じ階層に置いた画像を <code>![説明](画像名.png)</code> の相対参照で埋め込めます</p>
-<p>  - <strong>YouTube動画制作チームページに <code>figure</code> 表示サンプルを追加</strong>: <a href="teams/youtube.html">YouTube動画制作チーム</a> の「<code>figure</code> 型」の節に、表示サンプル画像（<code>figure-sample.png</code>）と短い説明を埋め込みました。白枠＋影を付けたカードの中に図版 1 枚を <code>objectFit: contain</code>（切り抜かない）で中央表示し、配色は nihon101 のトンマナ（藍・朱・生成り）に揃えています。図版部分は <code>sample image</code> のプレースホルダで、実運用では <code>photo</code> に路線図などの実際の図版名を入れます</p>
-<p>  - この変更により、今後のドキュメントでも図版を使った視覚的な説明が可能になります</p>
+<p>  - <strong>YouTube動画制作チームページに全 19 型の表示サンプルを追加</strong>: <a href="teams/youtube.html">YouTube動画制作チーム</a> §6（ビジュアル型）に、19 型すべて（前半 10 型・後半 8 型・<code>figure</code>）の表示サンプル画像を <code>teams/figures/&lt;型&gt;.png</code> として埋め込みました。すべて ai-youtube エンジンの実レンダー静止画（1920×1080・PNG）で、配色は nihon101 のトンマナ（藍・朱・生成り・墨）に統一しています。各型は代表レイアウトを 1 枚ずつ掲載し、前半 10 型・後半 8 型はそれぞれサンプルブロックに、<code>figure</code> は型の節に配置しました</p>
+<p>  - この変更により、19 型のビジュアル型を実際の見た目つきのカタログとして一目で見渡せるようになりました</p>
 
 <h3>v0.15.x シリーズの主な変更点</h3>
 

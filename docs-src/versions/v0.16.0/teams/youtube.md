@@ -94,6 +94,42 @@ v1.1.0 で、ai-youtube の知見をもとに 6 つの機構が追加されま�
 
 追加された 8 型も、既存型と同じ**不変原則**（情報が主・デザインは従／文字の切り捨て・重なりは禁止／ラベルは英語のみ／焼き込み字幕なし）の上に乗ります。型を増やしたのは表現の幅を広げるためであり、安全規約をゆるめるものではありません。台本作成は `scriptwriter`、レンダは `editor` が担当します。
 
+以下の表示サンプルはすべて、ai-youtube エンジンの実レンダー静止画（1920×1080・PNG）です。配色は nihon101 のトンマナ（藍 #16314F / 朱 #E0533C / 生成り #F4EEE2 / 墨）に統一しています。各型は複数のレイアウト分岐を持つものもありますが、ここでは型ごとに代表レイアウトを 1 枚ずつ掲載しています。
+
+#### 前半 10 型の表示サンプル
+
+前半 10 型（`progressive` / `contrast` / `howto` / `list` / `stat` / `concept` / `map` / `timeline` / `warning` / `gallery`）の代表レイアウトは次のとおりです。
+
+![progressive 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/progressive.png)
+*progressive（段階説明）— 代表レイアウト `card`*
+
+![contrast 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/contrast.png)
+*contrast（対比・否定）— 代表レイアウト `receipt`*
+
+![howto 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/howto.png)
+*howto（手順）— 代表レイアウト `generic`*
+
+![list 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/list.png)
+*list（箇条書き）— 代表レイアウト `row`*
+
+![stat 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/stat.png)
+*stat（単一数値の強調）— 代表レイアウト `up`*
+
+![concept 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/concept.png)
+*concept（概念提示）— 代表レイアウト `editorial`*
+
+![map 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/map.png)
+*map（地図・地理差）— 代表レイアウト `japan`*
+
+![timeline 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/timeline.png)
+*timeline（時系列）— 代表レイアウト `horizontal`*
+
+![warning 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/warning.png)
+*warning（注意・禁止）— 代表レイアウト `forbid`*
+
+![gallery 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/gallery.png)
+*gallery（写真の連続表示）— レイアウト分岐なし（進捗チップ付き中央フォーカス）*
+
 #### 追加された 8 型
 
 | 型 | 用途 | レイアウト | 写真/動画 |
@@ -117,6 +153,34 @@ v1.1.0 で、ai-youtube の知見をもとに 6 つの機構が追加されま�
 - **`table`（比較表）**: 3 対象以上 × 複数属性のマトリクス比較です（2 対象の対称比較は `versus`、順位付けは `ranking`）。`.max` 制約で対象数・属性数を縛り、文字を切り捨てず「器を文字に合わせる」原則を守ります。
 - **`qa`（問い→答え）**: 「チップは必要？→不要」のような問い→答え形式で、誤解解消やフック、冒頭で開いた疑問の回収に使います。`reveal` レイアウトでは問いを先に出してから答えを開きます。
 
+##### 後半 8 型の表示サンプル
+
+追加された 8 型の代表レイアウトは次のとおりです（前半 10 型と同じく ai-youtube の実レンダー静止画・nihon101 トンマナ）。
+
+![clip 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/clip.png)
+*clip（動画クリップ）— 代表レイアウト `full`*
+
+![quote 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/quote.png)
+*quote（引用）— 代表レイアウト `centered`*
+
+![versus 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/versus.png)
+*versus（対称比較）— 代表レイアウト `split`*
+
+![pie 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/pie.png)
+*pie（構成比）— 代表レイアウト `pie`*
+
+![ranking 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/ranking.png)
+*ranking（ランキング）— 代表レイアウト `list`*
+
+![table 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/table.png)
+*table（比較表）— 代表レイアウト `grid`*
+
+![bar 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/bar.png)
+*bar（量の比較）— 代表レイアウト `horizontal`*
+
+![qa 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/qa.png)
+*qa（問い→答え）— 代表レイアウト `single`*
+
 #### figure 型（1 枚図版/確認用）
 
 v1.3.0 で 19 番目の型として `figure`（1 枚図版/確認用フィギュア）が追加されました。型表に並べると次のとおりです。
@@ -133,9 +197,10 @@ v1.3.0 で 19 番目の型として `figure`（1 枚図版/確認用フィギュ
 
 実際の見た目は次のサンプルのとおりです。
 
-![figure 表示サンプル（nihon101トンマナ・図版は sample image プレースホルダ）](figure-sample.png)
+![figure 型の表示サンプル（ai-youtube実レンダー・nihon101トンマナ）](figures/figure.png)
+*figure（1 枚図版/確認用）— レイアウト分岐なし（白枠＋影・中央単一表示）*
 
-白枠＋影を付けたカードの中に図版 1 枚を `objectFit: contain`（切り抜かない）で中央表示し、配色は nihon101 のトンマナ（藍・朱・生成り）に揃えています。このサンプルは図版部分を `sample image` のプレースホルダにしていますが、実運用では `photo` に路線図などの実際の図版名を入れます。全体像が欠けると意味を失う図版を、欠けさせずに大きく確認できる型だとイメージしてください。
+白枠＋影を付けたカードの中に図版 1 枚を `objectFit: contain`（切り抜かない）で中央表示し、配色は nihon101 のトンマナ（藍・朱・生成り）に揃えています。これは ai-youtube エンジンの実レンダー静止画で、実運用では `photo` に路線図などの実際の図版名を入れると、この器にその図版が 1 枚はめ込まれます。全体像が欠けると意味を失う図版を、欠けさせずに大きく確認できる型だとイメージしてください。
 
 ### ③ 縦 Shorts の自動切り出し＋自動アップロード
 
