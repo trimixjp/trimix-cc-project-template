@@ -14,6 +14,7 @@ labels:
   prefix: "youtube"
   examples:
     - "youtube:director"
+    - "youtube:market-analyst"
     - "youtube:channel-producer"
     - "youtube:scriptwriter"
     - "youtube:editor"
@@ -38,7 +39,11 @@ steps:
           criteria:
             - 新規チャンネルを作る
             - チャンネルの趣旨/言語/字幕/配信計画を新規に決める
-          next: channel-producer-setup
+          # ジャンル/チャンネルの方向性を新規に決める文脈では market-analyst を上流に通す
+          # （channel-producer の手前で「何を作るか」をデータで決める）。
+          # 既存ジャンルの設定変更のみで方向性を決め直さない場合は director が
+          # 引き継ぎコメントで channel-producer-setup へ直行を指示する分岐も可。
+          next: market-analyst
 
         - id: episode-production
           description: 1本以上の動画を企画から公開まで制作する場合
@@ -56,12 +61,28 @@ steps:
     on_escalation:
       next: human-escalator
 
+  # channel-producer の上流。新規チャンネル/ジャンル企画時に「何を作るか」をデータで決める。
+  # 需要×競合の薄さ×CPM×ターゲット視聴国(geo_mix最優先)を横断スコアリングし、
+  # ブルーオーシャンなジャンル候補をスコア付きで提案する（最終ジャンル決定は人間ゲート）。
+  - id: market-analyst
+    agent: market-analyst
+    label: "youtube:market-analyst"
+    description: |
+      市場・ジャンル戦略: ジャンル候補列挙(15〜30)・7指標(demand/competition/cpm/geo_mix/jp_edge/
+      faceless_fit/authenticity_risk)の重み付き合成スコアリング・競合度の実測ゲート併用(CTR>4%・視聴維持率>50%)・
+      authenticity_risk(inauthentic content ポリシー)の減点組込・推奨3案を出典/確信度付きで提案
+    on_complete:
+      next: channel-producer-setup
+    on_escalation:
+      next: human-escalator
+
   - id: channel-producer-setup
     agent: channel-producer
     label: "youtube:channel-producer"
     description: |
       チャンネル作成: 趣旨・言語・字幕言語・テンプレ(配色)・配信スケジュール・glossary・
       voice-guide・brand・roadmap・YouTube設定ドキュメント・初期トピックバックログ・月次配信プランを作成
+      （market-analyst が提案した推奨ジャンルを前提に・最終ジャンル決定は人間ゲート）
     on_complete:
       next: director-channel-review
     on_escalation:
