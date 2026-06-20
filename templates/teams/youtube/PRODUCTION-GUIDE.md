@@ -22,6 +22,30 @@
   の形（`<engine>` は与えられたエンジン repo のパス）。
 - **成果物**: 音声・動画など重いバイナリは `output/<id>/<episode>/` に出し、git に入れない。
 - **台本（ソース）**: `channels/<id>/episodes/NNNN-slug.md`。frontmatter にメタデータ、本文にスクリプト。git 管理。
+- **`channel:<id>` ラベル（チャンネルスコープの確定）**: Issue がどのチャンネルの作業かを示すラベル。
+  プレフィックスは `channel:`、値は `channels/<id>/` のディレクトリ名（例: `channel:nihon101`）。
+  YouTube チームの `youtube:<役割>` 工程ラベルとは別系統で、両方を併用できる。
+
+### 対象チャンネルの確定（①エピソード参照 → ②`channel:` ラベル → ③エスカレーション）
+
+チャンネルスコープの作業（台本・動画・サムネ・公開・SNS シェア等）は、着手前に**対象チャンネルを次の優先順で機械的に確定**する（本文の自由記述から推測して自走しない）。director・channel-producer はこの順序で確定し、確定方法をコメントに記録する。
+
+1. **エピソード `.md` 参照で自己確定（exempt）**: Issue 本文/引数/コメントに `channels/<id>/episodes/...` のパス、
+   または対象 .md の frontmatter `channel:` があれば、その `<id>` を対象チャンネルに確定する
+   （`channel:` ラベルのチェックは不要）。
+2. **`channel:<id>` ラベルで確定**: 手順1で確定できない場合のみ、Issue の `channel:<id>` ラベルから確定する
+   （`gh issue view <番号> --json labels` で `channel:` プレフィックスのラベルを機械抽出。値が
+   `channels/<id>/` のディレクトリ名。複数付与は一意化できないため手順3へ）。
+3. **確定不能なら human エスカレーション（`missing_channel`）**: 手順1・2どちらでも確定できなければ
+   `missing_channel` で人間に「どのチャンネルで作業するか」を問う。
+
+エピソード `.md` 起点の作業（サムネ・レンダ・公開・特定 .md の台本改稿）は手順1で自己確定するためラベル不要。
+対象動画が未指定の作業（トピック起動の台本・月次企画・対象未指定の SNS シェア）は手順2の `channel:<id>` ラベルが
+無ければエスカレーションする。新チャンネル新設は新IDが Issue 本文・タイトルで明示されていればそれを採用する。
+
+> `missing_channel` は **YouTube チーム内に閉じた**エスカレーション種別で、共有の `escalation-rules.yml`
+> （`_shared`）には定義しない（backend / sns 等へ伝播させないため）。判定手順はこの §0 を単一情報源とし、
+> director / channel-producer の各エージェント定義で参照する。
 
 ---
 
