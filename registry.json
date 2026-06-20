@@ -64,10 +64,10 @@
       "label_prefix": "youtube",
       "name": "YouTube動画制作チーム",
       "package": "@trimix/workflow-trimix-youtube",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "description": "YouTube動画の企画・台本・生成・公開・収益最大化を一貫して行うワークフロー",
       "category": "content",
-      "tags": ["youtube", "video", "script", "monetization", "affiliate", "shorts", "localization", "tiktok", "chart", "comparison"]
+      "tags": ["youtube", "video", "script", "monetization", "affiliate", "shorts", "localization", "tiktok", "chart", "comparison", "market-analysis", "genre-strategy", "cpm"]
     }
   ]
 }
