@@ -18,8 +18,8 @@ const packageRoot = join(__dirname, '..');
 // ミラー一致の対象チーム（packages/workflow-<team> としてプラグイン配布されるチーム）
 const TEAMS = ['backend', 'content', 'frontend', 'infra'];
 
-// ラベル整合の対象チーム（プラグイン配布されない sns もラベル整合の検査対象に含める）
-const LABEL_TEAMS = [...TEAMS, 'sns'];
+// ラベル整合の対象チーム（プラグイン配布されない sns・youtube もラベル整合の検査対象に含める）
+const LABEL_TEAMS = [...TEAMS, 'sns', 'youtube'];
 
 /**
  * ディレクトリ配下の全ファイルを再帰的に列挙し、相対パス（POSIX形式）のソート済み配列を返す
