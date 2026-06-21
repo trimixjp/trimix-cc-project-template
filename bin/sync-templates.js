@@ -43,6 +43,7 @@ const mappings = [
   { from: 'teams/frontend',       to: 'teams/frontend' },
   { from: 'teams/infra',          to: 'teams/infra' },
   { from: 'teams/sns',            to: 'teams/sns' },
+  { from: 'teams/youtube',        to: 'teams/youtube' },
 ];
 
 let copied = 0;
