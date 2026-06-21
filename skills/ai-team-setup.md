@@ -351,6 +351,29 @@ gh label create "sns:writer"     --color "e91e63" --description "Writerが投稿
 gh label create "sns:operator"   --color "e91e63" --description "Operatorがガイドライン確認中"    --force
 ```
 
+### YouTube動画制作チーム（選択時）
+
+```bash
+gh label create "youtube:director"             --color "c4302b" --description "Directorが統括・タスク判定中"          --force
+gh label create "youtube:market-analyst"       --color "c4302b" --description "Market-Analystが市場・ジャンル戦略を分析中" --force
+gh label create "youtube:channel-producer"     --color "c4302b" --description "Channel-Producerがチャンネル設計・編成中"   --force
+gh label create "youtube:scriptwriter"         --color "c4302b" --description "Scriptwriterが台本を執筆中"             --force
+gh label create "youtube:editor"               --color "c4302b" --description "Editorがレンダ（動画生成）を実行中"      --force
+gh label create "youtube:growth-strategist"    --color "c4302b" --description "Growth-Strategistがパッケージング設計中" --force
+gh label create "youtube:affiliate"            --color "c4302b" --description "Affiliateがアフィリ収益設計中"          --force
+gh label create "youtube:publisher"            --color "c4302b" --description "Publisherが公開・字幕登録中"            --force
+gh label create "youtube:sns-distributor"      --color "c4302b" --description "SNS-DistributorがSNS拡散を設計中"       --force
+gh label create "youtube:monetizer"            --color "c4302b" --description "Monetizerが収益最大化施策を提案中"       --force
+gh label create "youtube:script-qa"            --color "c4302b" --description "Script-QAが台本成果物をQA中"            --force
+gh label create "youtube:render-reviewer"      --color "c4302b" --description "Render-Reviewerがレンダ成果物をQA中"     --force
+gh label create "youtube:growth-qa"            --color "c4302b" --description "Growth-QAがパッケージング成果物をQA中"   --force
+gh label create "youtube:affiliate-qa"         --color "c4302b" --description "Affiliate-QAがアフィリ成果物をQA中"      --force
+gh label create "youtube:publish-qa"           --color "c4302b" --description "Publish-QAが公開成果物をQA中"           --force
+gh label create "youtube:sns-qa"               --color "c4302b" --description "SNS-QAがSNS拡散成果物をQA中"            --force
+gh label create "youtube:monetizer-qa"         --color "c4302b" --description "Monetizer-QAが収益施策成果物をQA中"      --force
+gh label create "youtube:channel-producer-qa"  --color "c4302b" --description "Channel-Producer-QAが企画/編成成果物をQA中" --force
+```
+
 `--force` オプションにより既存ラベルは上書き更新されます。
 
 ## ステップ5: CLAUDE.md への追記
