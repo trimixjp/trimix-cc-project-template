@@ -64,10 +64,10 @@
       "label_prefix": "youtube",
       "name": "YouTube動画制作チーム",
       "package": "@trimix/workflow-trimix-youtube",
-      "version": "1.5.0",
-      "description": "YouTube動画の企画・台本・生成・公開・収益最大化を一貫して行うワークフロー",
+      "version": "1.6.0",
+      "description": "YouTube動画の企画・台本・生成・公開・収益最大化を一貫して行うワークフロー。各工程の品質ゲート（QA層）と複数チャンネルのルーティングに対応",
       "category": "content",
-      "tags": ["youtube", "video", "script", "monetization", "affiliate", "shorts", "localization", "tiktok", "chart", "comparison", "market-analysis", "genre-strategy", "cpm"]
+      "tags": ["youtube", "video", "script", "monetization", "affiliate", "shorts", "localization", "tiktok", "chart", "comparison", "market-analysis", "genre-strategy", "cpm", "qa", "quality-gate", "channel-routing", "multi-channel"]
     }
   ]
 }
