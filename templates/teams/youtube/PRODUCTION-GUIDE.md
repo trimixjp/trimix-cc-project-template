@@ -1,13 +1,19 @@
-# PRODUCTION-GUIDE.md — YouTube動画制作チーム 制作憲法
+# PRODUCTION-GUIDE.md — YouTube動画制作チーム 運用ガイド（索引）
 
-> 本書は YouTube 動画制作チームの**単一情報源（Single Source of Truth）**である。
-> 企画・台本・音声・動画組立・公開の全工程で、すべてのエージェント（director / market-analyst /
-> channel-producer / scriptwriter / editor / growth-strategist / affiliate / publisher / sns-distributor /
-> monetizer / contributor）はここに書かれた基準で判断する。ここに無い判断はチャンネルの voice-guide → 制作エンジン
-> repo の CLAUDE.md の順で遡る。
+> 本書は YouTube 動画制作チームの**運用ガイド兼索引**である。企画・台本・音声・動画組立・公開の全工程で、
+> すべてのエージェント（director / market-analyst / channel-producer / scriptwriter / editor /
+> growth-strategist / affiliate / publisher / sns-distributor / monetizer / contributor、および各 producer の
+> 専用QA ＝ channel-producer-qa / script-qa / render-reviewer / growth-qa / affiliate-qa / publish-qa /
+> sns-qa / monetizer-qa）が、パイプライン・チャンネル規約・スキル/エージェントの対応関係を見渡すために使う。
 >
-> **公開品質の基準は本書だけが定める。** DoD（§9）・権利安全（§10）・メタデータ（§11）・公開規約（§12）に
-> 1つでも抵触したら公開しない。
+> **ルール・原則・DoD の単一情報源は `_design/19-production-rules.md`（本書ではない）。** 各工程の
+> QA 合格基準・手順は対応するスキル `yt-*` が正。本書はそれらを**参照（索引）**するもので、ルール本文を
+> 二重に持たない（過去に本書と `_design/19` が両方「制作憲法・単一情報源」を主張して多重化したのを解消・
+> `_design/19 §−1` 確定）。
+>
+> **品質判断の参照先**: 公開可否（DoD）・権利安全・メタデータ・公開規約は **`_design/19`** を見る。
+> 工程ごとの成果物の合否は各スキルの「成果物のQA合格基準」を見る。ここに無い判断はチャンネルの
+> voice-guide → 制作エンジン repo の CLAUDE.md の順で遡る。
 
 ---
 
@@ -17,7 +23,7 @@
   チャンネルは `channels/<id>/` 配下の**データ（config）**として表現する。コードをチャンネルごとに
   複製しない。**エンジン repo の絶対パスは Issue またはチャンネル設定で与えられ、本書にハードコードしない。**
 - **スキル**: 各工程は規約上のスキル名で呼ぶ（`yt-new-channel` / `yt-plan-month` / `yt-script` /
-  `yt-render` / `yt-publish` / `footage-tag`）。
+  `yt-render` / `yt-publish` / `yt-footage-tag`）。
 - **CLI 規約**: 動画生成・公開・プレビューは `node <engine>/packages/app/dist/cli.js {render|publish|preview}`
   の形（`<engine>` は与えられたエンジン repo のパス）。
 - **成果物**: 音声・動画など重いバイナリは `output/<id>/<episode>/` に出し、git に入れない。
@@ -49,40 +55,23 @@
 
 ---
 
-## 1. 三大原則（制作憲法の核）
+## 1. 三大原則（参照：`_design/19 §0`）
 
-すべてのルールはこの3点から導かれる。工程の判断に迷ったら、まずこの原則に照らす。
+> **三大原則の本文は `_design/19-production-rules.md §0`（単一情報源）が正。** ここでは重複させず要点だけ
+> 索引する（工程の判断に迷ったら、まず三大原則に照らす）。詳細・編集規約（§0.1 画面テキスト本質優先）・
+> 2ゲート自律生産（§0.2）・成果物検証ガバナンス（§0.3）はすべて `_design/19` を見る。
 
-### ① 台本が土台（全工程の労力の約5割）
+すべてのルールはこの3点から導かれる:
 
-- 内容（海外視聴者に有益・正確・出典付き）、構成、そして**ナレと映像・写真の噛み合わせ**まで、
-  **「直すところがない」水準に仕上げてからレンダリングに進む。**
-- 動画制作は時間もコストも大きく、**台本の粗は全部後工程で倍払いになる。** 10チャンネル × 週3本の
-  量産を成立させる基礎は台本の質。
-- レンダリング段で「直し場所」が出たら、それは**台本に戻して直す**（レンダラ側の自動分割や LLM 補完で
-  ごまかさない）。
+1. **台本が土台**（全工程の労力の約5割）— 内容・構成・ナレと映像/写真の噛み合わせが「直すところがない」
+   水準になるまで render に進まない。レンダラ側の自動分割や LLM 補完でごまかさない（`_design/19 §0`）。
+2. **情報が主・デザインは従**（最重要）— 画面テキストを切らない（「…」禁止）・重ねない。器が文字に合わせる
+   （`_design/19 §0`・§0.1）。
+3. **写真は事実そのもの** — ナレが指す対象と一致した写真のみ。無ければ図解（間違った写真は写真なしより
+   悪い）。レンダ後の写真照合は必須工程（`_design/19 §0`・本書 §8 ゲートC・§9 DoD）。
 
-### ② 情報が主・デザインは従（最重要）
-
-- 説明動画の**画面テキストは絶対に切り捨てない**（「…」省略禁止）。**テキスト同士を重ねない**。
-- **器側が文字に合わせる**（fitFontSize の縮小と折り返しで収める）。クランプ（validate.ts 相当）は
-  プロンプト推奨長の約2倍の「安全弁」であり、通常運転で発火させない。
-- **レイアウトの綺麗さを理由に情報を削る変更は禁止。**
-
-### ③ 写真は事実そのもの（ナレが指す対象と一致した写真のみ）
-
-- 固有の場所・路線・実物を見せる写真は、**その対象だと確認できたものだけ**使う。
-  「駅の話だから駅の写真なら何でもいい」は禁止。
-- **一致する写真が無ければ写真を諦めて図解にする。間違った写真は写真なしより悪い。**
-- レンダリング後の**写真照合（目視）は必須工程**（§8 ゲートC・§9 DoD）。
-
-#### 実害例（過去に実際に踏んだ）
-
-| 原則 | 実害 |
-|---|---|
-| ③ 写真不一致 | 銀座線浅草駅の説明に、大阪・心斎橋駅の写真を当ててしまった |
-| ② 情報削り | レイアウト都合で画面テキストを「…」省略 → 視聴者が読めない不完全な情報になった |
-| ① 台本の粗 | 1スライドのトピックが render 時に台本に無い4枚へ化け、カット境界で空白・重なりが発生（13トピックが56ショットに膨張） |
+> **過去の実害**（なぜこのルールがあるか）も `_design/19` が記録する。要点: ③ 銀座線浅草の説明に大阪・
+> 心斎橋駅の写真 ／ ② レイアウト都合の「…」省略で情報欠落 ／ ① 台本の粗で 13 トピックが 56 ショットに膨張。
 
 ### 製作哲学（自動運用の3原則）
 
@@ -111,7 +100,7 @@
 ```
 ⓪ 市場戦略       → ① 企画         → ② 台本             → ③ TTS                → ④ 動画組立           → ⑤ 公開
   market-analyst     yt-new-channel    yt-script             (yt-render の内部)     yt-render             yt-publish
-  ジャンル選定        yt-plan-month     footage-tag           セグメント個別合成     絵コンテ→確定→still    多言語字幕登録
+  ジャンル選定        yt-plan-month     yt-footage-tag        セグメント個別合成     絵コンテ→確定→still    多言語字幕登録
   (新規/ジャンル企画時) (重複防止)        (visual/cues/sources)                        ピクチャーロック       配信カレンダー更新
 ```
 
@@ -119,7 +108,7 @@
 |---|---|---|---|
 | ⓪ 市場戦略（新規/ジャンル企画時のみ） | market-analyst | （ジャンル選定・横断スコアリング） | ジャンル提案レポート（スコア表＋推奨3案・§15・最終決定は人間ゲート） |
 | ① 企画 | channel-producer | `yt-new-channel`（立上げ）/ `yt-plan-month`（月次計画） | channel.yaml・glossary・voice-guide・plans/YYYY-MM・エピソードスタブ |
-| ② 台本 | scriptwriter | `yt-script` / `footage-tag` | `episodes/NNNN-slug.md`（frontmatter＋本文＋visual/cues/sources） |
+| ② 台本 | scriptwriter | `yt-script` / `yt-footage-tag` | `episodes/NNNN-slug.md`（frontmatter＋本文＋visual/cues/sources） |
 | ③ TTS | editor（yt-render 内部） | （`yt-render` が内部実行） | `output/<id>/<episode>/segments/seg_*.mp3`（実測尺） |
 | ④ 動画組立 | editor | `yt-render` | storyboard.json・確定写真・slides/*.png・preview.html・動画 |
 | ⑤ 公開 | publisher | `yt-publish` | YouTube 動画（privacy:private）・8言語CC・配信カレンダー更新 |
@@ -140,6 +129,28 @@ idea → draft → reviewed → rendered → uploaded → published
 | `rendered` | 動画生成・自己検証完了 | yt-render 完了。配信カレンダーに制作状態更新 |
 | `uploaded` | アップロード済み（予約公開待ち含む） | yt-publish 完了。動画リンク＋予約日時を記録 |
 | `published` | 公開済み | publish_at 到達後。youtube_video_id 書き戻し |
+
+### producer ⇔ 専用QA の 1:1 対応（成果物検証ガバナンス・`_design/19 §0.3`）
+
+各 producer ステップの成果物は、**producer とは別の専用QAエージェント**が**対応スキルの「成果物のQA合格基準」**で
+照合して合否を出す（自己申告で次へ進めない）。`producer →（バトン）→ 専用QA →（合格）→ 次の producer ／
+（不合格）→ 元の producer へ差し戻し`（rework_limit 内・超過のみ human-escalator）。QAステップは人間ゲートにしない。
+詳細グラフは `workflow.yml` を正とする。
+
+| producer（作る役） | 専用QA（別エージェント） | QA合格基準の正（スキル） |
+|---|---|---|
+| channel-producer（企画・planning） | `channel-producer-qa` | `yt-plan-month` の成果物のQA合格基準 |
+| channel-producer（新設・setup） | director-channel-review（完成確認） | `yt-new-channel` の成果物のQA合格基準 |
+| scriptwriter（台本） | `script-qa`（旧 editor-review を独立化） | `yt-script` の成果物のQA合格基準 |
+| editor（レンダ・editor-render） | `render-reviewer`（render-review） | `yt-render` の成果物のQA合格基準 |
+| growth-strategist（パッケージング） | `growth-qa` | §11/§16（CTR/サムネ/章/視聴維持）＋ producer 完了条件 |
+| affiliate（アフィリ） | `affiliate-qa` | §11/§10（開示/sub_id/コンプラ）＋ producer 完了条件 |
+| publisher（公開） | `publish-qa` | `yt-publish` の成果物のQA合格基準（API 事実検証） |
+| sns-distributor（拡散） | `sns-qa` | §11/§10/§6/§1（釣り/権利/文字数/冪等/人間ゲート）＋ producer 完了条件 |
+| monetizer（収益） | `monetizer-qa` | §11/§12（4観点/指標必須）＋ producer 完了条件 |
+
+> editor は **editor-render（レンダ producer）専任**（#39 で台本QA＝editor-review を script-qa に分離・二役解消）。
+> 終端 `contributor-close`（contributor）が DoD（`_design/19 §1`）で全体を最終確認する。
 
 ---
 
@@ -601,58 +612,28 @@ videoDuration = Σ shotFrames[i] ≡ Σ（そのショットに貼った音声�
 
 ---
 
-## 9. 公開前チェックリスト（Definition of Done）
+## 9. 公開前チェックリスト（DoD・参照：`_design/19 §1`）
 
-公開（`yt-publish`）前に**全項目**を満たす。1つでも欠けたら公開しない。
+> **公開前チェックリスト（Definition of Done）の本文は `_design/19-production-rules.md §1`（単一情報源）が
+> 正。** 公開（`yt-publish`）前に **§1 の全項目**を満たす（1つでも欠けたら公開しない）。ここでは重複させず
+> 索引のみ示す。工程ごとの合否は各スキルの「成果物のQA合格基準」で判定する（DoD を工程別に具体化したもの）。
 
-### 内容
+DoD の柱（詳細項目は `_design/19 §1`）:
 
-- [ ] 事実・数字に年号文脈（「2026年3月改定後」等）。制度・価格は一次出典で確認済み
-- [ ] 重複防止: topic_key・既存エピソードと突合済み。前回の予告を回収し、次回予告は1本だけ
-- [ ] 冒頭30秒に具体的なフック（数字・失敗例・問い）
+- **内容** — 事実/数字に年号文脈・一次出典確認、重複防止（topic_key 突合）、冒頭30秒フック。
+- **同期・映像** — 機械検証ゼロ件、still 検証（文字切れ/重なり/「?」ゼロ）、**写真の事実照合 全数**、同期スポットチェック。
+- **音声** — 死んだ無音 ≦ 約0.5秒、ラウドネス −16〜−13 LUFS・ピーク ≦ −1 dBTP、固有名詞の発音破綻なし。
+- **権利・安全** — 本書 §10（＝`_design/19 §2`）の全項目に抵触なし。
+- **メタデータ** — 英語タイトル・説明欄・タグ・字幕全言語、アフィリ開示、AI 開示は内容判断、サムネ準備、
+  予約日時は `frontmatter.publish_at`、配信カレンダー更新（`_design/19 §3`）。
 
-### 同期・映像
+### 工程の節目ごとのドキュメント更新（参照：`_design/19 §3.6`）
 
-- [ ] 機械検証ゼロ件（マーカー位置・宣言整合・visual スキーマ）
-- [ ] アンカーアライメント全件採用（ログ確認）・断片クリップなし
-- [ ] still 検証済み: 文字切れゼロ・重なりゼロ・「?」アイコンゼロ
-- [ ] **写真の事実照合 全数済み**（不一致ゼロ。判定は yt-render の写真照合工程）
-- [ ] 同期スポットチェック（序盤/中盤/終盤の3点でナレと画面が一致）
-
-### 音声
-
-- [ ] 発話後の死んだ無音 ≦ 約0.5秒（1.5秒超の無音はタイトル等の意図箇所のみ）
-- [ ] ラウドネス: integrated −16〜−13 LUFS 目安（YouTube 基準 −14 付近）・ピーク ≦ −1 dBTP
-      計測: `ffmpeg -i video.mp4 -af loudnorm=print_format=summary -f null -`
-- [ ] 固有名詞の発音がナレで破綻していない（Suica / Keikyu / takkyubin 等を抜き取り試聴）
-
-### 権利・安全（§10）
-
-- [ ] §10 の全項目に抵触なし
-
-### メタデータ（§11）
-
-- [ ] 英語タイトル（CTR設計済み）・説明欄（スポット/Maps＋画像クレジット）・タグ・字幕全言語
-- [ ] アフィリエイト掲載時は開示文あり（リンク直上・FTC 順守・§11）
-- [ ] AI 開示（containsSyntheticMedia）は内容で判断（非該当なら「いいえ」・§12）
-- [ ] サムネイル自動生成済み（`upload.thumbnail.enabled: true` のとき thumbnail-creator が台本分析で生成・§3）。
-      生成は publish 時・適用は §12（無効化チャンネルは従来どおり手動準備）
-- [ ] 予約日時はエピソード別 `frontmatter.publish_at`（§12）
-- [ ] **アップロード後: 配信カレンダー plans/YYYY-MM を更新（uploaded＋動画リンク）**
-
-### 工程の節目ごとのドキュメント更新（必須）
-
-各工程の節目に配信カレンダー `channels/<id>/plans/YYYY-MM.md` と `.html` の**全表**を漏れなく更新する。
-
-| 節目 | 配信スケジュール欄 | 制作スケジュール欄 |
-|---|---|---|
-| 台本完成（draft） | 台本/プレビューへのリンクを追加 | 「台本作成」に ✅ |
-| 絵コンテ完成 | （変化なし） | 該当工程に ✅ |
-| 動画完成（rendered） | 制作状態を更新 | 「動画生成」に ✅ |
-| アップロード（uploaded） | 動画リンク（youtu.be/<id>）＋✅ uploaded＋予約日時 | 全工程 ✅ |
-
-- 1つの表だけ直して他を忘れると不整合になる（md と html の両方を更新）。
-- **単一情報源は月別 plan md の frontmatter `schedule:`**。html はそれを集約して年間1枚に生成する（md は月別のまま）。
+> **本文は `_design/19 §3.6`（単一情報源）が正。** 各工程の節目（台本/絵コンテ/動画/アップロード完成）に
+> 配信カレンダー `channels/<id>/plans/YYYY-MM.md` と `.html` の**全表**を漏れなく更新する（片方だけ直さない・
+> 1つの表だけ直さない）。**単一情報源は月別 plan md の frontmatter `schedule:`**。html はそれを集約して年間
+> 1枚に生成する。各節目で更新する項目（draft で台本/preview リンク・rendered で制作状態・uploaded で動画リンク
+> ＋予約日時）の詳細は `_design/19 §3.6` を見る。
 
 #### 配信カレンダー HTML の表示仕様
 
@@ -678,17 +659,17 @@ html は工程状態を一目で見せ、**閲覧時点の日付で自己更新*
 
 ---
 
-## 10. 権利・安全（禁止リスト・絶対遵守）
+## 10. 権利・安全（参照：`_design/19 §2`）
 
-1. **人物が識別できる写真**をネガティブ・批判的な文脈（炎上・違反・事故）に並べない。
-   その話題は図解で表す。ストックフォトの人物は「その話の当事者」ではない。
-2. **ロゴ・商標・キャラクター**は図解に描かない（既定）。特定商品・企業を批判する文脈に**その企業のロゴ写真を使わない**。
-   写真内に偶然写るのは可。
-3. **アニメ・映画等の著作物**は映像・画像・音声を一切使わない（聖地巡礼系は実在の場所の写真と地図のみ）。
-4. **BGM** は出所とライセンスを `channels/<id>/assets/` の README に記録してから使う。不明な音源は使わない。
-5. **制度・医療・法律・税**は断定せず「2026年◯月時点」「公式サイトで最新確認を」を添える（**時点明記**）。
-   渡航・ビザ等は公式リンクを説明欄に置く。
-6. **実在店舗・施設**を批判的な文脈で特定店名を出さない（一般化して語る）。
+> **権利・安全の禁止リスト（絶対遵守）の本文は `_design/19-production-rules.md §2`（単一情報源）が正。**
+> ここでは重複させず要点だけ索引する（DoD §9 はこの全項目に抵触なしを要求する）:
+>
+> 1. 人物が識別できる写真をネガティブ文脈に並べない（図解で表す）。
+> 2. ロゴ・商標・キャラクターは図解に描かない・批判文脈に企業ロゴ写真を使わない。
+> 3. アニメ・映画等の著作物の映像/画像/音声を一切使わない。
+> 4. BGM は出所・ライセンスを記録してから使う（不明な音源は使わない）。
+> 5. 制度・医療・法律・税は断定せず時点明記（公式リンクを添える）。
+> 6. 実在店舗・施設を批判的文脈で特定店名を出さない（一般化）。
 
 ---
 
@@ -824,7 +805,7 @@ html は工程状態を一目で見せ、**閲覧時点の日付で自己更新*
   | `yt-render` | TTS（セグメント個別合成）＋絵コンテ＋写真確定＋still＋動画生成＋自己検証 |
   | `yt-publish` | アップロード（private）＋予約公開＋多言語字幕＋多言語メタ＋API検証＋配信カレンダー更新 |
   | `yt-episode` | エピソード1本を台本→プレビュー承認→レンダ→ユーザー確認→公開まで統括する上位スキル（後述） |
-  | `footage-tag` | 実写素材のタグ付け（footage manifest 整備） |
+  | `yt-footage-tag` | 実写素材のタグ付け（footage manifest 整備） |
 
 - **CLI 規約**: `node <engine>/packages/app/dist/cli.js {render|publish|preview}` の形。
 - **成果物**: `output/<id>/<episode>/`（動画・`segments/seg_*.mp3` 等）。git に入れない。
@@ -964,4 +945,6 @@ total = demand×1.0 + competition×1.5 + cpm×1.2 + geo_mix×1.6 + jp_edge×1.3 
 ---
 
 > 本書の数値（尺・字数・配色・推奨秒数など）は 2026年6月時点の基準であり、実エピソードのリテンション曲線・CTR で
-> A/B して更新する前提。更新時は本書を単一情報源として保ち、各スキル・各エージェント定義はここを参照する。
+> A/B して更新する前提。**ルール・原則・DoD・権利安全・メタデータの単一情報源は `_design/19-production-rules.md`**
+> であり、これらの基準を更新するときは `_design/19` を直す（本書はそれを参照する索引）。本書は youtube チーム固有の
+> 運用・パイプライン・スキル/エージェント対応を保つ。各工程の合否は各スキルの「成果物のQA合格基準」が正。
