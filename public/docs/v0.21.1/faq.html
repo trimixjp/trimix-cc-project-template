@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>よくある質問（FAQ） - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.21.1</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class="active"><a href="faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">よくある質問（FAQ）</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/faq.html" >v0.5.1</option><option value="../v0.5.2/faq.html" >v0.5.2</option><option value="../v0.6.0/faq.html" >v0.6.0</option><option value="../v0.7.0/faq.html" >v0.7.0</option><option value="../v0.8.0/faq.html" >v0.8.0</option><option value="../v0.9.0/faq.html" >v0.9.0</option><option value="../v0.10.0/faq.html" >v0.10.0</option><option value="../v0.11.0/faq.html" >v0.11.0</option><option value="../v0.12.0/faq.html" >v0.12.0</option><option value="../v0.13.0/faq.html" >v0.13.0</option><option value="../v0.14.0/faq.html" >v0.14.0</option><option value="../v0.15.0/faq.html" >v0.15.0</option><option value="../v0.16.0/faq.html" >v0.16.0</option><option value="../v0.17.0/faq.html" >v0.17.0</option><option value="../v0.18.0/faq.html" >v0.18.0</option><option value="../v0.20.0/faq.html" >v0.20.0</option><option value="../v0.21.0/faq.html" >v0.21.0</option><option value="../v0.21.1/faq.html" selected>v0.21.1 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>よくある質問（FAQ）</h1>
+
+<hr>
+
+<h2>セットアップ・基本設定</h2>
+
+<h3>Q: 複数のチームを同時に使えますか？</h3>
+
+<p><strong>A: はい、使えます。</strong></p>
+
+<code>/ai-team-setup</code> のチーム選択ステップで複数のチームを選択できます。選択したすべてのチームのエージェント・ワークフロー・DOD テンプレートが <code>.claude/teams/</code> 配下に展開されます。
+
+<pre><code class="language-bash"># セットアップウィザードで複数チームを選択
+/ai-team-setup
+# → backend / frontend / content を同時に選択可能</code></pre>
+
+<p>ただし、1 つの Issue を複数チームが同時処理することはできません。Epic Issue を作成して Dispatcher に分解させる方法が適しています（<a href="agents/dispatcher.html">Dispatcher エージェント</a> 参照）。</p>
+
+<hr>
+
+<h3>Q: ソロモードとマルチユーザーモードはどう使い分けますか？</h3>
+
+<table><thead><tr><th>モード</th><th>向いているケース</th></tr></thead><tbody><tr><td><strong>マルチユーザーモード</strong></td><td>複数人が担当を分担する・タスクのタイミングを自分で制御したい</td></tr><tr><td><strong>ソロモード</strong></td><td>1 人で運用する・Issue が作成されたら即座に自動処理したい</td></tr></tbody></table>
+<p>マルチユーザーモードでは担当者が <code>/ai-team-run &lt;Issue番号&gt;</code> を手動実行します。ソロモードでは <code>/ai-team-watch</code> が定期的に未処理 Issue を検出して自動実行します。</p>
+
+<p>設定は <code>/ai-team-setup</code> の再実行または <code>.claude/ai-team-config.yml</code> の直接編集で変更できます（<a href="reference/config.html">設定ファイル</a> 参照）。</p>
+
+<hr>
+
+<h3>Q: GitHub 以外の Issue 管理ツール（Jira・Linear）は使えますか？</h3>
+
+<p><strong>A: 制限付きで対応しています。</strong></p>
+
+<code>/ai-team-run</code> にチケットの URL または内容を渡すことで動作しますが、ラベル更新（<code>gh issue edit</code>）や Issue コメント投稿（<code>gh issue comment</code>）は GitHub 専用です。
+
+<p>Jira・Linear を使用する場合はラベル更新ステップが手動対応になります。</p>
+
+<hr>
+
+<h2>ワークフロー・エージェント</h2>
+
+<h3>Q: エージェントが間違った実装をした場合どうすればいいですか？</h3>
+
+<p>以下の手順で対処してください。</p>
+
+<ol><li>Issue のコメントで問題点を指摘し、<code>escalated:human</code> ラベルを手動で除去して（または付与後に対応して）ワークフローを再開します。</li><li><code>/ai-team-resume</code> を実行すると、最後に停止したステップから再開できます。</li><li>差し戻しが必要な場合は、Issue のコメントに修正内容を明記してから <code>/ai-team-run</code> を再実行してください。エージェントはコメント履歴を読み取り、指摘内容を考慮して処理します。</li></ol>
+<p>重大な問題の場合は、PR をマージせずに Issue に「差し戻し理由」をコメントしてください。エスカレーションルール（<a href="reference/escalation.html">エスカレーション</a> 参照）に従って人間の判断を求めることもできます。</p>
+
+<hr>
+
+<h3>Q: ワークフローをチームごとに独立してカスタマイズできますか？</h3>
+
+<p><strong>A: できます。</strong></p>
+
+<code>.claude/teams/&lt;team_id&gt;/workflow.yml</code> を直接編集するか、<code>/ai-team-configure &lt;team_id&gt;</code> ウィザードを使用してください。各チームのワークフローは完全に独立しており、一方を変更しても他のチームには影響しません。
+
+<pre><code class="language-bash"># バックエンドチームのみカスタマイズ
+/ai-team-configure backend</code></pre>
+
+<p>詳細は <a href="guide/workflow.html">ワークフローのカスタマイズ</a> を参照してください。</p>
+
+<hr>
+
+<h3>Q: PR マージのタイミングで人間が承認する必要がありますか？</h3>
+
+<p><strong>A: 常に人間が承認します。</strong></p>
+
+<p>PR の承認・マージは <code>.claude/escalation-rules.yml</code> で <code>type: merge_approval</code> として定義されており、AI が自動的にマージすることはありません。PR-Creator エージェントが PR を作成した時点でワークフローが停止し、人間に承認を求めます。</p>
+
+<hr>
+
+<h2>インシデント・記録</h2>
+
+<h3>Q: インシデント記録はどこに蓄積されますか？検索できますか？</h3>
+
+<p>インシデントは <code>.claude/incidents/</code> 配下に蓄積されます。</p>
+
+<pre><code class="language-">.claude/incidents/
+├── index.yml                           # インシデント一覧（自動管理）
+├── TEMPLATE.md                         # レポートテンプレート
+└── 20260115-db-connection-pool.md      # 個別レポート</code></pre>
+
+<code>index.yml</code> には <code>keywords</code>・<code>teams</code>・<code>severity</code> などのメタデータが記録されています。次のコマンドでキーワード検索できます。
+
+<pre><code class="language-bash"># "timeout" に関連するインシデントを検索
+grep -r "timeout" .claude/incidents/</code></pre>
+
+<p>エージェントは Issue 処理開始時に <code>index.yml</code> を自動参照して関連インシデントがあれば注意事項として Issue に追記します（<a href="agents/contributor.html">Contributor エージェント</a> 参照）。</p>
+
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="getting-started.html">クイックスタート</a> — 基本的な使い方</li><li><a href="installation.html">インストール</a> — インストール手順</li><li><a href="skills/overview.html">スキル一覧</a> — 全コマンドの一覧</li><li><a href="guide/troubleshooting.html">トラブルシューティング</a> — エラー対処法</li><li><a href="reference/config.html">設定ファイル</a> — 設定ファイルの仕様</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
