@@ -3,9 +3,9 @@ name: ai-team-install
 description: ワークフロープラグインをインストールします。引数にチームID（backend/frontend/content/infra）を指定してください。
 ---
 
-# /ai-team install — プラグインインストール
+# /ai-team-install — プラグインインストール
 
-引数: `/ai-team install <team_id>`
+引数: `/ai-team-install <team_id>`
 
 あなたはワークフロープラグインのインストール担当です。以下の手順を実行してください。
 
@@ -48,10 +48,10 @@ node node_modules/@trimix/ai-team/bin/setup.js install <team_id>
 インストール完了後、以下を案内してください：
 
 「インストールが完了しました。次のステップ:
-1. `/ai-team setup` を実行してプロジェクトへのセットアップを完了してください
+1. `/ai-team-setup` を実行してプロジェクトへのセットアップを完了してください
 2. GitHub のラベルが作成されたか確認してください
 3. ソロモードの場合、`.claude/ai-team-config.yml` の `target_labels` に新チームのラベルが追加されています
-4. `/ai-team run <Issue番号>` でワークフローを起動できます」
+4. `/ai-team-run <Issue番号>` でワークフローを起動できます」
 
 ## エラー対応
 
@@ -70,5 +70,5 @@ npx @trimix/ai-team install <team_id> --force
 
 - プロジェクトルートで実行してください
 - `ai-team-plugins.json` がプロジェクトルートに生成されます（コミット対象）
-- `/ai-team configure` で生成した `workflow.yml` には `# customized: true` が自動付与されます
+- `/ai-team-configure` で生成した `workflow.yml` には `# customized: true` が自動付与されます
   - 古いバージョンで生成したファイルには手動で先頭行に `# customized: true` を追記することで上書き保護が有効になります

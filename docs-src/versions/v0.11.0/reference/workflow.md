@@ -260,7 +260,7 @@ conditions:
 | `human-escalator` | エスカレーション処理ステップ。全チームに 1 個ずつ存在 |
 | `human-merge-approval` | PR マージを人間に依頼するステップ（backend / frontend） |
 | `contributor-close` | DOD 確認・Issue クローズの終端ステップ |
-| `return_to_previous` | エスカレーション解除後、元のステップに戻る指示（`on_complete.next` の特殊値）。v0.11.0 から human-escalator がエスカレーションコメントに記録する「エスカレーション元ステップ」フィールド（workflow.yml のステップ ID）を `/ai-team resume` が機械的に読み取って復帰先を決定する |
+| `return_to_previous` | エスカレーション解除後、元のステップに戻る指示（`on_complete.next` の特殊値）。v0.11.0 から human-escalator がエスカレーションコメントに記録する「エスカレーション元ステップ」フィールド（workflow.yml のステップ ID）を `/ai-team-resume` が機械的に読み取って復帰先を決定する |
 
 ---
 

@@ -3,7 +3,7 @@ name: ai-team-setup
 description: AIチームをプロジェクトにセットアップするウィザード。.claude/ディレクトリにエージェント定義・ワークフロー・設定ファイルを配置し、GitHub Issuesのラベルを作成します。
 ---
 
-# /ai-team setup — AIチーム セットアップウィザード
+# /ai-team-setup — AIチーム セットアップウィザード
 
 あなたはセットアップウィザードです。以下の手順でAIチームをプロジェクトに導入してください。
 
@@ -36,8 +36,8 @@ description: AIチームをプロジェクトにセットアップするウィ�
 両質問の回答をまとめて「導入するチーム一覧」として扱います。
 
 **質問2**: 運用モードを選択してください（`AskUserQuestion` ツールを使用）
-- **マルチユーザーモード**: 担当者が `/ai-team run <Issue>` を実行して処理を開始します。複数人チームに適しています
-- **ソロモード**: `/ai-team watch` を起動すると新しいIssueを自動検出して処理します。1人での運用に適しています
+- **マルチユーザーモード**: 担当者が `/ai-team-run <Issue>` を実行して処理を開始します。複数人チームに適しています
+- **ソロモード**: `/ai-team-watch` を起動すると新しいIssueを自動検出して処理します。1人での運用に適しています
 
 **質問3**: バージョン管理の方法を選択してください（`AskUserQuestion` ツールを使用）
 - **自動インクリメント（auto）**: Reviewer 合格後に conventional commit に基づき `package.json` のバージョンを自動更新します。ソロ運用・小規模チームに適しています
@@ -254,11 +254,11 @@ gh repo view --json nameWithOwner -q .nameWithOwner
 
   A) 既存リポジトリを紐付ける場合:
      git remote add origin https://github.com/<org>/<repo>.git
-     その後、/ai-team setup を再実行してください
+     その後、/ai-team-setup を再実行してください
 
   B) 新しいリポジトリを作成する場合:
      gh repo create <repo-name> --public  （または --private）
-     その後、/ai-team setup を再実行してください
+     その後、/ai-team-setup を再実行してください
 ```
 
 ラベル作成をスキップしてステップ5に進んでください。
@@ -279,7 +279,7 @@ gh auth status
 
 **質問**: GitHub Issuesにラベルを作成しますか？
 - はい、今すぐ作成する（選択したチームに対応するラベルを一括作成）
-- いいえ、スキップする（後で手動作成するか、/ai-team setup を再実行して作成できます）
+- いいえ、スキップする（後で手動作成するか、/ai-team-setup を再実行して作成できます）
 
 「いいえ」を選択した場合はステップ5に進んでください。
 
@@ -390,7 +390,7 @@ gh label create "youtube:channel-producer-qa"  --color "c4302b" --description "C
 <!-- セットアップしたチームを列挙 -->
 
 ### ワークフローの起動
-チケットを担当したら `/ai-team run <IssueのURL または Issue番号>` を実行してください。
+チケットを担当したら `/ai-team-run <IssueのURL または Issue番号>` を実行してください。
 
 ### 参照ドキュメント
 - ワークフローガイド: `.claude/docs/workflow-guide.md`
@@ -409,7 +409,7 @@ Issue 番号や URL が指定されていなくても、作業を開始する前
 1. `gh issue list --state open --search "<キーワード>"` で関連する既存 Issue を探す
 2. 該当 Issue があればそれを使う（ユーザーに確認して選択させる）
 3. なければ `gh issue create` で内容に即した Issue を作成する
-4. Issue 番号が確定したら `/ai-team run <番号>` でワークフローを起動する
+4. Issue 番号が確定したら `/ai-team-run <番号>` でワークフローを起動する
 
 **Issue 経由が必須な理由**: インシデント記録・ラベルによる状態管理・作業履歴の追跡がすべて Issue ベースで機能します。Issue を経由しない変更はこれらのフローが一切機能しません。
 
@@ -437,7 +437,7 @@ Issue 番号や URL が指定されていなくても、作業を開始する前
 ## 次のステップ
 1. `.claude/CLAUDE.md` を確認・カスタマイズしてください
 2. チームメンバーに `npm install --save-dev ./trimix-ai-team-x.x.x.tgz` を実行してもらいます
-3. Issueを作成し、担当者をアサインしたら `/ai-team run <IssueのURL>` でワークフローを開始します
+3. Issueを作成し、担当者をアサインしたら `/ai-team-run <IssueのURL>` でワークフローを開始します
 
 ## カスタマイズ
 - エージェント定義: `.claude/teams/<チーム>/agents/` 内の .md ファイルを編集
@@ -445,6 +445,6 @@ Issue 番号や URL が指定されていなくても、作業を開始する前
 - DOD: `.claude/teams/<チーム>/dod/` 内のテンプレートを編集
 
 ## 運用モードについて
-- **マルチユーザーモード**: Issueを作成し、担当者をアサインしたら `/ai-team run <IssueのURL>` でワークフローを開始します
-- **ソロモード**: `/ai-team watch` を実行すると新しいIssueの自動監視が始まります。停止するまでバックグラウンドで動作します
+- **マルチユーザーモード**: Issueを作成し、担当者をアサインしたら `/ai-team-run <IssueのURL>` でワークフローを開始します
+- **ソロモード**: `/ai-team-watch` を実行すると新しいIssueの自動監視が始まります。停止するまでバックグラウンドで動作します
 ```

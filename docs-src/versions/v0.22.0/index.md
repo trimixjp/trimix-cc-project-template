@@ -107,11 +107,11 @@ Contributor エージェントは Issue クローズ時にインシデントと�
   - **レビュー方式の機械判定化**: `review-config.yml` の `sensitive_areas` に正規表現 `pattern` を追加し、`detection_procedure`（base_branch 検証 → `git diff` 計測 → パス照合=該当確定 / 本文照合=参考値）で機械的に判定
   - **差し戻し上限 `rework_limit: 2`**: 同一 Issue で 3 回目の不合格は implementer へ差し戻さず `escalated:human` へ。コメント先頭行照合による決定論的カウント（全 5 チーム）
   - **AND 待機のアトミック遷移**: `requires_all_of` 合流時のレースコンディションを防ぐ手順（待機パス再確認・冪等なラベル付与・誤発動ガード付きリカバリ）を全エージェントに導入
-  - **`return_to_previous` の構造化**: human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、`/ai-team resume` が機械的に復帰先を決定
+  - **`return_to_previous` の構造化**: human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、`/ai-team-resume` が機械的に復帰先を決定
   - **人間無応答時のリマインド方針**: 最終エスカレーションコメントから 48 時間経過後に 1 回のみリマインド
   - **エージェント統一規約**: コメント必須 5 フィールド・完了条件（exit criteria）チェックリスト・状態記録の原則を全エージェントに適用
   - **reviewer-a / reviewer-b の観点差別化**: A = 設計・保守性・テスト、B = セキュリティ・パフォーマンス・エラー処理
-  - `/ai-team create`・`/ai-team configure` の生成器も新規約に対応し、テンプレート整合性テストを追加
+  - `/ai-team-create`・`/ai-team-configure` の生成器も新規約に対応し、テンプレート整合性テストを追加
 
 ### v0.10.x シリーズの主な変更点
 

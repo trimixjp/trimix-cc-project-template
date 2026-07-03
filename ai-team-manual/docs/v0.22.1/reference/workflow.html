@@ -225,7 +225,7 @@ steps:
 
 <h2>特殊なステップ ID</h2>
 
-<table><thead><tr><th>特殊 ID</th><th>用途</th></tr></thead><tbody><tr><td><code>human-escalator</code></td><td>エスカレーション処理ステップ。全チームに 1 個ずつ存在</td></tr><tr><td><code>human-merge-approval</code></td><td>PR マージを人間に依頼するステップ（backend / frontend）</td></tr><tr><td><code>contributor-close</code></td><td>DOD 確認・Issue クローズの終端ステップ</td></tr><tr><td><code>return_to_previous</code></td><td>エスカレーション解除後、元のステップに戻る指示（<code>on_complete.next</code> の特殊値）。v0.11.0 から human-escalator がエスカレーションコメントに記録する「エスカレーション元ステップ」フィールド（workflow.yml のステップ ID）を <code>/ai-team resume</code> が機械的に読み取って復帰先を決定する</td></tr></tbody></table>
+<table><thead><tr><th>特殊 ID</th><th>用途</th></tr></thead><tbody><tr><td><code>human-escalator</code></td><td>エスカレーション処理ステップ。全チームに 1 個ずつ存在</td></tr><tr><td><code>human-merge-approval</code></td><td>PR マージを人間に依頼するステップ（backend / frontend）</td></tr><tr><td><code>contributor-close</code></td><td>DOD 確認・Issue クローズの終端ステップ</td></tr><tr><td><code>return_to_previous</code></td><td>エスカレーション解除後、元のステップに戻る指示（<code>on_complete.next</code> の特殊値）。v0.11.0 から human-escalator がエスカレーションコメントに記録する「エスカレーション元ステップ」フィールド（workflow.yml のステップ ID）を <code>/ai-team-resume</code> が機械的に読み取って復帰先を決定する</td></tr></tbody></table>
 <hr>
 
 <h2>バックエンド <code>workflow.yml</code> の実例</h2>

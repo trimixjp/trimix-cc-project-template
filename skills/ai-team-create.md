@@ -3,9 +3,9 @@ name: ai-team-create
 description: 新しいカスタムチームをゼロから作成します。会話形式でチームID・エージェント構成・ワークフローを設計し、必要なファイル一式を生成します。
 ---
 
-# /ai-team create — カスタムチーム作成ウィザード
+# /ai-team-create — カスタムチーム作成ウィザード
 
-引数: `/ai-team create [team_id]`
+引数: `/ai-team-create [team_id]`
 
 あなたはカスタムチーム作成ウィザードです。ユーザーと会話しながら新しいチームを設計し、`.claude/teams/<team_id>/` 配下に必要なファイルを生成してください。
 
@@ -23,7 +23,7 @@ ls .claude/ 2>/dev/null || echo "NOT_FOUND"
 
 ```
 ❌ .claude/ ディレクトリが見つかりません。
-先に /ai-team setup を実行してください。
+先に /ai-team-setup を実行してください。
 ```
 
 ### チームIDの決定
@@ -44,7 +44,7 @@ ls .claude/teams/ 2>/dev/null
 
 ```
 ❌ チームID "<team_id>" は既に存在します。
-別のチームIDを使用するか、/ai-team configure <team_id> でワークフローを編集してください。
+別のチームIDを使用するか、/ai-team-configure <team_id> でワークフローを編集してください。
 ```
 
 ---
@@ -167,7 +167,7 @@ Read ツールで読み込み、Edit ツールで `target_labels:` セクショ�
    → `.claude/teams/<team_id>/agents/` 配下の各ファイル
 
 2. ワークフローを調整する場合は以下を実行してください
-   → `/ai-team configure <team_id>`
+   → `/ai-team-configure <team_id>`
 
 3. GitHub にラベルを作成する場合は以下を手動で実行してください
    → `gh label create "<team_id>:<agent_id>" --color "0075ca" --description "説明"`
@@ -181,6 +181,6 @@ Read ツールで読み込み、Edit ツールで `target_labels:` セクショ�
 ## 注意事項
 
 - このコマンドはプロジェクトルートで実行してください
-- `.claude/ai-team-config.yml` が存在しない場合は先に `/ai-team setup` を実行してください
-- 生成後のワークフロー調整には `/ai-team configure <team_id>` を使用してください
-- 既存チームの変更には `/ai-team configure` を使用し、このコマンドは新規作成専用です
+- `.claude/ai-team-config.yml` が存在しない場合は先に `/ai-team-setup` を実行してください
+- 生成後のワークフロー調整には `/ai-team-configure <team_id>` を使用してください
+- 既存チームの変更には `/ai-team-configure` を使用し、このコマンドは新規作成専用です

@@ -96,11 +96,11 @@ npm ERR! code EACCES</code></pre>
 
 <h2>ワークフロー実行時のトラブル</h2>
 
-<h3><code>/ai-team run</code> が Issue を見つけられない</h3>
+<h3><code>/ai-team-run</code> が Issue を見つけられない</h3>
 
 <p><strong>症状</strong></p>
 
-<code>/ai-team run 42</code> を実行しても Issue が見つからない、または「権限がない」エラーが返る。
+<code>/ai-team-run 42</code> を実行しても Issue が見つからない、または「権限がない」エラーが返る。
 
 <p><strong>原因と解決手順</strong></p>
 
@@ -111,24 +111,24 @@ npm ERR! code EACCES</code></pre>
 
 <p><strong>症状</strong></p>
 
-<code>/ai-team run</code> を実行したが、途中でエージェントが応答しなくなる。Issue にコメントが投稿されない。
+<code>/ai-team-run</code> を実行したが、途中でエージェントが応答しなくなる。Issue にコメントが投稿されない。
 
 <p><strong>確認手順</strong></p>
 
 <ol><li>Issue のラベルを確認します。</li></ol>
 <p>   <pre><code class="language-bash">   gh issue view &lt;番号&gt; --json labels</code></pre></p>
 
-<ol><li><code>escalated:human</code> ラベルが付いている場合は、人間の判断が必要な状態です。Issue のコメントを読み、対応してください。対応後は <code>/ai-team resume</code> で再開できます（<a href="../skills/resume.html">エスカレーション再開</a> 参照）。</li></ol>
+<ol><li><code>escalated:human</code> ラベルが付いている場合は、人間の判断が必要な状態です。Issue のコメントを読み、対応してください。対応後は <code>/ai-team-resume</code> で再開できます（<a href="../skills/resume.html">エスカレーション再開</a> 参照）。</li></ol>
 <ol><li><code>ai-team:in-progress</code> ラベルが付いている場合は、別のセッションで処理中の可能性があります。意図しない場合はラベルを手動で除去してください。</li></ol>
 <p>   <pre><code class="language-bash">   gh issue edit &lt;番号&gt; --remove-label "ai-team:in-progress"</code></pre></p>
 
 <hr>
 
-<h3><code>/ai-team resume</code> が動かない（エスカレーション解除後）</h3>
+<h3><code>/ai-team-resume</code> が動かない（エスカレーション解除後）</h3>
 
 <p><strong>症状</strong></p>
 
-<code>escalated:human</code> ラベルを手動で外して <code>/ai-team resume</code> を実行したが、「再開対象 Issue が見つかりません」と表示される。
+<code>escalated:human</code> ラベルを手動で外して <code>/ai-team-resume</code> を実行したが、「再開対象 Issue が見つかりません」と表示される。
 
 <p><strong>原因</strong></p>
 
@@ -142,17 +142,17 @@ npm ERR! code EACCES</code></pre>
 <ol><li>ラベルが残っている場合は再度除去してください。</li></ol>
 <p>   <pre><code class="language-bash">   gh issue edit &lt;番号&gt; --remove-label "escalated:human"</code></pre></p>
 
-<ol><li><code>/ai-team resume</code> を再実行します。</li></ol>
-<ol><li>それでも再開できない場合は、Issue 番号を直接指定して <code>/ai-team run &lt;番号&gt;</code> を実行してください。エージェントが Issue コメント履歴を読み、前回のどのステップまで完了したかを判断して続きから再開します。</li></ol>
+<ol><li><code>/ai-team-resume</code> を再実行します。</li></ol>
+<ol><li>それでも再開できない場合は、Issue 番号を直接指定して <code>/ai-team-run &lt;番号&gt;</code> を実行してください。エージェントが Issue コメント履歴を読み、前回のどのステップまで完了したかを判断して続きから再開します。</li></ol>
 <hr>
 
 <h2>ソロモードのトラブル</h2>
 
-<h3><code>/ai-team watch</code> が新しい Issue を検出しない</h3>
+<h3><code>/ai-team-watch</code> が新しい Issue を検出しない</h3>
 
 <p><strong>症状</strong></p>
 
-<p>ソロモードで <code>/ai-team watch</code> を実行しているが、新規 Issue が作成されても自動処理が始まらない。</p>
+<p>ソロモードで <code>/ai-team-watch</code> を実行しているが、新規 Issue が作成されても自動処理が始まらない。</p>
 
 <p><strong>確認手順</strong></p>
 
@@ -175,7 +175,7 @@ npm ERR! code EACCES</code></pre>
 <pre><code class="language-yaml">solo:
   poll_interval_minutes: 2  # 2分ごとに確認（デフォルト: 5）</code></pre>
 
-<p>変更後は <code>/ai-team watch</code> を再起動してください（Ctrl+C で停止後、再実行）。</p>
+<p>変更後は <code>/ai-team-watch</code> を再起動してください（Ctrl+C で停止後、再実行）。</p>
 
 <hr>
 

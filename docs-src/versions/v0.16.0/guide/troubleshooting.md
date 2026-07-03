@@ -88,11 +88,11 @@ You are not logged into any GitHub hosts. Run gh auth login to authenticate.
 
 ## ワークフロー実行時のトラブル
 
-### `/ai-team run` が Issue を見つけられない
+### `/ai-team-run` が Issue を見つけられない
 
 **症状**
 
-`/ai-team run 42` を実行しても Issue が見つからない、または「権限がない」エラーが返る。
+`/ai-team-run 42` を実行しても Issue が見つからない、または「権限がない」エラーが返る。
 
 **原因と解決手順**
 
@@ -109,7 +109,7 @@ You are not logged into any GitHub hosts. Run gh auth login to authenticate.
 
 **症状**
 
-`/ai-team run` を実行したが、途中でエージェントが応答しなくなる。Issue にコメントが投稿されない。
+`/ai-team-run` を実行したが、途中でエージェントが応答しなくなる。Issue にコメントが投稿されない。
 
 **確認手順**
 
@@ -119,7 +119,7 @@ You are not logged into any GitHub hosts. Run gh auth login to authenticate.
    gh issue view <番号> --json labels
    ```
 
-2. `escalated:human` ラベルが付いている場合は、人間の判断が必要な状態です。Issue のコメントを読み、対応してください。対応後は `/ai-team resume` で再開できます（[エスカレーション再開](../skills/resume.html) 参照）。
+2. `escalated:human` ラベルが付いている場合は、人間の判断が必要な状態です。Issue のコメントを読み、対応してください。対応後は `/ai-team-resume` で再開できます（[エスカレーション再開](../skills/resume.html) 参照）。
 
 3. `ai-team:in-progress` ラベルが付いている場合は、別のセッションで処理中の可能性があります。意図しない場合はラベルを手動で除去してください。
 
@@ -129,11 +129,11 @@ You are not logged into any GitHub hosts. Run gh auth login to authenticate.
 
 ---
 
-### `/ai-team resume` が動かない（エスカレーション解除後）
+### `/ai-team-resume` が動かない（エスカレーション解除後）
 
 **症状**
 
-`escalated:human` ラベルを手動で外して `/ai-team resume` を実行したが、「再開対象 Issue が見つかりません」と表示される。
+`escalated:human` ラベルを手動で外して `/ai-team-resume` を実行したが、「再開対象 Issue が見つかりません」と表示される。
 
 **原因**
 
@@ -153,19 +153,19 @@ You are not logged into any GitHub hosts. Run gh auth login to authenticate.
    gh issue edit <番号> --remove-label "escalated:human"
    ```
 
-3. `/ai-team resume` を再実行します。
+3. `/ai-team-resume` を再実行します。
 
-4. それでも再開できない場合は、Issue 番号を直接指定して `/ai-team run <番号>` を実行してください。エージェントが Issue コメント履歴を読み、前回のどのステップまで完了したかを判断して続きから再開します。
+4. それでも再開できない場合は、Issue 番号を直接指定して `/ai-team-run <番号>` を実行してください。エージェントが Issue コメント履歴を読み、前回のどのステップまで完了したかを判断して続きから再開します。
 
 ---
 
 ## ソロモードのトラブル
 
-### `/ai-team watch` が新しい Issue を検出しない
+### `/ai-team-watch` が新しい Issue を検出しない
 
 **症状**
 
-ソロモードで `/ai-team watch` を実行しているが、新規 Issue が作成されても自動処理が始まらない。
+ソロモードで `/ai-team-watch` を実行しているが、新規 Issue が作成されても自動処理が始まらない。
 
 **確認手順**
 
@@ -198,7 +198,7 @@ solo:
   poll_interval_minutes: 2  # 2分ごとに確認（デフォルト: 5）
 ```
 
-変更後は `/ai-team watch` を再起動してください（Ctrl+C で停止後、再実行）。
+変更後は `/ai-team-watch` を再起動してください（Ctrl+C で停止後、再実行）。
 
 ---
 

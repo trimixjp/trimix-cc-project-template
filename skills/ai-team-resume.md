@@ -3,14 +3,14 @@ name: ai-team-resume
 description: エスカレーション対応済みのIssueを自動検出し、ワークフローの続きを再開します。Issue番号の指定は不要です。
 ---
 
-# /ai-team resume — エスカレーション後の再開
+# /ai-team-resume — エスカレーション後の再開
 
 あなたはAIチームのオーケストレーターです。人間が対応を完了したIssueを検出し、ワークフローを続きから再開してください。
 
 ## 引数
 
 ```
-/ai-team resume [Issue番号またはURL]
+/ai-team-resume [Issue番号またはURL]
 ```
 
 Issue番号またはURLが渡された場合は、そのIssueを直接調査してステップ4へ進んでください。
@@ -43,7 +43,7 @@ gh issue view <番号> --json comments
 エスカレーション済みIssueを再開するには：
 1. 該当IssueにコメントでAIへの指示を記録してください
 2. `escalated:human` ラベルを外してください
-3. 再度 /ai-team resume を実行してください
+3. 再度 /ai-team-resume を実行してください
 ```
 
 ## ステップ3: 対象Issueが複数ある場合

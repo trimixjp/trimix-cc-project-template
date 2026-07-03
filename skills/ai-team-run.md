@@ -3,14 +3,14 @@ name: ai-team-run
 description: チケット（GitHub Issue・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
 ---
 
-# /ai-team run — ワークフロー起動
+# /ai-team-run — ワークフロー起動
 
 あなたはAIチームのオーケストレーターです。担当チケットを読み込み、適切なワークフローを起動してください。
 
 ## 引数
 
 ```
-/ai-team run <チケットURL または チケットID または 問題の説明>
+/ai-team-run <チケットURL または チケットID または 問題の説明>
 ```
 
 引数が省略された場合は、ユーザーにチケットのURLまたは内容の貼り付けを求めてください。
@@ -33,7 +33,7 @@ Issue が取得できたら**ステップ2へ進む**。
 
 ### パターンB: 自由記述テキスト（問題・依頼の説明文）
 
-Issue番号でも URL でもない文字列が渡された場合（例: `/ai-team run ログインAPIがエラーを返す` や `/ai-team run 1 現在の状況に合わせて最新化する`）は、以下の手順で **GitHub Issue を起点にしてからワークフローを起動**してください。
+Issue番号でも URL でもない文字列が渡された場合（例: `/ai-team-run ログインAPIがエラーを返す` や `/ai-team-run 1 現在の状況に合わせて最新化する`）は、以下の手順で **GitHub Issue を起点にしてからワークフローを起動**してください。
 
 > **なぜ Issue 経由が必須か**: インシデント記録・ラベルによる状態管理・作業履歴の追跡は Issue ベースで動作します。Issue を作らずにワークフローを動かすと、これらのフローがすべてスキップされます。
 
@@ -85,7 +85,7 @@ gh issue create \
 
 ## ステップ2: 前提確認
 
-`.claude/` ディレクトリが存在しない場合は、セットアップが完了していないことをユーザーに伝え、`/ai-team setup` を先に実行するよう案内してください。
+`.claude/` ディレクトリが存在しない場合は、セットアップが完了していないことをユーザーに伝え、`/ai-team-setup` を先に実行するよう案内してください。
 
 ## ステップ3: チームとワークフローの特定
 
@@ -102,7 +102,7 @@ gh issue create \
 | `sns:*` | SNSチーム | `.claude/teams/sns/workflow.yml` |
 | `epic` または `dispatcher` | Dispatcher | 各チームに分解 |
 | `incident` | インシデント対応 | 緊急対応フロー |
-| `escalated:human` | 人間対応待ち | ワークフロー停止中（解除後は /ai-team resume で再開） |
+| `escalated:human` | 人間対応待ち | ワークフロー停止中（解除後は /ai-team-resume で再開） |
 
 ### ラベルがない場合
 
@@ -227,7 +227,7 @@ gh label create "<ラベル>" --color "<色>" --description "<説明>"
 gh issue edit <番号> --add-label "<ラベル>"
 ```
 
-色・説明は `/ai-team setup`（ステップ4-4）のラベル定義に合わせてください。定義にないラベルの場合は、同じチームの既存ラベルと同じ色を使用します。
+色・説明は `/ai-team-setup`（ステップ4-4）のラベル定義に合わせてください。定義にないラベルの場合は、同じチームの既存ラベルと同じ色を使用します。
 
 **その他の失敗（ネットワーク・API エラー等）の場合:**
 
@@ -238,12 +238,12 @@ gh issue edit <番号> --add-label "<ラベル>"
 
 ```
 ⚠️ gh コマンドの実行に失敗しました（1回リトライ済み）。
-以下のコマンドを手動で実行してから、/ai-team resume で再開してください：
+以下のコマンドを手動で実行してから、/ai-team-resume で再開してください：
 
 gh issue edit 42 --remove-label "backend:reviewer-a" --add-label "backend:cross-review"
 ```
 
-ラベル遷移やコメント投稿が完了していない状態で次のステップへ進むと、ラベルとコメントによる状態管理が壊れ、`/ai-team resume` で再開できなくなります。
+ラベル遷移やコメント投稿が完了していない状態で次のステップへ進むと、ラベルとコメントによる状態管理が壊れ、`/ai-team-resume` で再開できなくなります。
 
 ## 状態記録要件（コメント必須5フィールド）
 
@@ -257,7 +257,7 @@ gh issue edit 42 --remove-label "backend:reviewer-a" --add-label "backend:cross-
 | 完了条件チェック | このステップの完了条件（exit criteria）の充足状況 |
 | 次のアクション | 次に起動するステップ・付与するラベル（`⏭️ 次のアクション:` 行で明示） |
 
-**目的**: セッションが途中で中断しても、`/ai-team resume` が**コメント履歴のみ**でワークフローの状態を復元し、続きから再開できる状態を常に保つためです。エージェントの内部状態や会話コンテキストに依存した引き継ぎをしてはいけません。
+**目的**: セッションが途中で中断しても、`/ai-team-resume` が**コメント履歴のみ**でワークフローの状態を復元し、続きから再開できる状態を常に保つためです。エージェントの内部状態や会話コンテキストに依存した引き継ぎをしてはいけません。
 
 ## 差し戻し上限（rework_limit）
 
@@ -290,7 +290,7 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 以下のいずれかに該当する場合はワークフローを停止し、ユーザーに状況を報告してください：
 
 - `escalated:human` ラベルが付与された（人間の判断が必要）
-  → エスカレーションコメントに再開手順を案内し停止。人間の対応後に `/ai-team resume` で再開。
+  → エスカレーションコメントに再開手順を案内し停止。人間の対応後に `/ai-team-resume` で再開。
 - PR の承認・マージが必要になった
 - セキュリティレビューで重大リスクが発見された
 - エスカレーション条件（`.claude/escalation-rules.yml`）に該当した
@@ -299,21 +299,21 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ## 実行例
 
 ```
-/ai-team run https://github.com/org/repo/issues/42
+/ai-team-run https://github.com/org/repo/issues/42
 # → Issue を直接読み込んでワークフロー起動
 ```
 
 ```
-/ai-team run 42
+/ai-team-run 42
 # → Issue #42 を読み込んでワークフロー起動
 ```
 
 ```
-/ai-team run ログインAPIが500エラーを返している
+/ai-team-run ログインAPIが500エラーを返している
 # → 既存Issueを検索 → なければ新規作成 → Issueベースでワークフロー起動
 ```
 
 ```
-/ai-team run
+/ai-team-run
 # → チケット情報の入力を求める
 ```

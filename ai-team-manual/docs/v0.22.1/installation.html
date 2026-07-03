@@ -78,7 +78,7 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 ## 次のステップ
 1. .claude/CLAUDE.md を確認・カスタマイズしてください
-2. Issue を作成し /ai-team run &lt;Issue番号&gt; でワークフローを開始します</code></pre>
+2. Issue を作成し /ai-team-run &lt;Issue番号&gt; でワークフローを開始します</code></pre>
 
 <p>詳細は <a href="guide/setup.html">セットアップガイド</a> を参照してください。</p>
 
@@ -123,6 +123,35 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
     └── ai-team-configure.md</code></pre>
 
 <code>.github/ISSUE_TEMPLATE/</code> には、選択したチームに応じた Issue テンプレートが配置されます。
+
+<hr>
+
+<h2>補足: git clone からソースをビルドして導入する</h2>
+
+<p>配布された <code>.tgz</code> を受け取っていない場合は、リポジトリを clone してソースから <code>.tgz</code> を生成し、それを対象プロジェクトに導入できます（ステップ 1 の代替）。</p>
+
+<pre><code class="language-bash"># 1. リポジトリを clone
+git clone &lt;repo-url&gt;
+cd trimix-cc-project-template
+
+# 2. 依存をインストール
+npm install
+
+# 3. tgz を生成（prepack でドキュメントも自動生成されます）
+npm pack
+# → trimix-ai-team-&lt;version&gt;.tgz が生成される
+
+# 4. 導入したいプロジェクトで tgz をインストール
+cd /path/to/your-project
+npm install --save-dev /path/to/trimix-ai-team-&lt;version&gt;.tgz</code></pre>
+
+<p>以降は <code>.tgz</code> 方式と同じです。<strong>ステップ 2 の <code>/ai-team-setup</code></strong> を実行してセットアップを完了してください。</p>
+
+<p>> <strong>⚠️ clone したリポジトリ自体を作業プロジェクトにはできません</strong></p>
+<p>></p>
+<p>> <code>postinstall</code> はパッケージ自身のディレクトリ（<code>projectRoot === packageRoot</code>）では</p>
+<p>> スキルの自動展開をスキップし、clone 直後はドキュメント（<code>ai-team-manual-dist/</code>）も</p>
+<p>> 未生成です。必ず上記のように <code>.tgz</code> を生成し、別プロジェクトへインストールしてください。</p>
 
 <hr>
 

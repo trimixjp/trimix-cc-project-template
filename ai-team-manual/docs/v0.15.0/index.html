@@ -114,11 +114,11 @@
 <ul><li>v0.11.0: <strong>Opus 最適化と再現性強化</strong>。全エージェントが Claude Opus で動作する前提に最適化（モデルはエイリアス指定。助言役の <code>architect</code> のみ frontmatter に <code>model: opus</code> を明示）。主な変更:</li></ul>  - <strong>レビュー方式の機械判定化</strong>: <code>review-config.yml</code> の <code>sensitive_areas</code> に正規表現 <code>pattern</code> を追加し、<code>detection_procedure</code>（base_branch 検証 → <code>git diff</code> 計測 → パス照合=該当確定 / 本文照合=参考値）で機械的に判定
 <p>  - <strong>差し戻し上限 <code>rework_limit: 2</code></strong>: 同一 Issue で 3 回目の不合格は implementer へ差し戻さず <code>escalated:human</code> へ。コメント先頭行照合による決定論的カウント（全 5 チーム）</p>
 <p>  - <strong>AND 待機のアトミック遷移</strong>: <code>requires_all_of</code> 合流時のレースコンディションを防ぐ手順（待機パス再確認・冪等なラベル付与・誤発動ガード付きリカバリ）を全エージェントに導入</p>
-<p>  - <strong><code>return_to_previous</code> の構造化</strong>: human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、<code>/ai-team resume</code> が機械的に復帰先を決定</p>
+<p>  - <strong><code>return_to_previous</code> の構造化</strong>: human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、<code>/ai-team-resume</code> が機械的に復帰先を決定</p>
 <p>  - <strong>人間無応答時のリマインド方針</strong>: 最終エスカレーションコメントから 48 時間経過後に 1 回のみリマインド</p>
 <p>  - <strong>エージェント統一規約</strong>: コメント必須 5 フィールド・完了条件（exit criteria）チェックリスト・状態記録の原則を全エージェントに適用</p>
 <p>  - <strong>reviewer-a / reviewer-b の観点差別化</strong>: A = 設計・保守性・テスト、B = セキュリティ・パフォーマンス・エラー処理</p>
-<p>  - <code>/ai-team create</code>・<code>/ai-team configure</code> の生成器も新規約に対応し、テンプレート整合性テストを追加</p>
+<p>  - <code>/ai-team-create</code>・<code>/ai-team-configure</code> の生成器も新規約に対応し、テンプレート整合性テストを追加</p>
 
 <h3>v0.10.x シリーズの主な変更点</h3>
 

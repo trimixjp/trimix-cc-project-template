@@ -98,11 +98,11 @@ YouTube動画制作チームを導入済みのプロジェクトでは、`/ai-te
 | レビュー方式の機械判定化 | `review-config.yml` の `sensitive_areas` に正規表現 `pattern` を追加。`detection_procedure`（base_branch 検証・git diff 計測・パス照合=確定 / 本文照合=参考値）で機械判定 |
 | 差し戻し上限 | `workflow.yml` に `rework_limit: 2` と `on_rework.limit_exceeded_next` を追加（全 5 チーム）。3 回目の不合格は `escalated:human` へ。先頭行照合による決定論的カウント |
 | AND 待機のアトミック遷移 | `requires_all_of` 合流時のレースコンディション対策（待機パス再確認・冪等付与・誤発動ガード付きリカバリ） |
-| `return_to_previous` の構造化 | human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、`/ai-team resume` が機械的に復帰 |
+| `return_to_previous` の構造化 | human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、`/ai-team-resume` が機械的に復帰 |
 | リマインド方針 | 人間無応答時、48 時間経過後に 1 回のみリマインドコメントを投稿 |
 | エージェント統一規約 | コメント必須 5 フィールド・完了条件（exit criteria）・状態記録の原則を全エージェントに適用 |
 | レビュアー観点差別化 | Reviewer-A = 設計・保守性・テスト、Reviewer-B = セキュリティ・パフォーマンス・エラー処理 |
-| 生成器の新規約対応 | `/ai-team create`・`/ai-team configure` が生成するファイルも新規約に準拠。テンプレート整合性テストを追加 |
+| 生成器の新規約対応 | `/ai-team-create`・`/ai-team-configure` が生成するファイルも新規約に準拠。テンプレート整合性テストを追加 |
 
 ### 移行手順
 
@@ -128,7 +128,7 @@ npm install --save-dev ./trimix-ai-team-0.11.0.tgz
 
 ### v0.10.x からの破壊的変更
 
-ワークフローの構造に**破壊的変更はありません**。ただし旧形式のエスカレーションコメント（「エスカレーション元ステップ」フィールドなし）が残っている Issue では、`/ai-team resume` が復帰先を機械的に決定できないため、コメント履歴から文脈で判断するフォールバック動作になります。
+ワークフローの構造に**破壊的変更はありません**。ただし旧形式のエスカレーションコメント（「エスカレーション元ステップ」フィールドなし）が残っている Issue では、`/ai-team-resume` が復帰先を機械的に決定できないため、コメント履歴から文脈で判断するフォールバック動作になります。
 
 ---
 

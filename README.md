@@ -21,7 +21,7 @@ npm install --save-dev ./trimix-ai-team-<version>.tgz
 Claude Code を起動して以下を実行してください：
 
 ```
-/ai-team setup
+/ai-team-setup
 ```
 
 対話形式で有効にするチーム・チケット管理システムを選択すると、`.claude/` にエージェント定義・ワークフロー・DODテンプレートが配置されます。
@@ -33,12 +33,12 @@ Claude Code を起動して以下を実行してください：
 チケットを担当したら Claude Code で以下を実行します：
 
 ```
-/ai-team run <チケットURL>
+/ai-team-run <チケットURL>
 ```
 
 **例（GitHub Issues）:**
 ```
-/ai-team run https://github.com/your-org/your-repo/issues/42
+/ai-team-run https://github.com/your-org/your-repo/issues/42
 ```
 
 AIチームがチケットを読み込み、ワークフローに従って自律的に処理します。人間の判断が必要な場面（PRのマージ・エスカレーション等）では自動的に停止して案内します。
@@ -63,7 +63,7 @@ Infra-Lead → Network-Engineer / Infra-Specialist → Security-Engineer
 
 ## チケット管理の担当交代
 
-担当者が休暇中などでチケットを他のメンバーに再アサインした場合、新しい担当者が `/ai-team run` を実行するだけで同じワークフローが継続します。
+担当者が休暇中などでチケットを他のメンバーに再アサインした場合、新しい担当者が `/ai-team-run` を実行するだけで同じワークフローが継続します。
 
 ---
 
