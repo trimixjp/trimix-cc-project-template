@@ -7,7 +7,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const DOCS_SRC = join(ROOT, 'docs-src');
 const PUBLIC_ROOT = join(ROOT, 'ai-team-manual');
-const PUBLIC_DOCS = join(PUBLIC_ROOT, 'docs');
 
 const config = JSON.parse(readFileSync(join(DOCS_SRC, 'config.json'), 'utf8'));
 
