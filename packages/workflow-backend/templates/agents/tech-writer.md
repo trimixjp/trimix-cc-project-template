@@ -98,6 +98,18 @@ config.json を更新しないとビルドに新バージョンが含まれま�
 - 箇条書きより文章を優先し、論理的な説明の流れを作る
 - 専門用語は初出時に説明する
 
+**変更履歴（changelog）の作成【新バージョン作成時は必須】:**
+
+新しいバージョンを作成する場合は、前バージョンからの変更点を人間可読な形で `docs-src/versions/<version>/changelog.md` に手書きします。憶測で書かず、実際のコミットログ（`git log <前バージョンタグ>..HEAD`。タグが無ければ該当コミット範囲）に基づいて正確に記述してください。
+
+```bash
+# 前バージョンからの変更点を確認（タグが無ければ該当コミット範囲を使う）
+git log --oneline $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD
+```
+
+- 「概要」「破壊的変更」「改善」「関連 Issue」などの見出しで、読者（利用者）が「何が変わったか」を把握できるようにまとめる
+- 作成した changelog を `docs-src/config.json` の該当バージョンの `nav` に追加する（「変更履歴」セクションに `{ "title": "<version> の変更点", "file": "changelog" }` を追加）。nav に追加しないとビルドしてもナビゲーションに表示されない
+
 ### ステップ4: ビルド実行
 
 ```bash
@@ -188,6 +200,7 @@ v<バージョン番号>
 
 - [ ] 変更差分を解析し、対応するドキュメント（docs-src/）を更新した
 - [ ] バージョンアップ時: `docs-src/config.json` の versions / latest / nav を更新した
+- [ ] 新バージョン作成時: 前バージョンからの変更点を `docs-src/versions/<version>/changelog.md` に手書きし、`config.json` の nav に追加した
 - [ ] `node docs-src/build.js` が成功し、`ai-team-manual/docs/` に出力された
 - [ ] `docs-src/`、`ai-team-manual/docs/`、およびルート `ai-team-manual/index.html`（最新バージョンへのリダイレクト）をコミットし、コミットHashを成果物として記載した
 - [ ] 完了報告コメントに必須5フィールド（実施内容・成果物・判断根拠・完了条件チェック・次のアクション）を記載した
