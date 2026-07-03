@@ -67,13 +67,14 @@ try {
 }
 
 try {
-  // コンパイル済みドキュメントを ai-team-manual/docs/ に展開
-  const docsSrc = join(packageRoot, 'ai-team-manual');
+  // 配布物には最新バージョン1つ分のみを同梱している（ai-team-manual-dist/）。
+  // これを導入先プロジェクトの ai-team-manual/ に展開する。
+  const docsSrc = join(packageRoot, 'ai-team-manual-dist');
   const docsDest = join(projectRoot, 'ai-team-manual');
   if (existsSync(docsSrc)) {
     copyDirRecursive(docsSrc, docsDest);
-    console.log('✅ @trimix/ai-team: ドキュメントを ai-team-manual/docs/ に展開しました');
-    console.log('   ブラウザで ai-team-manual/docs/index.html を開くと閲覧できます\n');
+    console.log('✅ @trimix/ai-team: ドキュメント（最新版）を ai-team-manual/ に展開しました');
+    console.log('   ブラウザで ai-team-manual/index.html を開くと閲覧できます\n');
   }
 } catch (err) {
   console.warn('\n⚠️  @trimix/ai-team: ドキュメントの展開に失敗しました\n');
