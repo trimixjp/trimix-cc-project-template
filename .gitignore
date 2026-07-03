@@ -3,8 +3,8 @@ node_modules/
 .DS_Store
 *.tgz
 
-# グローバルgitignoreの docs/ 除外を public/docs/ では解除
-!public/docs/
+# グローバルgitignoreの docs/ 除外を ai-team-manual/docs/ では解除
+!ai-team-manual/docs/
 
 # グローバルgitignoreの docs/ 除外を templates/docs/ でも解除
 !templates/docs/

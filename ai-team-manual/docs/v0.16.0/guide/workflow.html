@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ワークフローのカスタマイズ - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.16.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class="active"><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">ワークフローのカスタマイズ</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/guide/workflow.html" >v0.5.1</option><option value="../../v0.5.2/guide/workflow.html" >v0.5.2</option><option value="../../v0.6.0/guide/workflow.html" >v0.6.0</option><option value="../../v0.7.0/guide/workflow.html" >v0.7.0</option><option value="../../v0.8.0/guide/workflow.html" >v0.8.0</option><option value="../../v0.9.0/guide/workflow.html" >v0.9.0</option><option value="../../v0.10.0/guide/workflow.html" >v0.10.0</option><option value="../../v0.11.0/guide/workflow.html" >v0.11.0</option><option value="../../v0.12.0/guide/workflow.html" >v0.12.0</option><option value="../../v0.13.0/guide/workflow.html" >v0.13.0</option><option value="../../v0.14.0/guide/workflow.html" >v0.14.0</option><option value="../../v0.15.0/guide/workflow.html" >v0.15.0</option><option value="../../v0.16.0/guide/workflow.html" selected>v0.16.0</option><option value="../../v0.17.0/guide/workflow.html" >v0.17.0</option><option value="../../v0.18.0/guide/workflow.html" >v0.18.0</option><option value="../../v0.20.0/guide/workflow.html" >v0.20.0</option><option value="../../v0.21.0/guide/workflow.html" >v0.21.0</option><option value="../../v0.21.1/guide/workflow.html" >v0.21.1</option><option value="../../v0.22.0/guide/workflow.html" >v0.22.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>ワークフローのカスタマイズ</h1>
+
+<h2>workflow.yml とは</h2>
+
+<code>workflow.yml</code> は、各チームのタスク処理手順をコードとして定義するファイルです。<code>.claude/teams/&lt;team_id&gt;/workflow.yml</code> に配置され、どのエージェントをどの順番で起動するか、エスカレーション条件をどう判定するかなど、チームの動作ロジック全体を記述します。インストール直後はパッケージ同梱のデフォルト定義が展開されていますが、プロジェクトの要件に合わせて自由に変更できます。
+
+<hr>
+
+<h2><code>/ai-team configure</code> ウィザードを使ったカスタマイズ（推奨）</h2>
+
+<p>ウィザードを使うと、質問に答えるだけで <code>workflow.yml</code> を生成・更新できます。</p>
+
+<pre><code class="language-bash">/ai-team configure backend</code></pre>
+
+<p>ウィザードは以下の項目を対話形式で設定します。</p>
+
+<ul><li>ワークフローのステップ数と各ステップで起動するエージェント</li><li>レビュー方式（シングル／ダブル）の判定基準</li><li>エスカレーションを発生させる条件</li><li>Tech-Writer の起動タイミング（バックエンドチームのみ）</li></ul>
+<p>生成された <code>workflow.yml</code> は <code>.claude/teams/&lt;team_id&gt;/workflow.yml</code> に保存されます。既存ファイルがある場合は上書き確認が表示されます。</p>
+
+<hr>
+
+<h2>手動で workflow.yml を編集する場合の注意点</h2>
+
+<p>テキストエディタで直接編集することもできます。その際は以下の点に注意してください。</p>
+
+<ul><li><strong>インデントは半角スペース 2 文字</strong>で統一してください。タブ文字を使うと YAML パースエラーになります。</li><li><code>steps</code> キー配下のエージェント名は、<code>.claude/teams/&lt;team_id&gt;/agents/</code> に存在するファイル名（拡張子なし）と一致させてください。</li><li>変更後は <code>/ai-team run</code> で動作確認することを推奨します。構文エラーがあるとエージェントが起動しません。</li></ul>
+<hr>
+
+<h2>よくあるカスタマイズ例</h2>
+
+<h3>ステップを追加する</h3>
+
+<p>デフォルトの <code>steps</code> リストに新しいエージェントを追加します。たとえばバックエンドチームで <code>security-reviewer</code> ステップを Reviewer の後に差し込む場合は、<code>workflow.yml</code> の該当箇所に以下のように追記します。</p>
+
+<pre><code class="language-yaml">steps:
+  - agent: tech-lead
+  - agent: implementer
+  - agent: reviewer
+  - agent: security-reviewer   # 追加
+  - agent: tech-writer
+  - agent: pr-creator</code></pre>
+
+<p>追加するエージェントの定義ファイル（<code>security-reviewer.md</code>）を先に <code>.claude/teams/backend/agents/</code> に作成しておく必要があります。</p>
+
+<h3>レビュー方式の判定基準を変える</h3>
+
+<p>シングルレビューとダブルレビューの振り分けロジックは <code>workflow.yml</code> ではなく、<code>.claude/teams/&lt;team_id&gt;/review-config.yml</code> で管理します。このファイルに機密領域のパターン（ファイルパスや変更行数のしきい値）を記述すると、Tech-Lead が自動的に参照して判断します。</p>
+
+<pre><code class="language-yaml">double_review_triggers:
+  paths:
+    - "src/auth/**"
+    - "src/payment/**"
+  change_lines_threshold: 200</code></pre>
+
+<h3>差し戻し条件を変える</h3>
+
+<p>レビューで問題が検出された場合に Implementer へ差し戻すかどうかの条件は、<code>workflow.yml</code> の <code>review_failure_action</code> キーで設定します。</p>
+
+<pre><code class="language-yaml">review_failure_action: revert_to_implementer   # 差し戻す（デフォルト）
+# review_failure_action: escalate_to_human     # 人間にエスカレーション</code></pre>
+
+<hr>
+
+<h2>業務ドメイン別のカスタマイズ（v0.8.0 新機能）</h2>
+
+<p>B2B SaaS・ECサイト・コンテンツメディア・受託開発など、業種・企業形態によってワークフローの最適な設計は異なります。<code>.claude/docs/domain-workflow-guide.md</code> に各ドメインのカスタマイズ設計例と調整ポイントがまとめられています。</p>
+
+<p>主なカスタマイズポイントは以下のとおりです。</p>
+
+<table><thead><tr><th>ドメイン</th><th>主な調整点</th></tr></thead><tbody><tr><td>B2B SaaS</td><td>ダブルレビューの閾値を引き下げ・マルチテナント処理を機密領域に追加</td></tr><tr><td>ECサイト</td><td>コンプライアンスステップ（特商法・PCI DSS）の追加</td></tr><tr><td>コンテンツメディア</td><td>広告表記・著作権・ファクトチェックのコンプライアンスルール追加</td></tr><tr><td>受託開発</td><td>クライアントレビューステップ・変更管理承認フローの追加</td></tr></tbody></table>
+<p>詳細は <code>.claude/docs/domain-workflow-guide.md</code> を参照してください。</p>
+
+<hr>
+
+<h2>月次ワークフロー見直し（v0.8.0 新機能）</h2>
+
+<code>.github/ISSUE_TEMPLATE/workflow-review.yml</code> を使って月次の見直しIssueを起票できます。また <code>.github/workflows/monthly-workflow-review.yml</code> を設置することで、毎月1日に自動的にIssueが作成されます。
+
+<p>見直しでは以下を確認します。</p>
+
+<ul><li>全ての <code>on_complete</code> / <code>on_escalation</code> / <code>on_rework</code> が適切に定義されているか</li><li>ラベル命名規則が統一されているか</li><li>インシデント・エスカレーションの頻度から改善点を抽出できるか</li><li>compliance-rules が法改正・業界動向を反映しているか</li></ul>
+<hr>
+
+<h2>詳細な YAML 仕様</h2>
+
+<code>workflow.yml</code> で使用できるすべてのキーとオプションは<a href="../reference/workflow.html">ワークフロー定義（リファレンス）</a>を参照してください。
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

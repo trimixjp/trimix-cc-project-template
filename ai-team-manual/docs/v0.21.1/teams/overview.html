@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>チーム概要 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.21.1</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class="active"><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">チーム概要</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/teams/overview.html" >v0.5.1</option><option value="../../v0.5.2/teams/overview.html" >v0.5.2</option><option value="../../v0.6.0/teams/overview.html" >v0.6.0</option><option value="../../v0.7.0/teams/overview.html" >v0.7.0</option><option value="../../v0.8.0/teams/overview.html" >v0.8.0</option><option value="../../v0.9.0/teams/overview.html" >v0.9.0</option><option value="../../v0.10.0/teams/overview.html" >v0.10.0</option><option value="../../v0.11.0/teams/overview.html" >v0.11.0</option><option value="../../v0.12.0/teams/overview.html" >v0.12.0</option><option value="../../v0.13.0/teams/overview.html" >v0.13.0</option><option value="../../v0.14.0/teams/overview.html" >v0.14.0</option><option value="../../v0.15.0/teams/overview.html" >v0.15.0</option><option value="../../v0.16.0/teams/overview.html" >v0.16.0</option><option value="../../v0.17.0/teams/overview.html" >v0.17.0</option><option value="../../v0.18.0/teams/overview.html" >v0.18.0</option><option value="../../v0.20.0/teams/overview.html" >v0.20.0</option><option value="../../v0.21.0/teams/overview.html" >v0.21.0</option><option value="../../v0.21.1/teams/overview.html" selected>v0.21.1</option><option value="../../v0.22.0/teams/overview.html" >v0.22.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>チーム概要</h1>
+
+<code>@trimix/ai-team</code> は 6 つの専門チームを提供します。各チームは独自のワークフロー定義（<code>workflow.yml</code>）とエージェント群を持ち、担当する Issue の種類に応じて自律的に処理を進めます。
+
+<hr>
+
+<h2>チーム比較表</h2>
+
+<table><thead><tr><th>項目</th><th>バックエンド</th><th>フロントエンド</th><th>インフラ</th><th>コンテンツ</th><th>SNS運用</th><th>YouTube動画制作</th></tr></thead><tbody><tr><td><strong>team_id</strong></td><td><code>backend</code></td><td><code>frontend</code></td><td><code>infra</code></td><td><code>content</code></td><td><code>sns</code></td><td><code>youtube</code></td></tr><tr><td><strong>ラベル色</strong></td><td>青（<code>1d76db</code>）</td><td>黄（<code>f9a825</code>）</td><td>緑（<code>0e8a16</code>）</td><td>薄黄（<code>e4e669</code>）</td><td>ピンク（<code>e91e63</code>）</td><td>未確認（テンプレートに色定義なし）</td></tr><tr><td><strong>対象</strong></td><td>API・サーバーコード・テスト</td><td>UI・コンポーネント・アクセシビリティ</td><td>クラウド・ネットワーク・セキュリティ</td><td>記事・ドキュメント・コンテンツ</td><td>X・Instagram の投稿運用</td><td>YouTube 動画の企画・台本・生成・公開・収益化</td></tr><tr><td><strong>エージェント数</strong></td><td>7</td><td>7</td><td>5</td><td>4</td><td>4</td><td>9</td></tr><tr><td><strong>リーダー</strong></td><td>tech-lead</td><td>frontend-lead</td><td>infra-lead</td><td>editor-in-chief</td><td>strategist</td><td>director</td></tr><tr><td><strong>実装担当</strong></td><td>implementer</td><td>developer</td><td>network-engineer / infra-specialist</td><td>writer</td><td>writer</td><td>scriptwriter / editor</td></tr><tr><td><strong>レビュー方式</strong></td><td>シングル / ダブル（自動判断）</td><td>シングル / ダブル（自動判断）</td><td>security-engineer による単独レビュー</td><td>compliance による単独レビュー</td><td>operator によるガイドライン確認</td><td>editor による台本品質ゲート＋プレビュー承認（人間ゲート）</td></tr><tr><td><strong>ドキュメント自動更新</strong></td><td>あり（tech-writer）</td><td>なし</td><td>なし</td><td>なし</td><td>なし</td><td>なし</td></tr><tr><td><strong>PR 作成</strong></td><td>あり（pr-creator）</td><td>あり（pr-creator）</td><td>なし（直接適用）</td><td>なし</td><td>なし（人間が公開）</td><td>なし（人間が公開）</td></tr><tr><td><strong>特殊エージェント</strong></td><td>tech-writer</td><td>designer（最初のステップ）</td><td>architect（依頼時のみ）</td><td>researcher（依頼時のみ）</td><td>researcher（依頼時のみ）</td><td>affiliate / monetizer / sns-distributor</td></tr><tr><td><strong>典型的な DOD</strong></td><td>feature / bugfix / refactor / review / documentation</td><td>feature / component / bugfix</td><td>infrastructure-change / network-change / security-review</td><td>article / document / revision</td><td>post / campaign / analysis</td><td>channel-creation / episode-production / growth</td></tr></tbody></table>
+<hr>
+
+<h2>どのチームを使うべきか</h2>
+
+<h3>バックエンドチーム</h3>
+
+<ul><li>API エンドポイントを追加・変更したい</li><li>データベース処理を実装したい</li><li>バックエンドのロジック・テストを書きたい</li><li>PR を作成して人間にマージしてもらいたい</li></ul>
+<p>→ <a href="backend.html">バックエンドチーム詳細</a></p>
+
+<h3>フロントエンドチーム</h3>
+
+<ul><li>新しい UI コンポーネントを作りたい</li><li>ページレイアウトを変更したい</li><li>アクセシビリティ対応を強化したい</li><li>デザイン仕様を策定したい（Designer エージェント）</li></ul>
+<p>→ <a href="frontend.html">フロントエンドチーム詳細</a></p>
+
+<h3>インフラチーム</h3>
+
+<ul><li>Terraform / Kubernetes の設定を変更したい</li><li>ネットワーク（VPC・DNS・LB）の構成を変えたい</li><li>セキュリティ監査を実施したい</li><li>CI/CD パイプラインを変更したい</li></ul>
+<p>→ <a href="infra.html">インフラチーム詳細</a></p>
+
+<h3>コンテンツチーム</h3>
+
+<ul><li>ブログ記事を書きたい</li><li>ドキュメント・マニュアルを更新したい</li><li>コンプライアンスチェック付きで記事を公開したい</li><li>統計データに基づいた記事を作成したい（Researcher エージェント）</li></ul>
+<p>→ <a href="content.html">コンテンツチーム詳細</a></p>
+
+<h3>SNS運用チーム</h3>
+
+<ul><li>X（Twitter）・Instagram に投稿したい</li><li>トレンド・競合分析をもとにコンテンツを企画したい</li><li>masterclass セミナーの知見を SNS 運用に反映したい</li><li>投稿スケジュールを管理したい</li><li>キャンペーン・連載シリーズを企画したい</li></ul>
+<p>→ <a href="sns.html">SNS運用チーム詳細</a></p>
+
+<h3>YouTube動画制作チーム</h3>
+
+<ul><li>YouTube 動画の企画・台本作成から生成・公開までを一貫して進めたい</li><li>タイトル・説明欄を多言語化してグローバル視聴者にリーチしたい</li><li>本編から縦型 Shorts を自動で切り出してアップロードしたい</li><li>X・TikTok への配信は人間の承認を挟んだうえで運用したい</li><li>動画の収益化（アフィリエイト・モネタイズ）を意識した運用をしたい</li></ul>
+<p>→ <a href="youtube.html">YouTube動画制作チーム詳細</a></p>
+
+<hr>
+
+<h2>共通の構成要素</h2>
+
+<p>全チームで共通する要素は以下です。</p>
+
+<h3>共通エージェント（<code>.claude/agents/</code>）</h3>
+
+<table><thead><tr><th>エージェント</th><th>役割</th></tr></thead><tbody><tr><td><code>dispatcher</code></td><td>Epic Issue を Sub Issue に分解</td></tr><tr><td><code>human-escalator</code></td><td>判断不能事項を人間にエスカレーション</td></tr><tr><td><code>contributor</code></td><td>全体管理・DOD 確認・Issue クローズ・インシデント記録</td></tr></tbody></table>
+<h3>共通ラベル</h3>
+
+<table><thead><tr><th>ラベル</th><th>用途</th></tr></thead><tbody><tr><td><code>epic</code></td><td>複数チームにまたがる大規模タスク</td></tr><tr><td><code>dispatcher</code></td><td>Dispatcher が自動分解中</td></tr><tr><td><code>incident</code></td><td>インシデント報告</td></tr><tr><td><code>escalated:human</code></td><td>人間の判断が必要（処理停止中）</td></tr><tr><td><code>contributor:ready</code></td><td>Contributor が完了確認中</td></tr><tr><td><code>ai-team:in-progress</code></td><td>AI エージェントが処理中（二重実行防止）</td></tr></tbody></table>
+<h3>共通の DOD（<code>.claude/dod/</code>）</h3>
+
+<table><thead><tr><th>DOD</th><th>用途</th></tr></thead><tbody><tr><td><code>incident.md</code></td><td>本番障害・セキュリティインシデント対応</td></tr><tr><td><code>README.md</code></td><td>DOD テンプレート選択ガイド</td></tr></tbody></table>
+<hr>
+
+<h2>ワークフローのカスタマイズ</h2>
+
+<p>各チームのワークフローはプロジェクト固有にカスタマイズできます。</p>
+
+<table><thead><tr><th>カスタマイズ対象</th><th>方法</th></tr></thead><tbody><tr><td>ステップの追加・変更・削除・並び替え</td><td><code>/ai-team-configure &lt;team_id&gt;</code> で対話的に編集</td></tr><tr><td>エージェントの動作変更</td><td><code>.claude/teams/&lt;team_id&gt;/agents/*.md</code> を直接編集</td></tr><tr><td>レビュー基準の変更</td><td><code>.claude/teams/&lt;team_id&gt;/review-config.yml</code> を編集</td></tr><tr><td>DOD のカスタマイズ</td><td><code>.claude/teams/&lt;team_id&gt;/dod/*.md</code> を編集・新規追加</td></tr></tbody></table>
+<p>詳細は <a href="../reference/workflow.html">ワークフロー定義</a> を参照してください。</p>
+
+<hr>
+
+<h2>ラベル命名規則</h2>
+
+<p>各チームのエージェントには <code>&lt;team_id&gt;:&lt;agent_name&gt;</code> 形式のラベルが対応します。</p>
+
+<pre><code class="language-">backend:tech-lead       backend:implementer       backend:reviewer
+backend:reviewer-a      backend:reviewer-b        backend:tech-writer
+backend:pr-creator
+
+frontend:designer       frontend:frontend-lead    frontend:developer
+frontend:reviewer       frontend:reviewer-a       frontend:reviewer-b
+frontend:pr-creator
+
+infra:infra-lead        infra:network-engineer    infra:infra-specialist
+infra:security-engineer infra:architect
+
+content:editor-in-chief content:researcher
+content:writer          content:compliance
+
+sns:strategist          sns:researcher
+sns:writer              sns:operator
+
+youtube:director          youtube:channel-producer  youtube:scriptwriter
+youtube:editor            youtube:growth-strategist youtube:affiliate
+youtube:publisher         youtube:sns-distributor   youtube:monetizer</code></pre>
+
+<p>Issue にこれらのラベルを付与すると、対応するエージェントが処理を開始します。</p>
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

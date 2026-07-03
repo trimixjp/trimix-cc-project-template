@@ -67,13 +67,13 @@ try {
 }
 
 try {
-  // コンパイル済みドキュメントを public/docs/ に展開
-  const docsSrc = join(packageRoot, 'public');
-  const docsDest = join(projectRoot, 'public');
+  // コンパイル済みドキュメントを ai-team-manual/docs/ に展開
+  const docsSrc = join(packageRoot, 'ai-team-manual');
+  const docsDest = join(projectRoot, 'ai-team-manual');
   if (existsSync(docsSrc)) {
     copyDirRecursive(docsSrc, docsDest);
-    console.log('✅ @trimix/ai-team: ドキュメントを public/docs/ に展開しました');
-    console.log('   ブラウザで public/docs/index.html を開くと閲覧できます\n');
+    console.log('✅ @trimix/ai-team: ドキュメントを ai-team-manual/docs/ に展開しました');
+    console.log('   ブラウザで ai-team-manual/docs/index.html を開くと閲覧できます\n');
   }
 } catch (err) {
   console.warn('\n⚠️  @trimix/ai-team: ドキュメントの展開に失敗しました\n');

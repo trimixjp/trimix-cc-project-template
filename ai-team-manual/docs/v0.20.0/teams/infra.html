@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>インフラチーム - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.20.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class="active"><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">インフラチーム</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/teams/infra.html" >v0.5.1</option><option value="../../v0.5.2/teams/infra.html" >v0.5.2</option><option value="../../v0.6.0/teams/infra.html" >v0.6.0</option><option value="../../v0.7.0/teams/infra.html" >v0.7.0</option><option value="../../v0.8.0/teams/infra.html" >v0.8.0</option><option value="../../v0.9.0/teams/infra.html" >v0.9.0</option><option value="../../v0.10.0/teams/infra.html" >v0.10.0</option><option value="../../v0.11.0/teams/infra.html" >v0.11.0</option><option value="../../v0.12.0/teams/infra.html" >v0.12.0</option><option value="../../v0.13.0/teams/infra.html" >v0.13.0</option><option value="../../v0.14.0/teams/infra.html" >v0.14.0</option><option value="../../v0.15.0/teams/infra.html" >v0.15.0</option><option value="../../v0.16.0/teams/infra.html" >v0.16.0</option><option value="../../v0.17.0/teams/infra.html" >v0.17.0</option><option value="../../v0.18.0/teams/infra.html" >v0.18.0</option><option value="../../v0.20.0/teams/infra.html" selected>v0.20.0</option><option value="../../v0.21.0/teams/infra.html" >v0.21.0</option><option value="../../v0.21.1/teams/infra.html" >v0.21.1</option><option value="../../v0.22.0/teams/infra.html" >v0.22.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>インフラチーム</h1>
+
+<p>インフラチームは、ネットワーク・クラウド構成・セキュリティを担当する AI チームです。バックエンド・フロントエンドと異なり、PR 作成エージェントは存在せず、Security-Engineer によるレビュー後に直接 Contributor へ引き継がれます。</p>
+
+<p>> <strong>ワークフロー定義</strong>: <code>.claude/teams/infra/workflow.yml</code></p>
+<p>> <strong>エージェント定義</strong>: <code>.claude/teams/infra/agents/*.md</code></p>
+<p>> <strong>DOD テンプレート</strong>: <code>.claude/teams/infra/dod/*.md</code></p>
+
+<hr>
+
+<h2>エージェント一覧</h2>
+
+<table><thead><tr><th>エージェント</th><th>役割</th><th>ラベル</th><th>起動</th></tr></thead><tbody><tr><td><code>infra-lead</code></td><td>リーダー。要件分析・設計方針決定・タスク振り分け</td><td><code>infra:infra-lead</code></td><td>自律</td></tr><tr><td><code>network-engineer</code></td><td>ネットワーク層（VPC・DNS・LB・FW 等）の実装</td><td><code>infra:network-engineer</code></td><td>自律</td></tr><tr><td><code>infra-specialist</code></td><td>クラウド構成・Terraform・Kubernetes・CI/CD の実装</td><td><code>infra:infra-specialist</code></td><td>自律</td></tr><tr><td><code>security-engineer</code></td><td>セキュリティレビュー</td><td><code>infra:security-engineer</code></td><td>自律</td></tr><tr><td><code>architect</code></td><td>システム全体への助言（Opus モデル使用）</td><td><code>infra:architect</code></td><td><strong>依頼時のみ</strong></td></tr></tbody></table>
+<hr>
+
+<h2>ワークフロー全体フロー</h2>
+
+<div class="mermaid">flowchart TD
+    A(["/ai-team-run &lt;番号&gt;"]) --> B["infra-lead\n公式ドキュメント参照\n設計方針決定\n変更内容を分類"]
+    B --> C{変更内容の分類}
+    C -->|network-only| D["network-engineer\nVPC・DNS・LB・FW 実装"]
+    C -->|infra-only| E["infra-specialist\nTerraform・K8s・CI/CD 実装"]
+    C -->|both（並列）| D
+    C -->|both（並列）| E
+    D --> F["infra-lead-check\nrequires_all_of\n整合性チェック\nArchitect 要否判断"]
+    E --> F
+    F --> G{Architect 必要?}
+    G -->|Yes| H["architect\nOpus モデル\nシステム全体への助言"]
+    G -->|No| I["security-engineer\n脆弱性・権限・暗号化\nシークレット・ネットワーク"]
+    H --> I
+    I -->|合格| J["contributor-close\nDOD 確認・クローズ"]
+    I -->|不合格| B
+    I -->|重大リスク| K["🚨 human-escalator\n即時エスカレーション"]</div>
+
+<p>重大セキュリティリスクが発見された場合、Security-Engineer は差し戻しではなく<strong>即座に Human-Escalator を呼び出します</strong>。</p>
+
+<hr>
+
+<h2>Infra-Lead による変更内容の分類</h2>
+
+<p>Infra-Lead は変更内容を 3 つに分類して、適切な専門エージェントに振り分けます。</p>
+
+<table><thead><tr><th>分類</th><th>条件</th><th>次ステップ</th></tr></thead><tbody><tr><td><code>network-only</code></td><td>VPC・サブネット・DNS・LB・FW・ルーティングのみ</td><td><code>network-engineer</code></td></tr><tr><td><code>infra-only</code></td><td>Terraform・Kubernetes・CI/CD・環境設定のみ</td><td><code>infra-specialist</code></td></tr><tr><td><code>both</code></td><td>ネットワーク・クラウド構成の両方にまたがる</td><td><code>[network-engineer, infra-specialist]</code>（並列実行）</td></tr></tbody></table>
+<p>並列実行の場合、両者の完了を <code>infra-lead-check</code> ステップが <code>requires_all_of</code> で待ち合わせます。</p>
+
+<hr>
+
+<h2>公式ドキュメント参照の必須化</h2>
+
+<p>Infra-Lead・Network-Engineer・Infra-Specialist は、<strong>実装前に必ず対象サービスの公式ドキュメントを参照</strong>します。推測に基づく設定変更は禁止です。</p>
+
+<p>各エージェントは設計方針・実装報告のコメントに「参照した公式ドキュメント」セクションを必ず含めます。</p>
+
+<pre><code class="language-">## 参照した公式ドキュメント
+- AWS VPC: https://docs.aws.amazon.com/vpc/...（確認した設定項目: CIDR、サブネット分割）
+- Terraform: https://registry.terraform.io/...（確認した設定項目: aws_subnet リソース）</code></pre>
+
+<p>このルールは <code>SuperClaude</code> フレームワーク（<code>~/.claude/MODE_Orchestration.md</code>）の「Infrastructure Configuration Validation」原則に対応しています。</p>
+
+<hr>
+
+<h2>Architect エージェントの呼び出し</h2>
+
+<p>Architect は「依頼を受けた時のみ起動」する助言役です。Opus モデル（<code>claude-opus-4-7</code>）を使用するため、必要な場合のみ呼び出されます。</p>
+
+<h3>起動条件</h3>
+
+<ul><li>Infra-Lead が <code>infra:architect</code> ラベルを付与</li><li>人間が「Architect に確認してください」と Issue にコメント</li></ul>
+<h3>Architect が助言する領域</h3>
+
+<table><thead><tr><th>領域</th><th>具体例</th></tr></thead><tbody><tr><td>インフラ設計</td><td>クラウドアーキテクチャ・マイクロサービス・モノリス</td></tr><tr><td>プログラミング言語</td><td>言語選定・言語固有のベストプラクティス</td></tr><tr><td>デザインパターン</td><td>GoF・アーキテクチャパターン・DDD・CQRS</td></tr><tr><td>システム設計</td><td>スケーラビリティ・可用性・一貫性のトレードオフ</td></tr><tr><td>データ設計</td><td>DB 選定・スキーマ設計・データモデリング</td></tr><tr><td>セキュリティ設計</td><td>認証・認可・暗号化の設計方針</td></tr><tr><td>パフォーマンス</td><td>ボトルネック分析・最適化方針</td></tr><tr><td>技術的負債</td><td>リファクタリング戦略・移行計画</td></tr></tbody></table>
+<p>Architect は実装を行わず、<strong>助言・方向性の提示のみ</strong>を担当します。</p>
+
+<hr>
+
+<h2>Security-Engineer のチェック項目</h2>
+
+<p>セキュリティレビューは 5 カテゴリで実施されます。</p>
+
+<h3>脆弱性チェック</h3>
+<ul><li>既知の CVE</li><li>不要なポート公開</li><li>セキュリティリスクのあるデフォルト設定</li></ul>
+<h3>権限チェック</h3>
+<ul><li>最小権限の原則</li><li>IAM ロール・ポリシーの過剰権限</li><li>不必要な特権昇格</li></ul>
+<h3>暗号化チェック</h3>
+<ul><li>TLS 1.2 以上の強制</li><li>保存データの暗号化</li><li>非推奨アルゴリズム（MD5・SHA-1・RC4）の不在</li></ul>
+<h3>シークレット管理チェック</h3>
+<ul><li>ハードコードの不在</li><li>Vault / AWS Secrets Manager 等の使用</li><li>ローテーション計画</li></ul>
+<h3>ネットワークチェック</h3>
+<ul><li>必要ポートのみ開放</li><li>環境分離（本番・ステージング・開発）</li><li>サービス間通信の認証・暗号化</li></ul>
+<p><strong>重大リスク発見時は差し戻しではなく即座に Human-Escalator を呼び出します。</strong></p>
+
+<hr>
+
+<h2>DOD（Definition of Done）</h2>
+
+<table><thead><tr><th>ファイル</th><th>用途</th><th>主なチェック項目</th></tr></thead><tbody><tr><td><code>dod/infrastructure-change.md</code></td><td>Terraform・K8s・CI/CD 変更</td><td>公式ドキュメント参照・IaC 更新・Security-Engineer 合格・ステージング検証・ロールバック手順</td></tr><tr><td><code>dod/network-change.md</code></td><td>VPC・DNS・LB・FW 変更</td><td>ネットワーク影響分析・疎通確認・最小公開原則</td></tr><tr><td><code>dod/security-review.md</code></td><td>セキュリティ監査・脆弱性対応</td><td>5 カテゴリレビュー実施・重大度別整理・対応または別 Issue 化</td></tr></tbody></table>
+<hr>
+
+<h2>ステップ定義詳細（workflow.yml より）</h2>
+
+<table><thead><tr><th>step id</th><th>agent</th><th>label</th><th>概要</th></tr></thead><tbody><tr><td><code>infra-lead-analysis</code></td><td>infra-lead</td><td><code>infra:infra-lead</code></td><td>要件分析・公式ドキュメント参照・分類</td></tr><tr><td><code>network-engineer</code></td><td>network-engineer</td><td><code>infra:network-engineer</code></td><td>ネットワーク層実装</td></tr><tr><td><code>infra-specialist</code></td><td>infra-specialist</td><td><code>infra:infra-specialist</code></td><td>クラウド構成・IaC 実装</td></tr><tr><td><code>infra-lead-check</code></td><td>infra-lead</td><td><code>infra:infra-lead</code></td><td>整合性チェック（<code>requires_all_of</code>）・Architect 要否判断</td></tr><tr><td><code>architect</code></td><td>architect</td><td><code>infra:architect</code></td><td>システム全体への助言（依頼時のみ）</td></tr><tr><td><code>security-engineer</code></td><td>security-engineer</td><td><code>infra:security-engineer</code></td><td>セキュリティレビュー</td></tr><tr><td><code>human-escalator</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>エスカレーション</td></tr><tr><td><code>contributor-close</code></td><td>contributor</td><td><code>contributor:ready</code></td><td>DOD 確認・クローズ</td></tr></tbody></table>
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="overview.html">チーム概要</a> — 全チームの比較</li><li><a href="../reference/workflow.html">ワークフロー定義</a> — workflow.yml の文法</li><li><a href="../reference/dod.html">DOD テンプレート</a> — DOD の運用ルール</li><li><a href="../reference/escalation.html">エスカレーションルール</a> — Security-Engineer の即時エスカレーション</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

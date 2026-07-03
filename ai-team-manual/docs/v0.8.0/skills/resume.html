@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>/ai-team-resume — エスカレーション後の再開 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.8.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class="active"><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">/ai-team-resume — エスカレーション後の再開</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/skills/resume.html" >v0.5.1</option><option value="../../v0.5.2/skills/resume.html" >v0.5.2</option><option value="../../v0.6.0/skills/resume.html" >v0.6.0</option><option value="../../v0.7.0/skills/resume.html" >v0.7.0</option><option value="../../v0.8.0/skills/resume.html" selected>v0.8.0</option><option value="../../v0.9.0/skills/resume.html" >v0.9.0</option><option value="../../v0.10.0/skills/resume.html" >v0.10.0</option><option value="../../v0.11.0/skills/resume.html" >v0.11.0</option><option value="../../v0.12.0/skills/resume.html" >v0.12.0</option><option value="../../v0.13.0/skills/resume.html" >v0.13.0</option><option value="../../v0.14.0/skills/resume.html" >v0.14.0</option><option value="../../v0.15.0/skills/resume.html" >v0.15.0</option><option value="../../v0.16.0/skills/resume.html" >v0.16.0</option><option value="../../v0.17.0/skills/resume.html" >v0.17.0</option><option value="../../v0.18.0/skills/resume.html" >v0.18.0</option><option value="../../v0.20.0/skills/resume.html" >v0.20.0</option><option value="../../v0.21.0/skills/resume.html" >v0.21.0</option><option value="../../v0.21.1/skills/resume.html" >v0.21.1</option><option value="../../v0.22.0/skills/resume.html" >v0.22.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>/ai-team-resume — エスカレーション後の再開</h1>
+
+<p>人間がエスカレーション対応を完了した Issue を自動検出し、ワークフローの続きを再開します。Issue 番号の指定は通常不要です。</p>
+
+<p>> <strong>スキル定義</strong>: <code>skills/ai-team-resume.md</code></p>
+
+<hr>
+
+<h2>使い方</h2>
+
+<pre><code class="language-">/ai-team-resume                  # 自動検出
+/ai-team-resume &lt;Issue番号&gt;       # 特定 Issue を指定
+/ai-team-resume &lt;Issue URL&gt;       # URL でも可</code></pre>
+
+<p>引数なしで実行すると、再開待ちの Issue を自動検出します。引数があった場合はその Issue を直接調査してステップ 4 へ進みます。</p>
+
+<hr>
+
+<h2>ステップ 1: 再開対象 Issue の検索（引数なしの場合）</h2>
+
+<p>以下の条件を満たす Issue を検索します。</p>
+
+<table><thead><tr><th>条件</th><th>説明</th></tr></thead><tbody><tr><td>オープン状態</td><td><code>state: open</code></td></tr><tr><td><code>escalated:human</code> ラベルなし</td><td>人間がラベルを外している</td></tr><tr><td><code>🚨 エスカレーション</code> を含むコメントが履歴にある</td><td>過去にエスカレーションされた</td></tr><tr><td>そのコメント以降に AI 以外のコメントがある</td><td>人間が返答している</td></tr></tbody></table>
+<pre><code class="language-bash"># Issue 一覧取得
+gh issue list --state open --json number,title,labels,url
+
+# 各 Issue のコメント確認
+gh issue view &lt;番号&gt; --json comments</code></pre>
+
+<p>AI エージェントのコメントは絵文字（<code>🚨</code>・<code>✅</code>・<code>🛠️</code>・<code>🔧</code>・<code>🎨</code>・<code>💻</code>）で始まる規約のため、これらで始まらないコメントは人間の発言と判定します。</p>
+
+<hr>
+
+<h2>ステップ 2: 対象 Issue が見つからない場合</h2>
+
+<p>次の案内を表示して終了します。</p>
+
+<pre><code class="language-">ℹ️  再開待ちのIssueは見つかりませんでした。
+
+エスカレーション済みIssueを再開するには：
+1. 該当IssueにコメントでAIへの指示を記録してください
+2. escalated:human ラベルを外してください
+3. 再度 /ai-team-resume を実行してください</code></pre>
+
+<hr>
+
+<h2>ステップ 3: 対象 Issue が複数ある場合</h2>
+
+<p>候補 Issue の一覧をユーザーに提示し、再開する Issue 番号の入力を求めます。入力された Issue 番号でステップ 4 に進みます。</p>
+
+<hr>
+
+<h2>ステップ 4: 再開対象 Issue の状態確認</h2>
+
+<p>対象 Issue のコメント履歴を全件読み込み、以下を確認します。</p>
+
+<pre><code class="language-bash">gh issue view &lt;番号&gt; --json title,body,labels,comments</code></pre>
+
+<table><thead><tr><th>確認項目</th><th>参照先</th></tr></thead><tbody><tr><td>どのエージェントのどのステップで停止したか</td><td>エスカレーションコメント（<code>🚨 エスカレーション</code>）の直前のコメント</td></tr><tr><td>エスカレーション理由</td><td><code>🚨 エスカレーション</code> コメントの「エスカレーション理由」セクション</td></tr><tr><td>人間の判断内容</td><td>エスカレーションコメント以降の人間コメント</td></tr><tr><td>再開すべき次のステップ</td><td>ワークフロー定義の <code>on_escalation.next</code> または停止したステップの <code>on_complete.next</code></td></tr></tbody></table>
+<hr>
+
+<h2>ステップ 5: 再開コメントの投稿</h2>
+
+<p>再開時に以下のコメントを投稿します。</p>
+
+<pre><code class="language-">🔄 エスカレーション解決 — ワークフローを再開します
+
+## 人間の判断
+（人間のコメント内容を引用または要約）
+
+## 採用する方針
+（決定した方針と根拠）
+
+## 再開ステップ
+（再開するエージェント名とステップ名）</code></pre>
+
+<hr>
+
+<h2>ステップ 6: ワークフローの再開</h2>
+
+<p>担当チームのワークフロー定義から再開ステップを特定し、対応するエージェント定義を読み込んで動作を再開します。</p>
+
+<pre><code class="language-">.claude/teams/&lt;チーム&gt;/workflow.yml の再開ステップ
+→ .claude/teams/&lt;チーム&gt;/agents/&lt;エージェント&gt;.md を読み込む
+→ 人間の判断をコンテキストとして持ちつつエージェントとして動作</code></pre>
+
+<p>人間の判断内容はエージェントの実行コンテキストに含まれるため、再度同じ箇所でエスカレーションすることを防げます。</p>
+
+<hr>
+
+<h2>ソロモードでの自動再開</h2>
+
+<code>/ai-team-watch</code> を実行している場合、エスカレーション解除済み Issue は監視ループの「再開処理 B」で自動検出されます。手動で <code>/ai-team-resume</code> を実行する必要はありません。
+
+<p>詳細は <a href="watch.html">ai-team-watch スキル</a> を参照してください。</p>
+
+<hr>
+
+<h2>エスカレーションのライフサイクル</h2>
+
+<div class="mermaid">sequenceDiagram
+    participant A as エージェント
+    participant H as 人間
+    participant R as ai-team-resume
+
+    A->>A: 処理実行中
+    A->>H: 🚨 エスカレーションコメント投稿<br/>escalated:human ラベル付与
+    A->>A: 処理停止
+    H->>H: Issue を確認・判断
+    H->>A: 判断内容をコメント投稿<br/>escalated:human ラベル除去
+    R->>R: エスカレーション解除を検出
+    R->>A: 🔄 エスカレーション解決コメント投稿<br/>エージェントを人間の判断つきで再起動
+    A->>A: ワークフロー継続</div>
+
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="../reference/escalation.html">エスカレーションルール</a> — エスカレーション条件の詳細</li><li><a href="watch.html">ai-team-watch</a> — ソロモードでの自動再開</li><li><a href="run.html">ai-team-run</a> — 通常のワークフロー起動</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@trimix/ai-team とは - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.6.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class="active"><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">@trimix/ai-team とは</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/index.html" >v0.5.1</option><option value="../v0.5.2/index.html" >v0.5.2</option><option value="../v0.6.0/index.html" selected>v0.6.0</option><option value="../v0.7.0/index.html" >v0.7.0</option><option value="../v0.8.0/index.html" >v0.8.0</option><option value="../v0.9.0/index.html" >v0.9.0</option><option value="../v0.10.0/index.html" >v0.10.0</option><option value="../v0.11.0/index.html" >v0.11.0</option><option value="../v0.12.0/index.html" >v0.12.0</option><option value="../v0.13.0/index.html" >v0.13.0</option><option value="../v0.14.0/index.html" >v0.14.0</option><option value="../v0.15.0/index.html" >v0.15.0</option><option value="../v0.16.0/index.html" >v0.16.0</option><option value="../v0.17.0/index.html" >v0.17.0</option><option value="../v0.18.0/index.html" >v0.18.0</option><option value="../v0.20.0/index.html" >v0.20.0</option><option value="../v0.21.0/index.html" >v0.21.0</option><option value="../v0.21.1/index.html" >v0.21.1</option><option value="../v0.22.0/index.html" >v0.22.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>@trimix/ai-team とは</h1>
+
+<code>@trimix/ai-team</code> は、Claude Code を使った AI チームをプロジェクトに導入するセットアップパッケージです。GitHub Issues（または Jira・Linear 等）のチケットをトリガーに、バックエンド・フロントエンド・コンテンツ・インフラの各 AI チームが自律的にタスクを処理します。
+
+<code>package.json</code> の <code>description</code> には次のように定義されています。
+
+<pre><code class="language-">AIチームをプロジェクトにセットアップするウィザード</code></pre>
+
+<p>このパッケージは 4 つの専門チーム（合計 21 個のエージェント定義）と 7 つの Claude Code スキル（スラッシュコマンド）から構成されており、プロジェクト固有のワークフローを <code>.claude/teams/&lt;team_id&gt;/workflow.yml</code> で柔軟に定義できます。</p>
+
+<hr>
+
+<h2>主な特徴</h2>
+
+<h3>1. 自律的なワークフロー実行</h3>
+
+<p>担当者が <code>/ai-team-run &lt;Issue番号&gt;</code> を実行するだけで、Tech-Lead → Implementer → Reviewer → Tech-Writer → PR-Creator の順にエージェントが自動で引き継ぎながらタスクを進めます。各エージェントは Issue コメントに作業内容と判断根拠を記録するため、後から作業履歴を追跡できます。</p>
+
+<h3>2. ソロモード（自動監視）</h3>
+
+<code>/ai-team-watch</code> を実行すると、GitHub Issues を定期的に監視して新しいタスクを自動検出します。1 人で運用する場合や、新規 Issue を取りこぼしたくない場合に有効です。監視間隔・対象ラベル・スキップラベルは <code>.claude/ai-team-config.yml</code> で設定できます。
+
+<h3>3. 動的なレビュー方式（バックエンド・フロントエンド）</h3>
+
+<p>実装内容の影響範囲に応じて、Tech-Lead（または Frontend-Lead）が自動的にシングルレビューとダブルレビューを使い分けます。判定基準は <code>.claude/teams/&lt;team_id&gt;/review-config.yml</code> で定義されており、認証・決済・公開 API 等の機密領域は自動的にダブルレビューに切り替わります。</p>
+
+<h3>4. エスカレーション機構</h3>
+
+<p>法的判断・予算承認・PR マージ・仕様の曖昧さなど、AI が判断すべきでない事項に遭遇した場合、エージェントは自動的に <code>human-escalator</code> を呼び出して人間にエスカレーションします。人間が対応を完了した後は <code>/ai-team-resume</code> で続きから再開できます。</p>
+
+<h3>5. インシデント記録と再発防止</h3>
+
+<p>Contributor エージェントは Issue クローズ時にインシデントとして記録すべき情報がないか調査し、<code>.claude/incidents/</code> 配下にインシデントレポートを作成します。次回以降の作業開始時には、各リーダーエージェントが過去のインシデントを参照して「やってはいけないこと」を Issue に追記します。</p>
+
+<h3>6. ドキュメント自動更新（Tech-Writer）</h3>
+
+<p>バックエンドチームでは、PR 作成前に Tech-Writer エージェントが起動し、コードの変更差分を <code>docs-src/</code> 配下の Markdown に反映してから <code>node docs-src/build.js</code> で <code>public/docs/</code> に HTML をビルドします。コードとドキュメントが乖離しない仕組みです。</p>
+
+<hr>
+
+<h2>対応チーム</h2>
+
+<p>4 つのチームに対応しています。詳細は<a href="teams/overview.html">チーム概要</a>を参照してください。</p>
+
+<hr>
+
+<h2>バージョン情報</h2>
+
+<ul><li><strong>現行バージョン</strong>: v0.5.2</li><li><strong>必要な Node.js</strong>: 18.0.0 以上（<code>engines.node</code> で定義）</li><li><strong>配布形式</strong>: npm パッケージ（<code>.tgz</code>）</li><li><strong>ライセンス</strong>: MIT</li></ul>
+<h3>v0.5.x シリーズの主な変更点</h3>
+
+<ul><li>v0.5.0: ワークフロー設定ウィザード（<code>/ai-team-configure</code>）を追加</li><li>v0.5.1: postinstall で全スキルファイルが展開されない問題を修正</li><li>v0.5.2: Mermaid.js によるフローチャート描画対応・マニュアル全体の構造を再編成</li></ul>
+<code>bin/postinstall.js</code> で展開される 7 つのスキルファイルは以下のとおりです。
+
+<pre><code class="language-">ai-team-setup.md
+ai-team-run.md
+ai-team-watch.md
+ai-team-resume.md
+ai-team-gallery.md
+ai-team-install.md
+ai-team-configure.md</code></pre>
+
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>/ai-team-configure — ワークフロー設定ウィザード - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.5.1</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class="active"><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">/ai-team-configure — ワークフロー設定ウィザード</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/skills/configure.html" selected>v0.5.1</option><option value="../../v0.5.2/skills/configure.html" >v0.5.2</option><option value="../../v0.6.0/skills/configure.html" >v0.6.0</option><option value="../../v0.7.0/skills/configure.html" >v0.7.0</option><option value="../../v0.8.0/skills/configure.html" >v0.8.0</option><option value="../../v0.9.0/skills/configure.html" >v0.9.0</option><option value="../../v0.10.0/skills/configure.html" >v0.10.0</option><option value="../../v0.11.0/skills/configure.html" >v0.11.0</option><option value="../../v0.12.0/skills/configure.html" >v0.12.0</option><option value="../../v0.13.0/skills/configure.html" >v0.13.0</option><option value="../../v0.14.0/skills/configure.html" >v0.14.0</option><option value="../../v0.15.0/skills/configure.html" >v0.15.0</option><option value="../../v0.16.0/skills/configure.html" >v0.16.0</option><option value="../../v0.17.0/skills/configure.html" >v0.17.0</option><option value="../../v0.18.0/skills/configure.html" >v0.18.0</option><option value="../../v0.20.0/skills/configure.html" >v0.20.0</option><option value="../../v0.21.0/skills/configure.html" >v0.21.0</option><option value="../../v0.21.1/skills/configure.html" >v0.21.1</option><option value="../../v0.22.0/skills/configure.html" >v0.22.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>/ai-team-configure — ワークフロー設定ウィザード</h1>
+
+<p>会話形式の質問に答えながら <code>.claude/teams/&lt;team_id&gt;/workflow.yml</code> を生成・編集するウィザードです。手で YAML を書かなくてもワークフローをカスタマイズできます。</p>
+
+<p>> <strong>スキル定義</strong>: <code>skills/ai-team-configure.md</code></p>
+
+<hr>
+
+<h2>使い方</h2>
+
+<pre><code class="language-">/ai-team-configure &lt;team_id&gt;</code></pre>
+
+<code>team_id</code> は <code>backend</code> / <code>frontend</code> / <code>content</code> / <code>infra</code> のいずれかを指定します。引数を省略した場合、対話的にチームを選択します。
+
+<h3>実行例</h3>
+
+<pre><code class="language-">/ai-team-configure backend
+/ai-team-configure content
+/ai-team-configure          ← チームを対話的に選択</code></pre>
+
+<hr>
+
+<h2>ウィザードの流れ</h2>
+
+<h3>ステップ 0: チーム ID の確認と現状表示</h3>
+
+<ol><li>引数または対話で <code>team_id</code> を確定</li><li><code>.claude/teams/&lt;team_id&gt;/</code> が存在することを確認（なければエラーで終了）</li><li>既存の <code>workflow.yml</code> を読み込んで表示</li></ol>
+<pre><code class="language-">📄 現在の workflow.yml:
+──────────────────────────────────
+&lt;workflow.yml の内容&gt;
+──────────────────────────────────</code></pre>
+
+<ol><li><strong>新規作成 / 編集</strong> を選択</li></ol>
+<table><thead><tr><th>選択肢</th><th>動作</th></tr></thead><tbody><tr><td>[1] 既存をベースに編集</td><td>ステップ追加・変更・削除・順序変更を繰り返す</td></tr><tr><td>[2] 新規作成</td><td>現在のファイルを置き換える</td></tr></tbody></table>
+<p>ファイルが存在しない場合は自動的に「新規作成」になります。</p>
+
+<hr>
+
+<h3>ステップ 1: エージェント一覧の取得</h3>
+
+<pre><code class="language-bash">ls .claude/teams/&lt;team_id&gt;/agents/*.md | xargs -I{} basename {} .md</code></pre>
+
+<p>取得したエージェント名がステップ選択の候補になります。</p>
+
+<hr>
+
+<h3>ステップ 2: ステップの構成決定</h3>
+
+<h4>新規作成の場合</h4>
+
+<p>利用可能なエージェント一覧から、ワークフローに含めるものを実行順に選択します。<strong>ステップ ID はエージェント名と同じ</strong>に自動設定されます（例: <code>editor-in-chief</code>）。</p>
+
+<h4>既存編集の場合</h4>
+
+<p>操作メニューが表示されます。</p>
+
+<pre><code class="language-">📋 現在のステップ一覧:
+  [1] tech-lead (agent: tech-lead)
+  [2] implementer (agent: implementer)
+  ...
+
+何をしますか？
+[1] ステップを追加する
+[2] ステップを変更する
+[3] ステップを削除する
+[4] ステップの順序を変更する
+[5] 完了（設定内容の確認へ進む）</code></pre>
+
+<p>「5: 完了」を選ぶまで操作を繰り返します。</p>
+
+<hr>
+
+<h3>ステップ 3: 各ステップの詳細設定</h3>
+
+<p>新規作成または「変更」を選んだステップに対して、詳細設定が問われます。</p>
+
+<h4>3-1: label と description</h4>
+
+<pre><code class="language-">ステップ tech-lead（agent: tech-lead）の基本設定
+
+1. label（デフォルト: backend:tech-lead）
+2. description（省略可）
+
+スラッシュ区切りで入力してください：
+例: content:editor-in-chief / 方針決定とResearcher要否の判断</code></pre>
+
+<h4>3-2: 完了後の動作</h4>
+
+<pre><code class="language-">tech-lead が完了したら次に何をしますか？
+
+[1] 次のステップへ進む
+[2] 条件によって分岐する
+[3] ここで終了（Issueをクローズする）</code></pre>
+
+<h5>選択肢 1: 次のステップへ</h5>
+
+<p>候補ステップを番号付きで表示し、選択させます。生成 YAML：</p>
+
+<pre><code class="language-yaml">on_complete:
+  next: implementer</code></pre>
+
+<h5>選択肢 2: 条件分岐</h5>
+
+<p>条件を 1 つずつ追加します。各条件で以下を入力します。</p>
+
+<ul><li>条件名（例: <code>single-review</code> / <code>double-review</code>）</li><li>説明</li><li>判定基準（スラッシュ区切りで複数）</li><li>この条件の次ステップ（カンマ区切りで並列実行）</li></ul>
+<p>生成 YAML：</p>
+
+<pre><code class="language-yaml">conditions:
+  - id: single-review
+    description: ダブルレビュー基準に非該当
+    criteria:
+      - 変更ファイル数が5未満
+      - 認証・決済に非該当
+    next: reviewer
+
+  - id: double-review
+    description: いずれかに該当する場合
+    criteria:
+      - 変更ファイル数が5以上
+    next: [reviewer-a, reviewer-b]   # 並列実行</code></pre>
+
+<h5>選択肢 3: Issue をクローズ</h5>
+
+<pre><code class="language-yaml">on_complete:
+  action: close_issue</code></pre>
+
+<h4>3-3: 差し戻し・エスカレーション・並列設定</h4>
+
+<p>任意で以下を追加できます（複数選択可）。</p>
+
+<table><thead><tr><th>設定</th><th>用途</th><th>生成される YAML</th></tr></thead><tbody><tr><td>差し戻し</td><td>レビュー不合格時に前のステップに戻す</td><td><code>on_rework: { trigger, next }</code></td></tr><tr><td>エスカレーション</td><td>判断できない時に人間へ</td><td><code>on_escalation: { next: human-escalator }</code></td></tr><tr><td>並列実行</td><td>別ステップと同時進行</td><td><code>parallel_with: &lt;step_id&gt;</code></td></tr><tr><td>完了待ち</td><td>複数ステップの完了を待つ</td><td><code>requires: [&lt;a&gt;, &lt;b&gt;]</code></td></tr></tbody></table>
+<hr>
+
+<h3>ステップ 4: YAML 生成・プレビュー・保存</h3>
+
+<p>収集した情報から YAML を生成し、プレビュー表示してから保存確認します。</p>
+
+<pre><code class="language-">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📄 生成される workflow.yml のプレビュー
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+&lt;生成された YAML&gt;
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  保存すると .claude/teams/&lt;team_id&gt;/workflow.yml が上書きされます。
+
+この内容で保存しますか？
+[1] 保存する
+[2] キャンセル</code></pre>
+
+<p>「保存する」を選ぶと <code>Write</code> ツールで <code>.claude/teams/&lt;team_id&gt;/workflow.yml</code> に書き込まれます。</p>
+
+<hr>
+
+<h2>YAML 出力フォーマットのルール</h2>
+
+<p>ウィザードが守るルールは次のとおりです。</p>
+
+<table><thead><tr><th>ルール</th><th>詳細</th></tr></thead><tbody><tr><td><code>description</code> が空</td><td>フィールド自体を省略</td></tr><tr><td><code>on_rework</code> / <code>on_escalation</code> / <code>parallel_with</code> / <code>requires</code> が未設定</td><td>フィールド自体を省略</td></tr><tr><td><code>conditions</code> がある</td><td><code>on_complete</code> を省略（排他関係）</td></tr><tr><td><code>next</code> が単一</td><td>文字列で出力（例: <code>next: reviewer</code>）</td></tr><tr><td><code>next</code> が複数</td><td>配列で出力（例: <code>next: [reviewer-a, reviewer-b]</code>）</td></tr></tbody></table>
+<hr>
+
+<h2>生成 YAML の例（バックエンドの典型例）</h2>
+
+<pre><code class="language-yaml">name: backend-workflow
+description: コード実装・API・テスト等バックエンドリングタスクのワークフロー
+
+labels:
+  prefix: "backend"
+
+steps:
+
+  - id: tech-lead
+    agent: tech-lead
+    label: "backend:tech-lead"
+    description: 要件分析・設計方針の決定
+    on_complete:
+      next: implementer
+    on_escalation:
+      next: human-escalator
+
+  - id: implementer
+    agent: implementer
+    label: "backend:implementer"
+    on_complete:
+      next: tech-lead-review-decision
+    on_rework:
+      trigger: "差し戻し"
+      next: implementer
+
+  - id: tech-lead-review-decision
+    agent: tech-lead
+    label: "backend:tech-lead"
+    conditions:
+      - id: single-review
+        description: ダブルレビュー基準に非該当
+        criteria:
+          - 変更ファイル数が5未満
+        next: reviewer
+
+      - id: double-review
+        description: いずれかに該当する場合
+        criteria:
+          - 変更ファイル数が5以上
+        next: [reviewer-a, reviewer-b]</code></pre>
+
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="../reference/workflow.html">ワークフロー定義</a> — YAML フィールドの全仕様</li><li><a href="../teams/overview.html">チーム概要</a> — 既存ワークフローの実例</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

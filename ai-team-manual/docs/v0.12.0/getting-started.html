@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>クイックスタート - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.12.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class="active"><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class=""><a href="faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">クイックスタート</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/getting-started.html" >v0.5.1</option><option value="../v0.5.2/getting-started.html" >v0.5.2</option><option value="../v0.6.0/getting-started.html" >v0.6.0</option><option value="../v0.7.0/getting-started.html" >v0.7.0</option><option value="../v0.8.0/getting-started.html" >v0.8.0</option><option value="../v0.9.0/getting-started.html" >v0.9.0</option><option value="../v0.10.0/getting-started.html" >v0.10.0</option><option value="../v0.11.0/getting-started.html" >v0.11.0</option><option value="../v0.12.0/getting-started.html" selected>v0.12.0</option><option value="../v0.13.0/getting-started.html" >v0.13.0</option><option value="../v0.14.0/getting-started.html" >v0.14.0</option><option value="../v0.15.0/getting-started.html" >v0.15.0</option><option value="../v0.16.0/getting-started.html" >v0.16.0</option><option value="../v0.17.0/getting-started.html" >v0.17.0</option><option value="../v0.18.0/getting-started.html" >v0.18.0</option><option value="../v0.20.0/getting-started.html" >v0.20.0</option><option value="../v0.21.0/getting-started.html" >v0.21.0</option><option value="../v0.21.1/getting-started.html" >v0.21.1</option><option value="../v0.22.0/getting-started.html" >v0.22.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>クイックスタート</h1>
+
+<code>@trimix/ai-team</code> を使い始めるまでの手順を、最短ルートで説明します。各ステップの詳細は対応するページへのリンクから参照できます。
+
+<hr>
+
+<h2>前提条件</h2>
+
+<p>セットアップを始める前に以下を確認してください。</p>
+
+<table><thead><tr><th>項目</th><th>必須要件</th><th>確認コマンド</th></tr></thead><tbody><tr><td>Node.js</td><td>18.0.0 以上（<code>package.json</code> の <code>engines.node</code> で定義）</td><td><code>node --version</code></td></tr><tr><td>Claude Code CLI</td><td>インストール済み・サインイン済み</td><td><code>claude --version</code></td></tr><tr><td>GitHub CLI</td><td>インストール済み・認証済み（ラベル作成・Issue 操作に使用）</td><td><code>gh auth status</code></td></tr><tr><td>Git リポジトリ</td><td>プロジェクトが Git で管理されている</td><td><code>git status</code></td></tr><tr><td>GitHub リポジトリ</td><td>GitHub にリモートリポジトリが存在する（Issues 有効）</td><td><code>gh repo view</code></td></tr></tbody></table>
+<p>GitHub CLI が未認証の場合は <code>gh auth login</code> を実行してください。</p>
+
+<hr>
+
+<h2>ステップ 1: パッケージのインストール</h2>
+
+<p>配布された <code>.tgz</code> ファイルをプロジェクトルートに配置して、<code>npm install</code> で開発依存に追加します。</p>
+
+<pre><code class="language-bash">cd /path/to/your-project
+npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
+
+<p>完了すると以下のメッセージが表示されます。</p>
+
+<pre><code class="language-">✅ @trimix/ai-team: 7 件のSkillファイルを .claude/commands/ に展開しました
+   Claude Code で /ai-team-setup を実行してセットアップを完了してください</code></pre>
+
+<p>> <strong>この時点ではまだ使えません。</strong> スキルファイルが展開されただけで、チーム・ワークフロー・ラベルはまだ作成されていません。<strong>必ずステップ 2 に進んでください。</strong></p>
+
+<hr>
+
+<h2>ステップ 2: セットアップウィザードを実行する（必須）</h2>
+
+<p>Claude Code を起動し、以下のスラッシュコマンドを実行します。</p>
+
+<pre><code class="language-">/ai-team-setup</code></pre>
+
+<p>ウィザードが対話形式で次の項目を確認します。</p>
+
+<ol><li><strong>導入するチーム</strong>: backend / frontend / content / infra / sns（複数選択可）</li><li><strong>運用モード</strong>: <code>multi-user</code>（担当者ごとに <code>/ai-team-run</code> 起動）または <code>solo</code>（<code>/ai-team-watch</code> で自動監視）</li><li><strong>バージョン管理</strong>: <code>auto</code>（Reviewer 合格後に自動インクリメント）または <code>manual</code>（人間が管理）</li><li><strong>Issue 強制チェック</strong>: <code>CLAUDE.md のみ</code>（Claude が判断して Issue 作成を促す）または <code>hooks で強制</code>（変更系の指示に Issue がない場合にスクリプトでブロック）</li><li><strong>GitHub ラベルの作成</strong>: 選択したチームに対応するラベルを <code>gh label create</code> で一括作成するかどうか</li></ol>
+<p>セットアップが完了すると、プロジェクトルートに次のディレクトリが配置されます。</p>
+
+<pre><code class="language-">.claude/
+├── CLAUDE.md                # プロジェクト用 AIチーム設定（タスク受付ルールを含む）
+├── ai-team-config.yml       # 運用モード・solo設定・バージョン管理設定
+├── escalation-rules.yml     # エスカレーション条件
+├── agents/                  # 共通エージェント（contributor / dispatcher / human-escalator）
+├── teams/&lt;team_id&gt;/         # 選択したチームのワークフロー・エージェント・DOD
+├── dod/                     # 共通DODテンプレート（incident.md など）
+├── incidents/               # インシデントレポート（初期状態は空）
+├── docs/workflow-guide.md   # ワークフロー運用ガイド
+├── hooks/                   # UserPromptSubmit フック（hooks を選択した場合のみ）
+│   └── ensure-issue.sh      # ファイル変更系の指示に Issue 番号がなければブロック
+└── commands/                # postinstall で展開された 7 個のスキル</code></pre>
+
+<p>詳細は <a href="skills/setup.html">ai-team-setup スキル</a> を参照してください。</p>
+
+<hr>
+
+<h2>ステップ 3: 最初のタスクの実行</h2>
+
+<h3>方法 A: マルチユーザーモード（個別実行）</h3>
+
+<p>GitHub Issue を作成し、適切なリーダーラベル（例: <code>backend:tech-lead</code>）を付けます。担当者は Claude Code で以下を実行します。</p>
+
+<pre><code class="language-">/ai-team-run 42</code></pre>
+
+<p>または Issue の URL を直接渡します。</p>
+
+<pre><code class="language-">/ai-team-run https://github.com/your-org/your-repo/issues/42</code></pre>
+
+<p>エージェントは次の順序で動作します（バックエンドチームの例）。</p>
+
+<pre><code class="language-">tech-lead → implementer → tech-lead（レビュー方式判断）
+        → reviewer（または reviewer-a + reviewer-b → cross-review）
+        → tech-writer → pr-creator → 人間承認 → contributor → close</code></pre>
+
+<h3>方法 B: ソロモード（自動監視）</h3>
+
+<code>/ai-team-setup</code> でソロモードを選択した場合は、次のコマンドで自動監視を起動します。
+
+<pre><code class="language-">/ai-team-watch</code></pre>
+
+<code>.claude/ai-team-config.yml</code> の <code>solo.poll_interval_minutes</code>（デフォルト 5 分）ごとに新規 Issue を検出し、自動でワークフローを起動します。停止するまで監視ループが動作するため、停止には Ctrl+C を使用します。
+
+<p>詳細は <a href="skills/watch.html">ai-team-watch スキル</a> を参照してください。</p>
+
+<hr>
+
+<h2>ステップ 4: 人間の判断が必要になった場合</h2>
+
+<p>AI エージェントが法的判断・予算承認・PR マージ・仕様の曖昧さに遭遇すると、<code>human-escalator</code> が起動して <code>escalated:human</code> ラベルを付与し処理を停止します。Issue には以下のような案内が投稿されます。</p>
+
+<pre><code class="language-">🚨 エスカレーション: 人間の判断が必要です
+
+## エスカレーション理由
+種別: ambiguous_spec
+理由: （具体的に何が判断できないか）
+
+## 対応完了後の手順
+1. このIssueに判断内容をコメントしてください
+2. escalated:human ラベルを外してください
+3. 以下のコマンドでワークフローを再開してください：
+   /ai-team-resume</code></pre>
+
+<p>人間がコメント・ラベル除去を行ったら、以下で続きから再開します。</p>
+
+<pre><code class="language-">/ai-team-resume</code></pre>
+
+<p>引数なしで実行すると、再開対象 Issue を自動検出します。詳細は <a href="skills/resume.html">ai-team-resume スキル</a> を参照してください。</p>
+
+<hr>
+
+<h2>次に読むべきページ</h2>
+
+<ul><li>インストール手順とディレクトリ構成の詳細 → <a href="installation.html">インストール</a></li><li>すべてのスキル（スラッシュコマンド）の仕様 → <a href="skills/overview.html">スキル一覧</a></li><li>チームごとのワークフロー（フロー図あり） → <a href="teams/overview.html">チーム概要</a></li><li>ワークフロー YAML の文法 → <a href="reference/workflow.html">ワークフロー定義</a></li><li>DOD（Definition of Done）の運用 → <a href="reference/dod.html">DOD テンプレート</a></li><li>よくある質問 → <a href="faq.html">FAQ</a></li><li>問題が発生した場合 → <a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
