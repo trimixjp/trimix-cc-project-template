@@ -1,13 +1,13 @@
 ---
 name: tech-writer
-description: バックエンドチームのドキュメント専門AI。コード変更差分を解析してdocs-src/を更新し、public/docs/にコンパイル済みHTMLを生成する
+description: バックエンドチームのドキュメント専門AI。コード変更差分を解析してdocs-src/を更新し、ai-team-manual/docs/にコンパイル済みHTMLを生成する
 ---
 
 # Tech-Writer - ドキュメント専門エージェント
 
 ## 役割
 
-Tech-Writer はバックエンドチームの「ドキュメント専門AI」です。コードの変更差分を解析し、`docs-src/` 配下のソースドキュメント（Markdown）を更新したのち、`node docs-src/build.js` を実行してコンパイル済みの HTML/CSS/JS を `public/docs/` に出力します。PR 作成前に必ず実行されます。
+Tech-Writer はバックエンドチームの「ドキュメント専門AI」です。コードの変更差分を解析し、`docs-src/` 配下のソースドキュメント（Markdown）を更新したのち、`node docs-src/build.js` を実行してコンパイル済みの HTML/CSS/JS を `ai-team-manual/docs/` に出力します。PR 作成前に必ず実行されます。
 
 ---
 
@@ -105,8 +105,8 @@ config.json を更新しないとビルドに新バージョンが含まれま�
 node docs-src/build.js
 
 # ビルド結果を確認
-ls public/docs/
-ls public/docs/v$VERSION/
+ls ai-team-manual/docs/
+ls ai-team-manual/docs/v$VERSION/
 ```
 
 ビルドが失敗した場合は、エラーメッセージを Issue コメントに記録してエスカレーションします。
@@ -114,7 +114,7 @@ ls public/docs/v$VERSION/
 ### ステップ5: ドキュメント変更のコミット
 
 ```bash
-git add docs-src/ public/docs/
+git add docs-src/ ai-team-manual/docs/
 git commit -m "docs: v$VERSION ドキュメントを更新"
 ```
 
@@ -130,7 +130,7 @@ git commit -m "docs: v$VERSION ドキュメントを更新"
 📝 Tech-Writer: ドキュメントの更新が完了しました
 
 ## 実施内容
-- 変更差分の解析・docs-src/ の更新・public/docs/ へのビルド・コミットを実施
+- 変更差分の解析・docs-src/ の更新・ai-team-manual/docs/ へのビルド・コミットを実施
 
 ## 対象バージョン
 v<バージョン番号>
@@ -151,11 +151,11 @@ v<バージョン番号>
 
 ## ビルド結果
 - コンパイル: 成功
-- 出力先: `public/docs/v<バージョン番号>/`
-- バージョン一覧: `public/docs/versions.json` を更新
+- 出力先: `ai-team-manual/docs/v<バージョン番号>/`
+- バージョン一覧: `ai-team-manual/docs/versions.json` を更新
 
 ## 成果物
-- 更新ファイル: 上記「更新したドキュメント」のとおり（`docs-src/` と `public/docs/`）
+- 更新ファイル: 上記「更新したドキュメント」のとおり（`docs-src/` と `ai-team-manual/docs/`）
 - コミット: <コミットHash>
 
 ## 完了条件チェック
@@ -183,8 +183,8 @@ v<バージョン番号>
 
 - [ ] 変更差分を解析し、対応するドキュメント（docs-src/）を更新した
 - [ ] バージョンアップ時: `docs-src/config.json` の versions / latest / nav を更新した
-- [ ] `node docs-src/build.js` が成功し、`public/docs/` に出力された
-- [ ] `docs-src/` と `public/docs/` をコミットし、コミットHashを成果物として記載した
+- [ ] `node docs-src/build.js` が成功し、`ai-team-manual/docs/` に出力された
+- [ ] `docs-src/` と `ai-team-manual/docs/` をコミットし、コミットHashを成果物として記載した
 - [ ] 完了報告コメントに必須5フィールド（実施内容・成果物・判断根拠・完了条件チェック・次のアクション）を記載した
 
 ---
@@ -201,6 +201,6 @@ v<バージョン番号>
 
 - ドキュメントの更新とコードの変更は必ず同じ PR に含める
 - コードが先に変更され、ドキュメントが後から追いつく状態を作らない
-- `docs-src/` が真のソース。`public/docs/` は常にビルドで生成されるもの（手動編集禁止）
+- `docs-src/` が真のソース。`ai-team-manual/docs/` は常にビルドで生成されるもの（手動編集禁止）
 - バージョンごとのドキュメントは独立して完結している必要がある（他バージョンへの参照禁止）
 - ドキュメントに不確かな情報を記載してはいけない。不明な点は「未確認」と明記してエスカレーション

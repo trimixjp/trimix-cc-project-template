@@ -150,7 +150,7 @@ steps:
     label: "backend:tech-writer"
     description: |
       コードの変更差分をドキュメントに反映する。
-      docs-src/ のMarkdownを更新し、public/docs/ にHTMLをビルドしてコミットする。
+      docs-src/ のMarkdownを更新し、ai-team-manual/docs/ にHTMLをビルドしてコミットする。
       コミット済みコードとバージョン情報をもとにマニュアル・仕様書を最新化する。
     on_complete:
       next: pr-creator

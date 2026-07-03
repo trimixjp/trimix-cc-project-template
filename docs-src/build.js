@@ -6,7 +6,8 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const DOCS_SRC = join(ROOT, 'docs-src');
-const PUBLIC_DOCS = join(ROOT, 'public', 'docs');
+const PUBLIC_ROOT = join(ROOT, 'ai-team-manual');
+const PUBLIC_DOCS = join(PUBLIC_ROOT, 'docs');
 
 const config = JSON.parse(readFileSync(join(DOCS_SRC, 'config.json'), 'utf8'));
 
@@ -129,7 +130,7 @@ function buildNav(navConfig, currentFile, version) {
 
 // バージョン切り替えHTMLを生成
 function buildVersionSwitcher(versions, currentVersion, currentFile) {
-  // バージョンディレクトリの1つ上（public/docs/）まで遡る必要がある
+  // バージョンディレクトリの1つ上（ai-team-manual/docs/）まで遡る必要がある
   const toDocsRoot = '../'.repeat(currentFile.split('/').length);
   const targetFile = currentFile === 'index' ? 'index.html' : `${currentFile}.html`;
 
@@ -580,7 +581,7 @@ function copyImages(srcDir, outDir) {
 function build() {
   console.log('📚 ドキュメントビルドを開始...');
 
-  // public/docs ディレクトリ作成
+  // ai-team-manual/docs ディレクトリ作成
   mkdirSync(PUBLIC_DOCS, { recursive: true });
 
   const allVersionFiles = [];
@@ -662,6 +663,22 @@ function build() {
 </html>`;
   writeFileSync(join(PUBLIC_DOCS, 'index.html'), indexHtml, 'utf8');
   console.log('  ✅ index.html');
+
+  // ルート index.html（最新バージョンのドキュメントへ直接リダイレクト）
+  // 二重リダイレクトを避けるため docs/index.html ではなく最新版を直接指す
+  const rootIndexHtml = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url=./docs/${config.latest}/index.html">
+  <title>${config.title}</title>
+</head>
+<body>
+  <p><a href="./docs/${config.latest}/index.html">最新ドキュメントへ移動</a></p>
+</body>
+</html>`;
+  writeFileSync(join(PUBLIC_ROOT, 'index.html'), rootIndexHtml, 'utf8');
+  console.log('  ✅ index.html（ルート）');
 
   console.log('✨ ビルド完了');
 }

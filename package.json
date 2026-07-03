@@ -12,7 +12,7 @@
     "skills/",
     "packages/",
     "registry.json",
-    "public/"
+    "ai-team-manual/"
   ],
   "workspaces": [
     "packages/*"
