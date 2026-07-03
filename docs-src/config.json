@@ -3097,6 +3097,15 @@
             "file": "reference/dod"
           }
         ]
+      },
+      {
+        "title": "変更履歴",
+        "items": [
+          {
+            "title": "v0.22.0 の変更点",
+            "file": "changelog"
+          }
+        ]
       }
     ]
   }
