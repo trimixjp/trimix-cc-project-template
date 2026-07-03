@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>設定ファイル - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.22.1</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class="active"><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.22.1 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">設定ファイル</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/reference/config.html" >v0.5.1</option><option value="../../v0.5.2/reference/config.html" >v0.5.2</option><option value="../../v0.6.0/reference/config.html" >v0.6.0</option><option value="../../v0.7.0/reference/config.html" >v0.7.0</option><option value="../../v0.8.0/reference/config.html" >v0.8.0</option><option value="../../v0.9.0/reference/config.html" >v0.9.0</option><option value="../../v0.10.0/reference/config.html" >v0.10.0</option><option value="../../v0.11.0/reference/config.html" >v0.11.0</option><option value="../../v0.12.0/reference/config.html" >v0.12.0</option><option value="../../v0.13.0/reference/config.html" >v0.13.0</option><option value="../../v0.14.0/reference/config.html" >v0.14.0</option><option value="../../v0.15.0/reference/config.html" >v0.15.0</option><option value="../../v0.16.0/reference/config.html" >v0.16.0</option><option value="../../v0.17.0/reference/config.html" >v0.17.0</option><option value="../../v0.18.0/reference/config.html" >v0.18.0</option><option value="../../v0.20.0/reference/config.html" >v0.20.0</option><option value="../../v0.21.0/reference/config.html" >v0.21.0</option><option value="../../v0.21.1/reference/config.html" >v0.21.1</option><option value="../../v0.22.0/reference/config.html" >v0.22.0</option><option value="../../v0.22.1/reference/config.html" selected>v0.22.1 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>設定ファイル</h1>
+
+<code>@trimix/ai-team</code> で使用する 4 つの主要設定ファイルの仕様です。
+
+<table><thead><tr><th>ファイル</th><th>用途</th></tr></thead><tbody><tr><td><code>.claude/ai-team-config.yml</code></td><td>運用モード（multi-user / solo）と solo 設定</td></tr><tr><td><code>.claude/escalation-rules.yml</code></td><td>エスカレーション条件の定義</td></tr><tr><td><code>docs-src/config.json</code></td><td>ドキュメントサイトのナビゲーションとバージョン情報</td></tr><tr><td><code>.claude/teams/&lt;team_id&gt;/review-config.yml</code></td><td>レビュー方式の自動判断基準（backend / frontend のみ）</td></tr></tbody></table>
+<hr>
+
+<h2><code>.claude/ai-team-config.yml</code></h2>
+
+<code>/ai-team-setup</code> で生成されます。運用モードに応じて構造が変わります。
+
+<h3>全フィールド</h3>
+
+<pre><code class="language-yaml"># 運用モード（必須）
+mode: multi-user  # または solo
+
+# solo モードの設定（mode: solo の場合のみ有効）
+solo:
+  poll_interval_minutes: 5      # Issue 監視の間隔（分）
+  target_labels:                # 処理対象ラベル（OR 条件）
+    - dispatcher
+    - backend:tech-lead
+    - frontend:frontend-lead
+    - content:editor-in-chief
+    - infra:infra-lead
+  skip_labels:                  # スキップ条件（いずれか付いていればスキップ）
+    - ai-team:in-progress
+    - escalated:human
+    - contributor:ready</code></pre>
+
+<h3>フィールド詳細</h3>
+
+<table><thead><tr><th>フィールド</th><th>型</th><th>必須</th><th>説明</th></tr></thead><tbody><tr><td><code>mode</code></td><td>string</td><td>○</td><td><code>multi-user</code> または <code>solo</code></td></tr><tr><td><code>solo.poll_interval_minutes</code></td><td>integer</td><td>△</td><td><code>mode: solo</code> の場合に必須。監視間隔（分）</td></tr><tr><td><code>solo.target_labels</code></td><td>array</td><td>△</td><td><code>mode: solo</code> の場合に必須。処理対象とするラベル（OR 条件）</td></tr><tr><td><code>solo.skip_labels</code></td><td>array</td><td>△</td><td><code>mode: solo</code> の場合に必須。スキップ条件</td></tr></tbody></table>
+<h3>運用モードの違い</h3>
+
+<table><thead><tr><th>観点</th><th>multi-user</th><th>solo</th></tr></thead><tbody><tr><td>起動方法</td><td>担当者が <code>/ai-team-run</code> 実行</td><td><code>/ai-team-watch</code> で監視ループ</td></tr><tr><td>新規 Issue の検出</td><td>手動</td><td>ポーリングで自動</td></tr><tr><td>二重実行防止</td><td>担当者の運用に依存</td><td><code>ai-team:in-progress</code> ラベル</td></tr><tr><td>solo セクション</td><td>不要</td><td>必須</td></tr></tbody></table>
+<hr>
+
+<h2><code>.claude/escalation-rules.yml</code></h2>
+
+<p>エスカレーション条件と透明性ルールを定義します。</p>
+
+<h3>全フィールド</h3>
+
+<pre><code class="language-yaml">escalation_triggers:
+  - id: legal
+    type: legal
+    priority: P1
+    description: 法的判断、契約、コンプライアンスに関わる内容
+    detection: |
+      以下を順に確認し、1つでも該当すればエスカレーションと判定する:
+        1. 作業内容に利用規約・ライセンス・契約文書の作成・変更・解釈が含まれるか
+        2. 個人情報・機密情報の取り扱い方針の新規決定・変更が必要か
+        3. 外部サービス・ライブラリの規約/ライセンスの遵守可否の判断が必要か
+
+  - id: budget
+    type: budget
+    priority: P2
+    description: 予算承認、費用の発生を伴う判断
+    detection: |
+      （費用発生・利用量増加・予算承認の確認手順）
+
+  - id: merge_approval
+    type: merge_approval
+    priority: P2
+    description: プルリクエストの承認とマージは常に人間が行う
+    detection: |
+      （PR 作成ステップ・保護ブランチへのマージ到達で常にエスカレーション）
+
+  - id: ambiguous_spec
+    type: ambiguous_spec
+    priority: P3
+    description: |
+      ルール・仕様書・CLAUDE.mdに記述がなく、どちらを採用しても優劣がつかない場合
+    detection: |
+      .claude/rules/ → CLAUDE.md → docs/ の順で各1回検索してから判定する
+      （記述が見つかればそれに従い、優劣がつけられれば根拠を記録して自走する）
+
+transparency_rules:
+  - 全ての判断には根拠を記録する
+  - 参照したファイル・仕様書・ルールを明示する
+  - 懸念点は「未解決」として明示する
+  - 判断できなかった場合は理由を記録してエスカレーション</code></pre>
+
+<h3>フィールド詳細</h3>
+
+<table><thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead><tbody><tr><td><code>escalation_triggers</code></td><td>array</td><td>エスカレーション条件のリスト</td></tr><tr><td><code>escalation_triggers[].id</code></td><td>string</td><td>トリガー識別子（v0.11.0 で追加）。human-escalator のエスカレーションコメント「エスカレーション種別」に記載する値</td></tr><tr><td><code>escalation_triggers[].type</code></td><td>string</td><td>トリガー種別。<code>legal</code> / <code>budget</code> / <code>merge_approval</code> / <code>ambiguous_spec</code>（後方互換のため <code>id</code> と同値で維持）</td></tr><tr><td><code>escalation_triggers[].priority</code></td><td>string</td><td>優先度（v0.11.0 で追加）。<code>P1</code>: 即時の人間判断が必要 / <code>P2</code>: 当日中の対応が望ましい / <code>P3</code>: 急がない</td></tr><tr><td><code>escalation_triggers[].description</code></td><td>string</td><td>この条件の説明</td></tr><tr><td><code>escalation_triggers[].detection</code></td><td>string</td><td>エスカレーションと判定するための具体手順（v0.11.0 で追加。記載の順番どおりに確認する）</td></tr><tr><td><code>transparency_rules</code></td><td>array</td><td>エージェントが守るべき透明性ルール</td></tr></tbody></table>
+<h3><code>type</code> の値と用途</h3>
+
+<table><thead><tr><th>type</th><th>用途</th><th>典型例</th></tr></thead><tbody><tr><td><code>legal</code></td><td>法的判断・契約・コンプライアンス</td><td>著作権・利用規約・個人情報</td></tr><tr><td><code>budget</code></td><td>費用発生・予算承認</td><td>有料サービス契約・サーバー増強</td></tr><tr><td><code>merge_approval</code></td><td>PR 承認・マージ</td><td>全てのコードマージ</td></tr><tr><td><code>ambiguous_spec</code></td><td>仕様書に記述がなく判断不能</td><td>設計方針が複数あり優劣がつかない場合</td></tr></tbody></table>
+<p>詳細は <a href="escalation.html">エスカレーションルール</a> を参照してください。</p>
+
+<hr>
+
+<h2><code>docs-src/config.json</code></h2>
+
+<p>ドキュメントサイトのナビゲーション・バージョン情報を定義します。<code>docs-src/build.js</code> がこれを読み込んで HTML を生成します。</p>
+
+<h3>全フィールド</h3>
+
+<pre><code class="language-json">{
+  "title": "@trimix/ai-team ドキュメント",
+  "versions": ["v0.5.1"],
+  "latest": "v0.5.1",
+  "nav": {
+    "v0.5.1": [
+      {
+        "title": "はじめに",
+        "items": [
+          { "title": "概要", "file": "index" },
+          { "title": "クイックスタート", "file": "getting-started" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+
+<h3>フィールド詳細</h3>
+
+<table><thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead><tbody><tr><td><code>title</code></td><td>string</td><td>サイト全体のタイトル（HTML <code>&lt;title&gt;</code> とサイドバーロゴに使用）</td></tr><tr><td><code>versions</code></td><td>string[]</td><td>サイトに含めるバージョンのリスト</td></tr><tr><td><code>latest</code></td><td>string</td><td>最新バージョン（<code>/</code> アクセスがこのバージョンにリダイレクトされる）</td></tr><tr><td><code>nav</code></td><td>object</td><td>バージョンごとのナビゲーション定義</td></tr><tr><td><code>nav.&lt;version&gt;</code></td><td>array</td><td>セクションのリスト</td></tr><tr><td><code>nav.&lt;version&gt;[].title</code></td><td>string</td><td>サイドバーに表示するセクション名</td></tr><tr><td><code>nav.&lt;version&gt;[].items</code></td><td>array</td><td>セクション内のページリスト</td></tr><tr><td><code>nav.&lt;version&gt;[].items[].title</code></td><td>string</td><td>リンクテキスト</td></tr><tr><td><code>nav.&lt;version&gt;[].items[].file</code></td><td>string</td><td><code>versions/&lt;version&gt;/&lt;file&gt;.md</code> への参照（拡張子なし）</td></tr></tbody></table>
+<h3>バージョン追加時の更新</h3>
+
+<p>新バージョン（例: v0.5.2）リリース時：</p>
+
+<pre><code class="language-json">{
+  "versions": ["v0.5.0", "v0.5.1", "v0.5.2"],
+  "latest": "v0.5.2",
+  "nav": {
+    "v0.5.1": [...],
+    "v0.5.2": [...]
+  }
+}</code></pre>
+
+<p>詳細は <a href="../agents/tech-writer.html">Tech-Writer</a> を参照してください。</p>
+
+<hr>
+
+<h2><code>.claude/teams/backend/review-config.yml</code></h2>
+
+<p>バックエンドチームのレビュー方式（シングル / ダブル）の自動判定基準です。</p>
+
+<p>> <strong>v0.11.0 の変更</strong>: AI の主観的な解釈に頼らない<strong>機械判定</strong>に強化されました。<code>sensitive_areas</code> の各項目に正規表現 <code>pattern</code> が追加され、<code>detection_procedure</code> に定義された手順（コマンド）どおりに計測・照合します。また全レビュアー共通のチェックリスト <code>review_criteria</code> が追加されました。</p>
+
+<h3>全フィールド</h3>
+
+<pre><code class="language-yaml">review:
+  mode: auto  # AI が以下の基準に従って自動判断します
+
+  # ダブルレビュー基準（いずれか 1 つでも該当）
+  double_review_criteria:
+    file_count_threshold: 5
+    sensitive_areas:                 # pattern は拡張正規表現（単語境界 \b 付き）
+      - id: auth
+        description: 認証・認可（auth / login / session / token / JWT）
+        pattern: '\b(auth|login|session|token|jwt|oauth)\b'
+      - id: payment
+        description: 決済・課金（payment / billing / stripe / invoice）
+        pattern: '\b(payment|billing|stripe|invoice|charge)\b'
+      - id: personal-data
+        description: 個人情報・機密データ（user / password / email / PII）
+        pattern: '\b(user|password|email|pii|credential|secret)\b'
+      - id: db-schema
+        description: データベーススキーマ・マイグレーション（migration / schema）
+        pattern: '\b(migration|schema|migrate)\b'
+      - id: public-api
+        description: 公開API（破壊的変更・エンドポイントの追加・削除）
+        pattern: '\b(api|endpoint|route|openapi|swagger)\b'
+      - id: security-config
+        description: セキュリティ設定（cors / csrf / rate-limit / firewall）
+        pattern: '\b(cors|csrf|rate[-_]?limit|firewall|csp)\b'
+    cross_layer_changes: true
+    labels:
+      - "complexity:high"
+      - "security-sensitive"
+      - "breaking-change"
+
+  # 機械判定手順（v0.11.0 で追加）
+  # Tech-Lead はこの手順どおりにコマンドを実行し、計測値をレビュー方式判断コメントに必ず記載する
+  detection_procedure:
+    base_branch: main   # 計測の基準ブランチ
+    steps:
+      - id: verify-base       # 0. 基準ブランチの存在確認（失敗時は安全側に倒しダブルレビュー）
+        command: 'git rev-parse --verify &lt;base_branch&gt;'
+      - id: file-count        # 1. 変更ファイル数の計測
+        command: 'git diff --name-only &lt;base_branch&gt;...HEAD | wc -l'
+      - id: path-match        # 2. パス照合（該当確定）
+        command: 'git diff --name-only &lt;base_branch&gt;...HEAD | grep -ciE "&lt;pattern&gt;" || true'
+      - id: body-match        # 3. 本文照合（参考値。該当判定には使わない）
+        command: 'git diff &lt;base_branch&gt;...HEAD --unified=0 | grep "^+" | grep -v "^+++" | grep -ciE "&lt;pattern&gt;" || true'
+
+  # シングルレビュー基準
+  single_review_criteria:
+    - 単一ファイルの変更
+    - ドキュメント・コメントのみの変更
+    - テストの追加（実装ロジックの変更なし）
+    - 設定値・定数の変更（アルゴリズムの変更なし）
+    - スタイル・フォーマットの修正
+
+# 全レビュアー共通のレビュー基準（v0.11.0 で追加。reviewer / reviewer-a / reviewer-b が参照）
+review_criteria:
+  - id: correctness
+    item: 機能の正しさ
+    check: 要件・設計方針どおりに動作し、エッジケースが考慮されている
+  # ほか test-coverage / readability / security / performance / error-handling
+
+# レビュー完了後のフロー
+post_review:
+  create_pr: true
+  pr_agent: pr-creator</code></pre>
+
+<h3>フィールド詳細</h3>
+
+<table><thead><tr><th>フィールド</th><th>型</th><th>説明</th></tr></thead><tbody><tr><td><code>review.mode</code></td><td>string</td><td>判定方式。現在は <code>auto</code> のみサポート</td></tr><tr><td><code>review.double_review_criteria.file_count_threshold</code></td><td>integer</td><td>この値以上のファイル変更でダブルレビュー</td></tr><tr><td><code>review.double_review_criteria.sensitive_areas</code></td><td>array</td><td>機密領域の定義。<code>id</code> / <code>description</code> / <code>pattern</code>（単語境界付き拡張正規表現）を持つ</td></tr><tr><td><code>review.double_review_criteria.cross_layer_changes</code></td><td>boolean</td><td>複数レイヤーをまたぐ変更でダブルレビュー</td></tr><tr><td><code>review.double_review_criteria.labels</code></td><td>array</td><td>これらのラベルが付与されている場合にダブルレビュー</td></tr><tr><td><code>review.detection_procedure.base_branch</code></td><td>string</td><td>計測の基準ブランチ（プロジェクトのデフォルトブランチに合わせて変更）</td></tr><tr><td><code>review.detection_procedure.steps</code></td><td>array</td><td>機械判定の手順。<code>verify-base</code> → <code>file-count</code> → <code>path-match</code>（該当確定）→ <code>body-match</code>（参考値）の順で実行</td></tr><tr><td><code>review.single_review_criteria</code></td><td>array</td><td>シングルレビューとなる典型ケース（参考情報）</td></tr><tr><td><code>review_criteria</code></td><td>array</td><td>全レビュアー共通のレビューチェックリスト（基準の重複記載を避けるため一本化）</td></tr><tr><td><code>post_review.create_pr</code></td><td>boolean</td><td>レビュー後に PR を作成するか</td></tr><tr><td><code>post_review.pr_agent</code></td><td>string</td><td>PR 作成を担当するエージェント名</td></tr></tbody></table>
+<h3>機械判定の運用ルール</h3>
+
+<ul><li>Tech-Lead は <code>detection_procedure</code> の手順どおりにコマンドを実行し、<strong>計測値（ファイル数・ヒットした pattern と件数）をレビュー方式判断コメントに必ず記載</strong>します。主観での判定は禁止です</li><li><strong>パス照合（path-match）= 該当確定</strong>: 変更ファイルのパスが pattern にマッチしたらダブルレビュー確定</li><li><strong>本文照合（body-match）= 参考値</strong>: 追加行の内容マッチは記録のみで、該当判定には使いません</li><li>基準ブランチの検証（verify-base）に失敗した場合は計測不能として<strong>安全側に倒しダブルレビュー</strong>にします</li><li><code>grep -c</code> の結果は「マッチ行数」。ヒット 0 件時に grep が終了コード 1 を返すため <code>|| true</code> を併記します</li></ul>
+<hr>
+
+<h2><code>.claude/teams/frontend/review-config.yml</code></h2>
+
+<p>フロントエンドチームのレビュー方式判定基準。<code>sensitive_areas</code> の内容（<code>pattern</code>）がフロントエンド向けになっている以外、構造（<code>pattern</code> / <code>detection_procedure</code> / <code>review_criteria</code> を含む）はバックエンドと同じです。</p>
+
+<h3><code>sensitive_areas</code></h3>
+
+<table><thead><tr><th>領域</th><th>pattern（抜粋）</th></tr></thead><tbody><tr><td>認証 UI</td><td><code>\b(auth|login|logout|session|signin|signup|token)\b</code></td></tr><tr><td>決済 UI</td><td><code>\b(payment|checkout|billing|stripe|cart)\b</code></td></tr><tr><td>個人情報フォーム</td><td><code>\b(user|profile|password|email|address|account)\b</code></td></tr><tr><td>デザインシステム破壊的変更</td><td><code>\b(design-system|theme|token|variables|components/(common|shared|ui))\b</code></td></tr><tr><td>公開 API インターフェース変更</td><td><code>\b(api|endpoint|openapi|swagger|types/api)\b</code></td></tr></tbody></table>
+<code>cross_layer_changes</code> フィールドはフロントエンド版にはありません。機械判定は Frontend-Lead が <code>detection_procedure</code> の手順で実施します。
+
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="workflow.html">ワークフロー定義</a> — <code>workflow.yml</code> の仕様</li><li><a href="escalation.html">エスカレーションルール</a> — <code>escalation-rules.yml</code> の運用</li><li><a href="../agents/tech-writer.html">Tech-Writer</a> — <code>docs-src/config.json</code> の更新</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

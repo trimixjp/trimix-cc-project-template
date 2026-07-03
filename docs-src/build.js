@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, statSync, copyFileSync } from 'fs';
-import { join, dirname, parse, relative } from 'path';
+import { join, dirname, parse, relative, resolve, isAbsolute } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const DOCS_SRC = join(ROOT, 'docs-src');
 const PUBLIC_ROOT = join(ROOT, 'ai-team-manual');
-const PUBLIC_DOCS = join(PUBLIC_ROOT, 'docs');
 
 const config = JSON.parse(readFileSync(join(DOCS_SRC, 'config.json'), 'utf8'));
 
@@ -578,18 +577,38 @@ function copyImages(srcDir, outDir) {
 }
 
 // メインビルド処理
-function build() {
-  console.log('📚 ドキュメントビルドを開始...');
+// options.single: 指定すると単一バージョンのみをビルドし、version-switcher を非表示にする（配布ビルドモード）
+// options.outRoot: 出力先ルートディレクトリ（未指定なら ai-team-manual/。配布ビルド用に別ディレクトリを指定する）
+function build(options = {}) {
+  const { single = null, outRoot = null } = options;
+  const distMode = single !== null;
 
-  // ai-team-manual/docs ディレクトリ作成
-  mkdirSync(PUBLIC_DOCS, { recursive: true });
+  // 出力先ルート・docsディレクトリを決定（既定は従来どおり ai-team-manual/）
+  const publicRoot = outRoot
+    ? (isAbsolute(outRoot) ? outRoot : resolve(process.cwd(), outRoot))
+    : PUBLIC_ROOT;
+  const publicDocs = join(publicRoot, 'docs');
+
+  // 配布モードでは config.latest を単一の真実の情報源とし、指定バージョンのみビルドする
+  if (distMode && !config.versions.includes(single)) {
+    throw new Error(`指定バージョン ${single} は docs-src/config.json の versions に存在しません`);
+  }
+  const versionsToBuild = distMode ? [single] : config.versions;
+
+  console.log('📚 ドキュメントビルドを開始...');
+  if (distMode) {
+    console.log(`  配布ビルドモード: ${single} のみ・version-switcher 非表示・出力先 ${publicRoot}`);
+  }
+
+  // 出力先の docs ディレクトリ作成
+  mkdirSync(publicDocs, { recursive: true });
 
   const allVersionFiles = [];
 
-  for (const version of config.versions) {
+  for (const version of versionsToBuild) {
     console.log(`  ビルド中: ${version}`);
     const srcDir = join(DOCS_SRC, 'versions', version);
-    const outDir = join(PUBLIC_DOCS, version);
+    const outDir = join(publicDocs, version);
     const assetsDir = join(outDir, 'assets');
 
     mkdirSync(outDir, { recursive: true });
@@ -624,7 +643,8 @@ function build() {
       const depth = fileKey.split('/').length - 1;
 
       const nav = buildNav(navConfig, fileKey, version);
-      const versionSwitcher = buildVersionSwitcher(config.versions, version, fileKey);
+      // 配布モードは単一バージョンのため switcher を出力しない（他バージョンへのリンクが404になるのを防ぐ）
+      const versionSwitcher = distMode ? '' : buildVersionSwitcher(config.versions, version, fileKey);
 
       const html = buildPage({
         title: pageTitle,
@@ -640,13 +660,13 @@ function build() {
     }
   }
 
-  // versions.json を更新
-  const versionsJson = config.versions.map(v => ({
+  // versions.json を更新（配布モードでは同梱するバージョンのみを列挙）
+  const versionsJson = versionsToBuild.map(v => ({
     version: v,
     label: v === config.latest ? `${v} (最新)` : v,
     path: `./${v}/index.html`,
   }));
-  writeFileSync(join(PUBLIC_DOCS, 'versions.json'), JSON.stringify(versionsJson, null, 2), 'utf8');
+  writeFileSync(join(publicDocs, 'versions.json'), JSON.stringify(versionsJson, null, 2), 'utf8');
   console.log('  ✅ versions.json');
 
   // index.html（最新バージョンへのリダイレクト）
@@ -661,7 +681,7 @@ function build() {
   <p><a href="./${config.latest}/index.html">最新ドキュメントへ移動</a></p>
 </body>
 </html>`;
-  writeFileSync(join(PUBLIC_DOCS, 'index.html'), indexHtml, 'utf8');
+  writeFileSync(join(publicDocs, 'index.html'), indexHtml, 'utf8');
   console.log('  ✅ index.html');
 
   // ルート index.html（最新バージョンのドキュメントへ直接リダイレクト）
@@ -677,10 +697,27 @@ function build() {
   <p><a href="./docs/${config.latest}/index.html">最新ドキュメントへ移動</a></p>
 </body>
 </html>`;
-  writeFileSync(join(PUBLIC_ROOT, 'index.html'), rootIndexHtml, 'utf8');
+  writeFileSync(join(publicRoot, 'index.html'), rootIndexHtml, 'utf8');
   console.log('  ✅ index.html（ルート）');
 
   console.log('✨ ビルド完了');
 }
 
-build();
+// CLI 引数・環境変数を解釈する
+// --single <version> または DIST_SINGLE=<version>: 配布ビルドモード（単一バージョン・switcher無し）
+// --out <dir>: 出力先ルートディレクトリ
+function parseArgs(argv) {
+  let single = process.env.DIST_SINGLE || null;
+  let outRoot = null;
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--single') {
+      single = argv[++i];
+    } else if (arg === '--out') {
+      outRoot = argv[++i];
+    }
+  }
+  return { single, outRoot };
+}
+
+build(parseArgs(process.argv.slice(2)));

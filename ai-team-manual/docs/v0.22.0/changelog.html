@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v0.22.0 の変更点 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.22.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class=""><a href="faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class="active"><a href="changelog.html">v0.22.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">v0.22.0 の変更点</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/changelog.html" >v0.5.1</option><option value="../v0.5.2/changelog.html" >v0.5.2</option><option value="../v0.6.0/changelog.html" >v0.6.0</option><option value="../v0.7.0/changelog.html" >v0.7.0</option><option value="../v0.8.0/changelog.html" >v0.8.0</option><option value="../v0.9.0/changelog.html" >v0.9.0</option><option value="../v0.10.0/changelog.html" >v0.10.0</option><option value="../v0.11.0/changelog.html" >v0.11.0</option><option value="../v0.12.0/changelog.html" >v0.12.0</option><option value="../v0.13.0/changelog.html" >v0.13.0</option><option value="../v0.14.0/changelog.html" >v0.14.0</option><option value="../v0.15.0/changelog.html" >v0.15.0</option><option value="../v0.16.0/changelog.html" >v0.16.0</option><option value="../v0.17.0/changelog.html" >v0.17.0</option><option value="../v0.18.0/changelog.html" >v0.18.0</option><option value="../v0.20.0/changelog.html" >v0.20.0</option><option value="../v0.21.0/changelog.html" >v0.21.0</option><option value="../v0.21.1/changelog.html" >v0.21.1</option><option value="../v0.22.0/changelog.html" selected>v0.22.0</option><option value="../v0.22.1/changelog.html" >v0.22.1 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>v0.22.0 の変更点</h1>
+
+<p>このページは、直前バージョン <strong>v0.21.1</strong> から <strong>v0.22.0</strong> までの変更点をまとめたものです。ソースコードのコミット履歴に基づいて記載しています。</p>
+
+<hr>
+
+<h2>概要</h2>
+
+<p>v0.22.0 の主眼は、<strong>npm 配布物に同梱するドキュメントディレクトリのリネーム（<code>public/</code> → <code>ai-team-manual/</code>）</strong> と、それに伴う <strong>ルート入口 index の自動バージョン追従化</strong> です。あわせて、バージョンアップ時にルート index がコミットから取り残されないよう、ドキュメント担当エージェント（Tech-Writer）の手順と完了条件（DOD）を補強しました。</p>
+
+<code>public/</code> から <code>ai-team-manual/</code> へのリネームは<strong>破壊的変更</strong>を含みます。移行手順は<a href="guide/migration.html">バージョン移行ガイド</a>を参照してください。
+
+<hr>
+
+<h2>破壊的変更</h2>
+
+<h3>ドキュメント同梱ディレクトリを <code>public/</code> から <code>ai-team-manual/</code> にリネーム</h3>
+
+<p>npm 配布物に含めるドキュメントディレクトリ（<code>package.json</code> の <code>files</code>）を <code>public/</code> から <code>ai-team-manual/</code> に変更しました。あわせて <code>bin/postinstall.js</code> がドキュメントを展開する先も、導入先プロジェクトの <code>public/</code> から <code>ai-team-manual/</code> に変更しています。</p>
+
+<code>public/</code> は、多くのプロジェクトでビルド出力ディレクトリやホスティングの公開ルートとして使われる一般的な名前です。本パッケージがこの名前でドキュメントを展開すると、導入先が自前で使っている <code>public/</code> と衝突するおそれがありました。この衝突を避けるため、専用の <code>ai-team-manual/</code> にリネームしました。
+
+<ul><li>公開ディレクトリ <code>public/</code> を <code>ai-team-manual/</code> に <code>git mv</code> でリネームし、Git 履歴を保持しました（純粋なリネーム）</li><li><code>.gitignore</code> の否定パターンを <code>!ai-team-manual/docs/</code> に更新し、ビルド生成物の Git 追跡を維持しました</li></ul>
+<p>導入先に旧 <code>public/docs/</code>（本パッケージが過去に展開したもの）が残っている場合の扱いを含む移行手順は、<a href="guide/migration.html">バージョン移行ガイド</a>を参照してください。</p>
+
+<hr>
+
+<h2>改善</h2>
+
+<h3>ルート <code>ai-team-manual/index.html</code> のバージョン追従化</h3>
+
+<p>これまで手動で管理していたルートのリダイレクト用 index（最新版ドキュメントへの入口）を、<code>docs-src/build.js</code> の生成対象に加えました。ビルド時に <code>config.latest</code>（最新バージョン）へ直接リダイレクトする形で再生成されるため、常に最新バージョンへ自動で追従します。</p>
+
+<p>これにより、バージョンアップ時にルートの入口が旧バージョンを指したまま取り残される問題（ドリフト）を解消しました。あわせて <code>docs-src/build.js</code> では公開ルートを <code>PUBLIC_ROOT</code> として切り出し、<code>PUBLIC_DOCS</code> を DRY 化しています。</p>
+
+<h3>Tech-Writer のコミット手順と DOD を補強</h3>
+
+<p>バージョンアップ時にビルドで再生成されるルート <code>ai-team-manual/index.html</code> が、コミット対象から漏れて配布物のルート入口がドリフトする問題を防ぐため、Tech-Writer エージェントの手順を修正しました。</p>
+
+<ul><li>コミット時の <code>git add</code> 対象を <code>ai-team-manual/docs/</code> から <code>ai-team-manual/</code> に拡張し、ルート index も同一コミットに確実に含めるようにしました</li><li>完了条件（DOD）に、ルート index を同一コミットへ含めるチェック項目を追加しました</li><li>真のソース（SSOT）と配布複製の両系統に同じ修正を反映しました</li></ul>
+<hr>
+
+<h2>関連 Issue</h2>
+
+<ul><li>Issue #57 / #58: <code>public/</code> を <code>ai-team-manual/</code> にリネームし、ルート index をバージョン追従化</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

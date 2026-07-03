@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v0.22.1 の変更点 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.22.1</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class=""><a href="faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class="active"><a href="changelog.html">v0.22.1 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">v0.22.1 の変更点</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/changelog.html" >v0.5.1</option><option value="../v0.5.2/changelog.html" >v0.5.2</option><option value="../v0.6.0/changelog.html" >v0.6.0</option><option value="../v0.7.0/changelog.html" >v0.7.0</option><option value="../v0.8.0/changelog.html" >v0.8.0</option><option value="../v0.9.0/changelog.html" >v0.9.0</option><option value="../v0.10.0/changelog.html" >v0.10.0</option><option value="../v0.11.0/changelog.html" >v0.11.0</option><option value="../v0.12.0/changelog.html" >v0.12.0</option><option value="../v0.13.0/changelog.html" >v0.13.0</option><option value="../v0.14.0/changelog.html" >v0.14.0</option><option value="../v0.15.0/changelog.html" >v0.15.0</option><option value="../v0.16.0/changelog.html" >v0.16.0</option><option value="../v0.17.0/changelog.html" >v0.17.0</option><option value="../v0.18.0/changelog.html" >v0.18.0</option><option value="../v0.20.0/changelog.html" >v0.20.0</option><option value="../v0.21.0/changelog.html" >v0.21.0</option><option value="../v0.21.1/changelog.html" >v0.21.1</option><option value="../v0.22.0/changelog.html" >v0.22.0</option><option value="../v0.22.1/changelog.html" selected>v0.22.1 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>v0.22.1 の変更点</h1>
+
+<p>このページは、直前バージョン <strong>v0.22.0</strong> から <strong>v0.22.1</strong> までの変更点をまとめたものです。ソースコードのコミット履歴に基づいて記載しています。</p>
+
+<hr>
+
+<h2>概要</h2>
+
+<p>v0.22.1 の主眼は、<strong>npm 配布物（tgz）に同梱するマニュアルを最新の 1 バージョンのみに絞り、パッケージを大幅に軽量化した</strong>ことです。</p>
+
+<p>これまでの配布物には、過去の全バージョン分のビルド済みマニュアルがそのまま同梱されており、パッケージが不必要に肥大化していました。バージョンを重ねるほど配布物が膨らみ、<code>npm install</code> のダウンロード量と展開時間が増え続けるという問題がありました。</p>
+
+<p>v0.22.1 では、<code>docs-src/config.json</code> の <code>latest</code>（最新バージョン）を唯一の情報源として、配布時には最新バージョンのマニュアルだけを生成・同梱するように改めました。これにより、配布物のサイズを従来の約 14.9MB から約 2.8MB へ、およそ <strong>81% 削減</strong>しています。</p>
+
+<p>なお、Git リポジトリ上では従来どおり全バージョンのマニュアルを保持しており、公開ドキュメントサイトではこれまでどおりバージョンを切り替えて閲覧できます。今回の変更が影響するのは npm 配布物と利用者環境への展開内容のみです。</p>
+
+<hr>
+
+<h2>改善</h2>
+
+<h3>配布物に同梱するマニュアルを最新バージョンのみに限定</h3>
+
+<p>npm 配布物（<code>package.json</code> の <code>files</code>）に含めるマニュアルを、全バージョンから最新の 1 バージョンのみに変更しました。</p>
+
+<ul><li>パッケージ公開直前（<code>prepack</code>）に配布専用のマニュアルツリーを生成し、公開後（<code>postpack</code>）に自動で削除するようにしました。配布ツリーは Git 管理の対象外です。</li><li>配布物には「最新バージョンのフルマニュアル」に加えて、「直前バージョンからの変更点（changelog）」も含まれます。利用者は最新の使い方と、前バージョンから何が変わったかの両方をオフラインで確認できます。</li></ul>
+<p>この結果、<code>npm install</code> 時のダウンロード量が減り、インストールと展開がこれまでより高速になります。</p>
+
+<h3>配布版でのバージョン切替 UI の非表示化</h3>
+
+<p>配布物には最新の 1 バージョンしか含まれないため、複数バージョンを前提としたバージョン切替 UI（version-switcher）を配布版では非表示にしました。利用者の手元に存在しないバージョンへの切替導線が表示されて混乱する、という状況を避けています。</p>
+
+<p>公開ドキュメントサイト（全バージョンを収録）ではバージョン切替 UI はこれまでどおり表示されます。</p>
+
+<h3>利用者環境への展開も最新バージョンのみに</h3>
+
+<p>パッケージ導入時（<code>postinstall</code>）に利用者プロジェクトへマニュアルを展開する処理も、最新バージョンのみを展開するように変更しました。これにより、利用者側に展開されるファイルの肥大化も解消されます。</p>
+
+<hr>
+
+<h2>破壊的変更</h2>
+
+<p>なし。</p>
+
+<p>コマンドの使い方や設定ファイルの形式に変更はありません。利用者側の操作で意識すべき非互換の変更はなく、配布物と展開内容が軽量化されるという改善のみです。</p>
+
+<hr>
+
+<h2>関連 Issue</h2>
+
+<ul><li>Issue #60: npm 配布物に最新バージョンのマニュアルのみを同梱し、パッケージを軽量化</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
