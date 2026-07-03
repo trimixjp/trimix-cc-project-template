@@ -122,7 +122,7 @@ cd /path/to/your-project
 npm install --save-dev /path/to/trimix-ai-team-<version>.tgz
 ```
 
-インストール後は `.tgz` 方式と同じく、Claude Code で `/ai-team setup` を実行してセットアップを完了してください。
+インストール後は `.tgz` 方式と同じく、Claude Code で `/ai-team-setup` を実行してセットアップを完了してください。
 
 > ⚠️ clone したリポジトリをそのまま作業プロジェクトとして使う運用は現在サポートしていません。
 > `postinstall` はパッケージ自身のディレクトリでは自動展開をスキップし、clone 直後はドキュメント（`ai-team-manual-dist/`）も未生成のためです。
