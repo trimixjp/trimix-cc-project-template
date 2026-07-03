@@ -111,6 +111,37 @@ Claude Code を起動し、セットアップウィザードを実行します�
 
 ---
 
+## 補足: git clone からソースをビルドして導入する
+
+配布された `.tgz` を受け取っていない場合は、リポジトリを clone してソースから `.tgz` を生成し、それを対象プロジェクトに導入できます（ステップ 1 の代替）。
+
+```bash
+# 1. リポジトリを clone
+git clone <repo-url>
+cd trimix-cc-project-template
+
+# 2. 依存をインストール
+npm install
+
+# 3. tgz を生成（prepack でドキュメントも自動生成されます）
+npm pack
+# → trimix-ai-team-<version>.tgz が生成される
+
+# 4. 導入したいプロジェクトで tgz をインストール
+cd /path/to/your-project
+npm install --save-dev /path/to/trimix-ai-team-<version>.tgz
+```
+
+以降は `.tgz` 方式と同じです。**ステップ 2 の `/ai-team-setup`** を実行してセットアップを完了してください。
+
+> **⚠️ clone したリポジトリ自体を作業プロジェクトにはできません**
+>
+> `postinstall` はパッケージ自身のディレクトリ（`projectRoot === packageRoot`）では
+> スキルの自動展開をスキップし、clone 直後はドキュメント（`ai-team-manual-dist/`）も
+> 未生成です。必ず上記のように `.tgz` を生成し、別プロジェクトへインストールしてください。
+
+---
+
 ## バージョンアップ時
 
 新しい `.tgz` ファイルを受け取ったら、同じく `npm install` を実行します。古い `.tgz` は削除して構いません。

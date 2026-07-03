@@ -98,3 +98,32 @@ npm pack
 生成されたファイルをパートナーに配布してください。
 
 > ⚠️ 生成した tgz ファイルはリポジトリにコミットしないでください（`.gitignore` で除外済み）。
+
+---
+
+## ソースからビルドしてインストール（git clone）
+
+配布された `.tgz` を受け取っていない場合は、リポジトリを clone してソースから `.tgz` を生成し、それを対象プロジェクトに導入できます。
+
+```bash
+# 1. リポジトリを clone
+git clone <repo-url>
+cd trimix-cc-project-template
+
+# 2. 依存をインストール
+npm install
+
+# 3. tgz を生成（prepack でドキュメントも自動生成されます）
+npm pack
+# → trimix-ai-team-<version>.tgz が生成される
+
+# 4. 導入したいプロジェクトで tgz をインストール
+cd /path/to/your-project
+npm install --save-dev /path/to/trimix-ai-team-<version>.tgz
+```
+
+インストール後は `.tgz` 方式と同じく、Claude Code で `/ai-team-setup` を実行してセットアップを完了してください。
+
+> ⚠️ clone したリポジトリをそのまま作業プロジェクトとして使う運用は現在サポートしていません。
+> `postinstall` はパッケージ自身のディレクトリでは自動展開をスキップし、clone 直後はドキュメント（`ai-team-manual-dist/`）も未生成のためです。
+> 必ず上記のように `.tgz` を生成し、別プロジェクトへインストールしてください。
