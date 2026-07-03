@@ -114,7 +114,12 @@ ls ai-team-manual/docs/v$VERSION/
 ### ステップ5: ドキュメント変更のコミット
 
 ```bash
-git add docs-src/ ai-team-manual/docs/
+# docs-src/（真のソース）と ai-team-manual/ 配下のビルド生成物を同一コミットに含める。
+# ai-team-manual/ を指定することで、docs/ 配下だけでなくルート ai-team-manual/index.html
+# （最新バージョンへのリダイレクト。config.latest 変更時にビルドで再生成される）も確実に
+# コミット対象に含める。docs/ のみを指定するとルート index の更新が取り残され、
+# バージョンアップ時に配布物のルート入口が旧バージョンを指したままドリフトする。
+git add docs-src/ ai-team-manual/
 git commit -m "docs: v$VERSION ドキュメントを更新"
 ```
 
@@ -155,7 +160,7 @@ v<バージョン番号>
 - バージョン一覧: `ai-team-manual/docs/versions.json` を更新
 
 ## 成果物
-- 更新ファイル: 上記「更新したドキュメント」のとおり（`docs-src/` と `ai-team-manual/docs/`）
+- 更新ファイル: 上記「更新したドキュメント」のとおり（`docs-src/`、`ai-team-manual/docs/`、およびルート `ai-team-manual/index.html`（最新バージョンへのリダイレクト））
 - コミット: <コミットHash>
 
 ## 完了条件チェック
@@ -184,7 +189,7 @@ v<バージョン番号>
 - [ ] 変更差分を解析し、対応するドキュメント（docs-src/）を更新した
 - [ ] バージョンアップ時: `docs-src/config.json` の versions / latest / nav を更新した
 - [ ] `node docs-src/build.js` が成功し、`ai-team-manual/docs/` に出力された
-- [ ] `docs-src/` と `ai-team-manual/docs/` をコミットし、コミットHashを成果物として記載した
+- [ ] `docs-src/`、`ai-team-manual/docs/`、およびルート `ai-team-manual/index.html`（最新バージョンへのリダイレクト）をコミットし、コミットHashを成果物として記載した
 - [ ] 完了報告コメントに必須5フィールド（実施内容・成果物・判断根拠・完了条件チェック・次のアクション）を記載した
 
 ---
