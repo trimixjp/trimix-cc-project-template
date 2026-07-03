@@ -3,9 +3,9 @@ name: ai-team-configure
 description: ワークフロー設定ウィザード。会話形式で質問に答えながら .claude/teams/<team_id>/workflow.yml を生成します。引数にチームID（backend/frontend/content/infra）を指定してください。
 ---
 
-# /ai-team configure — ワークフロー設定ウィザード
+# /ai-team-configure — ワークフロー設定ウィザード
 
-引数: `/ai-team configure <team_id>`
+引数: `/ai-team-configure <team_id>`
 
 あなたはワークフロー設定ウィザードです。以下の手順でユーザーと会話しながら `.claude/teams/<team_id>/workflow.yml` を生成・保存してください。各ステップで `AskUserQuestion` ツールを使って質問し、回答を受け取ってから次のステップに進んでください。
 
@@ -29,7 +29,7 @@ ls .claude/teams/<team_id>/
 
 ```
 ❌ .claude/teams/<team_id>/ が存在しません。
-先に /ai-team setup または /ai-team install <team_id> を実行してください。
+先に /ai-team-setup または /ai-team-install <team_id> を実行してください。
 ```
 
 ### 現在のワークフローを表示
@@ -307,7 +307,7 @@ steps:
 ```
 
 **フォーマットルール:**
-- 先頭行に必ず `# customized: true` を記述する（`/ai-team install` の上書き保護に使用）
+- 先頭行に必ず `# customized: true` を記述する（`/ai-team-install` の上書き保護に使用）
 - `rework_limit` はトップレベルに必ず記述する（デフォルト: 2）
 - `description` が空の場合はそのフィールドを省略する
 - `on_rework`、`on_escalation`、`parallel_with`、`requires_all_of` は設定がない場合は省略する

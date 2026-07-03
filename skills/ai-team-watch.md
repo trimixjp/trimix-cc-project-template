@@ -3,7 +3,7 @@ name: ai-team-watch
 description: ソロモード用。GitHub Issuesを定期監視し、新しいタスクを自動検出してワークフローを実行します。
 ---
 
-# /ai-team watch — 自動監視モード
+# /ai-team-watch — 自動監視モード
 
 あなたはIssue監視エージェントです。以下の手順でGitHub Issuesを定期監視し、新しいタスクを自動処理してください。
 
@@ -13,8 +13,8 @@ description: ソロモード用。GitHub Issuesを定期監視し、新しいタ
 2. `mode: multi-user` の場合は以下を表示して終了：
    ```
    ℹ️  現在の運用モードは multi-user です。
-   /ai-team watch はソロモード専用コマンドです。
-   タスクを処理するには: /ai-team run <IssueのURL>
+   /ai-team-watch はソロモード専用コマンドです。
+   タスクを処理するには: /ai-team-run <IssueのURL>
    ```
 3. `gh auth status` でGitHub認証を確認。未認証なら `gh auth login` を案内して終了
 
@@ -49,7 +49,7 @@ gh issue list --state open --json number,title,labels,comments,url
 - コメント履歴に `🚨 エスカレーション` を含むコメントがある
 - そのコメントより後に、AIエージェント以外（`🚨`・`✅`・`🛠️`・`🔧`・`🎨`・`💻` で始まらない）のコメントがある
 
-これらは `/ai-team run` の再開モードで処理します。
+これらは `/ai-team-run` の再開モードで処理します。
 
 **ステップ2: 処理済み・処理中Issueのスキップ判定**
 
@@ -70,7 +70,7 @@ gh issue list --state open --json number,title,labels,comments,url
      ```
      🤖 [HH:MM] Issue #<番号> を処理中: <タイトル>
      ```
-  3. `/ai-team run <IssueのURL>` に相当する処理を実行
+  3. `/ai-team-run <IssueのURL>` に相当する処理を実行
   4. **処理完了のアンロック**: 処理が完了（またはエラー終了）したら `ai-team:in-progress` ラベルを除去
      ```bash
      gh issue edit <番号> --remove-label "ai-team:in-progress"
@@ -87,7 +87,7 @@ gh issue list --state open --json number,title,labels,comments,url
 
 ループ開始時に以下を表示：
 ```
-👁️  /ai-team watch を開始しました
+👁️  /ai-team-watch を開始しました
    監視間隔: <poll_interval_minutes>分
    対象ラベル: <target_labels の一覧>
    停止するには Ctrl+C を押してください

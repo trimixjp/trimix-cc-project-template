@@ -88,7 +88,7 @@ model: opus
 
 <h2>全エージェント共通の統一規約（v0.11.0）</h2>
 
-<p>v0.11.0 から、全エージェント定義は次の 3 つの規約に従います。<code>/ai-team create</code>・<code>/ai-team configure</code> が生成するエージェント定義もこの規約に対応しています。</p>
+<p>v0.11.0 から、全エージェント定義は次の 3 つの規約に従います。<code>/ai-team-create</code>・<code>/ai-team-configure</code> が生成するエージェント定義もこの規約に対応しています。</p>
 
 <h3>1. 完了条件（exit criteria）チェックリスト</h3>
 
@@ -104,7 +104,7 @@ model: opus
 
 <h3>2. 状態記録の原則</h3>
 
-<ul><li>ワークフローの状態は <strong>Issue のラベルとコメントのみ</strong>で表現する（エージェントの内部状態・会話コンテキストに依存しない）</li><li>セッションが中断しても <code>/ai-team resume</code> が<strong>コメント履歴のみ</strong>で状態を復元できる状態を常に保つ</li><li>判断・分岐を行った場合は、その根拠と参照ドキュメントを必ずコメントに残す</li></ul>
+<ul><li>ワークフローの状態は <strong>Issue のラベルとコメントのみ</strong>で表現する（エージェントの内部状態・会話コンテキストに依存しない）</li><li>セッションが中断しても <code>/ai-team-resume</code> が<strong>コメント履歴のみ</strong>で状態を復元できる状態を常に保つ</li><li>判断・分岐を行った場合は、その根拠と参照ドキュメントを必ずコメントに残す</li></ul>
 <h3>3. コメント必須 5 フィールド</h3>
 
 <p>各エージェントの完了報告コメントには、以下の 5 フィールドを必ず含めます。</p>
@@ -138,7 +138,7 @@ model: opus
   - agent: your-new-agent   # 追加したエージェント
   - agent: reviewer</code></pre>
 
-<p>追加後は <code>/ai-team run</code> で動作を確認してください。</p>
+<p>追加後は <code>/ai-team-run</code> で動作を確認してください。</p>
 
 <hr>
 

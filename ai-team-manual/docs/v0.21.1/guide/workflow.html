@@ -38,11 +38,11 @@
 
 <hr>
 
-<h2><code>/ai-team configure</code> ウィザードを使ったカスタマイズ（推奨）</h2>
+<h2><code>/ai-team-configure</code> ウィザードを使ったカスタマイズ（推奨）</h2>
 
 <p>ウィザードを使うと、質問に答えるだけで <code>workflow.yml</code> を生成・更新できます。</p>
 
-<pre><code class="language-bash">/ai-team configure backend</code></pre>
+<pre><code class="language-bash">/ai-team-configure backend</code></pre>
 
 <p>ウィザードは以下の項目を対話形式で設定します。</p>
 
@@ -55,7 +55,7 @@
 
 <p>テキストエディタで直接編集することもできます。その際は以下の点に注意してください。</p>
 
-<ul><li><strong>インデントは半角スペース 2 文字</strong>で統一してください。タブ文字を使うと YAML パースエラーになります。</li><li><code>steps</code> キー配下のエージェント名は、<code>.claude/teams/&lt;team_id&gt;/agents/</code> に存在するファイル名（拡張子なし）と一致させてください。</li><li>変更後は <code>/ai-team run</code> で動作確認することを推奨します。構文エラーがあるとエージェントが起動しません。</li></ul>
+<ul><li><strong>インデントは半角スペース 2 文字</strong>で統一してください。タブ文字を使うと YAML パースエラーになります。</li><li><code>steps</code> キー配下のエージェント名は、<code>.claude/teams/&lt;team_id&gt;/agents/</code> に存在するファイル名（拡張子なし）と一致させてください。</li><li>変更後は <code>/ai-team-run</code> で動作確認することを推奨します。構文エラーがあるとエージェントが起動しません。</li></ul>
 <hr>
 
 <h2>よくあるカスタマイズ例</h2>

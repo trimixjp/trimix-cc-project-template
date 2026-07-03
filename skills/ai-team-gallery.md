@@ -3,7 +3,7 @@ name: ai-team-gallery
 description: インストール可能なワークフロープラグインのギャラリー一覧を表示します。利用可能なワークフローの確認とインストール案内を行います。
 ---
 
-# /ai-team gallery — ワークフローギャラリー
+# /ai-team-gallery — ワークフローギャラリー
 
 あなたはワークフローギャラリーの案内役です。以下の手順を実行してください。
 
@@ -48,7 +48,7 @@ node node_modules/@trimix/ai-team/bin/setup.js gallery
 
 ユーザーが興味を持ちそうなプラグインを提案し、以下のコマンドを案内してください：
 
-- インストール: `/ai-team install <team_id>`
+- インストール: `/ai-team-install <team_id>`
 - 詳細確認: 各プラグインの概要説明
 
 ## 注意事項

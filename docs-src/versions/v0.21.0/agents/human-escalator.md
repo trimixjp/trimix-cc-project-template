@@ -48,7 +48,7 @@ sequenceDiagram
 
     人間->>GitHub Issues: 判断内容をコメントで返答
     人間->>GitHub Issues: escalated:human ラベルを外す
-    人間->>エージェント: /ai-team resume で再開
+    人間->>エージェント: /ai-team-resume で再開
     エージェント->>エージェント: 人間の判断をもとに処理を再開
 ```
 
@@ -90,11 +90,11 @@ sequenceDiagram
 1. このIssueに判断内容をコメントしてください
 2. `escalated:human` ラベルを外してください
 3. 以下のコマンドでワークフローを再開してください：
-   /ai-team resume
+   /ai-team-resume
    （ソロモードの場合は自動で再開されます）
 ```
 
-`エスカレーション元ステップ` と `エスカレーション種別` は、ワークフロー再開時（`/ai-team resume`）に `return_to_previous` の復帰先ステップを機械的に決定するために読み取られます。`エスカレーション元ステップ` には workflow.yml に実在するステップ ID をそのまま記載します（自由記述は禁止）。
+`エスカレーション元ステップ` と `エスカレーション種別` は、ワークフロー再開時（`/ai-team-resume`）に `return_to_previous` の復帰先ステップを機械的に決定するために読み取られます。`エスカレーション元ステップ` には workflow.yml に実在するステップ ID をそのまま記載します（自由記述は禁止）。
 
 ---
 
@@ -126,7 +126,7 @@ sequenceDiagram
 
 人間からの返答がない場合も、即時のリマインドは行いません。
 
-1. 次回の `/ai-team watch` または `/ai-team resume` 実行時に、最終エスカレーションコメントの投稿日時を確認する
+1. 次回の `/ai-team-watch` または `/ai-team-resume` 実行時に、最終エスカレーションコメントの投稿日時を確認する
 2. 最終エスカレーションコメントから **48 時間以上**経過している場合のみ、リマインドコメントを **1 回だけ**投稿する
 3. リマインド投稿後は追加のリマインドを行わず、人間の返答があるまで待機を継続する
 
@@ -145,7 +145,7 @@ sequenceDiagram
 
 1. Issue に判断内容をコメントする
 2. `escalated:human` ラベルを手動で外す
-3. `/ai-team resume` を実行してワークフローを再開する（ソロモードでは自動再開）
+3. `/ai-team-resume` を実行してワークフローを再開する（ソロモードでは自動再開）
 
 再開時は、エスカレーションコメントの `エスカレーション元ステップ` フィールドをもとに、workflow.yml の `return_to_previous` が指す復帰先ステップが機械的に決定されます。
 
@@ -165,4 +165,4 @@ sequenceDiagram
 - [Dispatcher](dispatcher.html) — Epic 分解・タスク振り分け担当
 - [Contributor](contributor.html) — 作業完了確認・Issue クローズ担当
 - [エスカレーションルール](../reference/escalation.html) — エスカレーション条件と `escalation-rules.yml` の詳細
-- [ワークフローガイド](../guide/workflow.html) — `/ai-team resume` の使い方を含む全体フロー
+- [ワークフローガイド](../guide/workflow.html) — `/ai-team-resume` の使い方を含む全体フロー

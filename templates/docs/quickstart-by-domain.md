@@ -50,7 +50,7 @@ frontend チーム: 補助（管理画面・ダッシュボード）
 
 ```bash
 # 1. セットアップ（まだの場合）
-/ai-team setup
+/ai-team-setup
 # → チーム選択: backend, infra, frontend を有効化
 
 # 2. GitHub Labels の確認
@@ -64,7 +64,7 @@ gh issue create \
   --body "JWTベースの認証APIを実装する..."
 
 # 4. ワークフローを起動
-/ai-team run <Issue番号>
+/ai-team-run <Issue番号>
 ```
 
 ### workflow.yml 調整ポイント
@@ -157,7 +157,7 @@ infra チーム:    補助（決済インフラ・セキュリティ設定）
 
 ```bash
 # 1. セットアップ
-/ai-team setup
+/ai-team-setup
 # → チーム選択: backend, frontend, content を有効化
 
 # 2. ECコマース向けコンプライアンスルールを追加
@@ -275,7 +275,7 @@ backend チーム:  補助（CMS API・配信システム・全文検索）
 
 ```bash
 # 1. セットアップ
-/ai-team setup
+/ai-team-setup
 # → チーム選択: content, frontend を有効化（必要に応じて backend も）
 
 # 2. コンテンツメディア向けコンプライアンスルールを追加
@@ -402,7 +402,7 @@ content チーム:  補助（納品ドキュメント・マニュアル作成）
 
 ```bash
 # 1. セットアップ
-/ai-team setup
+/ai-team-setup
 # → チーム選択: backend, frontend, content を有効化
 
 # 2. クライアント情報を設定
@@ -516,7 +516,7 @@ frontend チーム: 補助（必要に応じて有効化）
 
 ```bash
 # 1. セットアップ（軽量構成）
-/ai-team setup
+/ai-team-setup
 # → チーム選択: backend のみ有効化（または backend + frontend）
 
 # 2. ダブルレビュー基準を緩和する（後述）

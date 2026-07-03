@@ -69,7 +69,7 @@
 
 <h3>変更点サマリー</h3>
 
-<table><thead><tr><th>変更内容</th><th>詳細</th></tr></thead><tbody><tr><td>Opus 最適化</td><td>全エージェント定義が Claude Opus で動作する前提に最適化。モデルはエイリアス指定（<code>architect</code> のみ <code>model: opus</code> を明示）</td></tr><tr><td>レビュー方式の機械判定化</td><td><code>review-config.yml</code> の <code>sensitive_areas</code> に正規表現 <code>pattern</code> を追加。<code>detection_procedure</code>（base_branch 検証・git diff 計測・パス照合=確定 / 本文照合=参考値）で機械判定</td></tr><tr><td>差し戻し上限</td><td><code>workflow.yml</code> に <code>rework_limit: 2</code> と <code>on_rework.limit_exceeded_next</code> を追加（全 5 チーム）。3 回目の不合格は <code>escalated:human</code> へ。先頭行照合による決定論的カウント</td></tr><tr><td>AND 待機のアトミック遷移</td><td><code>requires_all_of</code> 合流時のレースコンディション対策（待機パス再確認・冪等付与・誤発動ガード付きリカバリ）</td></tr><tr><td><code>return_to_previous</code> の構造化</td><td>human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、<code>/ai-team resume</code> が機械的に復帰</td></tr><tr><td>リマインド方針</td><td>人間無応答時、48 時間経過後に 1 回のみリマインドコメントを投稿</td></tr><tr><td>エージェント統一規約</td><td>コメント必須 5 フィールド・完了条件（exit criteria）・状態記録の原則を全エージェントに適用</td></tr><tr><td>レビュアー観点差別化</td><td>Reviewer-A = 設計・保守性・テスト、Reviewer-B = セキュリティ・パフォーマンス・エラー処理</td></tr><tr><td>生成器の新規約対応</td><td><code>/ai-team create</code>・<code>/ai-team configure</code> が生成するファイルも新規約に準拠。テンプレート整合性テストを追加</td></tr></tbody></table>
+<table><thead><tr><th>変更内容</th><th>詳細</th></tr></thead><tbody><tr><td>Opus 最適化</td><td>全エージェント定義が Claude Opus で動作する前提に最適化。モデルはエイリアス指定（<code>architect</code> のみ <code>model: opus</code> を明示）</td></tr><tr><td>レビュー方式の機械判定化</td><td><code>review-config.yml</code> の <code>sensitive_areas</code> に正規表現 <code>pattern</code> を追加。<code>detection_procedure</code>（base_branch 検証・git diff 計測・パス照合=確定 / 本文照合=参考値）で機械判定</td></tr><tr><td>差し戻し上限</td><td><code>workflow.yml</code> に <code>rework_limit: 2</code> と <code>on_rework.limit_exceeded_next</code> を追加（全 5 チーム）。3 回目の不合格は <code>escalated:human</code> へ。先頭行照合による決定論的カウント</td></tr><tr><td>AND 待機のアトミック遷移</td><td><code>requires_all_of</code> 合流時のレースコンディション対策（待機パス再確認・冪等付与・誤発動ガード付きリカバリ）</td></tr><tr><td><code>return_to_previous</code> の構造化</td><td>human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、<code>/ai-team-resume</code> が機械的に復帰</td></tr><tr><td>リマインド方針</td><td>人間無応答時、48 時間経過後に 1 回のみリマインドコメントを投稿</td></tr><tr><td>エージェント統一規約</td><td>コメント必須 5 フィールド・完了条件（exit criteria）・状態記録の原則を全エージェントに適用</td></tr><tr><td>レビュアー観点差別化</td><td>Reviewer-A = 設計・保守性・テスト、Reviewer-B = セキュリティ・パフォーマンス・エラー処理</td></tr><tr><td>生成器の新規約対応</td><td><code>/ai-team-create</code>・<code>/ai-team-configure</code> が生成するファイルも新規約に準拠。テンプレート整合性テストを追加</td></tr></tbody></table>
 <h3>移行手順</h3>
 
 <h4>ステップ 1: インストール</h4>
@@ -92,7 +92,7 @@
 
 <h3>v0.10.x からの破壊的変更</h3>
 
-<p>ワークフローの構造に<strong>破壊的変更はありません</strong>。ただし旧形式のエスカレーションコメント（「エスカレーション元ステップ」フィールドなし）が残っている Issue では、<code>/ai-team resume</code> が復帰先を機械的に決定できないため、コメント履歴から文脈で判断するフォールバック動作になります。</p>
+<p>ワークフローの構造に<strong>破壊的変更はありません</strong>。ただし旧形式のエスカレーションコメント（「エスカレーション元ステップ」フィールドなし）が残っている Issue では、<code>/ai-team-resume</code> が復帰先を機械的に決定できないため、コメント履歴から文脈で判断するフォールバック動作になります。</p>
 
 <hr>
 

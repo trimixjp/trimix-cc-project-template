@@ -25,7 +25,7 @@ SNS運用チームは、X（Twitter）・Instagram の投稿戦略立案から�
 
 ```mermaid
 flowchart TD
-    A(["/ai-team run <番号>"]) --> B["strategist\n目的・ターゲット・方針策定\nインシデント確認"]
+    A(["/ai-team-run <番号>"]) --> B["strategist\n目的・ターゲット・方針策定\nインシデント確認"]
     B --> E{調査の要否}
     E -->|調査が必要| C["researcher\nトレンド・競合・\nengagement・masterclass調査"]
     C --> D["strategist\n調査結果確認\n方針更新"]

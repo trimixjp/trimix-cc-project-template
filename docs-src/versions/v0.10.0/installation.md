@@ -60,7 +60,7 @@ Claude Code を起動し、セットアップウィザードを実行します�
 
 ## 次のステップ
 1. .claude/CLAUDE.md を確認・カスタマイズしてください
-2. Issue を作成し /ai-team run <Issue番号> でワークフローを開始します
+2. Issue を作成し /ai-team-run <Issue番号> でワークフローを開始します
 ```
 
 詳細は [セットアップガイド](guide/setup.html) を参照してください。

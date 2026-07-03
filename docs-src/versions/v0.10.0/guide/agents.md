@@ -70,7 +70,7 @@ steps:
   - agent: reviewer
 ```
 
-追加後は `/ai-team run` で動作を確認してください。
+追加後は `/ai-team-run` で動作を確認してください。
 
 ---
 

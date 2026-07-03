@@ -48,7 +48,7 @@ sequenceDiagram
 
     人間->>GitHub Issues: 判断内容をコメントで返答
     人間->>GitHub Issues: escalated:human ラベルを外す
-    人間->>エージェント: /ai-team resume で再開
+    人間->>エージェント: /ai-team-resume で再開
     エージェント->>エージェント: 人間の判断をもとに処理を再開
 ```
 
@@ -83,7 +83,7 @@ sequenceDiagram
 1. このIssueに判断内容をコメントしてください
 2. `escalated:human` ラベルを外してください
 3. 以下のコマンドでワークフローを再開してください：
-   /ai-team resume
+   /ai-team-resume
    （ソロモードの場合は自動で再開されます）
 ```
 
@@ -117,7 +117,7 @@ sequenceDiagram
 
 1. Issue に判断内容をコメントする
 2. `escalated:human` ラベルを手動で外す
-3. `/ai-team resume` を実行してワークフローを再開する（ソロモードでは自動再開）
+3. `/ai-team-resume` を実行してワークフローを再開する（ソロモードでは自動再開）
 
 ---
 
@@ -135,4 +135,4 @@ sequenceDiagram
 - [Dispatcher](dispatcher.html) — Epic 分解・タスク振り分け担当
 - [Contributor](contributor.html) — 作業完了確認・Issue クローズ担当
 - [エスカレーションルール](../reference/escalation.html) — エスカレーション条件と `escalation-rules.yml` の詳細
-- [ワークフローガイド](../guide/workflow.html) — `/ai-team resume` の使い方を含む全体フロー
+- [ワークフローガイド](../guide/workflow.html) — `/ai-team-resume` の使い方を含む全体フロー

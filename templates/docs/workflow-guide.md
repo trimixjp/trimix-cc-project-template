@@ -307,7 +307,7 @@ on_escalation:
 エスカレーション元ステップ: <ステップID>
 ```
 
-人間の対応後、`/ai-team resume` がこのフィールドを読み取り、workflow.yml の該当ステップから再開します。フィールドが存在しない旧形式のコメントの場合、resume は Issue のラベルとコメント履歴から復帰先を推定し、推定根拠を再開コメントに記録します。
+人間の対応後、`/ai-team-resume` がこのフィールドを読み取り、workflow.yml の該当ステップから再開します。フィールドが存在しない旧形式のコメントの場合、resume は Issue のラベルとコメント履歴から復帰先を推定し、推定根拠を再開コメントに記録します。
 
 ---
 
@@ -443,7 +443,7 @@ backend:tech-lead → backend:implementer → backend:reviewer → backend:pr-cr
 2. `agents/` 配下にエージェント定義ファイルを配置
 3. `workflow.yml` を作成
 4. `dod/` 配下にDODテンプレートを配置
-5. セットアップウィザード（`/ai-team setup`）でチームを選択できるよう、ウィザード設定を更新
+5. セットアップウィザード（`/ai-team-setup`）でチームを選択できるよう、ウィザード設定を更新
 
 ---
 
