@@ -9,8 +9,8 @@ set -euo pipefail
 INPUT=$(cat)
 PROMPT=$(echo "$INPUT" | jq -r '.prompt // ""' 2>/dev/null || echo "$INPUT")
 
-# ① Issue番号・GitHub URL・ai-team スキルが含まれていればスルー
-if echo "$PROMPT" | grep -qE '(#[0-9]+|github\.com/.*/issues/[0-9]+|/ai-team[[:space:]])'; then
+# ① Issue番号・GitHub URL・ai-team スキル（/ai-team-run 等のハイフン区切りが正準）が含まれていればスルー
+if echo "$PROMPT" | grep -qE '(#[0-9]+|github\.com/.*/issues/[0-9]+|/ai-team[-[:space:]])'; then
   exit 0
 fi
 
@@ -28,9 +28,9 @@ if echo "$PROMPT" | grep -iqE '(fix|implement|add|update|change|modify|create|de
 
   1. 関連 Issue を探す:  gh issue list --state open
   2. Issue を作成する:   gh issue create --title "..." --body "..."
-  3. ワークフロー起動:   /ai-team run <Issue番号>
+  3. ワークフロー起動:   /ai-team-run <Issue番号>
 
-Issue 番号を指定するか、/ai-team run で指示を再入力してください。
+Issue 番号を指定するか、/ai-team-run で指示を再入力してください。
 EOF
   exit 2
 fi
