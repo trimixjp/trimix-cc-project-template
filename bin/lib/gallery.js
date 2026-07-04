@@ -11,7 +11,13 @@ export async function showGallery({ cwd }) {
   const installedIds = new Set(Object.keys(installed));
 
   const installedPlugins = registry.plugins.filter(p => installedIds.has(p.id));
-  const availablePlugins = registry.plugins.filter(p => !installedIds.has(p.id));
+  const availablePlugins = registry.plugins.filter(
+    p => !installedIds.has(p.id) && p.distribution !== 'template'
+  );
+  // distribution: "template" はプラグイン未提供（テンプレート同梱配布）のため install 対象外
+  const templatePlugins = registry.plugins.filter(
+    p => !installedIds.has(p.id) && p.distribution === 'template'
+  );
 
   console.log('');
   console.log('@trimix/ai-team ワークフロー・ギャラリー');
@@ -30,6 +36,14 @@ export async function showGallery({ cwd }) {
     console.log('[利用可能]');
     for (const p of availablePlugins) {
       console.log(`  📦 ${p.team_id.padEnd(12)} ${p.name.padEnd(20)} v${p.version}  ${p.description}`);
+    }
+  }
+
+  if (templatePlugins.length > 0) {
+    console.log('');
+    console.log('[テンプレート同梱（/ai-team-setup で追加）]');
+    for (const p of templatePlugins) {
+      console.log(`  📁 ${p.team_id.padEnd(12)} ${p.name.padEnd(20)} v${p.version}  ${p.description}`);
     }
   }
 
