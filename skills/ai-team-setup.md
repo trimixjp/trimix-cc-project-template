@@ -21,7 +21,7 @@ description: AIチームをプロジェクトにセットアップするウィ�
 
 **質問1**: 導入するチームを選択してください（複数選択可）
 
-> ⚠️ `AskUserQuestion` の選択肢は最大4つです。5チームを2回に分けて確認します。
+> ⚠️ `AskUserQuestion` の選択肢は最大4つです。6チームを2回に分けて確認します。
 
 **質問1a**（`AskUserQuestion` / multiSelect: true）: エンジニアリング・コンテンツ系チームを選択してください（複数選択可）
 - バックエンドチーム（コード実装・レビュー・PR作成）
@@ -29,8 +29,9 @@ description: AIチームをプロジェクトにセットアップするウィ�
 - インフラチーム（クラウド構成・ネットワーク・セキュリティ）
 - コンテンツチーム（記事・ドキュメント作成）
 
-**質問1b**（`AskUserQuestion` / multiSelect: true）: マーケティング・SNS系チームを選択してください（複数選択可）
+**質問1b**（`AskUserQuestion` / multiSelect: true）: マーケティング・メディア系チームを選択してください（複数選択可）
 - SNS運用チーム（X・Instagram の投稿戦略・執筆・公開指示）
+- YouTube動画制作チーム（企画・台本・生成・公開・収益最大化。QA層・複数チャンネル対応）
 - 追加しない
 
 両質問の回答をまとめて「導入するチーム一覧」として扱います。
@@ -95,6 +96,7 @@ solo:
     - content:editor-in-chief
     - infra:infra-lead
     - sns:strategist
+    - youtube:director
   skip_labels:                  # このラベルが付いていれば処理済みとしてスキップ
     - ai-team:in-progress
     - escalated:human
@@ -187,6 +189,15 @@ templates/teams/infra/dod/*.md     → .claude/teams/infra/dod/
 templates/teams/sns/agents/*.md  → .claude/teams/sns/agents/
 templates/teams/sns/workflow.yml → .claude/teams/sns/workflow.yml
 templates/teams/sns/dod/*.md     → .claude/teams/sns/dod/
+```
+
+### YouTube動画制作チーム（選択時）
+
+```
+templates/teams/youtube/agents/*.md         → .claude/teams/youtube/agents/
+templates/teams/youtube/workflow.yml        → .claude/teams/youtube/workflow.yml
+templates/teams/youtube/dod/*.md            → .claude/teams/youtube/dod/
+templates/teams/youtube/PRODUCTION-GUIDE.md → .claude/teams/youtube/PRODUCTION-GUIDE.md
 ```
 
 ### GitHub Issueテンプレート（常に配置）

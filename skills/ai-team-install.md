@@ -20,6 +20,8 @@ description: ワークフロープラグインをインストールします。�
 - `content` — コンテンツチーム（記事・ドキュメント作成）
 - `infra` — インフラチーム（クラウド構成・セキュリティ）
 
+> ℹ️ `sns`（SNS運用チーム）と `youtube`（YouTube動画制作チーム）はプラグインパッケージとしては提供されていません（テンプレート同梱配布）。`/ai-team-setup` のチーム選択で追加してください。
+
 ## ステップ2: インストールコマンドを実行
 
 Bash ツールで以下を実行してください（`<team_id>` を実際の値に置き換え）：
@@ -56,7 +58,7 @@ node node_modules/@trimix/ai-team/bin/setup.js install <team_id>
 ## エラー対応
 
 - `team_id が見つかりません` → 正しいチームIDを確認して再実行
-- `team_id 衝突エラー` → 既存プラグインを `/ai-team uninstall` してから再実行
+- `team_id 衝突エラー` → 既存プラグインを `npx @trimix/ai-team uninstall <team_id>` でアンインストールしてから再実行
 - `gh コマンドが見つかりません` → GitHub CLI のインストールを案内（`brew install gh` または公式サイト）
 - `カスタマイズ済みのため上書きをスキップ` → 強制上書きする場合は `--force` オプションを使用
 
