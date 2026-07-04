@@ -42,7 +42,8 @@ description: AIチームをプロジェクトにセットアップするウィ�
 
 **質問3**: バージョン管理の方法を選択してください（`AskUserQuestion` ツールを使用）
 - **自動インクリメント（auto）**: Reviewer 合格後に conventional commit に基づき `package.json` のバージョンを自動更新します。ソロ運用・小規模チームに適しています
-- **手動管理（manual）**: バージョンアップはワークフロー外で人間が管理します。チーム開発・独自リリースフロー・monorepo に適しています
+- **手動管理（manual）**: バージョンアップはワークフロー外で人間が管理します。Version-Bumper ステップは残り、スキップ報告だけを行います。チーム開発・独自リリースフロー・monorepo に適しています
+- **使わない（none）**: バージョン管理をワークフローから完全に外します。version-bumper ステップ自体を削除するため、Reviewer 合格後は直接 Tech-Writer に引き継がれます。バージョン概念のないリポジトリ（アプリ運用・ドキュメント等）に適しています
 
 **質問4**: Issue 強制チェックの方法を選択してください（`AskUserQuestion` ツールを使用）
 
@@ -84,7 +85,8 @@ mode: multi-user  # または solo
 # バージョン管理設定
 # auto:   Reviewer合格後にconventional commitに基づきpackage.jsonを自動インクリメント（ソロ・小規模チーム向け）
 # manual: バージョンアップはワークフロー外で人間が管理（チーム開発・独自リリースフロー向け）
-version_management: auto  # または manual
+# none:   バージョン管理を使わない（セットアップ時に version-bumper ステップをワークフローから削除）
+version_management: auto  # または manual / none
 
 # solo モードの設定（mode: solo の場合のみ有効）
 solo:
@@ -156,6 +158,26 @@ templates/teams/backend/review-config.yml → .claude/teams/backend/review-confi
 templates/teams/backend/dod/*.md          → .claude/teams/backend/dod/
 # tech-writer.md・documentation.md は上記ワイルドカードに含まれます
 ```
+
+#### バージョン管理「使わない（none）」選択時の追加編集（バックエンドチーム配置後に実施）
+
+質問3で **使わない（none）** を選択した場合は、配置したファイルに以下の編集を加えて、ワークフローからバージョンアップを外してください。
+
+1. **`.claude/teams/backend/workflow.yml` から version-bumper ステップを削除する**
+   - `- id: version-bumper` のステップブロック全体（直前の説明コメント3行を含む）を削除する
+   - `reviewer` と `cross-review` の `on_complete` にある `next: version-bumper` を `next: tech-writer` に付け替える
+   - `labels.examples` の `"backend:version-bumper"` の行を削除する
+
+2. **`.claude/teams/backend/agents/version-bumper.md` を削除する**（ワークフローから参照されなくなるため）
+
+3. **reviewer 系エージェント定義の引き継ぎ先ラベルを置換する**
+   - 対象: `.claude/teams/backend/agents/reviewer.md`・`reviewer-a.md`・`reviewer-b.md`
+   - `backend:version-bumper` をすべて `backend:tech-writer` に置換する
+
+4. **DOD のバージョン管理セクション**（`.claude/teams/backend/dod/feature.md`・`bugfix.md`）
+   - 「✅ バージョン管理」セクションを削除する（none ではチェック対象外）
+
+> ⚠️ auto / manual を選択した場合はこの編集は不要です（manual はステップが残り、Version-Bumper がスキップ報告します）。
 
 ### フロントエンドチーム（選択時）
 
@@ -308,6 +330,8 @@ gh label create "ai-team:in-progress" --color "fbca04" --description "AIエー�
 ```
 
 ### バックエンドチーム（選択時）
+
+> ⚠️ 質問3で **使わない（none）** を選択した場合は、`backend:version-bumper` の行をスキップしてください（ワークフローにステップが存在しないため）。
 
 ```bash
 gh label create "backend:tech-lead"      --color "1d76db" --description "Tech-Leadが要件分析・設計中"        --force
