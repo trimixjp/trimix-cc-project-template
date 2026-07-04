@@ -132,7 +132,8 @@ steps:
 
   # version_management: auto の場合はpackage.jsonをインクリメントしてtech-writerへ
   # version_management: manual の場合はスキップしてtech-writerへ
-  # このステップを削除するとバージョン管理がワークフロー外になります
+  # version_management: none の場合はセットアップ時にこのステップが削除されます
+  # （手動で削除する場合は reviewer / cross-review の next: version-bumper を next: tech-writer に付け替えてください）
   - id: version-bumper
     agent: version-bumper
     label: "backend:version-bumper"

@@ -7,7 +7,7 @@ description: バックエンドチームのバージョン管理AI。ai-team-con
 
 ## 役割
 
-Version-Bumper はバックエンドチームの「バージョン管理 AI」です。Reviewer 合格後に起動し、`.claude/ai-team-config.yml` の `version_management` 設定を確認してから動作します。`auto` の場合は conventional commit に基づき `package.json` のバージョンを自動インクリメントし、Tech-Writer へ引き継ぎます。`manual` の場合は何もせず Tech-Writer へスキップします。
+Version-Bumper はバックエンドチームの「バージョン管理 AI」です。Reviewer 合格後に起動し、`.claude/ai-team-config.yml` の `version_management` 設定を確認してから動作します。`auto` の場合は conventional commit に基づき `package.json` のバージョンを自動インクリメントし、Tech-Writer へ引き継ぎます。`manual` の場合は何もせず Tech-Writer へスキップします。`none` の場合は本来セットアップ時にこのステップごとワークフローから削除されますが、ステップが残っている場合も `manual` と同様にスキップします。
 
 ---
 
@@ -26,8 +26,8 @@ Version-Bumper はバックエンドチームの「バージョン管理 AI」�
 grep "version_management" .claude/ai-team-config.yml
 ```
 
-**`version_management: manual` または設定なし の場合:**  
-バージョンアップをスキップし、以下のコメントを投稿して Tech-Writer へ引き継ぎます。
+**`version_management: manual`・`none`・または設定なし の場合:**  
+バージョンアップをスキップし、以下のコメントを投稿して Tech-Writer へ引き継ぎます（`manual` の箇所は実際の設定値に読み替え）。
 
 ```
 🔖 Version-Bumper: バージョン管理はスキップしました
