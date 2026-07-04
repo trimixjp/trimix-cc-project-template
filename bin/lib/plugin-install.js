@@ -20,38 +20,6 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '../..');
 
-/** glob パターンに対応したファイルコピー（* をサポート） */
-function copyGlob(srcBase, pattern, destDir, cwd) {
-  const parts = pattern.split('*');
-  if (parts.length === 1) {
-    // 単一ファイル
-    const srcFile = join(srcBase, pattern);
-    if (!existsSync(srcFile)) return;
-    mkdirSync(join(cwd, destDir), { recursive: true });
-    copyFileSync(srcFile, join(cwd, destDir, basename(srcFile)));
-  } else {
-    // ワイルドカード: パターンの * 前の部分をディレクトリとして扱う
-    const srcDir = join(srcBase, parts[0].replace(/\/$/, ''));
-    if (!existsSync(srcDir)) return;
-    const destFull = join(cwd, destDir);
-    mkdirSync(destFull, { recursive: true });
-    copyDirRecursive(srcDir, destFull);
-  }
-}
-
-function copyDirRecursive(src, dest) {
-  for (const entry of readdirSync(src)) {
-    const srcPath = join(src, entry);
-    const destPath = join(dest, entry);
-    if (statSync(srcPath).isDirectory()) {
-      mkdirSync(destPath, { recursive: true });
-      copyDirRecursive(srcPath, destPath);
-    } else {
-      copyFileSync(srcPath, destPath);
-    }
-  }
-}
-
 /** ai-team-config.yml の solo.target_labels にラベルを追加する */
 export function updateConfigTargetLabels(cwd, labelsToAdd) {
   const configPath = join(cwd, '.claude', 'ai-team-config.yml');
@@ -95,8 +63,10 @@ function createLabels(labels) {
   console.log('  GitHub ラベルを作成中...');
   for (const label of labels) {
     try {
-      execSync(
-        `gh label create "${label.name}" --color "${label.color}" --description "${label.description || ''}" --force`,
+      // シェル文字列補間によるクォート崩れを避けるため配列引数で実行する
+      execFileSync(
+        'gh',
+        ['label', 'create', label.name, '--color', label.color, '--description', label.description || '', '--force'],
         { stdio: 'pipe' }
       );
       console.log(`  ✅ ラベル作成: ${label.name}`);
@@ -114,6 +84,15 @@ export async function installPlugin(idOrTeamId, { cwd, force = false }) {
   if (!pluginEntry) {
     console.error(`❌ エラー: プラグイン "${idOrTeamId}" が見つかりません`);
     console.error('利用可能なプラグイン: npx ai-team gallery');
+    process.exit(1);
+  }
+
+  // registry で distribution: "template" のチームはプラグインパッケージ非配布
+  // （templates/teams/<id> 同梱で配布し、registry と solo.target_labels で管理する方針）
+  if (pluginEntry.distribution === 'template') {
+    console.error(`\nℹ️  "${pluginEntry.name}" (${pluginEntry.team_id}) はプラグインパッケージとしては提供されていません`);
+    console.error('   このチームはテンプレート同梱で配布されています。');
+    console.error('   Claude Code で /ai-team-setup を実行し、チーム選択で追加してください');
     process.exit(1);
   }
 
@@ -267,10 +246,10 @@ export async function installPlugin(idOrTeamId, { cwd, force = false }) {
   if (skippedCustomized > 0) {
     console.log(`\n  ℹ️  ${skippedCustomized} 件のカスタマイズ済みファイルをスキップしました`);
     console.log('     強制上書きする場合: npx @trimix/ai-team install <team_id> --force');
-    console.log('     ※ 既存の /ai-team configure で生成したファイルに # customized: true がない場合は手動追記が必要です');
+    console.log('     ※ 既存の /ai-team-configure で生成したファイルに # customized: true がない場合は手動追記が必要です');
   }
   console.log('\n次のステップ:');
-  console.log('  Claude Code を起動し、/ai-team setup を実行してください');
+  console.log('  Claude Code を起動し、/ai-team-setup を実行してください');
   console.log('');
 }
 

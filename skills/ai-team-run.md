@@ -100,6 +100,7 @@ gh issue create \
 | `content:*` | コンテンツチーム | `.claude/teams/content/workflow.yml` |
 | `infra:*` | インフラチーム | `.claude/teams/infra/workflow.yml` |
 | `sns:*` | SNSチーム | `.claude/teams/sns/workflow.yml` |
+| `youtube:*` | YouTube動画制作チーム | `.claude/teams/youtube/workflow.yml` |
 | `epic` または `dispatcher` | Dispatcher | 各チームに分解 |
 | `incident` | インシデント対応 | 緊急対応フロー |
 | `escalated:human` | 人間対応待ち | ワークフロー停止中（解除後は /ai-team-resume で再開） |

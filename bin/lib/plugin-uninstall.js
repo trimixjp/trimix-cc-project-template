@@ -94,12 +94,9 @@ export async function uninstallPlugin(idOrTeamId, { cwd }) {
     }
   }
 
-  // GitHub ラベルの削除案内（自動削除はしない）
-  if (pluginInfo.labels || true) {
-    // plugin.json から labels を取得できないため、命名規則から推定
-    console.log('\n  ℹ️  GitHub ラベルは自動削除されません（既存 Issue への影響を避けるため）');
-    console.log(`  手動削除: gh label list | grep "^${pluginInfo.label_prefix}:" で一覧確認後、gh label delete で削除`);
-  }
+  // GitHub ラベルの削除案内（既存 Issue への影響を避けるため自動削除はせず、常に手動削除を案内する）
+  console.log('\n  ℹ️  GitHub ラベルは自動削除されません（既存 Issue への影響を避けるため）');
+  console.log(`  手動削除: gh label list | grep "^${pluginInfo.label_prefix}:" で一覧確認後、gh label delete で削除`);
 
   console.log(`\n✅ ${pluginInfo.name} をアンインストールしました`);
   console.log('');

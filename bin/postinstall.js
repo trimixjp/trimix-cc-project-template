@@ -7,6 +7,7 @@
 import { mkdirSync, copyFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { SKILL_FILES } from './lib/skill-files.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '..');
@@ -22,16 +23,6 @@ if (projectRoot === packageRoot) {
 
 const skillsSource = join(packageRoot, 'skills');
 const skillsDest = join(projectRoot, '.claude', 'commands');
-
-const skillFiles = [
-  'ai-team-setup.md',
-  'ai-team-run.md',
-  'ai-team-watch.md',
-  'ai-team-resume.md',
-  'ai-team-gallery.md',
-  'ai-team-install.md',
-  'ai-team-configure.md',
-];
 
 // ディレクトリを再帰的にコピーするヘルパー
 function copyDirRecursive(src, dest) {
@@ -52,7 +43,7 @@ try {
   mkdirSync(skillsDest, { recursive: true });
 
   let count = 0;
-  for (const file of skillFiles) {
+  for (const file of SKILL_FILES) {
     const src = join(skillsSource, file);
     if (!existsSync(src)) continue;
     copyFileSync(src, join(skillsDest, file));
@@ -60,7 +51,7 @@ try {
   }
 
   console.log(`\n✅ @trimix/ai-team: ${count} 件のSkillファイルを .claude/commands/ に展開しました`);
-  console.log('   Claude Code で /ai-team setup を実行してセットアップを完了してください\n');
+  console.log('   Claude Code で /ai-team-setup を実行してセットアップを完了してください\n');
 } catch (err) {
   console.warn('\n⚠️  @trimix/ai-team: Skillファイルの展開に失敗しました');
   console.warn('   手動で npx ai-team install を実行してください\n');

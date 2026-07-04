@@ -2,12 +2,13 @@
 /**
  * @trimix/ai-team CLI
  * Skillファイルを .claude/commands/ に展開します。
- * 実際のセットアップは Claude Code Skill コマンド /ai-team setup で行います。
+ * 実際のセットアップは Claude Code Skill コマンド /ai-team-setup で行います。
  */
 
 import { readFileSync, mkdirSync, copyFileSync, existsSync } from 'fs';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { SKILL_FILES } from './lib/skill-files.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '..');
@@ -34,7 +35,7 @@ function printHelp() {
   console.log('  npx @trimix/ai-team --help               このヘルプを表示');
   console.log('');
   console.log('展開後のセットアップ:');
-  console.log('  Claude Code を起動し、/ai-team setup を実行してください');
+  console.log('  Claude Code を起動し、/ai-team-setup を実行してください');
   console.log('');
   console.log('利用可能なチームID: backend / frontend / content / infra');
 }
@@ -46,19 +47,8 @@ function installSkills() {
   // .claude/commands/ を作成
   mkdirSync(skillsDest, { recursive: true });
 
-  const skillFiles = [
-    'ai-team-setup.md',
-    'ai-team-run.md',
-    'ai-team-watch.md',
-    'ai-team-resume.md',
-    'ai-team-gallery.md',
-    'ai-team-install.md',
-    'ai-team-configure.md',
-    'ai-team-create.md',
-  ];
-
   let installed = 0;
-  for (const file of skillFiles) {
+  for (const file of SKILL_FILES) {
     const src = join(skillsSource, file);
     const dest = join(skillsDest, file);
 
@@ -78,7 +68,7 @@ function installSkills() {
   console.log('');
   console.log('次のステップ:');
   console.log('  1. Claude Code を起動してください');
-  console.log('  2. /ai-team setup を実行してAIチームをセットアップしてください');
+  console.log('  2. /ai-team-setup を実行してAIチームをセットアップしてください');
 }
 
 // メイン処理（非同期コマンドに対応）

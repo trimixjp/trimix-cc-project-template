@@ -44,7 +44,7 @@ test('_custom/workflow.yml が旧スキーマのキーを使っていない', ()
   assert.ok(!/^\s*trigger:/m.test(content), '旧キー trigger: が使われていないこと（condition が正）');
 });
 
-test('/ai-team create の生成器（workflow-yaml.js）が新スキーマで生成する', async () => {
+test('/ai-team-create の生成器（workflow-yaml.js）が新スキーマで生成する', async () => {
   const { buildWorkflowYaml } = await import('../bin/lib/workflow-yaml.js');
 
   const yaml = buildWorkflowYaml({
@@ -105,8 +105,14 @@ test('skills/ai-team-create.md が存在し必須セクションを含む', () =
   assert.ok(content.includes('ai-team-config.yml'), 'ai-team-config.yml の更新手順が含まれていない');
 });
 
-test('bin/setup.js の skillFiles に ai-team-create.md が含まれている', () => {
-  const setupPath = join(packageRoot, 'bin', 'setup.js');
-  const content = readFileSync(setupPath, 'utf-8');
-  assert.ok(content.includes("'ai-team-create.md'"), 'ai-team-create.md が installSkills に追加されていない');
+test('SKILL_FILES に ai-team-create.md が含まれ、setup.js と postinstall.js の両方が参照している', async () => {
+  const { SKILL_FILES } = await import(join(packageRoot, 'bin', 'lib', 'skill-files.js'));
+  assert.ok(SKILL_FILES.includes('ai-team-create.md'), 'ai-team-create.md が SKILL_FILES に含まれていない');
+
+  // 配布経路（setup.js / postinstall.js）がリストを個別に持たず単一情報源を参照していること
+  for (const script of ['setup.js', 'postinstall.js']) {
+    const content = readFileSync(join(packageRoot, 'bin', script), 'utf-8');
+    assert.ok(content.includes('skill-files.js'), `${script} が bin/lib/skill-files.js を参照していない`);
+    assert.ok(!content.includes("'ai-team-setup.md'"), `${script} にスキル一覧が重複定義されている`);
+  }
 });
