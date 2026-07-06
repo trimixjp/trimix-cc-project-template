@@ -113,19 +113,23 @@ Researcher の調査完了後に再び起動し、調査レポートを確認し
 
 不合格（差し戻し）と判定した場合、差し戻しの前に過去の差し戻し回数を機械的にカウントします。
 
-差し戻しコメントの**先頭行**は必ず `❌ <エージェント名>: 差し戻し（差し戻し回数: n/2）` 形式とします。カウントは以下のコマンドで**コメント先頭行のみ**を照合するため、本文中の引用による偽陽性はありません。
+差し戻しコメントの**先頭行**は必ず `❌ Strategist: 差し戻し（差し戻し回数: n/<rework_limit>）` 形式とします（`<rework_limit>` は workflow.yml の `rework_limit` の値。既定: 2）。カウントは以下のコマンドで**コメント先頭行のみ**をエージェント名（`Strategist`）でアンカーして照合するため、本文中の引用や Operator→Writer の差し戻しループによる偽陽性はありません。
 
 ```bash
-# 過去の差し戻しコメント数を数える（結果は「マッチ行数」。--paginate で100件超のコメントにも対応。
-# ヒット0件時は grep が終了コード1を返すため || true を併記）
+# 差し戻し上限を workflow.yml から取得（rework_limit。既定: 2）
+grep -E '^rework_limit:' .claude/teams/sns/workflow.yml | awk '{print $2}'
+
+# 過去の Strategist 差し戻しコメント数を数える（結果は「マッチ行数」。--paginate で100件超のコメントにも対応。
+# ヒット0件時は grep が終了コード1を返すため || true を併記。
+# 同一 Issue に Operator→Writer の差し戻しループが共存するため、必ず `^❌ Strategist: 差し戻し` でアンカーする）
 gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
-  --jq '.[].body | split("\n")[0]' | grep -cE '^❌ .+: 差し戻し' || true
+  --jq '.[].body | split("\n")[0]' | grep -cE '^❌ Strategist: 差し戻し' || true
 ```
 
 - カウント結果（マッチ行数）を n とする
-- **n < 2**: 差し戻し可。差し戻しコメントの先頭行に「差し戻し回数: n+1/2」を記載
-- **n ≥ 2**: 差し戻さず `escalated:human` ラベルに更新し、超過の経緯を記録して人間にエスカレーション
-- 注記: 上限値は workflow.yml の `rework_limit` を正とする
+- **n < rework_limit**: 差し戻し可。差し戻しコメントの先頭行に「差し戻し回数: n+1/<rework_limit>」を記載
+- **n ≥ rework_limit**: 差し戻さず `escalated:human` ラベルに更新し、超過の経緯を記録して人間にエスカレーション
+- 注記: 上限値は workflow.yml の `rework_limit` を正とする（本定義への値の直書き禁止）
 
 ---
 
@@ -202,12 +206,12 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ### 調査レポートの差し戻し（strategist-review 不合格時）
 
 ```
-❌ Strategist: 差し戻し（差し戻し回数: <n>/2）
+❌ Strategist: 差し戻し（差し戻し回数: <n>/<rework_limit>）
 
 ## 実施内容
 （確認した調査レポート・適用した確認観点を記述）
 
-## 差し戻し回数: <n>/2
+## 差し戻し回数: <n>/<rework_limit>
 （「差し戻しカウント手順」のコマンドで過去の差し戻しコメント先頭行を数えた結果に1を加えた値。上限値は workflow.yml の rework_limit を正とし、上限超過となる場合は差し戻しではなく escalated:human へ）
 
 ## 指摘事項
@@ -258,7 +262,7 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 - [ ] Writer への執筆指示（文体・ハッシュタグ方針・文字数・禁止表現）を具体化した
 - [ ] Operator への運用指示（投稿タイミング・頻度）を記載した
 - [ ] 投稿文・サンプル文を書いていない（執筆は Writer の担当）
-- [ ] 調査レポート不合格時: 差し戻しカウント手順を実行し、差し戻しコメントの先頭行に「差し戻し回数: n/2」を記載した
+- [ ] 調査レポート不合格時: 差し戻しカウント手順を実行し、差し戻しコメントの先頭行に「差し戻し回数: n/<rework_limit>」を記載した
 - [ ] rework_limit（workflow.yml の値。既定: 2）超過時は差し戻しせず `escalated:human` へ更新した
 - [ ] 完了報告コメントに必須5フィールド（実施内容・成果物・判断根拠・完了条件チェック・次のアクション）を記載した
 

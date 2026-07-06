@@ -30,6 +30,16 @@ const SSOT_PATH = join(
   'version-bumper.md'
 );
 
+// tech-writer も version-bumper と同一の多段フォールバックで RANGE を決定する（Issue #71）
+const TECH_WRITER_PATH = join(
+  packageRoot,
+  'templates',
+  'teams',
+  'backend',
+  'agents',
+  'tech-writer.md'
+);
+
 /**
  * version-bumper.md が参照する版バンプコミット検出の正規表現（SSOT のコマンドブロックと一致）。
  * git log --format='%H %s' の各行（`<hash> <subject>` 形式）に適用する想定。
@@ -128,5 +138,96 @@ test('範囲判定: HEAD サブジェクト単独の版バンプ判定が正し�
   assert.ok(
     !BUMP_SUBJECT_RE.test('fix: タグ未初期化時の範囲判定を多段フォールバック化'),
     'fix コミットのサブジェクトにマッチすべきでないがマッチした'
+  );
+});
+
+// ============================================================
+// (3) tech-writer.md にも同一の多段フォールバックの記述が含まれること（Issue #71）
+//     tech-writer はバンプコミットの「後」に起動するため、フォールバック (3) で
+//     HEAD 自身（＝バンプコミット）を境界にして RANGE=<HEAD>..HEAD（0件）に
+//     ならないよう、HEAD 除外分岐を持つことも検証する。
+// ============================================================
+
+test('範囲判定: tech-writer.md に4段フォールバック（tag → bump-commit → package.json → HEAD）の記述が含まれる', () => {
+  const content = readFileSync(TECH_WRITER_PATH, 'utf-8');
+
+  // (1) タグ境界（後方互換）の記述
+  assert.ok(
+    content.includes('git describe --tags --abbrev=0'),
+    'タグ境界判定（git describe）の記述が見当たらない'
+  );
+
+  // (2) 直近版バンプコミット境界の検出正規表現（BUMP_RE）が手順書に明記されている
+  assert.ok(
+    /chore: v\[0-9\]\+\\\.\[0-9\]\+\\\.\[0-9\]\+ にバージョンアップ/.test(content),
+    '直近版バンプコミット検出の正規表現（chore: vX.Y.Z にバージョンアップ）が手順書に明記されていない'
+  );
+  assert.ok(
+    content.includes('BUMP_RE='),
+    'BUMP_RE 変数の定義が見当たらない'
+  );
+
+  // (3) package.json version 変更コミット境界（補助フォールバック）の記述
+  assert.ok(
+    content.includes('git log -1 --format=') && content.includes('package.json'),
+    'package.json version 変更コミット境界（補助フォールバック）の記述が見当たらない'
+  );
+
+  // (4) HEAD 全件は真の初回のみという記述（全履歴への無条件フォールバックを排した旨）
+  assert.ok(
+    content.includes('RANGE="HEAD"') && content.includes('真の初回'),
+    'HEAD 全件フォールバックを真の初回に限定する記述が見当たらない'
+  );
+
+  // 多段フォールバックである旨が明示されている
+  assert.ok(
+    content.includes('多段フォールバック'),
+    '「多段フォールバック」の明示が見当たらない'
+  );
+});
+
+test('範囲判定: tech-writer.md のフォールバック(3)に HEAD 除外分岐（初回リリース時の空 RANGE 対策）が含まれる', () => {
+  const content = readFileSync(TECH_WRITER_PATH, 'utf-8');
+
+  // HEAD 自身が package.json 変更コミット（今回のバンプコミット）かの判定
+  assert.ok(
+    content.includes('git rev-parse HEAD'),
+    'HEAD 自身が package.json 変更コミットかを判定する記述（git rev-parse HEAD との比較）が見当たらない'
+  );
+
+  // HEAD を除外して前回の package.json 変更コミットを探す分岐
+  assert.ok(
+    content.includes("git log -1 --format='%H' HEAD~1 -- package.json"),
+    'HEAD を除外して前回の package.json 変更コミットを探す分岐（HEAD~1 起点の git log）が見当たらない'
+  );
+
+  // HEAD~1 が存在しない単一コミットリポジトリの分岐（(4) HEAD 全件へフォールバック）
+  assert.ok(
+    content.includes('git rev-parse --verify -q HEAD~1'),
+    'HEAD~1 が存在しない単一コミットリポジトリの分岐（git rev-parse --verify）が見当たらない'
+  );
+  assert.ok(
+    content.includes('単一コミットリポジトリ'),
+    '単一コミットリポジトリ時に (4) HEAD 全件へフォールバックする旨の記述が見当たらない'
+  );
+});
+
+test('範囲判定: tech-writer.md の失敗時挙動に RANGE 0件時のエスカレーションが定義されている', () => {
+  const content = readFileSync(TECH_WRITER_PATH, 'utf-8');
+
+  // git log $RANGE --oneline | wc -l が0件の場合のエスカレーション
+  assert.ok(
+    content.includes('git log $RANGE --oneline | wc -l'),
+    'RANGE の対象コミット件数を計測するコマンド（git log $RANGE --oneline | wc -l）の記述が見当たらない'
+  );
+  assert.ok(
+    content.includes('境界検出失敗'),
+    'RANGE 0件を境界検出失敗としてエスカレーションする記述が見当たらない'
+  );
+
+  // versions/ ディレクトリが存在するが空の場合のエスカレーション
+  assert.ok(
+    content.includes('存在するが空'),
+    'docs-src/versions/ が存在するが空の場合のエスカレーション分岐が見当たらない'
   );
 });

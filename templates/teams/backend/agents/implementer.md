@@ -77,6 +77,7 @@ node -e "const s=require('./package.json').scripts||{}; console.log(JSON.stringi
 |------|-------------|
 | `scripts.test` が定義されている | `npm test` |
 | `scripts.lint` が定義されている | `npm run lint` |
+| package.json はあり scripts も定義されているが `test` / `lint` キーが無い | どのコマンドで検証すべきか特定できない旨を完了報告に記録し、Tech-Lead にコメントで確認する |
 | package.json が無い・scripts 未定義 | 言語標準のコマンドを特定する（下表） |
 
 言語標準コマンドの決定表（リポジトリのファイル構成から機械的に判定）:

@@ -574,24 +574,29 @@ description: コンテンツチームの執筆担当AI。Editor-in-Chiefの方�
 
 **先頭行規約:**
 
-差し戻し（不合格）コメントの先頭行は、必ず次の形式で記述します。
+差し戻し（不合格）コメントの先頭行は、必ず次の形式で記述します。分母は `<rework_limit>`（workflow.yml から取得コマンドで解決。値の直書き禁止＝9-8 準拠）とします。
 
 ```
-❌ <エージェント名>: 差し戻し（差し戻し回数: n/2）
+❌ <エージェント名>: 差し戻し（差し戻し回数: n/<rework_limit>）
 ```
 
 **カウントコマンド（先頭行のみ照合・引用による偽陽性なし）:**
 
 ```bash
+# 差し戻し上限を workflow.yml から取得（rework_limit。既定: 2。値の直書き禁止＝9-8 準拠）
+grep -E '^rework_limit:' .claude/teams/<team_id>/workflow.yml | awk '{print $2}'
+
+# 過去の差し戻しコメント数を数える
 gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
   --jq '.[].body | split("\n")[0]' | grep -cE '^❌ .+: 差し戻し' || true
 ```
 
 **ルール:**
-- カウント **n < 2** → 差し戻し可。カウント **n ≥ 2** → 差し戻しせず `escalated:human` へ遷移する。上限値は workflow.yml の `rework_limit` が正です
+- カウント **n < rework_limit** → 差し戻し可。カウント **n ≥ rework_limit** → 差し戻しせず `escalated:human` へ遷移する。上限値は workflow.yml の `rework_limit` が正です
 - 差し戻し以外のコメント（独立レビューの暫定結果等）では、**先頭行に「差し戻し」の語を使ってはいけません**（カウントの偽陽性を防ぐため。例: 独立レビューの暫定結果は `🔍 Reviewer-A: 独立レビュー完了（暫定）` のように書く）
 - 本文中での「差し戻し」への言及・引用はカウントに影響しません（先頭行のみを照合するため）
-- 先頭行フォーマットの分母 `2` は workflow.yml の `rework_limit` の既定値です。定義本文で上限に言及する際は必ず「workflow.yml の `rework_limit` が正」と出典を併記します（9-8 参照）
+- 定義本文で上限に言及する際は必ず「workflow.yml の `rework_limit` が正」と出典を併記します（9-8 参照）
+- **同一 Issue に複数の差し戻しループが共存するチーム**（例: sns の Strategist→Researcher と Operator→Writer）では、カウント正規表現を必ずエージェント名でアンカーします（例: `grep -cE '^❌ Strategist: 差し戻し'`）。汎用パターン `^❌ .+: 差し戻し` のままでは他ループの差し戻しを誤カウントします
 
 ### 9-5. 「失敗時挙動」セクション（必須）
 

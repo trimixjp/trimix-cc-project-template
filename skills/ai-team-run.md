@@ -75,7 +75,7 @@ gh issue list --state open --search "<キーワード>" --json number,title,labe
 | 複数チームにまたがる・横断・全体 | `epic` |
 | 障害・本番エラー・緊急 | `incident` |
 | API・DB・サーバ・バッチ・認証・バックエンド | `backend:tech-lead` |
-| 画面・UI・コンポーネント・CSS・フロントエンド | `frontend:frontend-lead` |
+| 画面・UI・コンポーネント・CSS・フロントエンド | `frontend:designer` |
 | インフラ・クラウド・ネットワーク・デプロイ・セキュリティ | `infra:infra-lead` |
 | 記事・ドキュメント・README・文章 | `content:editor-in-chief` |
 | SNS・X・Instagram・投稿文 | `sns:strategist` |

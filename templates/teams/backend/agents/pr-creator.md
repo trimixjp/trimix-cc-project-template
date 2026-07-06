@@ -46,8 +46,11 @@ HEAD_BRANCH=$(git branch --show-current)
 # 事前確認1: マージ元がマージ先と同一なら PR を作成できない → Tech-Lead に報告（失敗時挙動を参照）
 [ "$HEAD_BRANCH" != "$BASE_BRANCH" ] || echo "ERROR: base と head が同一ブランチです"
 
-# 事前確認2: コンフリクトの事前検出（merge-base が取れない場合はブランチ関係の異常）
-git merge-base "$BASE_BRANCH" "$HEAD_BRANCH"
+# 事前確認2: base と head の共通祖先の存在確認（履歴無関係の検出。merge-base が取れない場合はブランチ関係の異常）
+#            コンフリクト自体はここでは検出できないため、PR 作成後の mergeable で確認する
+#            ローカルに base ブランチが無い場合はリモート追跡ブランチ（origin/<base_branch>）でフォールバックする
+git merge-base "$BASE_BRANCH" "$HEAD_BRANCH" \
+  || git merge-base "origin/$BASE_BRANCH" "$HEAD_BRANCH"
 
 gh pr create \
   --title "<タイトル>" \
@@ -165,7 +168,7 @@ Closes #<Issue番号>
 既定原則は「安全側に倒す」です（判断できなければ PR を作成せず停止して記録する）。
 
 - **`review-config.yml` が存在しない・`base_branch` が読み取れない場合:** 推測でマージ先を決めず（`main` と仮定しない）、欠落したファイル・キーを Issue コメントに記録して `human-escalator` にエスカレーションします
-- **コンフリクトを検出した場合**（`git merge-base "$BASE_BRANCH" "$HEAD_BRANCH"` が失敗、または `gh pr view --json mergeable --jq '.mergeable'` が `CONFLICTING`）**:** 検出コマンドと結果を Issue コメントに記録し、`backend:tech-lead` ラベルに更新して Tech-Lead に報告します（PR-Creator はコンフリクトを解消しません）
+- **ブランチ関係の異常またはコンフリクトを検出した場合**（`git merge-base "$BASE_BRANCH" "$HEAD_BRANCH"` が `origin/$BASE_BRANCH` フォールバック込みで失敗（共通祖先なし＝履歴無関係）、または `gh pr view --json mergeable --jq '.mergeable'` が `CONFLICTING`）**:** 検出コマンドと結果を Issue コメントに記録し、`backend:tech-lead` ラベルに更新して Tech-Lead に報告します（PR-Creator はコンフリクトを解消しません）
 - **`git branch --show-current` の結果が `base_branch` と同一の場合:** feature branch が作られていない異常状態です。PR を作成せず、経緯をコメントに記録して Tech-Lead に報告します
 - **`gh pr create` が失敗した場合:** コマンド出力・終了コードをコメントに記録し、1回だけ再実行します。再失敗時は `human-escalator` にエスカレーションします
 

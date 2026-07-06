@@ -60,8 +60,21 @@ if [ -z "$RANGE" ]; then
 fi
 
 # (3) package.json の version 変更コミット境界（補助フォールバック）
+#     注: Tech-Writer はバンプコミットの「後」に起動するため、`git log -1 -- package.json` は
+#         HEAD 自身（今回のバンプコミット）を返し、RANGE=<HEAD>..HEAD（0件）になってしまう。
+#         HEAD がバンプコミット（package.json 変更コミット）自身である場合は HEAD を除外して
+#         「前回の package.json 変更コミット」を境界として探す。
 if [ -z "$RANGE" ]; then
   PKG_COMMIT=$(git log -1 --format='%H' -- package.json 2>/dev/null || true)
+  if [ -n "$PKG_COMMIT" ] && [ "$PKG_COMMIT" = "$(git rev-parse HEAD)" ]; then
+    if git rev-parse --verify -q HEAD~1 >/dev/null; then
+      # HEAD を除外して探し直す（前回の package.json 変更コミットを境界にする）
+      PKG_COMMIT=$(git log -1 --format='%H' HEAD~1 -- package.json 2>/dev/null || true)
+    else
+      # HEAD~1 が存在しない単一コミットリポジトリ → 境界にできないため (4) HEAD 全件へ
+      PKG_COMMIT=""
+    fi
+  fi
   if [ -n "$PKG_COMMIT" ]; then
     RANGE="$PKG_COMMIT..HEAD"
     RANGE_SOURCE="package.json ($PKG_COMMIT)"
@@ -285,6 +298,8 @@ v<バージョン番号>
 - **`node docs-src/build.js` が失敗した場合:** ステップ4の「ビルド失敗時の状態とリトライ手順」に従います（コミット前で停止・再実行2回まで・超過時はエラー全文を記録してエスカレーション）
 - **`docs-src/` または `docs-src/config.json` が存在しない場合:** ドキュメント基盤が未整備のため作業を中断し、欠落パスと経緯を Issue コメントに記録して `human-escalator` にエスカレーションします（勝手にディレクトリ構成を新設しない）
 - **対象コミット範囲の決定コマンドが失敗した場合:** `RANGE="HEAD"`（全履歴）に安易にフォールバックせず、失敗したコマンドと出力をコメントに記録してエスカレーションします（インシデント #54 と同種の誤範囲を防ぐため）
+- **決定した RANGE の対象コミットが0件の場合:** `git log $RANGE --oneline | wc -l` が 0 件の場合は境界検出失敗（例: 境界コミットが HEAD 自身を指している）とみなし、計測値（RANGE・RANGE_SOURCE・件数）を Issue コメントに記録して `human-escalator` にエスカレーションします（0件のまま「変更なし」と判定して先に進んではいけません）
+- **`docs-src/versions/` ディレクトリは存在するが空の場合:** ステップ2の `PREV_NUM=$(ls docs-src/versions/ ...)` が空になりコピー元（直前バージョン）を特定できないため、勝手に雛形を新設せず、状況（ディレクトリが空である旨）を Issue コメントに記録して `human-escalator` にエスカレーションします
 
 ---
 

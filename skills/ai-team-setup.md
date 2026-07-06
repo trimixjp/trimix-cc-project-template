@@ -106,7 +106,7 @@ solo:
   target_labels:                # 処理対象とするラベル（いずれか1つでも付いていれば対象）
     - dispatcher
     - backend:tech-lead
-    - frontend:frontend-lead
+    - frontend:designer
     - content:editor-in-chief
     - infra:infra-lead
     - sns:strategist
