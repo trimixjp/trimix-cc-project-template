@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v0.23.0 の変更点 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.23.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class=""><a href="faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class="active"><a href="changelog.html">v0.23.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">v0.23.0 の変更点</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/changelog.html" >v0.5.1</option><option value="../v0.5.2/changelog.html" >v0.5.2</option><option value="../v0.6.0/changelog.html" >v0.6.0</option><option value="../v0.7.0/changelog.html" >v0.7.0</option><option value="../v0.8.0/changelog.html" >v0.8.0</option><option value="../v0.9.0/changelog.html" >v0.9.0</option><option value="../v0.10.0/changelog.html" >v0.10.0</option><option value="../v0.11.0/changelog.html" >v0.11.0</option><option value="../v0.12.0/changelog.html" >v0.12.0</option><option value="../v0.13.0/changelog.html" >v0.13.0</option><option value="../v0.14.0/changelog.html" >v0.14.0</option><option value="../v0.15.0/changelog.html" >v0.15.0</option><option value="../v0.16.0/changelog.html" >v0.16.0</option><option value="../v0.17.0/changelog.html" >v0.17.0</option><option value="../v0.18.0/changelog.html" >v0.18.0</option><option value="../v0.20.0/changelog.html" >v0.20.0</option><option value="../v0.21.0/changelog.html" >v0.21.0</option><option value="../v0.21.1/changelog.html" >v0.21.1</option><option value="../v0.22.0/changelog.html" >v0.22.0</option><option value="../v0.22.1/changelog.html" >v0.22.1</option><option value="../v0.23.0/changelog.html" selected>v0.23.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>v0.23.0 の変更点</h1>
+
+<p>このページは、直前バージョン <strong>v0.22.1</strong> から <strong>v0.23.0</strong> までの変更点をまとめたものです。ソースコードのコミット履歴（前回の版バンプコミット以降・25 コミット）に基づいて記載しています。</p>
+
+<hr>
+
+<h2>概要</h2>
+
+<p>v0.23.0 の主眼は、<strong>全エージェント定義・全スキルの「モデル非依存」ブラッシュアップ</strong>です（Issue #71）。</p>
+
+<p>これまでのエージェント定義は、高い推論能力を持つモデルが行間を補完してくれることを暗黙の前提とした記述（「適切に判断する」「状況に応じて対応する」等）を含んでいました。その結果、実行するモデルによって判断のブレや品質差が生じる余地がありました。</p>
+
+<p>v0.23.0 では、8 本のスキルと 47 体のエージェント定義＋ワークフローを見直し、曖昧な自然文の判断を<strong>決定表・転記式チェック・機械的検証</strong>へ置き換えました。Opus / Sonnet などどのモデルで実行しても、高推論モデルと同等品質で動作することを目指した変更です。</p>
+
+<p>あわせて、v0.22.1 リリース後にマージ済みだった未リリース分の機能改善（バージョン管理の <code>none</code> 選択肢・テンプレート同梱チームの install ガード等）も本バージョンに含まれます。</p>
+
+<hr>
+
+<h2>改善</h2>
+
+<h3>エージェント記述標準の新設と全エージェントへの水平展開（Issue #71）</h3>
+
+<p>エージェント定義ファイル記述ガイドライン（<code>.claude/docs/agent-writing-guide.md</code>）に、次の 4 つの記述標準を新設しました（§9-5〜9-8）。</p>
+
+<table><thead><tr><th>節</th><th>標準</th><th>内容</th></tr></thead><tbody><tr><td>§9-5</td><td>「失敗時挙動」セクションの必須化</td><td>前提が崩れた場合（ファイル欠落・コマンド失敗・0件検出等）に何をするかを、全エージェントが明文で持つ</td></tr><tr><td>§9-6</td><td>機械的検証の原則</td><td>合否・分岐の判定は、人間の感覚ではなくコマンド出力・正規表現照合など機械的に再現できる基準で行う</td></tr><tr><td>§9-7</td><td>モデル非依存の原則</td><td>実行モデルの推論能力に依存する記述（「適切に」「柔軟に」等）を避け、決定表・手順として書き下す</td></tr><tr><td>§9-8</td><td>設定値のハードコード禁止</td><td>しきい値・ラベル名等は設定ファイル（workflow.yml・review-config.yml 等）を単一情報源とし、エージェント本文に重複記載しない</td></tr></tbody></table>
+<p>この標準に基づき、共有エージェント（dispatcher / contributor / human-escalator）、バックエンド・フロントエンド・インフラ・コンテンツ・SNS・YouTube の全チームのエージェント定義に「失敗時挙動」セクションを水平展開し、判断基準を決定表化・転記式チェックに統一しました。カスタムチーム作成用のベーステンプレート（<code>_agent-template.md</code>）も新標準に対応しています。</p>
+
+<h3>全スキルへの決定表・失敗時フォールバック・報告前チェックの追加（Issue #71）</h3>
+
+<p>8 本のスキル（<code>/ai-team-setup</code> / <code>/ai-team-run</code> / <code>/ai-team-watch</code> / <code>/ai-team-resume</code> / <code>/ai-team-configure</code> / <code>/ai-team-install</code> / <code>/ai-team-gallery</code> / <code>/ai-team-create</code>）に、分岐判定の決定表・コマンド失敗時のフォールバック手順・ユーザーへの報告前チェックリストを追加しました。スキル実行時の判断も、エージェントと同じくモデルに依存しない決定論的な手順になります。</p>
+
+<h3>SNS 運用チームに品質ゲート（差し戻し）を追加（Issue #71）</h3>
+
+<p>SNS 運用チームの <code>strategist-review</code> ステップ（Strategist による調査結果確認）に <code>on_rework</code> を追加しました。調査レポートが不十分な場合は Researcher へ差し戻して再調査させ、差し戻し上限（<code>rework_limit: 2</code>）を超えた場合＝同一 Issue で 3 回目の不合格は human-escalator にエスカレーションします。これまで調査結果の品質を担保するゲートが欠落しており、不十分な調査のまま Writer へ進む余地がありました。</p>
+
+<h3>Tech-Writer の差分範囲判定を多段フォールバック化（Issue #71）</h3>
+
+<p>バックエンドチームの Tech-Writer が「どのコミット範囲の変更をドキュメントに反映するか」を決める際の範囲判定を、Version-Bumper と同一の 4 段フォールバック（① git タグ境界 → ② 版バンプコミット境界 → ③ package.json 変更コミット境界 → ④ HEAD 全件）に統一しました。git タグを運用していないリポジトリで履歴全体を誤って対象にしてしまう問題（インシデント #54 と同種）を、ドキュメント更新でも防ぎます。採用した範囲判定方式は完了報告に必ず記録されます。</p>
+
+<h3>フロントエンドチームの起動ラベルを <code>frontend:designer</code> に統一（Issue #71）</h3>
+
+<p>フロントエンドチームのワークフローは最初のステップが <code>designer-analysis</code>（Designer によるデザイン仕様策定）であるため、Issue にワークフローを起動させるためのラベルを <code>frontend:frontend-lead</code> から <code>frontend:designer</code> に統一しました。対象は <code>/ai-team-run</code> のキーワード判定表、<code>/ai-team-watch</code>（ソロモード）の <code>target_labels</code>、<code>/ai-team-setup</code> が生成する <code>ai-team-config.yml</code> です。<code>frontend:frontend-lead</code> は Frontend-Lead が担当するステップ（要件分析・レビュー方式判断）のラベルとして引き続き使われます。</p>
+
+<p><strong>既存プロジェクトへの影響</strong>: ソロモードで運用中の場合は、<code>.claude/ai-team-config.yml</code> の <code>solo.target_labels</code> の <code>frontend:frontend-lead</code> を <code>frontend:designer</code> に更新してください（更新しない場合、フロントエンド向け Issue が自動検出されません）。</p>
+
+<h3>YouTube チームの director ステップ判定を決定論化（Issue #71）</h3>
+
+<p>director が <code>director-planning</code>（種別判定）と <code>director-channel-review</code>（チャンネル設定レビュー）のどちらのステップで呼ばれたかの判定を、直前工程の引き継ぎコメント（<code>⏭️ 次のアクション:</code> 行）を <code>grep</code> で機械抽出して決定表と照合する方式に変更しました。<code>⏭️</code> 行が存在しない初回起動は <code>director-planning</code> で開始します。あわせて、抽出コマンドの失敗・workflow.yml の欠落など前提が崩れた場合の「失敗時挙動」を追加しました。</p>
+
+<h3>バージョン管理の選択肢に「使わない（none）」を追加（Issue #68）</h3>
+
+<code>/ai-team-setup</code> のバージョン管理の質問に、<code>auto</code>（自動インクリメント）・<code>manual</code>（手動管理）に加えて <strong><code>none</code>（使わない）</strong> を追加しました。
+
+<table><thead><tr><th>設定値</th><th>動作</th></tr></thead><tbody><tr><td><code>auto</code></td><td>Reviewer 合格後に conventional commit を解析して <code>package.json</code> を自動インクリメント</td></tr><tr><td><code>manual</code></td><td>Version-Bumper ステップは残り、スキップ報告のみ行って Tech-Writer へ引き継ぐ</td></tr><tr><td><code>none</code></td><td>version-bumper ステップ自体をワークフローから削除。Reviewer 合格後は直接 Tech-Writer へ</td></tr></tbody></table>
+<code>none</code> は、バージョン概念のないリポジトリ（アプリ運用・ドキュメントリポジトリ等）に適しています。既存プロジェクトで手動でステップを削除する場合は、<code>workflow.yml</code> の reviewer / cross-review の <code>next: version-bumper</code> を <code>next: tech-writer</code> に付け替えてください。
+
+<h3>テンプレート同梱チーム（sns / youtube）の install ガードと gallery 区別表示（Issue #66）</h3>
+
+<p>SNS 運用チームと YouTube 動画制作チームは、プラグインパッケージではなくパッケージ本体のテンプレート（<code>templates/teams/&lt;id&gt;/</code>）として同梱・配布されています（<code>registry.json</code> の <code>distribution: "template"</code>）。この実態に合わせて次を変更しました。</p>
+
+<ul><li><code>/ai-team-install sns</code> / <code>/ai-team-install youtube</code> を実行した場合、プラグインパッケージとしては提供されていない旨の案内メッセージを表示します（導入は <code>/ai-team-setup</code> で行います）</li><li><code>/ai-team-gallery</code> では、プラグインとしてインストール可能なチームとは別に「テンプレート同梱（/ai-team-setup で追加）」セクションとして区別表示します</li><li>あわせて、<code>gh label create</code> をシェル文字列補間から配列引数（<code>execFileSync</code>）に変更し、ラベル説明文のクォート崩れを防ぎました</li></ul>
+<h3><code>/ai-team-setup</code> のセットアップウィザード改善（Issue #66・#68）</h3>
+
+<ul><li>チーム選択の質問に YouTube 動画制作チームを追加し、6 チームを 2 回（エンジニアリング・コンテンツ系／マーケティング・メディア系）に分けて確認するようにしました</li><li>テンプレートのコピー手順に共通の実行例（<code>mkdir -p</code> → <code>cp</code>、パッケージルートの基準）を明記しました</li></ul>
+<hr>
+
+<h2>バグ修正</h2>
+
+<h3>postinstall で <code>ai-team-create.md</code> が配布されない欠落を修正（Issue #66）</h3>
+
+<p>パッケージ導入時（<code>postinstall</code>）に <code>.claude/commands/</code> へ展開されるスキルファイルの一覧に <code>ai-team-create.md</code> が含まれておらず、<code>/ai-team-create</code> が導入直後に使えない欠落がありました。配布スキル一覧を <code>bin/lib/skill-files.js</code> の <code>SKILL_FILES</code> に単一情報源化し、<code>bin/setup.js</code> と <code>bin/postinstall.js</code> の両方が同じ一覧を参照するように修正しました。展開されるスキルファイルは全 8 件です。</p>
+
+<h3>ensure-issue.sh がハイフン区切りコマンドをブロックする問題を修正（Issue #66）</h3>
+
+<p>Issue 強制チェックの hook（<code>ensure-issue.sh</code>）が、スペース区切りの <code>/ai-team &lt;sub&gt;</code> のみをスルー対象としており、正準表記であるハイフン区切りの <code>/ai-team-run</code> 等をブロックしていました。判定の正規表現をハイフン区切りに対応させ、案内メッセージ内のコマンド表記も <code>/ai-team-run</code> に修正しました。</p>
+
+<hr>
+
+<h2>ドキュメント</h2>
+
+<ul><li>スラッシュコマンド表記を <code>/ai-team-&lt;sub&gt;</code>（ハイフン区切り）に全範囲で統一しました（Issue #64）</li><li>npm パッケージを使わず、git clone からソースをビルドして導入する手順を追記しました（Issue #62）</li><li>スキル定義の YouTube チーム整合（説明文・チーム一覧）を解消しました（Issue #66）</li></ul>
+<hr>
+
+<h2>テスト</h2>
+
+<ul><li>プラグインライフサイクル（install / uninstall / gallery のテンプレート同梱チーム区別）と、スラッシュコマンド表記の再発防止のテストを追加しました（Issue #66）</li><li>モデル非依存ブラッシュアップの再発防止テスト 3 件を追加しました（Issue #71）</li></ul>
+<hr>
+
+<h2>破壊的変更</h2>
+
+<p>なし。</p>
+
+<p>コマンドの使い方や設定ファイルの形式に非互換の変更はありません。ただし、ソロモード運用中の既存プロジェクトでは、フロントエンドチームの起動ラベル統一に伴い <code>.claude/ai-team-config.yml</code> の <code>solo.target_labels</code> の更新（<code>frontend:frontend-lead</code> → <code>frontend:designer</code>）を推奨します（上記「フロントエンドチームの起動ラベルを <code>frontend:designer</code> に統一」参照）。</p>
+
+<hr>
+
+<h2>関連 Issue</h2>
+
+<ul><li>Issue #71: 全エージェント定義・全スキルのモデル非依存ブラッシュアップ</li><li>Issue #68: バージョン管理の選択肢に「使わない（none）」を追加</li><li>Issue #66: テンプレート同梱チームの install ガード・gallery 区別表示・postinstall 配布欠落修正・ensure-issue.sh 修正</li><li>Issue #64: スラッシュコマンド表記の全範囲統一</li><li>Issue #62: git clone からの導入手順追記</li><li>Issue #60: npm 配布物に最新バージョンのマニュアルのみを同梱（v0.22.1 の変更点として記載済み。関連コミットの一部が本範囲に含まれます）</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

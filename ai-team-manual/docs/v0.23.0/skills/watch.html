@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>/ai-team-watch — 自動監視モード（ソロ運用） - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.23.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class="active"><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.23.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">/ai-team-watch — 自動監視モード（ソロ運用）</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/skills/watch.html" >v0.5.1</option><option value="../../v0.5.2/skills/watch.html" >v0.5.2</option><option value="../../v0.6.0/skills/watch.html" >v0.6.0</option><option value="../../v0.7.0/skills/watch.html" >v0.7.0</option><option value="../../v0.8.0/skills/watch.html" >v0.8.0</option><option value="../../v0.9.0/skills/watch.html" >v0.9.0</option><option value="../../v0.10.0/skills/watch.html" >v0.10.0</option><option value="../../v0.11.0/skills/watch.html" >v0.11.0</option><option value="../../v0.12.0/skills/watch.html" >v0.12.0</option><option value="../../v0.13.0/skills/watch.html" >v0.13.0</option><option value="../../v0.14.0/skills/watch.html" >v0.14.0</option><option value="../../v0.15.0/skills/watch.html" >v0.15.0</option><option value="../../v0.16.0/skills/watch.html" >v0.16.0</option><option value="../../v0.17.0/skills/watch.html" >v0.17.0</option><option value="../../v0.18.0/skills/watch.html" >v0.18.0</option><option value="../../v0.20.0/skills/watch.html" >v0.20.0</option><option value="../../v0.21.0/skills/watch.html" >v0.21.0</option><option value="../../v0.21.1/skills/watch.html" >v0.21.1</option><option value="../../v0.22.0/skills/watch.html" >v0.22.0</option><option value="../../v0.22.1/skills/watch.html" >v0.22.1</option><option value="../../v0.23.0/skills/watch.html" selected>v0.23.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>/ai-team-watch — 自動監視モード（ソロ運用）</h1>
+
+<p>GitHub Issues を定期監視し、新しいタスクを自動検出してワークフローを実行します。1 人で運用するソロモード専用のスキルです。</p>
+
+<p>> <strong>スキル定義</strong>: <code>skills/ai-team-watch.md</code></p>
+
+<hr>
+
+<h2>使い方</h2>
+
+<pre><code class="language-">/ai-team-watch</code></pre>
+
+<p>引数はありません。<code>.claude/ai-team-config.yml</code> の <code>mode: solo</code> 設定が必須です。</p>
+
+<pre><code class="language-yaml">mode: solo
+
+solo:
+  poll_interval_minutes: 5
+  target_labels:
+    - dispatcher
+    - backend:tech-lead
+    - frontend:designer
+    - content:editor-in-chief
+    - infra:infra-lead
+  skip_labels:
+    - ai-team:in-progress
+    - escalated:human
+    - contributor:ready</code></pre>
+
+<hr>
+
+<h2>前提確認</h2>
+
+<p>起動時に以下を確認し、満たさない場合は終了します。</p>
+
+<table><thead><tr><th>確認項目</th><th>失敗時の挙動</th></tr></thead><tbody><tr><td><code>.claude/ai-team-config.yml</code> の <code>mode</code> が <code>solo</code></td><td>案内メッセージを表示して終了</td></tr><tr><td><code>gh auth status</code> が成功</td><td><code>gh auth login</code> を案内して終了</td></tr></tbody></table>
+<code>mode: multi-user</code> の場合は次のメッセージが表示されます。
+
+<pre><code class="language-">ℹ️  現在の運用モードは multi-user です。
+/ai-team-watch はソロモード専用コマンドです。
+タスクを処理するには: /ai-team-run &lt;IssueのURL&gt;</code></pre>
+
+<hr>
+
+<h2>監視ループの動作</h2>
+
+<p>起動時に以下が表示されます。</p>
+
+<pre><code class="language-">👁️  /ai-team-watch を開始しました
+   監視間隔: 5分
+   対象ラベル: dispatcher, backend:tech-lead, frontend:designer, ...
+   停止するには Ctrl+C を押してください</code></pre>
+
+<p>その後、<code>poll_interval_minutes</code> 分間隔でループ処理が実行されます。</p>
+
+<h3>ループ 1 回の処理</h3>
+
+<h4>ステップ 1: 処理対象 Issue の検索</h4>
+
+<h5>A) 新規 Issue（通常処理）</h5>
+
+<code>target_labels</code> のいずれかが付いており、<code>skip_labels</code> のラベルが付いていない Issue を検索します。
+
+<pre><code class="language-bash">gh issue list --label "&lt;target_label&gt;" --state open --json number,title,labels,url</code></pre>
+
+<p>複数のラベルを 1 つずつ検索し、結果をまとめて重複を除去します。</p>
+
+<h5>B) エスカレーション解除 Issue（再開処理）</h5>
+
+<p>以下の条件を満たす Issue を再開対象として抽出します。</p>
+
+<ul><li><code>escalated:human</code> ラベルが付いていない</li><li>コメント履歴に <code>🚨 エスカレーション</code> を含むコメントがある</li><li>そのコメントより後に、AI エージェント以外のコメント（<code>🚨</code>・<code>✅</code>・<code>🛠️</code>・<code>🔧</code>・<code>🎨</code>・<code>💻</code> で始まらない）がある</li></ul>
+<p>これらは <code>/ai-team-run</code> の再開モードで処理します。</p>
+
+<h4>ステップ 2: スキップ判定</h4>
+
+<p>取得した Issue のうち、以下をスキップします。</p>
+
+<ul><li><code>ai-team:in-progress</code> ラベルが付いている Issue（別プロセスが処理中の二重実行防止）</li><li><code>skip_labels</code> のいずれかのラベルが付いている Issue</li></ul>
+<h4>ステップ 3: 未処理 Issue の処理</h4>
+
+<p>処理対象の Issue がある場合、1 件ずつ順番に処理します（並列実行はしません）。</p>
+
+<pre><code class="language-">1. ロック付与: gh issue edit &lt;番号&gt; --add-label "ai-team:in-progress"
+2. ログ出力: 🤖 [HH:MM] Issue #&lt;番号&gt; を処理中: &lt;タイトル&gt;
+3. ワークフロー実行: /ai-team-run &lt;IssueのURL&gt; 相当の処理
+4. ロック解除: gh issue edit &lt;番号&gt; --remove-label "ai-team:in-progress"</code></pre>
+
+<p>処理対象 Issue が 0 件の場合は以下を表示します。</p>
+
+<pre><code class="language-">💤 [HH:MM] 処理待ちのIssueはありません</code></pre>
+
+<h4>ステップ 4: 待機</h4>
+
+<code>poll_interval_minutes</code> 分待機してから、ステップ 1 に戻ります。
+
+<hr>
+
+<h2>ロック機構（<code>ai-team:in-progress</code> ラベル）</h2>
+
+<p>複数プロセスや手動実行と競合しないように、処理開始時に <code>ai-team:in-progress</code> ラベルを付与します。</p>
+
+<pre><code class="language-">処理開始 → ai-team:in-progress 付与 → 処理実行 → ai-team:in-progress 除去</code></pre>
+
+<p>別プロセスがこのラベルを見つけた場合は、処理中と判断してスキップします。</p>
+
+<hr>
+
+<h2>エラーハンドリング</h2>
+
+<table><thead><tr><th>エラーの種類</th><th>挙動</th></tr></thead><tbody><tr><td><code>gh</code> コマンドの失敗</td><td>エラーを表示し、次のループサイクルで再試行</td></tr><tr><td>1 件の Issue 処理中のエラー</td><td><code>ai-team:in-progress</code> ラベルを必ず除去してからスキップ、次の Issue へ進む</td></tr><tr><td>連続 3 回のエラー</td><td>ループを停止し、<code>ai-team:in-progress</code> が残っている Issue の一覧を表示して人間に確認を求める</td></tr></tbody></table>
+<p>ラベル除去を忘れると Issue が永久にロックされるため、エラー発生時のクリーンアップが特に重要です。</p>
+
+<hr>
+
+<h2>マルチユーザーモードとの違い</h2>
+
+<table><thead><tr><th>観点</th><th>solo モード（watch）</th><th>multi-user モード（run）</th></tr></thead><tbody><tr><td>起動方法</td><td>1 回の <code>/ai-team-watch</code> で監視ループ開始</td><td>担当者が各 Issue ごとに <code>/ai-team-run</code> 実行</td></tr><tr><td>Issue 検出</td><td>自動（ポーリング）</td><td>手動</td></tr><tr><td>二重実行防止</td><td><code>ai-team:in-progress</code> ラベルで制御</td><td>担当者の運用に依存</td></tr><tr><td>適性</td><td>1 人運用・新規 Issue を取りこぼしたくない</td><td>複数人で分担運用</td></tr><tr><td>エスカレーション後再開</td><td>自動検出（再開処理 B）</td><td>人間が <code>/ai-team-resume</code> 実行</td></tr></tbody></table>
+<hr>
+
+<h2>停止方法</h2>
+
+<p>監視ループ中に Ctrl+C を押すと停止します。停止時点で <code>ai-team:in-progress</code> ラベルが残っている Issue があれば、手動でラベルを除去してください。</p>
+
+<pre><code class="language-bash">gh issue edit &lt;番号&gt; --remove-label "ai-team:in-progress"</code></pre>
+
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="run.html">ai-team-run</a> — 個別 Issue の手動起動</li><li><a href="resume.html">ai-team-resume</a> — エスカレーション後の再開</li><li><a href="../reference/config.html">設定ファイル</a> — <code>ai-team-config.yml</code> の <code>solo</code> 設定詳細</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
