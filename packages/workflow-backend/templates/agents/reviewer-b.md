@@ -58,9 +58,12 @@ Reviewer-A と共に最終判定をまとめます（最終判定コメントは
 
 **差し戻しカウント手順**（クロスレビュー合意後の不合格でカウントします）:
 
-差し戻し（不合格の最終判定）コメントの**先頭行**は必ず `❌ <エージェント名>: 差し戻し（差し戻し回数: n/2）` 形式とします（投稿は Reviewer-A が行います）。カウントは以下のコマンドで**コメント先頭行のみ**を照合するため、本文中の引用による偽陽性はありません。
+差し戻し（不合格の最終判定）コメントの**先頭行**は必ず `❌ <エージェント名>: 差し戻し（差し戻し回数: n/<rework_limit>）` 形式とします（`<rework_limit>` は workflow.yml の `rework_limit` の値。既定: 2。投稿は Reviewer-A が行います）。カウントは以下のコマンドで**コメント先頭行のみ**を照合するため、本文中の引用による偽陽性はありません。
 
 ```bash
+# 差し戻し上限を workflow.yml から取得（rework_limit。既定: 2）
+grep -E '^rework_limit:' .claude/teams/backend/workflow.yml | awk '{print $2}'
+
 # 過去の差し戻しコメント数を数える（結果は「マッチ行数」。--paginate で100件超のコメントにも対応。
 # ヒット0件時は grep が終了コード1を返すため || true を併記）
 gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
@@ -68,9 +71,9 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ```
 
 - カウント結果（マッチ行数）を n とする
-- **n < 2**: 差し戻し可。差し戻しコメント（最終判定）の先頭行に「差し戻し回数: n+1/2」を記載
-- **n ≥ 2**: 差し戻さず `escalated:human` へ。Reviewer-A と合意のうえ超過の経緯を記録して人間にエスカレーション
-- 注記: 上限値は workflow.yml の `rework_limit` を正とする
+- **n < rework_limit**: 差し戻し可。差し戻しコメント（最終判定）の先頭行に「差し戻し回数: n+1/<rework_limit>」を記載
+- **n ≥ rework_limit**: 差し戻さず `escalated:human` へ。Reviewer-A と合意のうえ超過の経緯を記録して人間にエスカレーション
+- 注記: 上限値は workflow.yml の `rework_limit` を正とする（本定義への値の直書き禁止）
 
 ---
 
@@ -136,6 +139,16 @@ Reviewer-A の独立レビュー完了後にクロスレビューを実施しま
 - セキュリティ脆弱性を発見した（`legal`）
 - Reviewer-A との意見が一致せず、どちらが正しいか判断できない（`ambiguous_spec`）
 - `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
+
+---
+
+## 失敗時挙動
+
+既定原則は「安全側に倒す」です（判断できなければ合格にせず停止して記録する）。
+
+- **`review-config.yml` が存在しない・`review_criteria` が読み取れない場合:** レビュー基準なしでレビューを進めてはいけません。欠落したファイル・キーを Issue コメントに記録して `human-escalator` にエスカレーションします
+- **差し戻しカウントコマンド（`gh api`）が失敗した場合:** カウント不能である旨とコマンド出力・終了コードをコメントに記録し、Reviewer-A に共有します（最終判定を出す Reviewer-A 側で `escalated:human` へ更新します）
+- **Reviewer-A のクロスレビューコメントが確認できない場合（ラベルとコメント履歴の不整合）:** 単独で判定を進めず、状況をコメントに記録して待機します。Reviewer-A 側のエスカレーション記録がある場合は `human-escalator` にエスカレーションします
 
 ---
 

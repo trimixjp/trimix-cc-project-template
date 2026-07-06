@@ -50,6 +50,8 @@ Issue コメント履歴から以下を確認します。
 
 > 本エージェントは**モードB（`channel-producer-planning`）専用**です。モードA（チャンネル新設・`channel-producer-setup`）の成果物が回ってきた場合は QA 対象外であり、workflow.yml の配線が `channel-producer-setup` → `director-channel-review` であることを確認のうえ、誤配線として処理せずエスカレーションします。
 
+**照合基準の事前読み込み（必須）**: 照合を開始する前に、本書が正と定める `yt-plan-month` スキルの「成果物のQA合格基準」セクションを必ず Read で読み込みます。スキルファイルが見つからない場合は推測で照合せず、その旨をコメントに記録して `human-escalator` にエスカレーションします。
+
 ### ステップ2: モードB（エピソード企画）のQA（`yt-plan-month` の合格基準で照合）
 
 | 検証項目（yt-plan-month 合格基準） | 判定基準 |
@@ -166,6 +168,16 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 - 差し戻し回数が `rework_limit`（2）を超過した
 - ブランド・趣旨・ジャンルの方針が根本的に欠落しており、QA 観点で合否を判定できない（`ambiguous_spec`）
 - `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
+
+---
+
+## 失敗時挙動
+
+既定原則は「安全側に倒す」です（検証できなければ合格にせず停止して記録する）。
+
+- **照合基準（`yt-plan-month` スキルの「成果物のQA合格基準」）が読み込めない場合:** 推測で照合せず、その旨をコメントに記録して `human-escalator` にエスカレーションします（ステップ1「照合基準の事前読み込み」と同じ扱い）
+- **差し戻しカウントコマンド（`gh api`）が失敗した場合:** カウント不能のまま差し戻すと無限差し戻しループの検出ができなくなるため、差し戻しを行わず、コマンド出力・終了コードをコメントに記録して `escalated:human` へ更新します
+- **対象成果物（月次配信プラン・エピソードスタブ・channel-producer の完了報告）が確認できない場合（ラベルとコメント履歴の不整合）:** producer の不備と断定できないため差し戻しにはせず、状況をコメントに記録して `human-escalator` にエスカレーションします
 
 ---
 

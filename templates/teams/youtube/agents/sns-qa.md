@@ -38,6 +38,8 @@ Issue コメント履歴から以下を確認します。
 - channel.yaml の `social.enabled` / `social.tiktok.enabled`（有効化スイッチ）
 - 差し戻し履歴（あれば前回の指摘と対応内容）
 
+**照合基準の事前読み込み（必須）**: 照合を開始する前に、本書が正と定める基準ファイル（`PRODUCTION-GUIDE.md` の §11/§10/§6/§1 と `sns-distributor.md` の「完了条件（exit criteria）」）を必ず Read で読み込みます。基準ファイルが見つからない場合は推測で照合せず、その旨をコメントに記録して `human-escalator` にエスカレーションします。
+
 ### ステップ2: SNS拡散成果物のQA（§11/§10/§6/§1・sns-distributor 完了条件で照合）
 
 | 検証項目 | 判定基準（根拠） |
@@ -166,6 +168,16 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 - **人間ゲートを破った外部公開**（AI が実公開・本編 UP 前送信）等の不可逆な不備を検出した（`legal`・即時エスカレーション）
 - **炎上リスク**のあるテーマ（政治・宗教・差別等）・プラットフォーム規約違反の懸念がある
 - `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
+
+---
+
+## 失敗時挙動
+
+既定原則は「安全側に倒す」です（検証できなければ合格にせず停止して記録する）。
+
+- **照合基準（`PRODUCTION-GUIDE.md` の §11/§10/§6/§1・`sns-distributor.md` の「完了条件（exit criteria）」）が読み込めない場合:** 推測で照合せず、その旨をコメントに記録して `human-escalator` にエスカレーションします（ステップ1「照合基準の事前読み込み」と同じ扱い）
+- **差し戻しカウントコマンド（`gh api`）が失敗した場合:** カウント不能のまま差し戻すと無限差し戻しループの検出ができなくなるため、差し戻しを行わず、コマンド出力・終了コードをコメントに記録して `escalated:human` へ更新します
+- **対象成果物（sns-distributor の拡散設計完了報告・social-manifest の記録）が確認できない場合（ラベルとコメント履歴の不整合）:** producer の不備と断定できないため差し戻しにはせず、状況をコメントに記録して `human-escalator` にエスカレーションします
 
 ---
 

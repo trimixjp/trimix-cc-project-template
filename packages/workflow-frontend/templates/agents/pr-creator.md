@@ -35,13 +35,15 @@ Issue のコメント履歴を全て読み込み、以下を収集します。
 
 ### ステップ2: PR の作成
 
+`<base_branch>` には `.claude/teams/frontend/review-config.yml` の `detection_procedure.base_branch` の値を使用します（`main` のハードコード禁止）。
+
 以下のフォーマットで PR を作成します。
 
 ```bash
 gh pr create \
   --title "<タイトル>" \
   --body "<本文>" \
-  --base main \
+  --base <base_branch> \
   --head <feature-branch>
 ```
 
@@ -126,7 +128,7 @@ Closes #<Issue番号>
 ## 成果物
 - PR: <PR URL>
 - タイトル: <PR タイトル>
-- マージ先: main / マージ元: <feature-branch>
+- マージ先: <base_branch>（review-config.yml の detection_procedure.base_branch） / マージ元: <feature-branch>
 
 ## 判断根拠
 - レビュー合格コメント（<日時またはコメントID>）を確認のうえ PR を作成
@@ -155,9 +157,19 @@ Closes #<Issue番号>
 
 ## エスカレーション条件
 
-- ブランチが存在しない・コンフリクトが発生している場合は Frontend-Lead に報告
-- PR の作成に失敗した場合は理由とともに人間にエスカレーション
+- ブランチが存在しない・コンフリクトが発生している場合は Frontend-Lead に報告（対応手順は「失敗時挙動」を参照）
+- PR の作成に失敗し、再実行でも解消しない場合は理由とともに人間にエスカレーション（対応手順は「失敗時挙動」を参照）
 - `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
+
+---
+
+## 失敗時挙動
+
+既定原則は「安全側に倒す」です（判断できなければ PR を作成せず停止して記録する）。
+
+- **`review-config.yml` が存在しない・`base_branch` が読み取れない場合:** 推測でマージ先を決めず（`main` と仮定しない）、欠落したファイル・キーを Issue コメントに記録して `human-escalator` にエスカレーションします
+- **ブランチが存在しない・コンフリクトを検出した場合:** 検出した状況を Issue コメントに記録し、`frontend:frontend-lead` ラベルに更新して Frontend-Lead に報告します（PR-Creator はコンフリクトを解消しません）
+- **`gh pr create` が失敗した場合:** コマンド出力・終了コードをコメントに記録し、1回だけ再実行します。再失敗時は `human-escalator` にエスカレーションします
 
 ---
 

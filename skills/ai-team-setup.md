@@ -56,6 +56,18 @@ description: AIチームをプロジェクトにセットアップするウィ�
 
 選択されたチームに基づいて、このパッケージの `templates/` から以下をコピーしてください。
 
+**コピー手順（各行共通）:** 配置先ディレクトリを `mkdir -p` で作成してから `cp` を実行します。コピー元はパッケージのルート（ソースリポジトリならカレント、npm 経由なら `node_modules/@trimix/ai-team/`）を基準にします。
+
+```bash
+# 例: 単一ファイルの行
+mkdir -p .claude/agents
+cp <パッケージルート>/templates/_shared/agents/contributor.md .claude/agents/contributor.md
+
+# 例: ワイルドカード（*.md）の行
+mkdir -p .claude/teams/backend/agents
+cp <パッケージルート>/templates/teams/backend/agents/*.md .claude/teams/backend/agents/
+```
+
 ### 必須（全チーム共通）
 
 ```
@@ -94,7 +106,7 @@ solo:
   target_labels:                # 処理対象とするラベル（いずれか1つでも付いていれば対象）
     - dispatcher
     - backend:tech-lead
-    - frontend:frontend-lead
+    - frontend:designer
     - content:editor-in-chief
     - infra:infra-lead
     - sns:strategist
@@ -147,6 +159,12 @@ chmod +x .claude/hooks/ensure-issue.sh
 }
 ```
 
+**マージ規則（既存の `settings.json` がある場合）:**
+
+- `hooks.UserPromptSubmit` 配列が既にある場合は、その配列に上記の要素を**追加**する（配列ごと置き換えない）
+- 同一の `command`（`bash .claude/hooks/ensure-issue.sh`）を持つ要素が既にある場合は追加をスキップする
+- `hooks` 以外の既存キー（`permissions` 等）は一切変更しない
+
 > **注意**: `.claude/settings.json` はプロジェクト設定です。個人設定を `.claude/settings.local.json` に分けている場合はそちらへの記載も検討してください。
 
 ### バックエンドチーム（選択時）
@@ -164,9 +182,23 @@ templates/teams/backend/dod/*.md          → .claude/teams/backend/dod/
 質問3で **使わない（none）** を選択した場合は、配置したファイルに以下の編集を加えて、ワークフローからバージョンアップを外してください。
 
 1. **`.claude/teams/backend/workflow.yml` から version-bumper ステップを削除する**
-   - `- id: version-bumper` のステップブロック全体（直前の説明コメント3行を含む）を削除する
+   - `- id: version-bumper` のステップブロック全体（直前の説明コメント4行を含む）を削除する
    - `reviewer` と `cross-review` の `on_complete` にある `next: version-bumper` を `next: tech-writer` に付け替える
+
+   ```yaml
+   # 編集前（reviewer / cross-review の2箇所。condition 行は変更しない）
+   on_complete:
+     condition: 合格
+     next: version-bumper
+
+   # 編集後（next のみ付け替える）
+   on_complete:
+     condition: 合格
+     next: tech-writer
+   ```
+
    - `labels.examples` の `"backend:version-bumper"` の行を削除する
+   - 編集後に `grep -c "version-bumper" .claude/teams/backend/workflow.yml` を実行し、出力が `0` であることを確認する
 
 2. **`.claude/teams/backend/agents/version-bumper.md` を削除する**（ワークフローから参照されなくなるため）
 
@@ -230,11 +262,11 @@ templates/.github/ISSUE_TEMPLATE/*.yml → .github/ISSUE_TEMPLATE/
 
 ### .gitignore への追記（常に実行）
 
-AIチームの設定ファイルは各自の環境で `/ai-team-setup` を実行してセットアップするため、Git 管理から除外します。`.gitignore` に以下を追記してください（すでに記載済みの行はスキップ）：
+AIチームの設定ファイルは各自の環境で `/ai-team-setup` を実行してセットアップするため、Git 管理から除外します。**追記前に `grep` で追記済みかを確認**し、未追記の場合のみ以下を実行してください（再実行しても重複しません）：
 
 ```bash
-# .gitignore に追記するコマンドを実行
-cat >> .gitignore << 'EOF'
+# 追記済み判定（この見出し行があれば追記しない）→ 未追記なら追記を実行
+grep -qF "# @trimix/ai-team - AIチーム設定" .gitignore 2>/dev/null || cat >> .gitignore << 'EOF'
 
 # @trimix/ai-team - AIチーム設定（各自の環境で /ai-team-setup を実行してください）
 .claude/teams/
@@ -446,7 +478,7 @@ Issue 番号や URL が指定されていなくても、作業を開始する前
 3. なければ `gh issue create` で内容に即した Issue を作成する
 4. Issue 番号が確定したら `/ai-team-run <番号>` でワークフローを起動する
 
-**Issue 経由が必須な理由**: インシデント記録・ラベルによる状態管理・作業履歴の追跡がすべて Issue ベースで機能します。Issue を経由しない変更はこれらのフローが一切機能しません。
+**Issue 経由が必須な理由**: インシデント記録・ラベルによる状態管理・作業履歴の追跡が Issue ベースで機能するため（詳細は `/ai-team-run` パターンB冒頭の説明を参照）。
 
 ### Issue 不要な指示（直接回答してよい）
 
@@ -459,7 +491,28 @@ Issue 番号や URL が指定されていなくても、作業を開始する前
 **判断基準**: 「この作業でファイルを Edit / Write / 削除するか？」→ Yes なら Issue 必須、No なら不要。
 ```
 
+## コマンド失敗時のフォールバック
+
+`gh` コマンドやファイル操作（`cp` / `mkdir` 等）が失敗した場合は、失敗を無視して先に進んではいけません。
+
+1. **1回だけリトライする**（一時的な失敗の可能性があるため）
+2. リトライでも失敗した場合は、**実行すべきコマンドをそのままユーザーに提示して停止**する
+
+## 報告前チェック
+
+完了報告の前に以下を確認してください。
+
+- [ ] 配置したファイルが実在する（`ls .claude/agents/ .claude/teams/<選択チーム>/` で確認）
+- [ ] `.claude/ai-team-config.yml` に選択した `mode` / `version_management` が記録されている
+- [ ] `.gitignore` に追記済みである（`grep -F "@trimix/ai-team" .gitignore`）
+- [ ] ラベルを作成した場合、実行した `gh label create` がすべて成功した
+- [ ] 質問3で none を選択した場合、`grep -c "version-bumper" .claude/teams/backend/workflow.yml` の出力が `0` である
+
 ## ステップ6: 完了報告
+
+**[件数] の数え方:**
+- 作成ラベル数 = 実行に成功した `gh label create` コマンドの本数
+- 配置ファイル数 = ステップ3でコピー・生成したファイルパスの数（ワイルドカード行は展開後の実ファイル数を数える）
 
 ```
 ✅ AIチームのセットアップが完了しました

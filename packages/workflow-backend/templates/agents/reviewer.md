@@ -43,9 +43,12 @@ Issue コメント履歴から以下を確認します。
 
 不合格（差し戻し）と判定した場合、差し戻しの前に過去の差し戻し回数を機械的にカウントします。
 
-差し戻しコメントの**先頭行**は必ず `❌ <エージェント名>: 差し戻し（差し戻し回数: n/2）` 形式とします。カウントは以下のコマンドで**コメント先頭行のみ**を照合するため、本文中の引用による偽陽性はありません。
+差し戻しコメントの**先頭行**は必ず `❌ <エージェント名>: 差し戻し（差し戻し回数: n/<rework_limit>）` 形式とします（`<rework_limit>` は workflow.yml の `rework_limit` の値。既定: 2）。カウントは以下のコマンドで**コメント先頭行のみ**を照合するため、本文中の引用による偽陽性はありません。
 
 ```bash
+# 差し戻し上限を workflow.yml から取得（rework_limit。既定: 2）
+grep -E '^rework_limit:' .claude/teams/backend/workflow.yml | awk '{print $2}'
+
 # 過去の差し戻しコメント数を数える（結果は「マッチ行数」。--paginate で100件超のコメントにも対応。
 # ヒット0件時は grep が終了コード1を返すため || true を併記）
 gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
@@ -53,9 +56,9 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ```
 
 - カウント結果（マッチ行数）を n とする
-- **n < 2**: 差し戻し可。差し戻しコメントの先頭行に「差し戻し回数: n+1/2」を記載
-- **n ≥ 2**: 差し戻さず `escalated:human` ラベルに更新し、超過の経緯を記録して人間にエスカレーション
-- 注記: 上限値は workflow.yml の `rework_limit` を正とする
+- **n < rework_limit**: 差し戻し可。差し戻しコメントの先頭行に「差し戻し回数: n+1/<rework_limit>」を記載
+- **n ≥ rework_limit**: 差し戻さず `escalated:human` ラベルに更新し、超過の経緯を記録して人間にエスカレーション
+- 注記: 上限値は workflow.yml の `rework_limit` を正とする（本定義への値の直書き禁止）
 
 ### ステップ4: 合否判定と引き継ぎ
 
@@ -104,12 +107,12 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ### 差し戻し
 
 ```
-❌ Reviewer: 差し戻し（差し戻し回数: <n>/2）
+❌ Reviewer: 差し戻し（差し戻し回数: <n>/<rework_limit>）
 
 ## 実施内容
 - review-config.yml の review_criteria 全項目と設計整合をレビューし、不合格と判定
 
-## 差し戻し回数: <n>/2
+## 差し戻し回数: <n>/<rework_limit>
 （「差し戻しカウント手順」のコマンドで過去の差し戻しコメント先頭行を数えた結果に1を加えた値。上限値は workflow.yml の rework_limit を正とし、上限超過となる場合は差し戻しではなく escalated:human へ）
 
 ## 指摘事項
@@ -154,14 +157,24 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ---
 
+## 失敗時挙動
+
+既定原則は「安全側に倒す」です（判断できなければ合格にせず停止して記録する）。
+
+- **`review-config.yml` が存在しない・`review_criteria` が読み取れない場合:** レビュー基準なしでレビューを進めてはいけません。欠落したファイル・キーを Issue コメントに記録して `human-escalator` にエスカレーションします
+- **差し戻しカウントコマンド（`gh api`）が失敗した場合:** カウント不能のまま差し戻すと無限差し戻しループの検出ができなくなるため、差し戻しを行わず、コマンド出力・終了コードをコメントに記録して `escalated:human` へ更新します
+- **Implementer の完了報告コメントが見つからない場合（ラベルとコメント履歴の不整合）:** レビューを開始せず、不整合の内容をコメントに記録して `human-escalator` にエスカレーションします
+
+---
+
 ## 完了条件（exit criteria）
 
 以下を**全項目満たすまでラベル遷移禁止**です。満たせない項目がある場合は、理由を Issue コメントに記録して `human-escalator` にエスカレーションします。
 
 - [ ] review-config.yml の `review_criteria` 全項目をチェックした
 - [ ] 全ての指摘に根拠（ルール・仕様書・ベストプラクティス）を明記した
-- [ ] 不合格時: 差し戻しカウント手順を実行し、コメントに「差し戻し回数: n/2」を記載した
-- [ ] rework_limit（2回）超過時は差し戻しせず `escalated:human` へ更新した
+- [ ] 不合格時: 差し戻しカウント手順を実行し、コメントに「差し戻し回数: n/<rework_limit>」を記載した
+- [ ] rework_limit（workflow.yml の値。既定: 2）超過時は差し戻しせず `escalated:human` へ更新した
 - [ ] レビューコメントに必須5フィールド（実施内容・成果物・判断根拠・完了条件チェック・次のアクション）を記載した
 
 ---

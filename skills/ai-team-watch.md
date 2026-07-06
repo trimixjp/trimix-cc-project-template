@@ -10,6 +10,8 @@ description: ソロモード用。GitHub Issuesを定期監視し、新しいタ
 ## 前提確認
 
 1. `.claude/ai-team-config.yml` を読み込み、`mode: solo` であることを確認してください
+   - **ファイルが存在しない場合**: `/ai-team-setup` の実行を案内して終了
+   - **`mode` キーが欠落している場合**: `multi-user` として扱う（＝下記メッセージを表示して終了）
 2. `mode: multi-user` の場合は以下を表示して終了：
    ```
    ℹ️  現在の運用モードは multi-user です。
@@ -17,6 +19,14 @@ description: ソロモード用。GitHub Issuesを定期監視し、新しいタ
    タスクを処理するには: /ai-team-run <IssueのURL>
    ```
 3. `gh auth status` でGitHub認証を確認。未認証なら `gh auth login` を案内して終了
+
+**solo 設定の既定値（キーが欠落している場合）:**
+
+| キー | 欠落時の挙動 |
+|------|-------------|
+| `solo.poll_interval_minutes` | 既定値 `5`（分）を使う |
+| `solo.target_labels` | 監視対象を判定できないため、設定の追記を案内して終了する |
+| `solo.skip_labels` | 既定値 `ai-team:in-progress` / `escalated:human` / `contributor:ready` を使う |
 
 ## 監視ループ
 
@@ -47,7 +57,16 @@ gh issue list --state open --json number,title,labels,comments,url
 取得したIssueのうち以下の条件を満たすものを再開対象として抽出：
 - `escalated:human` ラベルがない
 - コメント履歴に `🚨 エスカレーション` を含むコメントがある
-- そのコメントより後に、AIエージェント以外（`🚨`・`✅`・`🛠️`・`🔧`・`🎨`・`💻` で始まらない）のコメントがある
+- そのコメントより後に、AIエージェント以外のコメント（人間の返答）がある
+
+**AIコメント判定（正典はこのリスト）:**  
+コメント本文の先頭行が以下のいずれかの絵文字で始まるコメントをAIエージェントのコメントとみなします。それ以外を人間の返答とみなします。`/ai-team-resume` の人間コメント判定もこのリストに従います。
+
+```
+🚨 ✅ ❌ ⚠️ 🔄 🛠️ 🔧 🎨 💻 🖥️ 🔍 🔬 ✍️ 📝 📋 📊 📈 📣 🎬 💰 🌐 🏗️ 🧭 🚀
+```
+
+カスタムエージェントを追加してコメント先頭の絵文字が増えた場合は、このリストに追記して運用してください。
 
 これらは `/ai-team-run` の再開モードで処理します。
 
@@ -95,7 +114,7 @@ gh issue list --state open --json number,title,labels,comments,url
 
 ## エラーハンドリング
 
-- `gh` コマンドが失敗した場合はエラーを表示し、次のループサイクルで再試行
+- `gh` コマンドが失敗した場合は**1回だけリトライ**し、それでも失敗したらエラーを表示して次のループサイクルで再試行（失敗を無視して黙って先に進まない）
 - Issue処理中にエラーが発生した場合：
   - 該当Issueの `ai-team:in-progress` ラベルを必ず除去してからスキップする（ラベルが残るとそのIssueが永久にロックされるため）
   - ログにErrorを記録し、次のIssueへ進む

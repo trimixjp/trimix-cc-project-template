@@ -64,6 +64,11 @@ steps:
     description: 調査レポートを確認し、Writerへの投稿指示を更新・確定する
     on_complete:
       next: writer
+    on_rework:
+      condition: 調査レポートが不十分・再調査が必要
+      next: researcher
+      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は researcher へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
     on_escalation:
       next: human-escalator
 

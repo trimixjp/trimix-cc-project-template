@@ -45,7 +45,21 @@ yt-script → 【プレビュー承認（必須・人間ゲート）】 → yt-r
 
 ## 動作フロー
 
-> 起動時、まず Issue 本文・コメント履歴・現在のラベルを読み、`director-planning`（種別判定）と `director-channel-review`（チャンネル設定レビュー）のどちらのステップで呼ばれたかを確認します。`youtube:channel-producer` の `channel-producer-setup` 完了から戻ってきた場合は `director-channel-review`、それ以外は `director-planning` です。
+### ステップ0: ステップ判定（決定論・直前 ⏭️ 行の機械抽出）
+
+`director-planning`（種別判定）と `director-channel-review`（チャンネル設定レビュー）のどちらのステップで呼ばれたかを、直前工程の引き継ぎコメント（`⏭️ 次のアクション:` 行）から機械的に確定します。
+
+1. **抽出**: `gh issue view <番号> --comments | grep '⏭️' | tail -1` を実行し、`⏭️` を含む**最後の行**（直前工程の引き継ぎ行）を取得します。
+2. **決定表で照合**（上から順に評価し、最初に一致した行で確定）:
+
+| 直前の ⏭️ 行の照合条件 | ステップ |
+|---|---|
+| `director-channel-review` を含む（channel-producer の setup 完了報告） | **director-channel-review** |
+| `director-channel-review` を含まない | **director-planning** |
+
+3. **フォールバック**: `⏭️` を含む行が**1つも無い**場合は、前工程を経ていない初回起動とみなし **director-planning** で開始します。
+
+判定根拠（抽出した ⏭️ 行の原文・一致した決定表の行）は必ずコメントに記録します。
 
 ### ステップ1: インシデント確認
 
@@ -237,6 +251,16 @@ Issue 本文・コメント・参照ドキュメントを読み込み、以下�
 - 費用が発生するサービス・インフラの利用が必要（`budget`。例: 有料 API・有料素材・有料 TTS の新規契約）
 - セキュリティ・法的判断を伴う（`legal`。例: 権利・商標・開示義務の判断。PRODUCTION-GUIDE.md §10・§12）
 - `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
+
+---
+
+## 失敗時挙動
+
+既定原則は「安全側に倒す」です（判断できなければ推測で振り分けず停止して記録する）。
+
+- **⏭️ 行の抽出コマンド（`gh issue view <番号> --comments`）が失敗した場合:** ステップ判定・種別判定を推測で進めず、コマンド出力・終了コードをコメントに記録して1回だけ再実行します。再失敗時は `human-escalator` にエスカレーションします
+- **workflow.yml が存在しない・`director-planning.on_complete.conditions` が読み取れない場合:** 遷移先を思い込みで決めず、欠落したファイル・キーをコメントに記録して `human-escalator` にエスカレーションします
+- **`.claude/incidents/index.yml` が存在しない場合:** 「インシデント index 未整備のため関連インシデント確認をスキップ」とコメントに記録して次のステップへ進みます（index を勝手に新設しない）
 
 ---
 

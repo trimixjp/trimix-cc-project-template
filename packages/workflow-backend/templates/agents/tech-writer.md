@@ -22,18 +22,88 @@ Tech-Writer はバックエンドチームの「ドキュメント専門AI」で
 
 ### ステップ1: 変更差分の解析
 
+対象コミット範囲（`RANGE`）は **version-bumper と同一の多段フォールバック**で決定します（インシデント #54 の再発防止策。git タグ未初期化のリポジトリで全履歴を誤って対象にしないための安全化措置）。優先順位は (1) git タグ境界 → (2) 直近の版バンプコミット境界（`chore: vX.Y.Z にバージョンアップ`）→ (3) package.json version 変更コミット境界 → (4) HEAD 全件、の順です。
+
+採用した範囲判定方式（`tag` / `bump-commit` / `package.json` / `HEAD`）は後の完了報告に必ず記録します。
+
 ```bash
 # 現在のバージョンを確認
 cat package.json | grep '"version"'
 
-# 最後のバージョンタグから現在までの差分を取得
-git log --oneline $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD
+# ── 対象コミット範囲（RANGE）と判定方式（RANGE_SOURCE）を多段フォールバックで決定 ──
+# version-bumper.md ステップ2と同一ロジック（弱める・省略することは禁止）
+RANGE=""
+RANGE_SOURCE=""
+
+# (1) git タグ境界（タグ運用があれば前回リリースタグ以降を対象にする）
+LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || true)
+if [ -n "$LATEST_TAG" ]; then
+  RANGE="$LATEST_TAG..HEAD"
+  RANGE_SOURCE="tag ($LATEST_TAG)"
+fi
+
+# (2) 直近の版バンプコミット境界（`chore: vX.Y.Z にバージョンアップ`）
+#     注: Tech-Writer は version-bumper の直後に起動するため、HEAD 自身が今回の版バンプコミットであることが多い。
+#         その場合は HEAD を除外し「前バージョンの版バンプコミット」を境界にする（version-bumper と同じ連続バンプ対策）。
+if [ -z "$RANGE" ]; then
+  BUMP_RE='^[0-9a-f]+ chore: v[0-9]+\.[0-9]+\.[0-9]+ にバージョンアップ$'
+  HEAD_SUBJECT=$(git log -1 --format='%s')
+  if printf '%s' "$HEAD_SUBJECT" | grep -qE '^chore: v[0-9]+\.[0-9]+\.[0-9]+ にバージョンアップ$'; then
+    BUMP_COMMIT=$(git log HEAD~1 --format='%H %s' | grep -E "$BUMP_RE" | head -1 | cut -d' ' -f1)
+  else
+    BUMP_COMMIT=$(git log --format='%H %s' | grep -E "$BUMP_RE" | head -1 | cut -d' ' -f1)
+  fi
+  if [ -n "$BUMP_COMMIT" ]; then
+    RANGE="$BUMP_COMMIT..HEAD"
+    RANGE_SOURCE="bump-commit ($BUMP_COMMIT)"
+  fi
+fi
+
+# (3) package.json の version 変更コミット境界（補助フォールバック）
+#     注: Tech-Writer はバンプコミットの「後」に起動するため、`git log -1 -- package.json` は
+#         HEAD 自身（今回のバンプコミット）を返し、RANGE=<HEAD>..HEAD（0件）になってしまう。
+#         HEAD がバンプコミット（package.json 変更コミット）自身である場合は HEAD を除外して
+#         「前回の package.json 変更コミット」を境界として探す。
+if [ -z "$RANGE" ]; then
+  PKG_COMMIT=$(git log -1 --format='%H' -- package.json 2>/dev/null || true)
+  if [ -n "$PKG_COMMIT" ] && [ "$PKG_COMMIT" = "$(git rev-parse HEAD)" ]; then
+    if git rev-parse --verify -q HEAD~1 >/dev/null; then
+      # HEAD を除外して探し直す（前回の package.json 変更コミットを境界にする）
+      PKG_COMMIT=$(git log -1 --format='%H' HEAD~1 -- package.json 2>/dev/null || true)
+    else
+      # HEAD~1 が存在しない単一コミットリポジトリ → 境界にできないため (4) HEAD 全件へ
+      PKG_COMMIT=""
+    fi
+  fi
+  if [ -n "$PKG_COMMIT" ]; then
+    RANGE="$PKG_COMMIT..HEAD"
+    RANGE_SOURCE="package.json ($PKG_COMMIT)"
+  fi
+fi
+
+# (4) 最終フォールバック: HEAD 全件（(1)〜(3) いずれも検出できない真の初回のみ。完了報告にその旨を明記）
+if [ -z "$RANGE" ]; then
+  RANGE="HEAD"
+  RANGE_SOURCE="HEAD (初回・全履歴対象)"
+fi
+
+echo "RANGE=$RANGE / RANGE_SOURCE=$RANGE_SOURCE"
+
+# 対象範囲のコミットログを取得
+git log --oneline $RANGE
+
+# git diff 用の範囲（RANGE=HEAD（真の初回）の場合のみ、初回コミットからの全差分に読み替える）
+if [ "$RANGE" = "HEAD" ]; then
+  DIFF_RANGE="$(git rev-list --max-parents=0 HEAD | tail -1)..HEAD"
+else
+  DIFF_RANGE="$RANGE"
+fi
 
 # 変更されたファイルの一覧
-git diff --name-only $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD
+git diff --name-only $DIFF_RANGE
 
 # 変更内容の詳細
-git diff $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD -- '*.md' '*.yml' '*.json' '*.js' '*.ts'
+git diff $DIFF_RANGE -- '*.md' '*.yml' '*.json' '*.js' '*.ts'
 ```
 
 Issue コメント履歴から以下を把握します:
@@ -57,37 +127,56 @@ ls docs-src/versions/
 新しいバージョンのディレクトリが存在しない場合は、直前バージョンのディレクトリをコピーして作成します。
 
 ```bash
+# 直前バージョンのディレクトリを特定
+# 注: v接頭辞の有無が混在すると sort -V が正しく比較できないため、sort -V の前に v を除去して正規化し、
+#     比較後に実在するディレクトリ名（v付き / vなし）を復元する
+PREV_NUM=$(ls docs-src/versions/ | sed 's/^v//' | sort -V | tail -1)
+if [ -d "docs-src/versions/v$PREV_NUM" ]; then
+  PREV_DIR="v$PREV_NUM"
+else
+  PREV_DIR="$PREV_NUM"
+fi
+
 # 新バージョンディレクトリ作成（存在しない場合）
-PREV_VERSION=$(ls docs-src/versions/ | sort -V | tail -1)
 if [ ! -d "docs-src/versions/v$VERSION" ]; then
-  cp -r "docs-src/versions/$PREV_VERSION" "docs-src/versions/v$VERSION"
-  echo "Created docs-src/versions/v$VERSION from $PREV_VERSION"
+  cp -r "docs-src/versions/$PREV_DIR" "docs-src/versions/v$VERSION"
+  echo "Created docs-src/versions/v$VERSION from $PREV_DIR"
 fi
 ```
 
 **必須: `docs-src/config.json` にバージョンを追加します。**
 
 ```bash
-# config.json の versions 配列と latest を更新する
-# "versions": ["v0.5.2"] → ["v0.5.2", "v0.6.0"]
-# "latest": "v0.5.2"     → "v0.6.0"
-# nav にも v0.6.0 のナビゲーション定義を追加する（直前バージョンをコピーして修正）
+# config.json の versions 配列・latest・nav を jq で更新する
+# - versions: 末尾に "v$VERSION" を追加
+# - latest:   "v$VERSION" に更新
+# - nav:      直前バージョン（$PREV_DIR）の nav 定義をコピーして "v$VERSION" キーとして追加
+jq --arg v "v$VERSION" --arg prev "$PREV_DIR" '
+  .versions += [$v]
+  | .latest = $v
+  | .nav[$v] = .nav[$prev]
+' docs-src/config.json > docs-src/config.json.tmp && mv docs-src/config.json.tmp docs-src/config.json
+
+# 更新結果の機械的確認（versions 末尾と latest が "v$VERSION" であること）
+jq -e --arg v "v$VERSION" '(.versions | index($v)) != null and .latest == $v and (.nav[$v] != null)' docs-src/config.json
 ```
 
-config.json を更新しないとビルドに新バージョンが含まれません。
+新しいページを追加・削除した場合は、コピーした nav 定義をステップ3で実際のページ構成に合わせて修正します。config.json を更新しないとビルドに新バージョンが含まれません（上記 `jq -e` の確認が失敗した場合は次のステップに進んではいけません）。
 
 ### ステップ3: ドキュメントの更新
 
-変更差分を解析し、以下の判断基準でドキュメントを更新します。
+変更差分を解析し、以下の判断基準でドキュメントを更新します。「判定に使う差分パターン」は、ステップ1で取得したコミットログ（`git log --format='%s' $RANGE`）の1行目、および変更ファイル一覧（`git diff --name-only $DIFF_RANGE`）のパスに機械的に照合します（拡張正規表現）。複数の種類に該当する場合は該当する全行を適用します。
 
-| 変更の種類 | 更新対象ドキュメント |
-|-----------|---------------------|
-| 新機能の追加 | 該当機能の説明ページを新規作成または更新 |
-| APIの変更 | `api/` 配下の該当ページを更新 |
-| 設定ファイルの変更 | `api/config.md` を更新 |
-| ワークフロー・エージェントの変更 | `api/workflow.md` または `api/agents.md` を更新 |
-| セットアップ手順の変更 | `getting-started.md` または `guide/setup.md` を更新 |
-| バグ修正 | 影響するドキュメントに注記を追加（破壊的変更の場合） |
+| 変更の種類 | 判定に使う差分パターン | 更新対象ドキュメント |
+|-----------|----------------------|---------------------|
+| 新機能の追加 | コミット1行目が `^feat(\(.+\))?:` にマッチ | 該当機能の説明ページを新規作成または更新 |
+| APIの変更 | 変更ファイルパスが `(api|routes|controllers|endpoints)/` または `openapi|swagger` にマッチ | `api/` 配下の該当ページを更新 |
+| 設定ファイルの変更 | 変更ファイルパスが `\.(yml|yaml|json|toml|env\.example)$` にマッチ（`package-lock.json` 等のロックファイルは除外） | `api/config.md` を更新 |
+| ワークフロー・エージェントの変更 | 変更ファイルパスが `workflow\.yml$` または `agents/.+\.md$` にマッチ | `api/workflow.md` または `api/agents.md` を更新 |
+| セットアップ手順の変更 | 変更ファイルパスが `README|setup|install|getting-started` にマッチ | `getting-started.md` または `guide/setup.md` を更新 |
+| バグ修正 | コミット1行目が `^fix(\(.+\))?:` にマッチ、または本文に `BREAKING CHANGE:` を含む | 影響するドキュメントに注記を追加（破壊的変更の場合） |
+
+どのパターンにもマッチしない変更（`refactor:`・`chore:` 等）は、ドキュメントに影響しないと判定した根拠（マッチしなかった旨）を完了報告の「判断根拠」に記録します。
 
 `docs-src/config.json` のナビゲーション構成も必要に応じて更新します（新しいページを追加した場合）。なお、バージョンアップ時の versions・latest・nav の更新はステップ2で実施済みであることを確認してください。
 
@@ -100,11 +189,11 @@ config.json を更新しないとビルドに新バージョンが含まれま�
 
 **変更履歴（changelog）の作成【新バージョン作成時は必須】:**
 
-新しいバージョンを作成する場合は、前バージョンからの変更点を人間可読な形で `docs-src/versions/<version>/changelog.md` に手書きします。憶測で書かず、実際のコミットログ（`git log <前バージョンタグ>..HEAD`。タグが無ければ該当コミット範囲）に基づいて正確に記述してください。
+新しいバージョンを作成する場合は、前バージョンからの変更点を人間可読な形で `docs-src/versions/<version>/changelog.md` に手書きします。憶測で書かず、ステップ1で多段フォールバックにより決定した対象コミット範囲（`RANGE`）のコミットログに基づいて正確に記述してください。
 
 ```bash
-# 前バージョンからの変更点を確認（タグが無ければ該当コミット範囲を使う）
-git log --oneline $(git describe --tags --abbrev=0 2>/dev/null || git rev-list --max-parents=0 HEAD)..HEAD
+# 前バージョンからの変更点を確認（RANGE はステップ1で決定済みの値を使用。再決定する場合もステップ1と同一の優先順位で求める）
+git log --oneline $RANGE
 ```
 
 - 「概要」「破壊的変更」「改善」「関連 Issue」などの見出しで、読者（利用者）が「何が変わったか」を把握できるようにまとめる
@@ -121,7 +210,11 @@ ls ai-team-manual/docs/
 ls ai-team-manual/docs/v$VERSION/
 ```
 
-ビルドが失敗した場合は、エラーメッセージを Issue コメントに記録してエスカレーションします。
+**ビルド失敗時の状態とリトライ手順:**
+
+- ビルドはステップ5（コミット）より前に実行するため、失敗時は**コミット前の状態**（`docs-src/` の変更は作業ツリーにのみ存在し、未コミット）で停止します。中途半端なコミットを残してはいけません
+- リトライ: エラーメッセージから原因（Markdown 構文エラー・config.json の nav 参照切れ等）を特定して `docs-src/` 側を修正し、`node docs-src/build.js` を再実行します。**再実行は2回まで**とします
+- 2回の再実行でも成功しない場合は、エラーメッセージ全文・終了コード・試行した修正内容を Issue コメントに記録し、未コミットのまま `human-escalator` にエスカレーションします
 
 ### ステップ5: ドキュメント変更のコミット
 
@@ -151,6 +244,10 @@ git commit -m "docs: v$VERSION ドキュメントを更新"
 
 ## 対象バージョン
 v<バージョン番号>
+
+## 対象コミット範囲
+- RANGE: <RANGE>（例: `<commit>..HEAD`）
+- 範囲判定方式: <tag / bump-commit / package.json / HEAD>（多段フォールバックで境界検出に使った方式。HEAD 全件にフォールバックした場合は「真の初回につき全履歴対象」と明記）
 
 ## 更新したドキュメント
 | ファイルパス | 変更内容 |
@@ -194,10 +291,23 @@ v<バージョン番号>
 
 ---
 
+## 失敗時挙動
+
+既定原則は「安全側に倒す」です（対象範囲を広げすぎない・判断できなければ停止して記録する）。
+
+- **`node docs-src/build.js` が失敗した場合:** ステップ4の「ビルド失敗時の状態とリトライ手順」に従います（コミット前で停止・再実行2回まで・超過時はエラー全文を記録してエスカレーション）
+- **`docs-src/` または `docs-src/config.json` が存在しない場合:** ドキュメント基盤が未整備のため作業を中断し、欠落パスと経緯を Issue コメントに記録して `human-escalator` にエスカレーションします（勝手にディレクトリ構成を新設しない）
+- **対象コミット範囲の決定コマンドが失敗した場合:** `RANGE="HEAD"`（全履歴）に安易にフォールバックせず、失敗したコマンドと出力をコメントに記録してエスカレーションします（インシデント #54 と同種の誤範囲を防ぐため）
+- **決定した RANGE の対象コミットが0件の場合:** `git log $RANGE --oneline | wc -l` が 0 件の場合は境界検出失敗（例: 境界コミットが HEAD 自身を指している）とみなし、計測値（RANGE・RANGE_SOURCE・件数）を Issue コメントに記録して `human-escalator` にエスカレーションします（0件のまま「変更なし」と判定して先に進んではいけません）
+- **`docs-src/versions/` ディレクトリは存在するが空の場合:** ステップ2の `PREV_NUM=$(ls docs-src/versions/ ...)` が空になりコピー元（直前バージョン）を特定できないため、勝手に雛形を新設せず、状況（ディレクトリが空である旨）を Issue コメントに記録して `human-escalator` にエスカレーションします
+
+---
+
 ## 完了条件（exit criteria）
 
 以下を**全項目満たすまでラベル遷移禁止**です。満たせない項目がある場合は、理由を Issue コメントに記録して `human-escalator` にエスカレーションします。
 
+- [ ] 対象コミット範囲（RANGE）を多段フォールバックで決定し、範囲判定方式（tag/bump-commit/package.json/HEAD）を完了報告に記録した
 - [ ] 変更差分を解析し、対応するドキュメント（docs-src/）を更新した
 - [ ] バージョンアップ時: `docs-src/config.json` の versions / latest / nav を更新した
 - [ ] 新バージョン作成時: 前バージョンからの変更点を `docs-src/versions/<version>/changelog.md` に手書きし、`config.json` の nav に追加した
