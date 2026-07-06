@@ -34,15 +34,34 @@ Issue のコメント履歴を全て読み込み、以下を収集します。
 
 ### ステップ2: PR の作成
 
-以下のフォーマットで PR を作成します。
+マージ先・マージ元ブランチを機械的に決定してから PR を作成します（`main` 等のハードコード禁止）。
 
 ```bash
+# マージ先: review-config.yml の detection_procedure.base_branch を正とする
+BASE_BRANCH=$(grep -E '^\s*base_branch:' .claude/teams/backend/review-config.yml | awk '{print $2}')
+
+# マージ元: 現在の作業ブランチ（Implementer が作成した feature branch）
+HEAD_BRANCH=$(git branch --show-current)
+
+# 事前確認1: マージ元がマージ先と同一なら PR を作成できない → Tech-Lead に報告（失敗時挙動を参照）
+[ "$HEAD_BRANCH" != "$BASE_BRANCH" ] || echo "ERROR: base と head が同一ブランチです"
+
+# 事前確認2: コンフリクトの事前検出（merge-base が取れない場合はブランチ関係の異常）
+git merge-base "$BASE_BRANCH" "$HEAD_BRANCH"
+
 gh pr create \
   --title "<タイトル>" \
   --body "<本文>" \
-  --base main \
-  --head <feature-branch>
+  --base "$BASE_BRANCH" \
+  --head "$HEAD_BRANCH"
+
+# 作成後確認: コンフリクト有無を機械的に確認（CONFLICTING なら失敗時挙動を参照）
+gh pr view "$HEAD_BRANCH" --json mergeable --jq '.mergeable'
 ```
+
+- `gh pr view --json mergeable` の結果が `MERGEABLE` → ステップ3へ進む
+- `CONFLICTING` → コンフリクト解消は PR-Creator の担当外。検出結果を Issue コメントに記録し、`backend:tech-lead` ラベルに更新して Tech-Lead に報告する
+- `UNKNOWN` → GitHub 側の計算待ち。30秒待って再実行し、それでも `UNKNOWN` なら結果をコメントに記録してステップ3へ進む（人間の承認時に再確認される）
 
 ### ステップ3: 人間への承認依頼
 
@@ -108,7 +127,7 @@ Closes #<Issue番号>
 ## 成果物
 - PR: <PR URL>
 - タイトル: <PR タイトル>
-- マージ先: main / マージ元: <feature-branch>
+- マージ先: <base_branch>（review-config.yml の detection_procedure.base_branch）/ マージ元: <feature-branch>（`git branch --show-current` の結果）
 
 ## 判断根拠
 - レビュー合格コメント（<日時またはコメントID>）を確認のうえ PR を作成
@@ -135,9 +154,20 @@ Closes #<Issue番号>
 
 ## エスカレーション条件
 
-- ブランチが存在しない・コンフリクトが発生している場合は Tech-Lead に報告
+- ブランチが存在しない・コンフリクトが発生している場合は Tech-Lead に報告（検出コマンドは「失敗時挙動」を参照）
 - PR の作成に失敗した場合は理由とともに人間にエスカレーション
 - `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
+
+---
+
+## 失敗時挙動
+
+既定原則は「安全側に倒す」です（判断できなければ PR を作成せず停止して記録する）。
+
+- **`review-config.yml` が存在しない・`base_branch` が読み取れない場合:** 推測でマージ先を決めず（`main` と仮定しない）、欠落したファイル・キーを Issue コメントに記録して `human-escalator` にエスカレーションします
+- **コンフリクトを検出した場合**（`git merge-base "$BASE_BRANCH" "$HEAD_BRANCH"` が失敗、または `gh pr view --json mergeable --jq '.mergeable'` が `CONFLICTING`）**:** 検出コマンドと結果を Issue コメントに記録し、`backend:tech-lead` ラベルに更新して Tech-Lead に報告します（PR-Creator はコンフリクトを解消しません）
+- **`git branch --show-current` の結果が `base_branch` と同一の場合:** feature branch が作られていない異常状態です。PR を作成せず、経緯をコメントに記録して Tech-Lead に報告します
+- **`gh pr create` が失敗した場合:** コマンド出力・終了コードをコメントに記録し、1回だけ再実行します。再失敗時は `human-escalator` にエスカレーションします
 
 ---
 
@@ -146,6 +176,7 @@ Closes #<Issue番号>
 以下を**全項目満たすまでラベル遷移禁止**です。満たせない項目がある場合は、理由を Issue コメントに記録して `human-escalator` にエスカレーションします。
 
 - [ ] Issue コメント履歴から設計方針・実装内容・テスト結果・レビュー結果を収集した
+- [ ] マージ先を review-config.yml の `base_branch` から、マージ元を `git branch --show-current` から決定し、コンフリクト確認（mergeable）の結果を記録した
 - [ ] PR 本文フォーマットに従い、Issue のコンテキストを含めて PR を作成した
 - [ ] PR URL を成果物として承認依頼コメントに記載した
 - [ ] `escalated:human` ラベルを付与し、人間への承認依頼を投稿した
