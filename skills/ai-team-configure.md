@@ -136,7 +136,7 @@ ls .claude/teams/<team_id>/agents/*.md 2>/dev/null | xargs -I{} basename {} .md
 >   [3] <既存ステップ名> の後に追加
 >   ...
 
-ステップIDはエージェント名を自動設定します。同じエージェントが既に存在する場合は末尾に `-2` を付けます（例: `reviewer-2`）。
+ステップIDはエージェント名を自動設定します。同じエージェントが既に存在する場合は末尾に連番を付けます。**採番規則: 既存の同名ステップの最大番号 + 1**（無印は 1 とみなす。例: `reviewer` のみ存在 → `reviewer-2`、`reviewer-2` まで存在 → `reviewer-3`）。
 
 #### 操作2: ステップを変更する
 
@@ -315,6 +315,16 @@ steps:
 - `conditions` がある場合は `on_complete` を省略する
 - `next` が単一の場合は文字列、複数の場合は配列 `[<a>, <b>]` で出力する
 
+### 保存前の整合チェック（必須）
+
+生成した YAML に対して以下を確認し、違反があれば修正してからプレビューに進んでください。
+
+- [ ] 先頭行が `# customized: true` である
+- [ ] `steps[].id` に重複がない
+- [ ] `next` / `on_rework.next` / `on_escalation.next` / `conditions[].next` / `requires_all_of` / `parallel_with` が参照する先が、定義済みの step id（または `human-escalator`）である
+- [ ] `conditions` を持つステップに `on_complete` が併存していない
+- [ ] トップレベルに `rework_limit` がある
+
 ### プレビュー表示と保存確認
 
 生成したYAMLを表示してから `AskUserQuestion` で確認してください：
@@ -340,6 +350,13 @@ steps:
 ### 保存の実行
 
 `Write` ツールで `.claude/teams/<team_id>/workflow.yml` に保存してください。
+
+**保存失敗時のフォールバック:** Write が失敗した場合は1回だけリトライし、それでも失敗する場合は生成した YAML 全文をユーザーに提示し、手動で `.claude/teams/<team_id>/workflow.yml` に保存するよう案内して停止してください。
+
+### 報告前チェック
+
+- [ ] `head -1 .claude/teams/<team_id>/workflow.yml` の出力が `# customized: true` である
+- [ ] 保存したファイルの内容がプレビューで確認した YAML と一致する
 
 保存完了後に表示してください：
 

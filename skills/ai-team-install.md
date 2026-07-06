@@ -38,12 +38,24 @@ node node_modules/@trimix/ai-team/bin/setup.js install <team_id>
 
 ## ステップ3: 結果を確認
 
-実行結果を確認して以下を報告してください：
+**成功判定基準（両方を満たした場合のみ成功と報告する）:**
+
+1. インストールコマンドが exit code 0 で終了した
+2. チームディレクトリが存在する: `ls .claude/teams/<team_id>/` が成功する
+
+どちらかを満たさない場合は失敗として扱い、「エラー対応」の該当項目を案内してください。
+
+成功した場合、以下を報告してください：
 
 - インストールされたファイルの一覧
 - GitHub ラベルの作成結果
 - `.claude/ai-team-config.yml` の `target_labels` 更新結果（ソロモード運用の場合）
 - エラーがあればその内容と解決策
+
+**報告前チェック:**
+
+- [ ] `ls .claude/teams/<team_id>/` で workflow.yml・agents/ の存在を確認した
+- [ ] コマンド出力に未対応のエラー・警告が残っていない
 
 ## ステップ4: セットアップを案内
 
@@ -56,6 +68,8 @@ node node_modules/@trimix/ai-team/bin/setup.js install <team_id>
 4. `/ai-team-run <Issue番号>` でワークフローを起動できます」
 
 ## エラー対応
+
+**共通フォールバック:** コマンドが失敗した場合は1回だけリトライし、それでも失敗する場合は下記の該当項目を案内するか、実行すべきコマンドをそのままユーザーに提示して停止してください（失敗を無視して先に進まない）。
 
 - `team_id が見つかりません` → 正しいチームIDを確認して再実行
 - `team_id 衝突エラー` → 既存プラグインを `npx @trimix/ai-team uninstall <team_id>` でアンインストールしてから再実行

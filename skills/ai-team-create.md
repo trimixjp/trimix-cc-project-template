@@ -105,12 +105,24 @@ mkdir -p .claude/teams/<team_id>/dod
 
 プレースホルダーの置換ルール：
 - `{{agent_id}}` → エージェントID
-- `{{agent_name}}` → エージェント名（役割に基づく日本語名。例: Strategist → 「戦略エージェント」）
+- `{{agent_name}}` → 「<役割の日本語訳>エージェント」のパターンで命名する（例: Strategist → 「戦略エージェント」、Researcher → 「調査エージェント」、Writer → 「執筆エージェント」）。日本語訳が定まらない場合はエージェントIDをカタカナ化して「〜エージェント」とする（例: `analyst` → 「アナリストエージェント」）
 - `{{agent_description}}` → 役割の説明
 - `{{team_name}}` → チーム名
 - `{{team_id}}` → チームID
 - `{{agent_role_description}}` → 役割の詳細説明
-- `{{agent_emoji}}` → 役割に合うemoji（例: 📊 🔍 ✍️ 📈）
+- `{{agent_emoji}}` → 下表の役割カテゴリに対応するemojiを選択する
+
+  | 役割カテゴリ | emoji |
+  |---|---|
+  | 戦略・企画・分析 | 📊 |
+  | 調査・リサーチ | 🔍 |
+  | 執筆・作成 | ✍️ |
+  | レビュー・QA・チェック | ✅ |
+  | 実装・開発 | 💻 |
+  | 公開・運用・配信 | 🚀 |
+  | 成長・改善・収益 | 📈 |
+  | 上記のいずれにも該当しない | 🤖 |
+
 - `{{next_agent}}` → ワークフロー上の次のエージェントID（最後のエージェントは `contributor:ready`）
 
 ### 3-3: workflow.yml の生成
@@ -127,6 +139,11 @@ mkdir -p .claude/teams/<team_id>/dod
 
 `templates/teams/_custom/dod/feature.md` をコピーして `.claude/teams/<team_id>/dod/feature.md` を生成してください。
 
+### 失敗時のフォールバック
+
+- **テンプレートファイルが見つからない場合**: `templates/teams/_custom/` に加えて `node_modules/@trimix/ai-team/templates/teams/_custom/` も確認する。どちらにも存在しない場合はテンプレート欠落として停止し、パッケージの再インストール（`npm install`）を案内する
+- **`mkdir` / Write が失敗した場合**: 1回だけリトライし、それでも失敗する場合は生成内容をユーザーに提示して手動保存を案内し、停止する
+
 ---
 
 ## ステップ4: ai-team-config.yml の更新
@@ -138,6 +155,25 @@ cat .claude/ai-team-config.yml
 ```
 
 Read ツールで読み込み、Edit ツールで `target_labels:` セクションに追記してください。
+
+---
+
+## 報告前チェック（ステップ5の前に必ず実行）
+
+生成物が実在するか以下で検証し、欠けているファイルがあればステップ3に戻って生成し直してください。
+
+```bash
+ls .claude/teams/<team_id>/agents/ \
+   .claude/teams/<team_id>/workflow.yml \
+   .claude/teams/<team_id>/review-config.yml \
+   .claude/teams/<team_id>/dod/feature.md
+grep -F "<team_id>:<first_agent_id>" .claude/ai-team-config.yml
+```
+
+- [ ] `agents/` 内の `.md` ファイル数が設計したエージェント数と一致する
+- [ ] `workflow.yml` / `review-config.yml` / `dod/feature.md` が存在する
+- [ ] 生成したファイルに未置換のプレースホルダーが残っていない（`grep -rF "{{" .claude/teams/<team_id>/` の出力が空）
+- [ ] `ai-team-config.yml` の `target_labels` に `<team_id>:<first_agent_id>` が追記されている
 
 ---
 
