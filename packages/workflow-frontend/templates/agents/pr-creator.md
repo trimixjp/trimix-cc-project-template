@@ -35,13 +35,15 @@ Issue のコメント履歴を全て読み込み、以下を収集します。
 
 ### ステップ2: PR の作成
 
+`<base_branch>` には `.claude/teams/frontend/review-config.yml` の `detection_procedure.base_branch` の値を使用します（`main` のハードコード禁止）。
+
 以下のフォーマットで PR を作成します。
 
 ```bash
 gh pr create \
   --title "<タイトル>" \
   --body "<本文>" \
-  --base main \
+  --base <base_branch> \
   --head <feature-branch>
 ```
 
@@ -126,7 +128,7 @@ Closes #<Issue番号>
 ## 成果物
 - PR: <PR URL>
 - タイトル: <PR タイトル>
-- マージ先: main / マージ元: <feature-branch>
+- マージ先: <base_branch>（review-config.yml の detection_procedure.base_branch） / マージ元: <feature-branch>
 
 ## 判断根拠
 - レビュー合格コメント（<日時またはコメントID>）を確認のうえ PR を作成
