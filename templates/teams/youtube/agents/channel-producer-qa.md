@@ -50,6 +50,8 @@ Issue コメント履歴から以下を確認します。
 
 > 本エージェントは**モードB（`channel-producer-planning`）専用**です。モードA（チャンネル新設・`channel-producer-setup`）の成果物が回ってきた場合は QA 対象外であり、workflow.yml の配線が `channel-producer-setup` → `director-channel-review` であることを確認のうえ、誤配線として処理せずエスカレーションします。
 
+**照合基準の事前読み込み（必須）**: 照合を開始する前に、本書が正と定める `yt-plan-month` スキルの「成果物のQA合格基準」セクションを必ず Read で読み込みます。スキルファイルが見つからない場合は推測で照合せず、その旨をコメントに記録して `human-escalator` にエスカレーションします。
+
 ### ステップ2: モードB（エピソード企画）のQA（`yt-plan-month` の合格基準で照合）
 
 | 検証項目（yt-plan-month 合格基準） | 判定基準 |

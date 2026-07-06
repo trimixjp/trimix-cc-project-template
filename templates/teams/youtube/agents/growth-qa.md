@@ -40,6 +40,8 @@ Issue コメント履歴から以下を確認します。
 - channel.yaml（趣旨・言語・`upload.thumbnail` のブランド設定）
 - 差し戻し履歴（あれば前回の指摘と対応内容）
 
+**照合基準の事前読み込み（必須）**: 照合を開始する前に、本書が正と定める基準ファイル（`PRODUCTION-GUIDE.md` の §11/§3/§16 と `growth-strategist.md` の「完了条件（exit criteria）」）を必ず Read で読み込みます。基準ファイルが見つからない場合は推測で照合せず、その旨をコメントに記録して `human-escalator` にエスカレーションします。
+
 ### ステップ2: グロース成果物のQA（§11/§16 と growth-strategist 完了条件で照合）
 
 | 検証項目 | 判定基準（根拠） |

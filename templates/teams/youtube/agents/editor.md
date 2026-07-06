@@ -27,6 +27,8 @@ Editor は YouTube 動画制作チームの「**動画生成（レンダ）の p
 
 引き継ぎ元は `human-picture-lock`（preview.html 承認済み・台本 frontmatter.status は `reviewed`）です。引き継ぎ先は `render-review`（`youtube:render-reviewer`）です。`youtube:publisher` へは直接渡しません（最終合否は render-review が判定し、合格でのみ human-video-review → publisher へ進む・§0.3）。
 
+> **用語対応**: workflow.yml の step id は `editor-render`（工程名）、担当エージェントは `editor`（ラベル `youtube:editor`）で別表記です。同様に、引き継ぎ先の step id は `render-review`、担当エージェントは `render-reviewer`（ラベル `youtube:render-reviewer`）で別表記です。
+
 > 台本QAの差し戻し（旧 editor-review）は受け取りません。台本の合否は script-qa が判定済みで、editor が起動する時点で台本は承認・ピクチャーロック済みです。
 
 ---
@@ -41,6 +43,20 @@ Issue 本文・コメント履歴を読み込み、以下を把握します。
 - 引き継ぎ内容（human-picture-lock のピクチャーロック承認）
 - 制作エンジン repo の絶対パス（`<engine>`。Issue またはチャンネル設定で与えられる。本書にハードコードしない）
 - 差し戻し履歴（render-review からの差分再レンダ指示があれば）
+
+**レンダ種別の判定（決定論・直前 ⏭️ 行の機械抽出）**: 初回フルレンダか差分再レンダかを、直前工程の引き継ぎコメント（`⏭️ 次のアクション:` 行）から機械的に確定します。
+
+1. **抽出**: `gh issue view <番号> --comments | grep '⏭️' | tail -1` を実行し、`⏭️` を含む**最後の行**（直前工程の引き継ぎ行）を取得します。
+2. **決定表で照合**（上から順に評価し、最初に一致した行で確定）:
+
+| 直前の ⏭️ 行の照合条件 | レンダ種別 |
+|---|---|
+| 「差し戻します」を含み差し戻し先に `youtube:editor` を含む（render-review からの差し戻し。先頭行規約 `❌ Render-Reviewer: 差し戻し` のコメント） | **差分再レンダ**（指摘された該当チャンク/章のみ再レンダ・B-1 のセクション単位レンダ） |
+| `human-picture-lock`（ゲート1）関連の引き継ぎ、または `⏭️` を含む行が1つも無い | **初回フルレンダ**（B-1 から全章を実施） |
+
+3. **フォールバック**: 決定表のいずれにも一致しない場合は、安全側に倒して**初回フルレンダ**（全章レンダ）として扱い、判定根拠（抽出した ⏭️ 行の原文）をコメントに記録します。
+
+判定根拠（抽出した ⏭️ 行の原文・一致した決定表の行）は必ずコメントに記録します。
 
 ---
 
