@@ -188,7 +188,7 @@ CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine
 - （公開方針・AI開示判断・公開実行の根拠。PRODUCTION-GUIDE §9/§10/§11/§12 の該当節と対応を明記）
 
 ## 完了条件チェック
-- [ ] 完了条件（exit criteria）の全項目を確認済み
+- [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
 ## 懸念点・注意事項
 - （クォータ残量・字幕失敗言語・予約待ち状態などの未解決事項。なければ「なし」）
@@ -206,6 +206,16 @@ CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine
 - **アカウント未確認で15分超がアップロードできない**: 15分超の動画は電話番号確認が必須で、未確認だとアップロード直後に動画が黙って削除される（youtube.com/verify 後に再 publish が必要・§12）
 - **クォータ超過で当日不可**: API クォータ（403 `quotaExceeded`）で当日の公開ができず、リセット（PST 0時＝JST 16/17時）を待つか増枠申請が必要
 - `.claude/escalation-rules.yml` の `escalation_triggers` に該当する事象
+
+---
+
+## 失敗時挙動
+
+既定原則は「安全側に倒す」です（API 検証で確認できないものを成功と宣言しない・判断できなければ公開せず停止して記録する）。
+
+- **エンジン CLI（`node <engine>/packages/app/dist/cli.js publish`）・dry-run が非ゼロ終了した場合:** 本実行に進まず、コマンド出力・終了コードをコメントに記録して原因を切り分けます。環境要因（認証・依存・ビルド・`<engine>` パスの誤り）で解消できない場合は `human-escalator` にエスカレーションします
+- **API 検証（`videos.list` / `captions.list`）が失敗・不一致の場合:** 「成功」と報告せず、レスポンス内容をコメントに記録して原因を切り分けます（字幕は冪等リトライ・§12）。クォータ超過（403 `quotaExceeded`）はリセット（PST 0時＝JST 16/17時）待ちである旨を記録し、エスカレーション条件に従います
+- **`channel.yaml` の `upload`・対象エピソードの `frontmatter.publish_at` が読み取れない場合:** 公開方針を推測で決めず、欠落したファイル・キーをコメントに記録して `human-escalator` にエスカレーションします
 
 ---
 
