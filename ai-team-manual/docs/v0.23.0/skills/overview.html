@@ -106,7 +106,10 @@
 
 <pre><code class="language-markdown">---
 name: ai-team-run
-description: チケット（チケット・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+description: チケット（GitHub / ローカル md / Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+model: opus
+effort: high
+model_role: leader
 ---
 
 # /ai-team-run — ワークフロー起動
@@ -114,7 +117,10 @@ description: チケット（チケット・Jira等）を読み込み、AIチー�
 あなたはAIチームのオーケストレーターです。担当チケットを読み込み、適切なワークフローを起動してください。
 ...</code></pre>
 
-<code>name</code> と <code>description</code> は Claude Code がスキル一覧を表示する際に使用します。本文には Claude Code が実行すべき手順がステップごとに記述されています。
+<table><thead><tr><th>frontmatter</th><th>必須</th><th>意味</th></tr></thead><tbody><tr><td><code>name</code></td><td>はい</td><td>スキル名（スラッシュなし）。Claude Code / Grok がスキル一覧で識別する</td></tr><tr><td><code>description</code></td><td>はい</td><td>ユーザー向けの一行説明（スキル候補に表示される）</td></tr><tr><td><code>model</code></td><td>はい</td><td>実行モデルのエイリアス（runtime 依存。例: <code>opus</code> / <code>sonnet</code> / <code>haiku</code> / <code>fable</code>、Grok 時は <code>grok-4.5</code> 等）</td></tr><tr><td><code>effort</code></td><td>はい</td><td>推論深度（<code>low</code> / <code>medium</code> / <code>high</code> / <code>xhigh</code> / <code>max</code>。runtime・モデルにより利用可範囲が異なる）</td></tr><tr><td><code>model_role</code></td><td>はい</td><td>プロファイル適用時の役割ヒント（<code>leader</code> / <code>worker</code> / <code>simple</code>）</td></tr></tbody></table>
+<code>name</code> と <code>description</code> はスキル一覧表示に使われます。<code>model</code> / <code>effort</code> / <code>model_role</code> はエージェント定義と同じく、<code>/ai-team-setup</code> の runtime・性能プロファイル・effort 深度で一括反映されます（個別編集も可）。詳細は <a href="../guide/agents.html">エージェント定義</a> の「モデル・effort 指定」を参照してください。
+
+<p>本文には実行すべき手順がステップごとに記述されています。</p>
 
       </article>
     </div>

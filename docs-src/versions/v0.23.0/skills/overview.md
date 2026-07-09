@@ -100,7 +100,10 @@ Claude Code を起動した状態で、メッセージ入力欄に `/` を入力
 ```markdown
 ---
 name: ai-team-run
-description: チケット（チケット・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+description: チケット（GitHub / ローカル md / Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+model: opus
+effort: high
+model_role: leader
 ---
 
 # /ai-team-run — ワークフロー起動
@@ -109,4 +112,14 @@ description: チケット（チケット・Jira等）を読み込み、AIチー�
 ...
 ```
 
-`name` と `description` は Claude Code がスキル一覧を表示する際に使用します。本文には Claude Code が実行すべき手順がステップごとに記述されています。
+| frontmatter | 必須 | 意味 |
+|-------------|------|------|
+| `name` | はい | スキル名（スラッシュなし）。Claude Code / Grok がスキル一覧で識別する |
+| `description` | はい | ユーザー向けの一行説明（スキル候補に表示される） |
+| `model` | はい | 実行モデルのエイリアス（runtime 依存。例: `opus` / `sonnet` / `haiku` / `fable`、Grok 時は `grok-4.5` 等） |
+| `effort` | はい | 推論深度（`low` / `medium` / `high` / `xhigh` / `max`。runtime・モデルにより利用可範囲が異なる） |
+| `model_role` | はい | プロファイル適用時の役割ヒント（`leader` / `worker` / `simple`） |
+
+`name` と `description` はスキル一覧表示に使われます。`model` / `effort` / `model_role` はエージェント定義と同じく、`/ai-team-setup` の runtime・性能プロファイル・effort 深度で一括反映されます（個別編集も可）。詳細は [エージェント定義](../guide/agents.html) の「モデル・effort 指定」を参照してください。
+
+本文には実行すべき手順がステップごとに記述されています。

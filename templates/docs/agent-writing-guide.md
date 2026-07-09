@@ -392,16 +392,31 @@ node <パッケージルート>/bin/lib/apply-model-profile.js \
 
 ### 5-2. フロントマター
 
+スキル（コマンド）定義もエージェントと同様に `model` / `effort` / `model_role` を明示します。
+
 ```yaml
 ---
 name: ai-team-run
-description: チケット（チケット・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+description: チケット（GitHub / ローカル md / Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+model: opus
+effort: high
+model_role: leader
 ---
 ```
+
+| frontmatter | 意味 |
+|-------------|------|
+| `name` | コマンド名（スラッシュなし） |
+| `description` | ユーザー向けの説明（`/ai-team-gallery` 等で表示される） |
+| `model` | 実行モデルのエイリアス（runtime 依存。バージョン固定 ID は禁止） |
+| `effort` | 推論深度（`low` / `medium` / `high` / `xhigh` / `max`） |
+| `model_role` | プロファイル適用時の役割（`leader` / `worker` / `simple`） |
 
 **ルール:**
 - `name` はコマンド名（スラッシュなし）
 - `description` はユーザー向けの説明（`/ai-team-gallery` 等で表示される）
+- `model` / `effort` / `model_role` はエージェント定義と同じ規約に従う（詳細は「3-8. モデル・effort 指定ガイドライン」）
+- `/ai-team-setup` の runtime・性能プロファイル・effort 深度で全スキルへ一括反映される（個別上書き可）
 
 ### 5-3. 本文の記述
 
