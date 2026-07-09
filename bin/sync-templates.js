@@ -35,6 +35,7 @@ const mappings = [
   { from: '_shared/dod',          to: 'dod' },
   // ドキュメント
   { from: 'docs',                 to: 'docs' },
+  // ローカルチケット雛形（プロジェクトルート tickets/ へは setup が配置。開発時は参考用に .claude 配下にも同期しない）
   // インシデントテンプレート（index.yml はプロジェクト固有のため対象外）
   { from: 'incidents/README.md',  to: 'incidents/README.md',  file: true },
   { from: 'incidents/TEMPLATE.md',to: 'incidents/TEMPLATE.md',file: true },

@@ -1,6 +1,6 @@
 ---
 name: ai-team-watch
-description: ソロモード用。GitHub Issuesを定期監視し、新しいタスクを自動検出してワークフローを実行します。
+description: ソロモード用。チケット（GitHub Issues またはローカル md）を定期監視し、新しいタスクを自動検出してワークフローを実行します。
 model: opus
 effort: high
 model_role: leader
@@ -8,7 +8,9 @@ model_role: leader
 
 # /ai-team-watch — 自動監視モード
 
-あなたはIssue監視エージェントです。以下の手順でGitHub Issuesを定期監視し、新しいタスクを自動処理してください。
+あなたはチケット監視エージェントです。以下の手順でチケットを定期監視し、新しいタスクを自動処理してください。
+
+チケット操作は **`npx @trimix/ai-team ticket ...`** 経由で行います（`ticket_backend: github|local`）。
 
 ## 前提確認
 
@@ -21,7 +23,9 @@ model_role: leader
    /ai-team-watch はソロモード専用コマンドです。
    タスクを処理するには: /ai-team-run <IssueのURL>
    ```
-3. `gh auth status` でGitHub認証を確認。未認証なら `gh auth login` を案内して終了
+3. `npx @trimix/ai-team ticket backend` で `ticket_backend` を確認  
+   - **github** のとき: `gh auth status` で認証確認。未認証なら `gh auth login` を案内して終了  
+   - **local** のとき: `tickets/`（または設定の dir）の存在を確認。無ければ setup を案内
 
 **solo 設定の既定値（キーが欠落している場合）:**
 
@@ -44,7 +48,7 @@ model_role: leader
 `.claude/ai-team-config.yml` の `solo.target_labels` に定義されたラベルのいずれかが付いており、かつ `solo.skip_labels` のラベルが付いていないIssueを検索：
 
 ```bash
-gh issue list --label "<target_label>" --state open --json number,title,labels,url
+npx @trimix/ai-team ticket list --state open --label "<target_label>"
 ```
 
 target_labels を1つずつ検索し、結果をまとめて重複を除去してください。
@@ -54,7 +58,9 @@ target_labels を1つずつ検索し、結果をまとめて重複を除去し�
 `escalated:human` ラベルが**付いていない**、かつ直近のコメントに `🚨 エスカレーション` が含まれており、その後に人間のコメントが存在するIssueを検索：
 
 ```bash
-gh issue list --state open --json number,title,labels,comments,url
+npx @trimix/ai-team ticket list --state open
+# 各候補について view で comments を取得
+npx @trimix/ai-team ticket view <番号>
 ```
 
 取得したIssueのうち以下の条件を満たすものを再開対象として抽出：
@@ -84,18 +90,18 @@ gh issue list --state open --json number,title,labels,comments,url
 処理対象のIssueが1件以上ある場合：
 - 各Issueに対して以下の順で処理する（1件ずつ順番に、並列実行しない）：
 
-  1. **処理開始のロック**: Issue に `ai-team:in-progress` ラベルを付与してから処理を開始
+  1. **処理開始のロック**: チケットに `ai-team:in-progress` ラベルを付与してから処理を開始
      ```bash
-     gh issue edit <番号> --add-label "ai-team:in-progress"
+     npx @trimix/ai-team ticket edit <番号> --add-label "ai-team:in-progress"
      ```
   2. **コンソールへ出力**：
      ```
      🤖 [HH:MM] Issue #<番号> を処理中: <タイトル>
      ```
-  3. `/ai-team-run <IssueのURL>` に相当する処理を実行
+  3. `/ai-team-run <番号またはURL>` に相当する処理を実行
   4. **処理完了のアンロック**: 処理が完了（またはエラー終了）したら `ai-team:in-progress` ラベルを除去
      ```bash
-     gh issue edit <番号> --remove-label "ai-team:in-progress"
+     npx @trimix/ai-team ticket edit <番号> --remove-label "ai-team:in-progress"
      ```
 
 処理対象Issueが0件の場合：

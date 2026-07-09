@@ -31,8 +31,14 @@ function printHelp() {
   console.log('  npx @trimix/ai-team gallery              利用可能なプラグイン一覧を表示');
   console.log('  npx @trimix/ai-team list                 インストール済みプラグインを表示');
   console.log('  npx @trimix/ai-team uninstall <team_id>  プラグインをアンインストール');
+  console.log('  npx @trimix/ai-team ticket <cmd>         チケット操作（github / local）');
   console.log('  npx @trimix/ai-team --version            バージョンを表示');
   console.log('  npx @trimix/ai-team --help               このヘルプを表示');
+  console.log('');
+  console.log('ticket サブコマンド例:');
+  console.log('  npx @trimix/ai-team ticket list');
+  console.log('  npx @trimix/ai-team ticket view 1');
+  console.log('  npx @trimix/ai-team ticket create --title "題名" --body "本文"');
   console.log('');
   console.log('展開後のセットアップ:');
   console.log('  Claude Code を起動し、/ai-team-setup を実行してください');
@@ -90,6 +96,11 @@ async function main() {
   } else if (command === 'uninstall') {
     const { uninstallPlugin } = await import('./lib/plugin-uninstall.js');
     await uninstallPlugin(args[1], { cwd });
+  } else if (command === 'ticket') {
+    // ticket 以降の引数を ticket-cli に委譲
+    process.argv = [process.argv[0], process.argv[1], ...args.slice(1)];
+    const { runTicketCli } = await import('./ticket-cli.js');
+    await runTicketCli();
   } else if (command === '--version' || command === '-v') {
     printVersion();
   } else if (command === '--help' || command === '-h' || !command) {

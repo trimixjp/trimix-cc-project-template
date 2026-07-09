@@ -32,12 +32,12 @@ Issue番号またはURLが渡された場合は、そのIssueを直接調査し�
 **人間コメントの判定:** 先頭行がAIコメント絵文字リスト（正典は `/ai-team-watch` の「AIコメント判定」節）のいずれかで始まらないコメントを人間の返答とみなします。リストを参照できない場合は「先頭が絵文字＋半角スペースで始まらないコメント」を人間の返答とみなしてください。
 
 ```bash
-gh issue list --state open --json number,title,labels,url
+npx @trimix/ai-team ticket list --state open
 ```
 
 取得した各Issueのコメントを確認：
 ```bash
-gh issue view <番号> --json comments
+npx @trimix/ai-team ticket view <番号>
 ```
 
 ## ステップ2: 対象Issueが見つからない場合
@@ -69,7 +69,7 @@ gh issue view <番号> --json comments
 対象Issueのコメント履歴を全件読み込み、以下を確認します：
 
 ```bash
-gh issue view <番号> --json title,body,labels,comments
+npx @trimix/ai-team ticket view <番号>
 ```
 
 | 確認項目 | 参照先 |
@@ -126,11 +126,11 @@ human-escalator ステップの `on_complete.next` が `return_to_previous`（�
 ### 再開前の検証（エージェント動作を開始する前に実施）
 
 ```bash
-gh issue view <番号> --json labels
+npx @trimix/ai-team ticket view <番号>
 ```
 
 - [ ] `escalated:human` ラベルが付いていない（残っている場合は再開せず、人間にラベルを外してもらうよう案内して停止する）
-- [ ] 再開ステップのラベル（`<チーム>:<ステップ>`）が付いている（付いていない場合は `gh issue edit <番号> --add-label "<チーム>:<ステップ>"` で付与してから再開する）
+- [ ] 再開ステップのラベル（`<チーム>:<ステップ>`）が付いている（付いていない場合は `npx @trimix/ai-team ticket edit <番号> --add-label "<チーム>:<ステップ>"` で付与してから再開する）
 - [ ] ステップ5の再開コメントが投稿されている
 
 ## gh コマンド失敗時のフォールバック

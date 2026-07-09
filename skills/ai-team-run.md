@@ -10,6 +10,45 @@ model_role: leader
 
 あなたはAIチームのオーケストレーターです。担当チケットを読み込み、適切なワークフローを起動してください。
 
+## チケット操作の共通 CLI（必須）
+
+`.claude/ai-team-config.yml` の `ticket_backend`（`github` | `local`）に応じて、**必ず**次の CLI 経由でチケットを操作してください（github 時は内部で `gh` を呼びます）。
+
+```bash
+# バックエンド確認
+npx @trimix/ai-team ticket backend
+# または: node <パッケージルート>/bin/ticket-cli.js backend
+
+# 詳細（JSON: title, body, labels, assignees, comments, state, url）
+npx @trimix/ai-team ticket view <番号>
+
+# 一覧
+npx @trimix/ai-team ticket list [--state open|closed|all] [--label <ラベル>]
+
+# 作成
+npx @trimix/ai-team ticket create --title "..." --body "..."
+
+# コメント
+npx @trimix/ai-team ticket comment <番号> --body "..."
+
+# ラベル更新（複数可）
+npx @trimix/ai-team ticket edit <番号> --add-label "L1" --remove-label "L2"
+
+# クローズ
+npx @trimix/ai-team ticket close <番号>
+```
+
+| 旧（gh 直叩き） | 新（統一 CLI） |
+|----------------|----------------|
+| `gh issue view N --json ...` | `npx @trimix/ai-team ticket view N` |
+| `gh issue list ...` | `npx @trimix/ai-team ticket list` |
+| `gh issue comment N --body` | `npx @trimix/ai-team ticket comment N --body` |
+| `gh issue edit N --add-label` | `npx @trimix/ai-team ticket edit N --add-label` |
+| `gh issue create` | `npx @trimix/ai-team ticket create` |
+| `gh issue close N` | `npx @trimix/ai-team ticket close N` |
+
+`ticket_backend: local` のときチケットは `tickets/open/*.md`（設定の `local_tickets.dir`）に置かれます。人間向け UI は **Obsidian で `tickets/` を vault として開く**運用を推奨（エージェントはファイルのみ参照）。詳細は `.claude/docs/local-tickets.md`。
+
 ## 引数
 
 ```
@@ -22,30 +61,32 @@ model_role: leader
 
 引数の形式によって処理を分岐してください。
 
-### パターンA: Issue番号（数字のみ）または GitHub URL
+### パターンA: チケット番号（数字のみ）または GitHub URL
 
-```
-gh issue view <番号> --json title,body,labels,assignees,comments
+```bash
+npx @trimix/ai-team ticket view <番号>
 ```
 
 URLのパターンから自動判別：
-- `github.com/*/issues/*` → GitHub Issue（gh コマンドで取得）
+- `github.com/*/issues/*` → 番号を抽出して `ticket view`（`ticket_backend: github` 前提）
+- `local://tickets/<id>` → 番号を抽出して `ticket view`（local）
 - `*.atlassian.net/browse/*` → Jira（URLの内容をユーザーに貼り付けてもらう）
 
-Issue が取得できたら**ステップ2へ進む**。
+チケットが取得できたら**ステップ2へ進む**。
 
 ### パターンB: 自由記述テキスト（問題・依頼の説明文）
 
-Issue番号でも URL でもない文字列が渡された場合（例: `/ai-team-run ログインAPIがエラーを返す` や `/ai-team-run 1 現在の状況に合わせて最新化する`）は、以下の手順で **GitHub Issue を起点にしてからワークフローを起動**してください。
+番号でも URL でもない文字列が渡された場合（例: `/ai-team-run ログインAPIがエラーを返す`）は、以下の手順で **チケットを起点にしてからワークフローを起動**してください。
 
-> **なぜ Issue 経由が必須か**: インシデント記録・ラベルによる状態管理・作業履歴の追跡は Issue ベースで動作します。Issue を作らずにワークフローを動かすと、これらのフローがすべてスキップされます。
+> **なぜチケット経由が必須か**: インシデント記録・ラベルによる状態管理・作業履歴の追跡はチケットベースで動作します。
 
-#### B-1: 既存 Issue の検索
+#### B-1: 既存チケットの検索
 
-入力テキストからキーワードを抽出して、関連する open Issue を検索してください：
+入力テキストからキーワードを抽出して、関連する open チケットを検索してください：
 
 ```bash
-gh issue list --state open --search "<キーワード>" --json number,title,labels,url
+# local / github 共通（キーワード絞り込みは list 結果を JSON で読んでフィルタ）
+npx @trimix/ai-team ticket list --state open
 ```
 
 **候補が見つかった場合:**
@@ -86,7 +127,7 @@ gh issue list --state open --search "<キーワード>" --json number,title,labe
 | どの行にも一致しない | ラベルなしで作成し、ステップ3の「ラベルがない場合」で確認する |
 
 ```bash
-gh issue create \
+npx @trimix/ai-team ticket create \
   --title "<タイトル>" \
   --body "<本文>" \
   --label "<推定ラベル>"
@@ -143,7 +184,7 @@ gh api "repos/<owner>/<repo>/issues/<番号>/events" --paginate \
 
 **関連インシデントが見つかった場合:**
 - 該当インシデントファイルを読み込む
-- チケットにコメントとして注意事項を投稿する（`gh issue comment` または 表示）
+- チケットにコメントとして注意事項を投稿する（`npx @trimix/ai-team ticket comment`）
 
 ## ステップ5: ワークフローの起動
 
@@ -176,13 +217,11 @@ workflow.yml の steps[0] = tech-lead-analysis
 
 **チケットへの記録:**  
 各エージェントの作業結果はチケット（Issue）のコメントとして記録します：
-- GitHub Issues: `gh issue comment <番号> --body "..."` を実行
-- その他システム: コメント内容をユーザーに提示し、手動での貼り付けを案内
+- `npx @trimix/ai-team ticket comment <番号> --body "..."` を実行（github/local 両対応）
 
 **ラベルの更新:**  
 次のエージェントへの引き継ぎ時はラベルを更新します：
-- GitHub Issues: `gh issue edit <番号> --add-label "..." --remove-label "..."`
-- その他: ラベル変更をユーザーに案内
+- `npx @trimix/ai-team ticket edit <番号> --add-label "..." --remove-label "..."`（github/local 両対応）
 
 **ワークフローの継続:**  
 現在のエージェントの処理が完了したら、`workflow.yml` の `on_complete` に従い次のステップへ進んでください。人間のアクションが必要な場合（`escalated:human`、PR承認等）はそこで停止し、ユーザーに案内してください。
@@ -191,28 +230,28 @@ workflow.yml の steps[0] = tech-lead-analysis
 `on_complete.next` または `conditions[].next` が配列（例: `[reviewer-a, reviewer-b]`）の場合、列挙されたすべてのステップのラベルを一度に付与して並列起動します。
 
 ```bash
-gh issue edit <番号> \
+npx @trimix/ai-team ticket edit <番号> \
   --add-label "backend:reviewer-a" \
   --add-label "backend:reviewer-b" \
   --remove-label "<現在のラベル>"
 ```
 
 **AND完了待機（次のステップに `requires_all_of` がある場合）:**  
-完了後の次のステップに `requires_all_of: [A, B, ...]` が設定されている場合は、以下の疑似コードのとおりに遷移してください。ラベルは**毎回 `gh issue view <番号> --json labels` で最新を再取得**し、以前に取得した結果を使い回してはいけません（並列ステップの完了はラベル除去で表現されるため、ラベルの有無が完了状態の指標です）。
+完了後の次のステップに `requires_all_of: [A, B, ...]` が設定されている場合は、以下の疑似コードのとおりに遷移してください。ラベルは**毎回 `npx @trimix/ai-team ticket view <番号>` で最新を再取得**し、以前に取得した結果を使い回してはいけません（並列ステップの完了はラベル除去で表現されるため、ラベルの有無が完了状態の指標です）。
 
 ```
-最新のラベル一覧を取得（gh issue view <番号> --json labels）
+最新のラベル一覧を取得（npx @trimix/ai-team ticket view <番号>）
 if requires_all_of のラベルがすべて除去済み:
     # 除去と付与は必ず単一コマンドで（分けると中間状態が生まれ遷移が壊れる）
-    gh issue edit <番号> --remove-label "<自分のラベル>" --add-label "<次のステップのラベル>"
+    npx @trimix/ai-team ticket edit <番号> --remove-label "<自分のラベル>" --add-label "<次のステップのラベル>"
 else:  # 待機パス（相手が未完了）
-    gh issue edit <番号> --remove-label "<自分のラベル>"
+    npx @trimix/ai-team ticket edit <番号> --remove-label "<自分のラベル>"
     # 競合ウィンドウの解消（スキップ禁止）:
     # 両者がほぼ同時に完了すると互いに待機し合い、どちらも次のラベルを
     # 付与しないサイレント停止が起こり得るため、除去後に必ず再確認する
     最新のラベル一覧を再取得
     if requires_all_of のラベルがすべて除去済み and 次のステップのラベルが未付与:
-        gh issue edit <番号> --add-label "<次のステップのラベル>"
+        npx @trimix/ai-team ticket edit <番号> --add-label "<次のステップのラベル>"
         # ラベル付与は冪等であり、両者が重複して付与しても無害
 
 # 遷移後の検証（必須）
@@ -233,40 +272,38 @@ else:  # 待機パス（相手が未完了）
 
 3条件を満たす場合のリカバリ手順:
 
-1. `gh issue edit <番号> --add-label "<次のステップのラベル>"`
+1. `npx @trimix/ai-team ticket edit <番号> --add-label "<次のステップのラベル>"`
 2. リカバリした旨を Issue にコメントする  
    （例: `⚠️ ラベル遷移の不整合を検知したため、<次のステップのラベル> を付与してリカバリしました`）
 
-## gh コマンド失敗時のフォールバック
+## チケット CLI 失敗時のフォールバック
 
-`gh` コマンド（`gh issue view` / `gh issue edit` / `gh issue comment` 等）が失敗した場合は、以下の手順で対応してください。**失敗を無視して黙って先に進んではいけません。**
+`npx @trimix/ai-team ticket ...`（github 時は内部の `gh`）が失敗した場合は、以下の手順で対応してください。**失敗を無視して黙って先に進んではいけません。**
 
-**ラベル不存在による `--add-label` 失敗の場合:**  
-`gh issue edit <番号> --add-label "<ラベル>"` が「ラベルが存在しない」エラー（`could not add label` / `not found` 等）で失敗した場合は、リトライの前にラベルを作成してから再実行してください。
+**ラベル不存在による `--add-label` 失敗の場合（github のみ）:**  
+リトライの前に `gh label create` でラベルを作成してから再実行してください。`ticket_backend: local` ではラベルの事前作成は不要です。
 
 ```bash
-# ラベルを作成してからリトライ
+# github 時のみ: ラベルを作成してからリトライ
 gh label create "<ラベル>" --color "<色>" --description "<説明>"
-gh issue edit <番号> --add-label "<ラベル>"
+npx @trimix/ai-team ticket edit <番号> --add-label "<ラベル>"
 ```
 
-色・説明は `/ai-team-setup`（ステップ4-4）のラベル定義に合わせてください。定義にないラベルの場合は、同じチームの既存ラベルと同じ色を使用します。
+**その他の失敗（ネットワーク・ファイル I/O 等）の場合:**
 
-**その他の失敗（ネットワーク・API エラー等）の場合:**
-
-1. **1回だけリトライする**（ネットワーク・GitHub API の一時的な失敗の可能性があるため）
+1. **1回だけリトライする**
 2. リトライでも失敗した場合は、**実行すべきコマンドをそのままユーザーに提示して停止**する
 
 提示例：
 
 ```
-⚠️ gh コマンドの実行に失敗しました（1回リトライ済み）。
+⚠️ チケット CLI の実行に失敗しました（1回リトライ済み）。
 以下のコマンドを手動で実行してから、/ai-team-resume で再開してください：
 
-gh issue edit 42 --remove-label "backend:reviewer-a" --add-label "backend:cross-review"
+npx @trimix/ai-team ticket edit 42 --remove-label "backend:reviewer-a" --add-label "backend:cross-review"
 ```
 
-ラベル遷移やコメント投稿が完了していない状態で次のステップへ進むと、ラベルとコメントによる状態管理が壊れ、`/ai-team-resume` で再開できなくなります。
+ラベル遷移やコメント投稿が完了していない状態で次のステップへ進むと、状態管理が壊れ、`/ai-team-resume` で再開できなくなります。
 
 ## 状態記録要件（コメント必須5フィールド）
 
@@ -287,8 +324,8 @@ gh issue edit 42 --remove-label "backend:reviewer-a" --add-label "backend:cross-
 次のステップへ引き継ぐ前に、以下を確認してください。
 
 - [ ] 完了コメントに必須5フィールドがすべて含まれている
-- [ ] `gh issue view <番号> --json comments` で完了コメントが実際に投稿されている
-- [ ] `gh issue view <番号> --json labels` でラベルが期待どおり遷移している（自分のラベル除去・次のラベル付与）
+- [ ] `npx @trimix/ai-team ticket view <番号>` で完了コメントが実際に投稿されている
+- [ ] 同コマンドで labels が期待どおり遷移している（自分のラベル除去・次のラベル付与）
 
 ## 差し戻し上限（rework_limit）
 
