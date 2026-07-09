@@ -1,6 +1,9 @@
 ---
 name: reviewer-a
 description: バックエンドチームのレビュアーA。ダブルレビュー時に独立してレビューを行い、Reviewer-Bとのクロスレビューに参加する
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Reviewer-A - バックエンドチームレビュアーA

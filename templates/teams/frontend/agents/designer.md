@@ -1,6 +1,9 @@
 ---
 name: designer
 description: フロントエンドチームのデザイン担当AI。参考サイトの分析・UI仕様の策定・デザイントークンの定義をIssueコメントに記録し、Frontend-Leadに引き継ぐ
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Designer - フロントエンドチームデザイン担当

@@ -40,21 +40,37 @@ human-escalator を呼び出すべき状況を具体的に列挙します。
 
 frontmatter の `name` と `description` は Claude Code がエージェントを識別するために使用します。`description` は 1 行で簡潔に記述してください。
 
-### モデル指定（Opus 最適化、v0.11.0）
+### モデル・effort 指定
 
-v0.11.0 から、全エージェント定義は **Claude Opus で動作する前提**に最適化されています。モデルを指定する場合は frontmatter の `model` フィールドに**エイリアス**（`opus` 等。バージョン付きのモデル ID ではなく）で記述します。
-
-標準テンプレートで `model` を明示しているのは、深い推論が必要な助言専用エージェントの `architect`（インフラチーム）のみです。
+全エージェント定義とスキルは frontmatter で `model` / `effort` / `model_role` を明示します。モデルは**エイリアス**（`fable` / `opus` / `sonnet` / `haiku`）のみ。バージョン付きモデル ID は禁止です。
 
 ```markdown
 ---
-name: architect
-description: システムアーキテクト（助言役）AI。深い推論が必要な助言専用エージェント
+name: tech-lead
+description: バックエンドチームのリーダーAI
 model: opus
+effort: high
+model_role: leader
 ---
 ```
 
-その他のエージェントは `model` を指定せず、実行環境のデフォルトモデルを継承します。
+`/ai-team-setup` で性能プロファイル（ハイパフォーマンス / バランス / 低コスト）と effort 深度（深く / 普通 / 軽く）を選ぶと、役割（leader / worker / simple）に応じて一括反映されます。
+
+| 性能 | leader | worker | simple |
+|------|--------|--------|--------|
+| ハイパフォーマンス | fable | opus | sonnet |
+| バランス（デフォルト） | opus | sonnet | haiku |
+| 低コスト | sonnet | sonnet | haiku |
+
+| effort 深度 | 値 |
+|------------|-----|
+| 深く | xhigh |
+| 普通（デフォルト） | high |
+| 軽く | medium |
+
+**リーダー（指揮者）** は次の担当へ渡す Issue コメントに詳細な設計書を書き、**作業者**は下位モデルでその設計に従って実装します。
+
+**細かい設定は md ファイルの変更で可能です。** 個別調整後にプロファイルを再適用すると上書きされる点に注意してください。詳細は `.claude/model-profiles.yml` と `agent-writing-guide.md` の §3-8 を参照。
 
 ---
 

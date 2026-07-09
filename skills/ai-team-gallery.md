@@ -1,6 +1,9 @@
 ---
 name: ai-team-gallery
 description: インストール可能なワークフロープラグインのギャラリー一覧を表示します。利用可能なワークフローの確認とインストール案内を行います。
+model: haiku
+effort: high
+model_role: simple
 ---
 
 # /ai-team-gallery — ワークフローギャラリー

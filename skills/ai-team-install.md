@@ -1,6 +1,9 @@
 ---
 name: ai-team-install
 description: ワークフロープラグインをインストールします。引数にチームID（backend/frontend/content/infra）を指定してください。
+model: haiku
+effort: high
+model_role: simple
 ---
 
 # /ai-team-install — プラグインインストール

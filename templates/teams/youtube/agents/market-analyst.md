@@ -1,7 +1,9 @@
 ---
 name: market-analyst
-model: opus
 description: YouTube動画制作チームの市場・ジャンル戦略AI。channel-producer の上流で「何を作るか（ジャンル/チャンネルの方向性）」をデータで決める。需要×競合の薄さ×CPM×ターゲット視聴国を横断スコアリングし、英語圏ティア1視聴者・日本人の一次情報優位・faceless量産適性・ポリシー耐性の交差点からブルーオーシャンなジャンル候補をスコア付きで提案する。最終ジャンル決定は人間ゲート
+model: opus
+effort: high
+model_role: leader
 ---
 
 # Market Analyst - YouTube動画制作チーム 市場・ジャンル戦略 🧭

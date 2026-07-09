@@ -1,6 +1,9 @@
 ---
 name: network-engineer
 description: インフラチームのネットワーク専門エージェント。VPC・DNS・ロードバランサー・ファイアウォール等ネットワーク層の設計・実装を担う
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Network-Engineer - ネットワーク専門エンジニア

@@ -1,6 +1,9 @@
 ---
 name: implementer
 description: バックエンドチームの実装担当AI。Tech-Leadの設計方針に従い実装し、完了報告をIssueコメントに記録する
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Implementer - バックエンドチーム実装担当

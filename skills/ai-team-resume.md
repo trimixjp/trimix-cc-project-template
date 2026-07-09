@@ -1,6 +1,9 @@
 ---
 name: ai-team-resume
 description: エスカレーション対応済みのIssueを自動検出し、ワークフローの続きを再開します。Issue番号の指定は不要です。
+model: opus
+effort: high
+model_role: leader
 ---
 
 # /ai-team-resume — エスカレーション後の再開

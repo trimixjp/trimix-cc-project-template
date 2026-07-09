@@ -29,6 +29,9 @@ AIエージェントはこれらのファイルを読んで動作します。記
 ---
 name: <エージェント名（kebab-case）>
 description: <一行説明（役職・チーム・主な責務を含む）>
+model: <opus | sonnet | haiku | fable>   # setup のプロファイルで一括設定。個別上書き可
+effort: <low | medium | high | xhigh | max>  # setup の深度で一括設定。個別上書き可
+model_role: <leader | worker | simple>  # プロファイル適用時の役割
 ---
 
 # <表示名> - <役職タイトル>
@@ -253,31 +256,54 @@ Issue 本文・関連ドキュメントを読み込み、以下を確認しま�
 - 「〜してはいけません」という禁止事項を含める
 - 3〜7項目を目安にする
 
-### 3-8. モデル指定ガイドライン
+### 3-8. モデル・effort 指定ガイドライン
 
-フロントマターの `model` フィールドで、エージェントが使用するモデルを指定できます。
+フロントマターの `model` / `effort` / `model_role` で、エージェントが使用するモデルと推論深度を指定します。
 
 ```yaml
 ---
-name: architect
-description: インフラチームの助言担当AI。システム全体の観点から深い推論による助言を提供する
+name: tech-lead
+description: バックエンドチームのリーダーAI。要件分析・設計方針決定・タスク振り分けを担う
 model: opus
+effort: high
+model_role: leader
 ---
 ```
 
 **ルール:**
 - モデルのバージョン固定（`claude-opus-4-7` 等のモデルID指定）は**禁止**です。モデルの提供終了時にエージェントが動作しなくなります
-- 必ずエイリアス（`opus` / `sonnet` / `haiku`）で指定する
+- 必ずエイリアス（`fable` / `opus` / `sonnet` / `haiku`）で指定する
+- `effort` は `low` / `medium` / `high` / `xhigh` / `max`（利用可能値はモデルに依存）
 
-**使い分け指針:**
+**setup 時の一括設定（推奨）:**
 
-| 指定 | 適した用途 | 例 |
-|------|-----------|-----|
-| `opus` | 深い推論・助言を担うエージェント | architect 等 |
-| `sonnet` / `haiku` | 定型処理で十分なエージェント | バージョン更新・PR作成 等 |
-| 未指定 | セッションのモデルを継承（**推奨デフォルト**） | 上記以外の大半のエージェント |
+`/ai-team-setup` で性能プロファイルと effort 深度を選び、全エージェント・スキルに反映します。
 
-迷った場合は未指定（セッションのモデルを継承）にしてください。
+| 性能プロファイル | leader（指揮者） | worker（作業者） | simple（単純作業） |
+|-----------------|-----------------|-----------------|-------------------|
+| ハイパフォーマンス | fable | opus | sonnet |
+| バランス（デフォルト） | opus | sonnet | haiku |
+| 低コスト | sonnet | sonnet | haiku |
+
+| effort 深度 | 全 role の effort |
+|------------|-------------------|
+| 深く | xhigh |
+| 普通（デフォルト） | high |
+| 軽く | medium |
+
+役割の例:
+- **leader**: dispatcher, contributor, tech-lead, frontend-lead, editor-in-chief, infra-lead, architect, strategist, director 等。**次の担当へ渡す Issue コメントには詳細な設計書（要件・方針・タスク分割・制約・完了条件）を書く**
+- **worker**: implementer, developer, reviewer, writer, researcher 等。リーダーの設計に従って実装・検証する
+- **simple**: pr-creator, version-bumper, tech-writer, publisher, editor（レンダ）等
+
+**細かい設定は md ファイルの変更で可能です。** 個別にモデルだけ変えたい場合は、対象 md の `model` / `effort` を直接編集してください。プロファイルの一括再適用:
+
+```bash
+node <パッケージルート>/bin/lib/apply-model-profile.js \
+  --profile balance --effort normal --dir .claude
+```
+
+定義の詳細は `.claude/model-profiles.yml` および `bin/lib/model-profiles.js` を参照してください。
 
 ---
 

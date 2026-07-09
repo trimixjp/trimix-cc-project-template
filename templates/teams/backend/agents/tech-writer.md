@@ -1,6 +1,9 @@
 ---
 name: tech-writer
 description: バックエンドチームのドキュメント専門AI。コード変更差分を解析してdocs-src/を更新し、ai-team-manual/docs/にコンパイル済みHTMLを生成する
+model: haiku
+effort: high
+model_role: simple
 ---
 
 # Tech-Writer - ドキュメント専門エージェント

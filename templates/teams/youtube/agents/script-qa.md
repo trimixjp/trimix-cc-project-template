@@ -1,7 +1,9 @@
 ---
 name: script-qa
-model: sonnet
 description: YouTube動画制作チームの台本成果物QA担当AI。scriptwriter（台本producer）とは別の目で、台本成果物を yt-script の「成果物のQA合格基準」で照合し合否を判定する。あわせて channel-producer-planning 成果物の重複/スタブを追認QAする。合格は growth-strategist へ、不合格は scriptwriter（重複/スタブ起因なら channel-producer）へ差し戻す
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Script-QA - YouTube動画制作チーム 台本成果物QA担当 ✍️🔎

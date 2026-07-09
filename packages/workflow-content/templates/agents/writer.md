@@ -1,6 +1,9 @@
 ---
 name: writer
 description: コンテンツチームの執筆担当AI。Editor-in-Chiefの方針に従いコンテンツを作成・編集し、完了報告をIssueコメントに記録する
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Writer - コンテンツチーム執筆担当

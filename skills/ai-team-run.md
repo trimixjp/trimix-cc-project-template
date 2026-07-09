@@ -1,6 +1,9 @@
 ---
 name: ai-team-run
 description: チケット（GitHub Issue・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+model: opus
+effort: high
+model_role: leader
 ---
 
 # /ai-team-run — ワークフロー起動

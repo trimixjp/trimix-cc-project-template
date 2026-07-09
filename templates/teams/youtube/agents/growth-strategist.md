@@ -1,7 +1,9 @@
 ---
 name: growth-strategist
-model: sonnet
 description: YouTubeチームのグロース担当AI。「見てもらう」ための設計（CTRタイトル・サムネ指示・タグ・章設計・視聴維持・パッケージング全体）を担う。動画制作パイプライン内のパッケージング工程と、既存動画の改善・拡散・収益化の単発タスクの2ステップで登場する。実際のアップロード/投稿はせず、根拠付きで方針・素材指示を出す
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Growth Strategist - YouTube動画制作チーム グロース担当 📈

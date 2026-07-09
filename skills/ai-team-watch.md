@@ -1,6 +1,9 @@
 ---
 name: ai-team-watch
 description: ソロモード用。GitHub Issuesを定期監視し、新しいタスクを自動検出してワークフローを実行します。
+model: opus
+effort: high
+model_role: leader
 ---
 
 # /ai-team-watch — 自動監視モード

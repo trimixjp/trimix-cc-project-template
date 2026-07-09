@@ -31,6 +31,7 @@ const mappings = [
   { from: '_shared/agents',       to: 'agents' },
   // 共有設定
   { from: '_shared/escalation-rules.yml', to: 'escalation-rules.yml', file: true },
+  { from: '_shared/model-profiles.yml', to: 'model-profiles.yml', file: true },
   { from: '_shared/dod',          to: 'dod' },
   // ドキュメント
   { from: 'docs',                 to: 'docs' },

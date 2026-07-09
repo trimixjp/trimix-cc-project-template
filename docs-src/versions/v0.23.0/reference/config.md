@@ -4,8 +4,9 @@
 
 | ファイル | 用途 |
 |---------|------|
-| `.claude/ai-team-config.yml` | 運用モード（multi-user / solo）と solo 設定 |
+| `.claude/ai-team-config.yml` | 運用モード（multi-user / solo）・バージョン管理・model/effort プロファイル |
 | `.claude/escalation-rules.yml` | エスカレーション条件の定義 |
+| `.claude/model-profiles.yml` | モデル・effort プロファイルの説明（人間可読。実装 SSOT は `bin/lib/model-profiles.js`） |
 | `docs-src/config.json` | ドキュメントサイトのナビゲーションとバージョン情報 |
 | `.claude/teams/<team_id>/review-config.yml` | レビュー方式の自動判断基準（backend / frontend のみ） |
 
@@ -20,6 +21,17 @@
 ```yaml
 # 運用モード（必須）
 mode: multi-user  # または solo
+
+# バージョン管理（auto / manual / none）
+version_management: auto
+
+# モデル性能プロファイル（setup で選択）
+# high-performance | balance | low-cost
+model_performance: balance
+
+# effort 深度（setup で選択）
+# deep（xhigh）| normal（high）| light（medium）
+effort_depth: normal
 
 # solo モードの設定（mode: solo の場合のみ有効）
 solo:
@@ -41,9 +53,25 @@ solo:
 | フィールド | 型 | 必須 | 説明 |
 |-----------|---|------|------|
 | `mode` | string | ○ | `multi-user` または `solo` |
+| `version_management` | string | ○ | `auto` / `manual` / `none` |
+| `model_performance` | string | ○ | `high-performance` / `balance` / `low-cost`。エージェント・スキルの `model` 一括設定の元 |
+| `effort_depth` | string | ○ | `deep` / `normal` / `light`。エージェント・スキルの `effort` 一括設定の元 |
 | `solo.poll_interval_minutes` | integer | △ | `mode: solo` の場合に必須。監視間隔（分） |
 | `solo.target_labels` | array | △ | `mode: solo` の場合に必須。処理対象とするラベル（OR 条件） |
 | `solo.skip_labels` | array | △ | `mode: solo` の場合に必須。スキップ条件 |
+
+### モデル・effort の反映
+
+`model_performance` / `effort_depth` の値は setup 時に各 md の frontmatter へ書き込まれます。後から変える場合:
+
+```bash
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --profile <balance|high-performance|low-cost> \
+  --effort <normal|deep|light> \
+  --dir .claude
+```
+
+**細かい設定は各エージェント / スキル md の `model` / `effort` を直接編集してください。** 再 apply すると上書きされます。
 
 ### 運用モードの違い
 

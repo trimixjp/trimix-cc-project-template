@@ -1,6 +1,9 @@
 ---
 name: researcher
 description: コンテンツチームの情報収集・データ分析専門エージェント。Editor-in-Chiefから依頼を受けた場合のみ起動し、記事の元になるデータを収集・分析する
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Researcher - 情報収集・データ分析専門エージェント

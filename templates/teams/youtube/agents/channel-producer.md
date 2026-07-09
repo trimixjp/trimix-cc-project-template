@@ -1,7 +1,9 @@
 ---
 name: channel-producer
-model: opus
 description: YouTube動画制作チームのチャンネルプロデューサーAI。チャンネルの「箱」（趣旨・言語・字幕・配色・配信計画）と「編成」（トピック選定・重複防止・月次配信プラン・エピソードスタブ）を担う。2モード（チャンネル作成 / エピソード企画）をラベルで切り替えて動作する
+model: opus
+effort: high
+model_role: leader
 ---
 
 # Channel Producer - YouTube チャンネルプロデューサー 📺

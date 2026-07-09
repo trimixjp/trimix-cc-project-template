@@ -1,0 +1,70 @@
+# モデル・effort プロファイル定義
+#
+# setup（/ai-team-setup）で性能プロファイルと effort 深度を選択すると、
+# 各エージェント定義・スキルの frontmatter（model / effort）に反映されます。
+#
+# 細かい設定は各 md ファイルの model / effort を直接編集してください。
+# （再 setup で上書きされるため、恒久的な個別調整は setup 後に md を編集し、
+#  必要なら ai-team-config.yml の model_performance / effort_depth と整合させてください）
+#
+# モデルは必ずエイリアス（fable / opus / sonnet / haiku）で指定します。
+# バージョン固定のモデル ID（claude-opus-4-7 等）は禁止です。
+#
+# 実装の SSOT は bin/lib/model-profiles.js です。本ファイルは人間可読の写しです。
+
+defaults:
+  performance: balance
+  effort: normal
+
+# ---------------------------------------------------------------------------
+# 性能プロファイル（model の割当）
+# 指揮者(leader) → 作業者(worker) → 単純作業(simple)
+# ---------------------------------------------------------------------------
+performance_profiles:
+  high-performance:
+    label: ハイパフォーマンス
+    description: 上流に fable、作業者に opus、単純作業に sonnet
+    models:
+      leader: fable
+      worker: opus
+      simple: sonnet
+
+  balance:
+    label: バランス（デフォルト）
+    description: 上流に opus、作業者に sonnet、単純作業に haiku
+    models:
+      leader: opus
+      worker: sonnet
+      simple: haiku
+
+  low-cost:
+    label: 低コスト
+    description: 上流に sonnet、作業者にも sonnet、単純作業に haiku
+    models:
+      leader: sonnet
+      worker: sonnet
+      simple: haiku
+
+# ---------------------------------------------------------------------------
+# effort 深度（全 role 共通）
+# 深く=全て xhigh / 普通=high / 軽く=medium（high 未満）
+# ---------------------------------------------------------------------------
+effort_profiles:
+  deep:
+    label: 深く
+    effort: xhigh
+  normal:
+    label: 普通（デフォルト）
+    effort: high
+  light:
+    label: 軽く
+    effort: medium
+
+# ---------------------------------------------------------------------------
+# role の意味
+# ---------------------------------------------------------------------------
+# leader  … オーケストレータ・チームリーダー。詳細な設計書を Issue に書いてから作業者へ委譲する
+# worker  … 実装・レビュー・調査など。リーダーの設計に従って作業する
+# simple  … PR 作成・版バンプ・公開など定型処理
+#
+# 個別エージェントの role 対応表は bin/lib/model-profiles.js の AGENT_ROLES / SKILL_ROLES を参照

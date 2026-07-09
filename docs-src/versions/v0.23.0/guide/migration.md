@@ -4,6 +4,25 @@
 
 ---
 
+## モデル・effort プロファイル導入後の移行
+
+エージェント定義とスキルに `model` / `effort` / `model_role` が入りました。既存プロジェクトを更新する場合:
+
+1. パッケージを更新し、`templates/_shared/model-profiles.yml` を `.claude/model-profiles.yml` に配置する
+2. `.claude/ai-team-config.yml` に `model_performance` と `effort_depth` を追加する（推奨: `balance` / `normal`）
+3. 一括反映する:
+
+```bash
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --profile balance --effort normal --dir .claude
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --profile balance --effort normal --dir .claude/commands --skills-only
+```
+
+**細かい設定は md ファイルの変更で可能です。** 既に個別で `model` を書いている場合は、apply 前にバックアップするか、apply 後に再編集してください。
+
+---
+
 ## v0.21.x から v0.22.0 への移行
 
 ### 変更点サマリー
