@@ -41,8 +41,10 @@ node <パッケージルート>/bin/lib/apply-model-profile.js \
 ```
 
 4. `runtime=grok` のときは同じコマンドが `.grok/agents` と `.grok/commands` へミラーする（自動）
-5. 完了報告して終了（ラベル作成やチーム再配置はスキップ）
-
+5. **指示書・hooks の runtime 差分を埋める**（欠けていれば）:
+   - grok へ切替: ルート `AGENTS.md` に `templates/_shared/project-rules/ai-team-rules.md` を追記（未追記時）。hooks 利用中なら `.grok/hooks/ensure-issue.json` を配置
+   - claude-code へ戻す: `.claude/CLAUDE.md` に同ルールがあることを確認（通常は既存のまま）
+6. 完了報告して終了（ラベル作成やチーム再配置はスキップ）
 ## ステップ2: 導入チームと運用モードの選択
 
 ユーザーに以下を確認してください（`AskUserQuestion` ツールを使用）：
@@ -284,21 +286,26 @@ skills/ai-team-watch.md → .claude/commands/ai-team-watch.md
 
 ### Issue 強制チェック（hooks を選択した場合）
 
-#### フックスクリプトの配置
+#### フックスクリプトの配置（runtime 共通）
+
+スクリプト本体は **常に** `.claude/hooks/` に置きます（単一の実装・両 runtime から参照）。
 
 ```
 templates/_shared/hooks/ensure-issue.sh → .claude/hooks/ensure-issue.sh
 ```
 
-配置後、実行権限を付与してください：
-
 ```bash
 chmod +x .claude/hooks/ensure-issue.sh
 ```
 
-#### `.claude/settings.json` へのフック登録
+#### runtime 別のフック登録
 
-`.claude/settings.json` が存在する場合は `hooks` キーをマージし、存在しない場合は新規作成してください：
+| runtime | 登録先 | 備考 |
+|---------|--------|------|
+| `claude-code` | `.claude/settings.json` の `hooks.UserPromptSubmit` | Claude Code 標準。exit 2 でブロック可 |
+| `grok` | 上記 **に加えて** `.grok/hooks/ensure-issue.json` | Grok ネイティブ。Grok は `.claude/settings.json` も互換読込する |
+
+**Claude Code（`.claude/settings.json`）:** 存在する場合は `hooks` キーをマージし、無い場合は新規作成。
 
 ```json
 {
@@ -318,14 +325,24 @@ chmod +x .claude/hooks/ensure-issue.sh
 }
 ```
 
-**マージ規則（既存の `settings.json` がある場合）:**
+**マージ規則:**
 
-- `hooks.UserPromptSubmit` 配列が既にある場合は、その配列に上記の要素を**追加**する（配列ごと置き換えない）
-- 同一の `command`（`bash .claude/hooks/ensure-issue.sh`）を持つ要素が既にある場合は追加をスキップする
-- `hooks` 以外の既存キー（`permissions` 等）は一切変更しない
+- `hooks.UserPromptSubmit` 配列が既にある場合は要素を**追加**（配列ごと置き換えない）
+- 同一 `command` が既にある場合はスキップ
+- `hooks` 以外の既存キーは変更しない
 
-> **注意**: `.claude/settings.json` はプロジェクト設定です。個人設定を `.claude/settings.local.json` に分けている場合はそちらへの記載も検討してください。
+**Grok（`runtime=grok` のとき追加）:**
 
+```
+templates/_shared/hooks/ensure-issue.grok.json → .grok/hooks/ensure-issue.json
+```
+
+```bash
+mkdir -p .grok/hooks
+cp <パッケージルート>/templates/_shared/hooks/ensure-issue.grok.json .grok/hooks/ensure-issue.json
+```
+
+> **Grok の注意**: `UserPromptSubmit` は Grok では非ブロッキングのイベントです。強制ブロックより **AGENTS.md のタスク受付ルール**が主防衛線になります。`.claude/settings.json` も Grok 互換で読まれますが、明示的に `.grok/hooks/` にも置くことで runtime 切替後も分かりやすくします。初回は `/hooks-trust` でプロジェクトを信頼してください。
 ### バックエンドチーム（選択時）
 
 ```
@@ -603,54 +620,47 @@ gh label create "youtube:channel-producer-qa"  --color "c4302b" --description "C
 
 `--force` オプションにより既存ラベルは上書き更新されます。
 
-## ステップ5: CLAUDE.md への追記
+## ステップ5: プロジェクト指示書への追記（runtime 別）
 
-`.claude/CLAUDE.md` が存在しない場合は作成し、既存の場合は末尾に追記してください：
+指示本文の SSOT はパッケージの次ファイルです（コピペ元）:
 
-```markdown
-## AIチーム設定
-
-このプロジェクトは `@trimix/ai-team` でセットアップされたAIチームで運用されます。
-チケット管理には GitHub Issues を使用します。
-
-### 有効なチーム
-<!-- セットアップしたチームを列挙 -->
-
-### ワークフローの起動
-チケットを担当したら `/ai-team-run <IssueのURL または Issue番号>` を実行してください。
-
-### 参照ドキュメント
-- ワークフローガイド: `.claude/docs/workflow-guide.md`
-- DODテンプレート: `.claude/dod/README.md`
-- エスカレーションルール: `.claude/escalation-rules.yml`
-
----
-
-## タスク受付ルール（重要）
-
-### ファイル変更を伴う指示は必ず Issue 経由で処理する
-
-ソースコード・設定・ドキュメントなど**ファイルへの書き込みが発生する作業**を依頼された場合、
-Issue 番号や URL が指定されていなくても、作業を開始する前に必ず以下を行ってください：
-
-1. `gh issue list --state open --search "<キーワード>"` で関連する既存 Issue を探す
-2. 該当 Issue があればそれを使う（ユーザーに確認して選択させる）
-3. なければ `gh issue create` で内容に即した Issue を作成する
-4. Issue 番号が確定したら `/ai-team-run <番号>` でワークフローを起動する
-
-**Issue 経由が必須な理由**: インシデント記録・ラベルによる状態管理・作業履歴の追跡が Issue ベースで機能するため（詳細は `/ai-team-run` パターンB冒頭の説明を参照）。
-
-### Issue 不要な指示（直接回答してよい）
-
-以下はファイルを変更しないため Issue は不要です：
-
-- コードの説明・解説・質問への回答
-- 現状調査・ログ確認・原因分析（実装を伴わないもの）
-- レビューや提案の読み上げ・要約
-
-**判断基準**: 「この作業でファイルを Edit / Write / 削除するか？」→ Yes なら Issue 必須、No なら不要。
+```
+templates/_shared/project-rules/ai-team-rules.md
 ```
 
+有効チーム名を `### 有効なチーム` に埋めたうえで、**runtime に応じて次の場所へ追記**してください。
+
+| runtime | 必須の配置 | 理由 |
+|---------|-----------|------|
+| `claude-code` | `.claude/CLAUDE.md`（無ければ作成、あれば末尾追記） | Claude Code のプロジェクトメモリ |
+| `grok` | **両方**: ルートの `AGENTS.md`（無ければ作成、あれば末尾追記） **および** `.claude/CLAUDE.md` | Grok は `AGENTS.md` を第一に読む。`.claude/CLAUDE.md` も互換で読むため両方置く |
+
+> Grok は `CLAUDE.md` / `.claude/CLAUDE.md` も互換ロードしますが、**Grok 向けの正規は `AGENTS.md`** です。runtime 切替時（再 setup）も欠けていれば追記してください。
+
+#### 配置コマンド例（runtime=grok）
+
+```bash
+# 指示本文を一時ファイル化してから追記（重複見出しがある場合はスキップ）
+RULES=<パッケージルート>/templates/_shared/project-rules/ai-team-rules.md
+
+# Claude 互換
+mkdir -p .claude
+grep -qF "## AIチーム設定" .claude/CLAUDE.md 2>/dev/null || cat "$RULES" >> .claude/CLAUDE.md
+
+# Grok 正規
+grep -qF "## AIチーム設定" AGENTS.md 2>/dev/null || cat "$RULES" >> AGENTS.md
+```
+
+#### runtime 別の主なパス一覧（setup 全体）
+
+| 用途 | claude-code | grok（追加・主） |
+|------|-------------|------------------|
+| プロジェクト指示 | `.claude/CLAUDE.md` | `AGENTS.md` + `.claude/CLAUDE.md` |
+| エージェント定義 | `.claude/agents/` / `.claude/teams/*/agents/` | 左記 + ミラー `.grok/agents/` |
+| スキル（コマンド） | `.claude/commands/` | 左記 + ミラー `.grok/commands/` |
+| Issue 強制フック本体 | `.claude/hooks/ensure-issue.sh` | 同じ（共有） |
+| フック登録 | `.claude/settings.json` | 左記 + `.grok/hooks/ensure-issue.json` |
+| 運用設定 | `.claude/ai-team-config.yml`（`runtime` キー） | 同じ |
 ## コマンド失敗時のフォールバック
 
 `gh` コマンドやファイル操作（`cp` / `mkdir` 等）が失敗した場合は、失敗を無視して先に進んではいけません。
@@ -663,9 +673,12 @@ Issue 番号や URL が指定されていなくても、作業を開始する前
 完了報告の前に以下を確認してください。
 
 - [ ] 配置したファイルが実在する（`ls .claude/agents/ .claude/teams/<選択チーム>/` で確認）
-- [ ] `.claude/ai-team-config.yml` に選択した `mode` / `version_management` / `model_performance` / `effort_depth` が記録されている
+- [ ] `.claude/ai-team-config.yml` に選択した `mode` / `version_management` / `model_performance` / `effort_depth` / `runtime` が記録されている
 - [ ] モデル・effort プロファイルを配置済み md に反映済み（tech-lead / pr-creator / ai-team-run の frontmatter を spot チェック）
 - [ ] `.claude/model-profiles.yml` が配置されている
+- [ ] プロジェクト指示: `claude-code` なら `.claude/CLAUDE.md`、`grok` なら `AGENTS.md` と `.claude/CLAUDE.md` の両方に AIチーム設定がある
+- [ ] `runtime=grok` なら `.grok/agents/` にエージェントがミラーされている
+- [ ] hooks 選択時: `.claude/hooks/ensure-issue.sh` があり、`grok` なら `.grok/hooks/ensure-issue.json` もある
 - [ ] `.gitignore` に追記済みである（`grep -F "@trimix/ai-team" .gitignore`）
 - [ ] ラベルを作成した場合、実行した `gh label create` がすべて成功した
 - [ ] 質問3で none を選択した場合、`grep -c "version-bumper" .claude/teams/backend/workflow.yml` の出力が `0` である
@@ -681,22 +694,24 @@ Issue 番号や URL が指定されていなくても、作業を開始する前
 
 ## セットアップ内容
 - 有効なチーム: [チーム名一覧]
+- 実行基盤 runtime: [claude-code / grok]
 - 作成ラベル数: [件数]件
 - 配置ファイル数: [件数]件
 - モデル性能: [balance / high-performance / low-cost]
 - effort 深度: [normal / deep / light]
 
 ## 次のステップ
-1. `.claude/CLAUDE.md` を確認・カスタマイズしてください
+1. プロジェクト指示を確認・カスタマイズ（claude-code: `.claude/CLAUDE.md` / grok: `AGENTS.md` と `.claude/CLAUDE.md`）
 2. チームメンバーに `npm install --save-dev ./trimix-ai-team-x.x.x.tgz` を実行してもらいます
-3. Issueを作成し、担当者をアサインしたら `/ai-team-run <IssueのURL>` でワークフローを開始します
+3. チケットを作成し `/ai-team-run <番号>` でワークフローを開始します
+4. runtime 切替は `/ai-team-setup` の「設定の切替のみ」または `apply-model-profile.js --runtime ...`
 
 ## カスタマイズ
-- エージェント定義: `.claude/teams/<チーム>/agents/` 内の .md ファイルを編集
-- ワークフロー: `.claude/teams/<チーム>/workflow.yml` を編集
-- DOD: `.claude/teams/<チーム>/dod/` 内のテンプレートを編集
-- **モデル / effort の個別調整**: 各 md の frontmatter（`model` / `effort`）を直接編集（エイリアスのみ。詳細は `.claude/model-profiles.yml` と `.claude/docs/agent-writing-guide.md`）
-- **プロファイルの一括変更**: `node <パッケージルート>/bin/lib/apply-model-profile.js --profile <id> --effort <id> --dir .claude`
+- エージェント定義: `.claude/teams/<チーム>/agents/`（grok 時は `.grok/agents/` も）
+- ワークフロー: `.claude/teams/<チーム>/workflow.yml`
+- DOD: `.claude/teams/<チーム>/dod/`
+- **モデル / effort の個別調整**: 各 md の `model` / `effort` を直接編集
+- **プロファイルの一括変更**: `node <パッケージルート>/bin/lib/apply-model-profile.js --runtime <claude-code|grok> --profile <id> --effort <id> --dir .claude`
 
 ## 運用モードについて
 - **マルチユーザーモード**: Issueを作成し、担当者をアサインしたら `/ai-team-run <IssueのURL>` でワークフローを開始します

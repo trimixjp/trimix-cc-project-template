@@ -85,6 +85,18 @@
 
 `runtime` は `.claude/ai-team-config.yml` に記録され、**再 setup で切り替え可能**です（「設定の切替のみ」モード）。
 
+#### runtime 別の配置（指示書・hooks）
+
+| 用途 | claude-code | grok |
+|------|-------------|------|
+| プロジェクト指示 | `.claude/CLAUDE.md` | **`AGENTS.md`（正規）** + `.claude/CLAUDE.md`（互換） |
+| エージェント | `.claude/teams/*/agents/` 等 | 左記 + `.grok/agents/` ミラー |
+| スキル | `.claude/commands/` | 左記 + `.grok/commands/` ミラー |
+| Issue 強制フック本体 | `.claude/hooks/ensure-issue.sh` | 同じスクリプトを共有 |
+| フック登録 | `.claude/settings.json` | 左記 + `.grok/hooks/ensure-issue.json` |
+
+Grok は Claude 互換で `.claude/` も読みますが、**指示の正規は `AGENTS.md`、フックの明示配置は `.grok/hooks/`** です。hooks 選択時は両方に登録します。
+
 ### ステップ4b: モデル性能と effort 深度
 
 各エージェント定義・スキル（コマンド）の frontmatter に `model` / `effort` を一括反映します（割当は runtime 依存）。
