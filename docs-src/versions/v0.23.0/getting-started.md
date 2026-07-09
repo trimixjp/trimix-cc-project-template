@@ -24,6 +24,84 @@ setup でチケット管理に **GitHub Issues** を選ぶ場合のみ、次が�
 | GitHub リポジトリ | リモートが存在し、Issues が有効 | `gh repo view` |
 
 github 運用で未認証の場合は `gh auth login` を実行してください。
+
+### Node.js のインストール（未導入の場合）
+
+本パッケージは **Node.js 18 以上**が必要です（推奨: 公式の **LTS**）。未導入の場合は、OS ごとに次のいずれかの方法で入れてください。
+
+導入後の確認:
+
+```bash
+node --version   # v18.0.0 以上であること
+npm --version
+```
+
+#### macOS
+
+**方法 A: 公式インストーラ（手早く入れる）**
+
+1. [Node.js 公式ダウンロード](https://nodejs.org/ja/download) を開く
+2. **LTS** を選び、macOS 用（Apple Silicon は arm64、Intel は x64）のインストーラ（`.pkg`）を取得する
+3. インストーラを開き、画面の指示に従ってインストールする
+4. ターミナルを開き直し、上記の確認コマンドを実行する
+
+**方法 B: Homebrew**
+
+```bash
+# Homebrew が無い場合のみ
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+brew install node
+node --version
+npm --version
+```
+
+**方法 C: nvm（バージョン切替がしやすい）**
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+# ターミナルを開き直すか、表示された source の指示に従う
+nvm install --lts
+nvm use --lts
+node --version
+```
+
+#### Windows
+
+**方法 A: 公式インストーラ（手早く入れる・推奨）**
+
+1. [Node.js 公式ダウンロード](https://nodejs.org/ja/download) を開く
+2. **LTS** を選び、Windows 用インストーラ（`.msi`、通常は x64）を取得する
+3. インストーラを実行する  
+   - 「**Automatically install the necessary tools**」等が出た場合は、そのまま進めてよい  
+   - インストール先や「Add to PATH」は既定のままで問題ない
+4. **新しい** PowerShell または コマンドプロンプトを開き、確認する:
+
+```powershell
+node --version
+npm --version
+```
+
+**方法 B: winget（Windows パッケージマネージャ）**
+
+```powershell
+winget install OpenJS.NodeJS.LTS
+# インストール後、ターミナルを開き直す
+node --version
+npm --version
+```
+
+**方法 C: Chocolatey**
+
+```powershell
+# 管理者 PowerShell で Chocolatey 導入済みであること
+choco install nodejs-lts -y
+node --version
+npm --version
+```
+
+> **注意（Windows）**: インストール直後に `node` が見つからない場合は、ターミナルを開き直すか、PC を一度サインアウト／再起動して PATH を反映してください。
+
 ---
 
 ## ステップ 1: パッケージのインストール

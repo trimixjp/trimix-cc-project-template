@@ -47,6 +47,64 @@
 
 <table><thead><tr><th>項目</th><th>要件</th><th>確認コマンド</th></tr></thead><tbody><tr><td>GitHub CLI</td><td>インストール済み・認証済み（ラベル作成・チケット操作）</td><td><code>gh auth status</code></td></tr><tr><td>GitHub リポジトリ</td><td>リモートが存在し、Issues が有効</td><td><code>gh repo view</code></td></tr></tbody></table>
 <p>github 運用で未認証の場合は <code>gh auth login</code> を実行してください。</p>
+
+<h3>Node.js のインストール（未導入の場合）</h3>
+
+<p>本パッケージは <strong>Node.js 18 以上</strong>が必要です（推奨: 公式の <strong>LTS</strong>）。未導入の場合は、OS ごとに次のいずれかの方法で入れてください。</p>
+
+<p>導入後の確認:</p>
+
+<pre><code class="language-bash">node --version   # v18.0.0 以上であること
+npm --version</code></pre>
+
+<h4>macOS</h4>
+
+<p><strong>方法 A: 公式インストーラ（手早く入れる）</strong></p>
+
+<ol><li><a href="https://nodejs.org/ja/download">Node.js 公式ダウンロード</a> を開く</li><li><strong>LTS</strong> を選び、macOS 用（Apple Silicon は arm64、Intel は x64）のインストーラ（<code>.pkg</code>）を取得する</li><li>インストーラを開き、画面の指示に従ってインストールする</li><li>ターミナルを開き直し、上記の確認コマンドを実行する</li></ol>
+<p><strong>方法 B: Homebrew</strong></p>
+
+<pre><code class="language-bash"># Homebrew が無い場合のみ
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+brew install node
+node --version
+npm --version</code></pre>
+
+<p><strong>方法 C: nvm（バージョン切替がしやすい）</strong></p>
+
+<pre><code class="language-bash">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+# ターミナルを開き直すか、表示された source の指示に従う
+nvm install --lts
+nvm use --lts
+node --version</code></pre>
+
+<h4>Windows</h4>
+
+<p><strong>方法 A: 公式インストーラ（手早く入れる・推奨）</strong></p>
+
+<ol><li><a href="https://nodejs.org/ja/download">Node.js 公式ダウンロード</a> を開く</li><li><strong>LTS</strong> を選び、Windows 用インストーラ（<code>.msi</code>、通常は x64）を取得する</li><li>インストーラを実行する</li></ol>   - 「<strong>Automatically install the necessary tools</strong>」等が出た場合は、そのまま進めてよい  
+<p>   - インストール先や「Add to PATH」は既定のままで問題ない</p>
+<ol><li><strong>新しい</strong> PowerShell または コマンドプロンプトを開き、確認する:</li></ol>
+<pre><code class="language-powershell">node --version
+npm --version</code></pre>
+
+<p><strong>方法 B: winget（Windows パッケージマネージャ）</strong></p>
+
+<pre><code class="language-powershell">winget install OpenJS.NodeJS.LTS
+# インストール後、ターミナルを開き直す
+node --version
+npm --version</code></pre>
+
+<p><strong>方法 C: Chocolatey</strong></p>
+
+<pre><code class="language-powershell"># 管理者 PowerShell で Chocolatey 導入済みであること
+choco install nodejs-lts -y
+node --version
+npm --version</code></pre>
+
+<p>> <strong>注意（Windows）</strong>: インストール直後に <code>node</code> が見つからない場合は、ターミナルを開き直すか、PC を一度サインアウト／再起動して PATH を反映してください。</p>
+
 <hr>
 
 <h2>ステップ 1: パッケージのインストール</h2>

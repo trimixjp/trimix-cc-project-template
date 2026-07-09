@@ -9,6 +9,15 @@
 
 ---
 
+## 前提: Node.js
+
+`npm install` には **Node.js 18 以上**が必要です。未導入の場合は先に入れてください。
+
+- **macOS / Windows の手順**: [クイックスタート — Node.js のインストール](getting-started.html#nodejs-のインストール未導入の場合)
+- 導入確認: `node --version`（v18.0.0 以上）と `npm --version`
+
+---
+
 ## ステップ 1: npm install
 
 配布された `.tgz` ファイルをプロジェクトルートに配置して、開発依存としてインストールします。
