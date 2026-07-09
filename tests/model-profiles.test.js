@@ -203,7 +203,7 @@ test('templates の全エージェント md が balance/normal の model・effor
 
 test('skills の全 ai-team-*.md が balance/normal の model・effort を持つ', () => {
   const files = collectSkillFiles(join(packageRoot, 'skills'));
-  assert.equal(files.length, 8, `スキル数: ${files.length}`);
+  assert.equal(files.length, 9, `スキル数: ${files.length}`);
 
   for (const file of files) {
     const text = readFileSync(file, 'utf-8');

@@ -8,6 +8,7 @@ export const SKILL_FILES = [
   'ai-team-run.md',
   'ai-team-watch.md',
   'ai-team-resume.md',
+  'ai-team-ticket.md',
   'ai-team-gallery.md',
   'ai-team-install.md',
   'ai-team-configure.md',

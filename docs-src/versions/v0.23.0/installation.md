@@ -30,8 +30,8 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 完了すると以下のメッセージが表示されます。
 
 ```
-✅ @trimix/ai-team: 8 件のSkillファイルを .claude/commands/ に展開しました
-   Claude Code で /ai-team-setup を実行してセットアップを完了してください
+✅ @trimix/ai-team: 9 件のSkillファイルを .claude/commands/ に展開しました
+   /ai-team-setup を実行してセットアップを完了してください
 ```
 
 この時点では `.claude/commands/` にスキルファイルが置かれただけです。
@@ -73,7 +73,7 @@ Claude Code を起動し、セットアップウィザードを実行します�
 ## 次のステップ
 1. .claude/CLAUDE.md（または AGENTS.md）を確認・カスタマイズしてください
 2. チケットを作成してワークフローを起動します（例）:
-   npx @trimix/ai-team ticket create --title "題名" --body "本文" --label "backend:tech-lead"
+   /ai-team-ticket create --title "題名" --body "本文" --label backend:tech-lead
    /ai-team-run 1
 ```
 

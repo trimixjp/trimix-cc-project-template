@@ -1,6 +1,6 @@
 # スキル一覧
 
-`@trimix/ai-team` は 8 つの Claude Code スキル（スラッシュコマンド）を提供します。`npx @trimix/ai-team install` により `.claude/commands/` 配下に自動展開されるため、Claude Code 起動後すぐに利用できます。
+`@trimix/ai-team` は **9 つ**のスキル（スラッシュコマンド）を提供します。`npx @trimix/ai-team install` により `.claude/commands/` 配下に自動展開されるため、起動後すぐに利用できます。
 
 ---
 
@@ -9,9 +9,10 @@
 | スキル | 用途 | 引数 |
 |--------|------|------|
 | [`/ai-team-setup`](setup.html) | AIチームをプロジェクトにセットアップするウィザード | なし |
-| [`/ai-team-run`](run.html) | チケット（チケット 等）を読み込みワークフローを起動 | チケットURL または ID |
-| [`/ai-team-watch`](watch.html) | ソロモード用。GitHub Issues を定期監視 | なし |
-| [`/ai-team-configure`](configure.html) | チームの `workflow.yml` を会話形式で生成・編集 | チームID（backend/frontend/content/infra） |
+| [`/ai-team-ticket`](ticket.html) | チケットの作成・一覧・詳細・コメント・ラベル・クローズ | create / list / view / … |
+| [`/ai-team-run`](run.html) | チケットを読み込みワークフローを起動 | チケットURL または ID |
+| [`/ai-team-watch`](watch.html) | ソロモード用。チケットを定期監視 | なし |
+| [`/ai-team-configure`](configure.html) | チームの `workflow.yml` を会話形式で生成・編集 | チームID |
 | [`/ai-team-create`](create.html) | カスタムチームをゼロから作成するウィザード | チームID（省略可） |
 | [`/ai-team-install`](install.html) | ワークフロープラグインをインストール | チームID |
 | [`/ai-team-gallery`](gallery.html) | 利用可能なプラグイン一覧を表示 | なし |
@@ -27,7 +28,8 @@ Claude Code を起動した状態で、メッセージ入力欄に `/` を入力
 
 ```
 /ai-team-setup
-/ai-team-run 42
+/ai-team-ticket create --title "題名" --body "本文" --label backend:tech-lead
+/ai-team-run 1
 /ai-team-watch
 /ai-team-configure backend
 ```
@@ -41,9 +43,10 @@ Claude Code を起動した状態で、メッセージ入力欄に `/` を入力
 ### 初回セットアップ時
 
 ```
-1. npm install --save-dev ./trimix-ai-team-0.5.1.tgz
-2. /ai-team-setup            ← チーム選択・ラベル作成
-3. /ai-team-run <チケット番号>  ← 最初のタスクを実行
+1. npm install --save-dev ./trimix-ai-team-x.x.x.tgz
+2. /ai-team-setup            ← チーム選択・チケット方式・runtime
+3. /ai-team-ticket create --title "..." --body "..." --label backend:tech-lead
+4. /ai-team-run 1            ← ワークフロー起動
 ```
 
 ### ソロ運用（自動監視）
@@ -51,7 +54,7 @@ Claude Code を起動した状態で、メッセージ入力欄に `/` を入力
 ```
 1. /ai-team-setup            ← 運用モードで「solo」を選択
 2. /ai-team-watch            ← 監視ループ開始
-3. （新規チケットを作成 → 自動処理される）
+3. /ai-team-ticket create ... ← 新規チケット作成（自動検出）
 4. エスカレーション発生 → 人間が対応 → 自動再開
 ```
 

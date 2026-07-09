@@ -1,6 +1,6 @@
 ---
 name: ai-team-run
-description: チケット（チケット・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+description: チケット（GitHub / ローカル md / Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。チケット操作は /ai-team-ticket を使う。
 model: opus
 effort: high
 model_role: leader
@@ -10,43 +10,21 @@ model_role: leader
 
 あなたはAIチームのオーケストレーターです。担当チケットを読み込み、適切なワークフローを起動してください。
 
-## チケット操作の共通 CLI（必須）
+## チケット操作（必須）
 
-`.claude/ai-team-config.yml` の `ticket_backend`（`github` | `local`）に応じて、**必ず**次の CLI 経由でチケットを操作してください（github 時は内部で `gh` を呼びます）。
+チケットの作成・一覧・詳細・コメント・ラベル・クローズは **`/ai-team-ticket`** スキル経由で行います（内部で共通 CLI を実行。github / local 両対応）。
 
-```bash
-# バックエンド確認
-npx @trimix/ai-team ticket backend
-# または: node <パッケージルート>/bin/ticket-cli.js backend
+| 操作 | スキル呼び出し例 |
+|------|------------------|
+| 作成 | `/ai-team-ticket create --title "題名" --body "本文" --label backend:tech-lead` |
+| 一覧 | `/ai-team-ticket list` |
+| 詳細 | `/ai-team-ticket view 1` |
+| コメント | `/ai-team-ticket comment 1 --body "メモ"` |
+| ラベル | `/ai-team-ticket edit 1 --add-label L1 --remove-label L2` |
+| クローズ | `/ai-team-ticket close 1` |
+| 設定確認 | `/ai-team-ticket backend` |
 
-# 詳細（JSON: title, body, labels, assignees, comments, state, url）
-npx @trimix/ai-team ticket view <番号>
-
-# 一覧
-npx @trimix/ai-team ticket list [--state open|closed|all] [--label <ラベル>]
-
-# 作成
-npx @trimix/ai-team ticket create --title "..." --body "..."
-
-# コメント
-npx @trimix/ai-team ticket comment <番号> --body "..."
-
-# ラベル更新（複数可）
-npx @trimix/ai-team ticket edit <番号> --add-label "L1" --remove-label "L2"
-
-# クローズ
-npx @trimix/ai-team ticket close <番号>
-```
-
-| 旧（gh 直叩き） | 新（統一 CLI） |
-|----------------|----------------|
-| `gh issue view N --json ...` | `npx @trimix/ai-team ticket view N` |
-| `gh issue list ...` | `npx @trimix/ai-team ticket list` |
-| `gh issue comment N --body` | `npx @trimix/ai-team ticket comment N --body` |
-| `gh issue edit N --add-label` | `npx @trimix/ai-team ticket edit N --add-label` |
-| `gh issue create` | `npx @trimix/ai-team ticket create` |
-| `gh issue close N` | `npx @trimix/ai-team ticket close N` |
-
+エージェント自身がツールで実行する場合も、同等の CLI（`npx @trimix/ai-team ticket ...`）を使ってください。`gh issue` の直叩きは禁止です（github 時は CLI が内部で `gh` を呼びます）。
 `ticket_backend: local` のときチケットは `tickets/open/*.md`（設定の `local_tickets.dir`）に置かれます。人間向け UI は **Obsidian で `tickets/` を vault として開く**運用を推奨（エージェントはファイルのみ参照）。詳細は `.claude/docs/local-tickets.md`。
 
 ## 引数

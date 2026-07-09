@@ -116,8 +116,8 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 完了すると以下のメッセージが表示されます。
 
 ```
-✅ @trimix/ai-team: 8 件のSkillファイルを .claude/commands/ に展開しました
-   Claude Code で /ai-team-setup を実行してセットアップを完了してください
+✅ @trimix/ai-team: 9 件のSkillファイルを .claude/commands/ に展開しました
+   /ai-team-setup を実行してセットアップを完了してください
 ```
 
 > **この時点ではまだ使えません。** スキルファイルが展開されただけで、チーム・ワークフロー・ラベルはまだ作成されていません。**必ずステップ 2 に進んでください。**
@@ -157,7 +157,7 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 ├── docs/workflow-guide.md   # ワークフロー運用ガイド
 ├── hooks/                   # UserPromptSubmit フック（hooks を選択した場合のみ）
 │   └── ensure-issue.sh      # ファイル変更系の指示に チケット番号がなければブロック
-└── commands/                # postinstall で展開された 7 個のスキル
+└── commands/                # postinstall で展開された 9 個のスキル
 ```
 
 詳細は [ai-team-setup スキル](skills/setup.html) を参照してください。
@@ -168,47 +168,35 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 
 ワークフローは **チケット** を起点に動きます。まずチケットを作り、起動ラベルを付けてから `/ai-team-run` します。
 
-### 3-1. チケットを作成する（共通 CLI）
+### 3-1. チケットを作成する（スキル）
 
-セットアップ後は、置き場（github / local）に関わらず次のコマンドで作成できます（github 時は内部で `gh` を呼びます）。
+セットアップ後は、Claude Code / Grok 上で次のスキルを呼び出します（github / local 両対応。内部で共通 CLI を実行します）。
 
-```bash
-# プロジェクトルートで実行
-# バックエンド向けの例（起動ラベルを同時付与）
-npx @trimix/ai-team ticket create \
-  --title "ログインAPIにレート制限を追加する" \
-  --body "$(cat <<'EOF'
-## 目的
+```
+/ai-team-ticket create --title "ログインAPIにレート制限を追加する" --body "## 目的
 ログイン試行のレート制限を実装する。
 
 ## 完了条件
 - [ ] 連続失敗時にロックされる
 - [ ] テストが通る
-EOF
-)" \
-  --label "backend:tech-lead"
+" --label backend:tech-lead
 ```
 
-成功すると JSON が返り、`number` がチケット番号です。
+成功すると番号（`number`）が返ります。例: `1`
 
-```json
-{
-  "number": 1,
-  "url": "local://tickets/1",
-  "title": "ログインAPIにレート制限を追加する",
-  "state": "open"
-}
-```
+| 操作 | スキル |
+|------|--------|
+| 作成 | `/ai-team-ticket create --title "..." --body "..." [--label ...]` |
+| 一覧 | `/ai-team-ticket list` |
+| 詳細 | `/ai-team-ticket view 1` |
+| ラベル | `/ai-team-ticket edit 1 --add-label backend:tech-lead` |
+| コメント | `/ai-team-ticket comment 1 --body "..."` |
+| クローズ | `/ai-team-ticket close 1` |
 
-| 確認・操作 | コマンド |
-|-----------|----------|
-| 一覧 | `npx @trimix/ai-team ticket list` |
-| 詳細 | `npx @trimix/ai-team ticket view 1` |
-| ラベル追加 | `npx @trimix/ai-team ticket edit 1 --add-label "backend:tech-lead"` |
+シェルから直接叩く場合は同等の CLI も使えます: `npx @trimix/ai-team ticket create ...`
 
 > **local のとき**: `tickets/open/` に md が作成されます。Obsidian で `tickets/` を開いても同じファイルを編集できます。  
-> **github のとき**: GitHub Issues 上に Issue が作成されます（要 `gh` 認証）。
-
+> **github のとき**: GitHub Issues 上に作成されます（要 `gh` 認証）。
 チーム別の起動ラベルの例:
 
 | チーム | 先頭ラベル（例） |
@@ -249,11 +237,8 @@ github の場合は URL でも可です。
 
 その後、別ターミナルなどで **3-1** のとおりチケットを作成し、`solo.target_labels` に含まれるラベルを付けておけば、ポーリングで自動検出されてワークフローが始まります。
 
-```bash
-npx @trimix/ai-team ticket create \
-  --title "ドキュメントの誤字を直す" \
-  --body "README の導入手順の誤字修正" \
-  --label "content:editor-in-chief"
+```
+/ai-team-ticket create --title "ドキュメントの誤字を直す" --body "README の導入手順の誤字修正" --label content:editor-in-chief
 ```
 
 `.claude/ai-team-config.yml` の `solo.poll_interval_minutes`（デフォルト 5 分）ごとに新規チケットを検出します。停止は Ctrl+C です。

@@ -30,7 +30,7 @@ AIチームをプロジェクトにセットアップするウィザード
 
 ### 2. チケットバックエンドの選択（GitHub / ローカル md）
 
-`ticket_backend: github | local` で進捗管理の置き場を切り替えます。操作は共通 CLI（`npx @trimix/ai-team ticket list|view|create|comment|edit|close`）に統一されており、エージェント定義・スキルは backend を意識しにくくなっています。local 時は `tickets/open/`・`tickets/closed/` に md が並び、Obsidian でもそのまま閲覧できます。
+`ticket_backend: github | local` で進捗管理の置き場を切り替えます。操作はスキル **`/ai-team-ticket`**（内部で共通 CLI）に統一されており、エージェント定義は backend を意識しにくくなっています。local 時は `tickets/open/`・`tickets/closed/` に md が並び、Obsidian でもそのまま閲覧できます。
 
 ### 3. ソロモード（自動監視）
 
@@ -165,13 +165,14 @@ Contributor エージェントはチケットクローズ時にインシデン�
 - v0.5.1: postinstall で全スキルファイルが展開されない問題を修正
 - v0.5.2: Mermaid.js によるフローチャート描画対応・マニュアル全体の構造を再編成
 
-`bin/setup.js` で展開される 8 つのスキルファイルは以下のとおりです。
+`bin/setup.js` で展開される 9 つのスキルファイルは以下のとおりです。
 
 ```
 ai-team-setup.md
 ai-team-run.md
 ai-team-watch.md
 ai-team-resume.md
+ai-team-ticket.md
 ai-team-gallery.md
 ai-team-install.md
 ai-team-configure.md

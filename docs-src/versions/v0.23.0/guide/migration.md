@@ -180,7 +180,7 @@ npm install --save-dev ./trimix-ai-team-0.11.0.tgz
 npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 ```
 
-インストール完了メッセージで 8 件のスキルファイルが展開されたことを確認してください。
+インストール完了メッセージでスキルファイルが展開されたことを確認してください（現行は 9 件。`/ai-team-ticket` を含む）。
 
 ---
 
