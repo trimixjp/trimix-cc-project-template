@@ -1,6 +1,9 @@
 ---
 name: strategist
 description: SNSチームの戦略担当AI。「何を・誰に・なぜ発信するか」を定義し、Researcherへの調査依頼とWriterへの執筆方針を決定する
+model: opus
+effort: high
+model_role: leader
 ---
 
 # Strategist - SNS戦略担当

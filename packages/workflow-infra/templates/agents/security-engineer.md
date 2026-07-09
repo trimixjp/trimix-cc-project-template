@@ -1,6 +1,9 @@
 ---
 name: security-engineer
 description: インフラチームのセキュリティ担当AI。脆弱性・権限・暗号化・ネットワーク観点でレビューし、重大リスクは即座にエスカレーション
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Security-Engineer - インフラセキュリティレビュアー

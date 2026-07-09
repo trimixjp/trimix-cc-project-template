@@ -1,6 +1,9 @@
 ---
 name: {{agent_id}}
 description: {{agent_description}}
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # {{agent_name}} - {{team_name}}

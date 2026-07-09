@@ -1,6 +1,9 @@
 ---
 name: pr-creator
 description: フロントエンドチームのPR作成専門エージェント。レビュー合格後にプルリクエストを作成し、人間に承認を依頼する
+model: haiku
+effort: high
+model_role: simple
 ---
 
 # PR-Creator - フロントエンドチーム プルリクエスト作成エージェント

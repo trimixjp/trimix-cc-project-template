@@ -1,6 +1,9 @@
 ---
 name: ai-team-create
 description: 新しいカスタムチームをゼロから作成します。会話形式でチームID・エージェント構成・ワークフローを設計し、必要なファイル一式を生成します。
+model: opus
+effort: high
+model_role: leader
 ---
 
 # /ai-team-create — カスタムチーム作成ウィザード
@@ -124,6 +127,17 @@ mkdir -p .claude/teams/<team_id>/dod
   | 上記のいずれにも該当しない | 🤖 |
 
 - `{{next_agent}}` → ワークフロー上の次のエージェントID（最後のエージェントは `contributor:ready`）
+
+**model / effort / model_role（必須）:**
+
+frontmatter に必ず `model`・`effort`・`model_role` を含めます。
+
+1. `model_role` を決める: チーム先頭・方針決定役は `leader`、実装・レビュー・調査は `worker`、定型処理は `simple`
+2. `.claude/ai-team-config.yml` の `model_performance` / `effort_depth` を読む（無ければ balance / normal）
+3. `.claude/model-profiles.yml`（またはパッケージの `bin/lib/model-profiles.js`）に従い `model` と `effort` を埋める
+4. **leader** の動作フローには「次担当へ渡す Issue コメントに詳細な設計書を書く（薄い設計での委譲禁止）」を明記する
+
+細かい調整は生成後に各 md の `model` / `effort` を直接編集できます。
 
 ### 3-3: workflow.yml の生成
 

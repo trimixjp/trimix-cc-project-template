@@ -1,6 +1,9 @@
 ---
 name: ai-team-configure
 description: ワークフロー設定ウィザード。会話形式で質問に答えながら .claude/teams/<team_id>/workflow.yml を生成します。引数にチームID（backend/frontend/content/infra）を指定してください。
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # /ai-team-configure — ワークフロー設定ウィザード

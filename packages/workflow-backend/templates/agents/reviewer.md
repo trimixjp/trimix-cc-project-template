@@ -1,6 +1,9 @@
 ---
 name: reviewer
 description: バックエンドチームのレビュー担当AI。実装内容をレビューし、合格はVersion-Bumperへ、不合格はImplementerへ差し戻す
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Reviewer - バックエンドチームレビュー担当

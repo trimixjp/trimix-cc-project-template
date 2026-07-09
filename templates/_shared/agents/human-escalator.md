@@ -1,6 +1,9 @@
 ---
 name: human-escalator
 description: エスカレーション条件に該当した場合に人間への判断依頼を処理するエージェント
+model: opus
+effort: high
+model_role: leader
 ---
 
 # Human-Escalator - 人間エスカレーションエージェント

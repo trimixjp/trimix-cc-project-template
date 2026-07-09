@@ -1,7 +1,9 @@
 ---
 name: affiliate-qa
-model: sonnet
 description: YouTube動画制作チームのアフィリ成果物QA担当AI。affiliate（producer）とは別の目で、アフィリ選定・sub_id付与・FTC/景表法開示・コンプラを合格基準で照合し合否を判定する。合格は human-picture-lock（ゲート1）へ、不合格は affiliate へ差し戻す
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Affiliate-QA - YouTube動画制作チーム アフィリ成果物QA担当 🔗🔎

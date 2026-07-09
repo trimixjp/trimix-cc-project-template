@@ -1,6 +1,9 @@
 ---
 name: infra-specialist
 description: インフラチームのクラウド・サーバー構成専門エージェント。Terraform・Kubernetes・CI/CD・環境設定等インフラ構成の実装を担う
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Infra-Specialist - インフラ構成専門エンジニア

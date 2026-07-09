@@ -72,6 +72,42 @@
 
 どちらを選択しても、`CLAUDE.md` にタスク受付ルールが追記されます。**hooks で強制** を選択した場合はさらに `.claude/hooks/ensure-issue.sh` が配置され、`.claude/settings.json` にフックが登録されます。
 
+### ステップ4b: モデル性能と effort 深度
+
+各エージェント定義・スキル（コマンド）の frontmatter に `model` / `effort` を一括反映します。
+
+```
+? モデル性能プロファイルを選択してください
+❯ バランス（推奨・デフォルト）
+    指揮者 opus、作業者 sonnet、単純作業 haiku
+  ハイパフォーマンス
+    指揮者 fable、作業者 opus、単純作業 sonnet
+  低コスト
+    指揮者 sonnet、作業者 sonnet、単純作業 haiku
+
+? effort（推論の深さ）を選択してください
+❯ 普通（推奨・デフォルト）  → 全て high
+  深く                     → 全て xhigh
+  軽く                     → 全て medium
+```
+
+選択結果は `.claude/ai-team-config.yml` の `model_performance` / `effort_depth` に記録され、`apply-model-profile` スクリプトで各 md の frontmatter に反映されます。
+
+| 性能プロファイル | leader | worker | simple |
+|-----------------|--------|--------|--------|
+| high-performance | fable | opus | sonnet |
+| balance（デフォルト） | opus | sonnet | haiku |
+| low-cost | sonnet | sonnet | haiku |
+
+**細かい設定は md ファイルの変更で可能です。** 個別にモデルだけ変えたい場合は `.claude/teams/<team>/agents/*.md` や `.claude/commands/*.md` の `model` / `effort` を直接編集してください（バージョン固定のモデル ID は禁止。エイリアスのみ）。プロファイルの一括再適用:
+
+```bash
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --profile balance --effort normal --dir .claude
+```
+
+定義の写しは `.claude/model-profiles.yml`、実装の SSOT は `bin/lib/model-profiles.js` です。
+
 #### hooks の判定ロジック
 
 | 条件 | 動作 |
@@ -95,8 +131,9 @@
 ```
 .claude/
 ├── CLAUDE.md                       # タスク受付ルールを含む AIチーム設定
-├── ai-team-config.yml              # 運用モード・バージョン管理設定
+├── ai-team-config.yml              # 運用モード・バージョン管理・model/effort 設定
 ├── escalation-rules.yml            # エスカレーション条件
+├── model-profiles.yml              # モデル・effort プロファイルの説明（人間可読）
 ├── agents/
 │   ├── contributor.md
 │   ├── dispatcher.md

@@ -1,6 +1,9 @@
 ---
 name: ai-team-setup
 description: AIチームをプロジェクトにセットアップするウィザード。.claude/ディレクトリにエージェント定義・ワークフロー・設定ファイルを配置し、GitHub Issuesのラベルを作成します。
+model: opus
+effort: high
+model_role: leader
 ---
 
 # /ai-team-setup — AIチーム セットアップウィザード
@@ -52,6 +55,35 @@ description: AIチームをプロジェクトにセットアップするウィ�
 - **CLAUDE.md のみ（推奨）**: タスク受付ルールを CLAUDE.md に記載します。Claude が内容を判断して Issue 経由を促します。設定変更なしで導入できます
 - **hooks で強制**: `UserPromptSubmit` フックを設定します。変更系キーワードを含む指示に Issue 番号がない場合、スクリプトが自動でブロックして案内します。より確実に強制できますが、誤検知でブロックされる場合もあります
 
+**質問5**: モデル性能プロファイルを選択してください（`AskUserQuestion` ツールを使用）
+
+各エージェント・スキルの frontmatter（`model`）に、役割（指揮者 / 作業者 / 単純作業）ごとのモデルを一括反映します。
+
+- **バランス（推奨・デフォルト）**: 指揮者 `opus`、作業者 `sonnet`、単純作業 `haiku`
+- **ハイパフォーマンス**: 指揮者 `fable`、作業者 `opus`、単純作業 `sonnet`（高品質優先）
+- **低コスト**: 指揮者 `sonnet`、作業者 `sonnet`、単純作業 `haiku`（コスト優先）
+
+**質問6**: effort（推論の深さ）を選択してください（`AskUserQuestion` ツールを使用）
+
+各エージェント・スキルの frontmatter（`effort`）に、選択した深さを一括反映します。
+
+- **普通（推奨・デフォルト）**: 全て `high`
+- **深く**: 全て `xhigh`（難しい設計・大規模タスク向け）
+- **軽く**: 全て `medium`（高速・低コスト向け。high 未満）
+
+> **細かい設定は md ファイルの直接編集で可能です。** setup 後に個別エージェントだけモデルを変えたい場合は、`.claude/teams/<team>/agents/*.md` や `.claude/commands/*.md` の `model` / `effort` を編集してください（バージョン固定のモデル ID は禁止。エイリアス `fable` / `opus` / `sonnet` / `haiku` のみ）。
+
+### 質問5・6 の選択肢マッピング（決定表）
+
+| ユーザー選択 | 内部 ID（config に記録） | 反映内容 |
+|-------------|--------------------------|----------|
+| バランス | `model_performance: balance` | leader=opus, worker=sonnet, simple=haiku |
+| ハイパフォーマンス | `model_performance: high-performance` | leader=fable, worker=opus, simple=sonnet |
+| 低コスト | `model_performance: low-cost` | leader=sonnet, worker=sonnet, simple=haiku |
+| 普通 | `effort_depth: normal` | 全ファイル `effort: high` |
+| 深く | `effort_depth: deep` | 全ファイル `effort: xhigh` |
+| 軽く | `effort_depth: light` | 全ファイル `effort: medium` |
+
 ## ステップ3: ファイルの配置
 
 選択されたチームに基づいて、このパッケージの `templates/` から以下をコピーしてください。
@@ -75,6 +107,7 @@ templates/_shared/agents/contributor.md     → .claude/agents/contributor.md
 templates/_shared/agents/dispatcher.md      → .claude/agents/dispatcher.md
 templates/_shared/agents/human-escalator.md → .claude/agents/human-escalator.md
 templates/_shared/escalation-rules.yml      → .claude/escalation-rules.yml
+templates/_shared/model-profiles.yml        → .claude/model-profiles.yml
 templates/_shared/dod/incident.md           → .claude/dod/incident.md
 templates/_shared/dod/README.md             → .claude/dod/README.md
 templates/incidents/index.yml               → .claude/incidents/index.yml
@@ -88,7 +121,7 @@ templates/docs/quickstart-by-domain.md    → .claude/docs/quickstart-by-domain.
 → .claude/ai-team-config.yml（内容は下記）
 ```
 
-ステップ2で選択した運用モードに応じて、以下の内容で `.claude/ai-team-config.yml` を生成してください：
+ステップ2で選択した運用モード・モデル設定に応じて、以下の内容で `.claude/ai-team-config.yml` を生成してください：
 
 ```yaml
 # @trimix/ai-team 運用設定
@@ -99,6 +132,18 @@ mode: multi-user  # または solo
 # manual: バージョンアップはワークフロー外で人間が管理（チーム開発・独自リリースフロー向け）
 # none:   バージョン管理を使わない（セットアップ時に version-bumper ステップをワークフローから削除）
 version_management: auto  # または manual / none
+
+# モデル性能プロファイル（質問5）
+# high-performance: leader=fable, worker=opus, simple=sonnet
+# balance:          leader=opus,  worker=sonnet, simple=haiku（デフォルト）
+# low-cost:         leader=sonnet, worker=sonnet, simple=haiku
+model_performance: balance  # または high-performance / low-cost
+
+# effort 深度（質問6）
+# deep:   全て xhigh
+# normal: 全て high（デフォルト）
+# light:  全て medium
+effort_depth: normal  # または deep / light
 
 # solo モードの設定（mode: solo の場合のみ有効）
 solo:
@@ -116,6 +161,51 @@ solo:
     - escalated:human
     - contributor:ready
 ```
+
+### モデル・effort の一括反映（質問5・6 の後、ファイル配置直後に必ず実行）
+
+テンプレートをコピーしただけでは、テンプレート既定（balance / normal）の `model` / `effort` が残ります。選択したプロファイルを **配置済みの `.claude/` と `.claude/commands/`** に反映してください。
+
+**方法A（推奨）: パッケージ同梱スクリプト**
+
+```bash
+# <パッケージルート> は npm なら node_modules/@trimix/ai-team、ソースならリポジトリルート
+# <performance> = balance | high-performance | low-cost
+# <effort>      = normal | deep | light
+
+node <パッケージルート>/bin/lib/apply-model-profile.js \
+  --profile <performance> \
+  --effort <effort> \
+  --dir .claude
+
+# スキル（commands）にも同様に反映
+node <パッケージルート>/bin/lib/apply-model-profile.js \
+  --profile <performance> \
+  --effort <effort> \
+  --dir .claude/commands \
+  --skills-only
+```
+
+**方法B: スクリプトが使えない場合**
+
+`.claude/model-profiles.yml` と `bin/lib/model-profiles.js` の role 対応に従い、各エージェント / スキル md の frontmatter に `model` と `effort` を手書きで upsert する。
+
+**反映後の検証（必須）:**
+
+```bash
+# leader の1体（例: tech-lead）と simple の1体（例: pr-creator）を spot チェック
+head -8 .claude/teams/backend/agents/tech-lead.md
+head -8 .claude/teams/backend/agents/pr-creator.md
+head -8 .claude/commands/ai-team-run.md
+```
+
+| 選択 | tech-lead の model | pr-creator の model | effort |
+|------|-------------------|---------------------|--------|
+| balance + normal | opus | haiku | high |
+| high-performance + deep | fable | sonnet | xhigh |
+| low-cost + light | sonnet | haiku | medium |
+
+> **再設定**: プロファイルを後から変える場合も、同じスクリプトを `.claude` に対して再実行できます。個別 md の手動調整は再実行で上書きされる点に注意してください。
 
 ### ソロモード（選択時）
 
@@ -277,6 +367,7 @@ grep -qF "# @trimix/ai-team - AIチーム設定" .gitignore 2>/dev/null || cat >
 .claude/hooks/
 .claude/ai-team-config.yml
 .claude/escalation-rules.yml
+.claude/model-profiles.yml
 
 # @trimix/ai-team - GitHub Issue テンプレート
 .github/ISSUE_TEMPLATE/
@@ -503,7 +594,9 @@ Issue 番号や URL が指定されていなくても、作業を開始する前
 完了報告の前に以下を確認してください。
 
 - [ ] 配置したファイルが実在する（`ls .claude/agents/ .claude/teams/<選択チーム>/` で確認）
-- [ ] `.claude/ai-team-config.yml` に選択した `mode` / `version_management` が記録されている
+- [ ] `.claude/ai-team-config.yml` に選択した `mode` / `version_management` / `model_performance` / `effort_depth` が記録されている
+- [ ] モデル・effort プロファイルを配置済み md に反映済み（tech-lead / pr-creator / ai-team-run の frontmatter を spot チェック）
+- [ ] `.claude/model-profiles.yml` が配置されている
 - [ ] `.gitignore` に追記済みである（`grep -F "@trimix/ai-team" .gitignore`）
 - [ ] ラベルを作成した場合、実行した `gh label create` がすべて成功した
 - [ ] 質問3で none を選択した場合、`grep -c "version-bumper" .claude/teams/backend/workflow.yml` の出力が `0` である
@@ -521,6 +614,8 @@ Issue 番号や URL が指定されていなくても、作業を開始する前
 - 有効なチーム: [チーム名一覧]
 - 作成ラベル数: [件数]件
 - 配置ファイル数: [件数]件
+- モデル性能: [balance / high-performance / low-cost]
+- effort 深度: [normal / deep / light]
 
 ## 次のステップ
 1. `.claude/CLAUDE.md` を確認・カスタマイズしてください
@@ -531,6 +626,8 @@ Issue 番号や URL が指定されていなくても、作業を開始する前
 - エージェント定義: `.claude/teams/<チーム>/agents/` 内の .md ファイルを編集
 - ワークフロー: `.claude/teams/<チーム>/workflow.yml` を編集
 - DOD: `.claude/teams/<チーム>/dod/` 内のテンプレートを編集
+- **モデル / effort の個別調整**: 各 md の frontmatter（`model` / `effort`）を直接編集（エイリアスのみ。詳細は `.claude/model-profiles.yml` と `.claude/docs/agent-writing-guide.md`）
+- **プロファイルの一括変更**: `node <パッケージルート>/bin/lib/apply-model-profile.js --profile <id> --effort <id> --dir .claude`
 
 ## 運用モードについて
 - **マルチユーザーモード**: Issueを作成し、担当者をアサインしたら `/ai-team-run <IssueのURL>` でワークフローを開始します

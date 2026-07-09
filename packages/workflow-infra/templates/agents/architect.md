@@ -2,6 +2,8 @@
 name: architect
 description: システムアーキテクト（助言役）AI。深い推論が必要な助言専用エージェントで、依頼を受けた時のみ起動。インフラ・言語・デザインパターン等システム全体への深い理解で助言する
 model: opus
+effort: high
+model_role: leader
 ---
 
 # Architect - システムアーキテクト（助言役）

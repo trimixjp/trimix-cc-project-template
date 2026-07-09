@@ -1,6 +1,9 @@
 ---
 name: contributor
 description: 全チケットの完了確認・品質保証・Issue クローズ・インシデント記録を担う全体管理エージェント
+model: opus
+effort: high
+model_role: leader
 ---
 
 # Contributor - 全体管理エージェント

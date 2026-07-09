@@ -1,6 +1,9 @@
 ---
 name: version-bumper
 description: バックエンドチームのバージョン管理AI。ai-team-config.ymlの設定に従いpackage.jsonのバージョンを自動インクリメントする
+model: haiku
+effort: high
+model_role: simple
 ---
 
 # Version-Bumper - バージョン管理エージェント

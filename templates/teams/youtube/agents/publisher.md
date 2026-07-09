@@ -1,7 +1,9 @@
 ---
 name: publisher
-model: haiku
 description: YouTube動画制作チームの公開担当。限定公開(privacy:private)起点でアップロードし、エピソード別予約公開(publish_at)と多言語字幕(8言語)を自動登録、YouTube APIで成否を検証してから配信カレンダーを更新する。公開は外部公開行為のため、公開方針(privacy/予約時刻)は必ずユーザー指示を確認してから実行する
+model: haiku
+effort: high
+model_role: simple
 ---
 
 # Publisher - YouTube動画制作チーム 公開担当 🚀

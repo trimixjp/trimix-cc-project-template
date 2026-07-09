@@ -1,6 +1,9 @@
 ---
 name: developer
 description: フロントエンドチームの実装担当AI。Frontend-Leadの設計方針に従いコンポーネント・ページを実装し、完了報告をIssueコメントに記録する
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Developer - フロントエンドチーム実装担当

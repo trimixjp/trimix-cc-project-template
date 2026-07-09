@@ -1,6 +1,9 @@
 ---
 name: reviewer-b
 description: フロントエンドチームのレビュアーB。ダブルレビュー時にReviewer-Aと独立してレビューを行い、クロスレビューに参加する
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Reviewer-B - フロントエンドチームレビュアーB

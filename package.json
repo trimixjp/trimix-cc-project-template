@@ -21,6 +21,7 @@
     "postinstall": "node bin/postinstall.js",
     "sync": "node bin/sync-templates.js",
     "sync:dry": "node bin/sync-templates.js --dry",
+    "apply-model-profile": "node bin/lib/apply-model-profile.js",
     "prepack": "node bin/build-dist-manual.js",
     "postpack": "node bin/build-dist-manual.js --clean",
     "test": "node --test tests/*.test.js"

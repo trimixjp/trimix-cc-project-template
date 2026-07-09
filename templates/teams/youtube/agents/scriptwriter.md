@@ -1,7 +1,9 @@
 ---
 name: scriptwriter
-model: opus
 description: YouTube動画制作チームの台本ライター。リサーチと台本執筆を担い全工程の労力5割を占める中核。台本＝最終動画のタイムライン（ピクチャーロック）として「直すところがない」水準まで仕上げ、editorに引き継ぐ
+model: sonnet
+effort: high
+model_role: worker
 ---
 
 # Scriptwriter - YouTube動画制作チーム 台本ライター ✍️
