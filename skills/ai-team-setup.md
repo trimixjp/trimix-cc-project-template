@@ -18,9 +18,41 @@ model_role: leader
 2. `.claude/` ディレクトリが存在するか確認する
 3. 既存の `.claude/teams/` があれば、すでにセットアップ済みのチームを確認する
 
+## ステップ1.5: 再セットアップ（既存環境）の分岐
+
+`.claude/ai-team-config.yml` が既にある場合、最初に次を確認してください（`AskUserQuestion`）:
+
+- **フルセットアップ**: チーム選択からやり直し（従来どおり）
+- **設定の切替のみ（runtime / model / effort）**: ファイル再配置は最小限。プロファイル再適用と config 更新のみ
+- **キャンセル**
+
+**設定の切替のみ**を選んだ場合の手順:
+
+1. 下記 **質問0（runtime）**・**質問5（性能）**・**質問6（effort）** だけを聞く
+2. `.claude/ai-team-config.yml` の `runtime` / `model_performance` / `effort_depth` を更新
+3. 反映コマンドを実行:
+
+```bash
+node <パッケージルート>/bin/lib/apply-model-profile.js \
+  --runtime <claude-code|grok> \
+  --profile <balance|high-performance|low-cost> \
+  --effort <normal|deep|light> \
+  --dir .claude
+```
+
+4. `runtime=grok` のときは同じコマンドが `.grok/agents` と `.grok/commands` へミラーする（自動）
+5. 完了報告して終了（ラベル作成やチーム再配置はスキップ）
+
 ## ステップ2: 導入チームと運用モードの選択
 
 ユーザーに以下を確認してください（`AskUserQuestion` ツールを使用）：
+
+**質問0**: 実行基盤（runtime）を選択してください（`AskUserQuestion`）
+
+エージェント / スキルの `model` / `effort` は runtime ごとに異なります。**あとから本コマンドで切り替え可能**です。
+
+- **Claude Code（既定）**: Anthropic Claude Code。`fable` / `opus` / `sonnet` / `haiku`、effort に `xhigh` 可
+- **Grok Build**: xAI Grok Build。`grok-4.5` / `grok-composer-2.5-fast`。スキルは `.claude/commands` 互換 + `.grok/` ミラー
 
 **質問1**: 導入するチームを選択してください（複数選択可）
 
@@ -172,6 +204,11 @@ local_tickets:
   dir: tickets
   id_prefix: ""
 
+# 実行基盤（質問0）— 再 setup で切替可
+# claude-code: Claude Code 向け model/effort
+# grok:        Grok Build 向け model/effort（.grok/ へエージェント・スキルをミラー）
+runtime: claude-code  # または grok
+
 # solo モードの設定（mode: solo の場合のみ有効）
 solo:
   poll_interval_minutes: 5      # Issue監視の間隔（分）
@@ -200,18 +237,23 @@ solo:
 # <performance> = balance | high-performance | low-cost
 # <effort>      = normal | deep | light
 
+# <runtime> = claude-code | grok（質問0）
 node <パッケージルート>/bin/lib/apply-model-profile.js \
+  --runtime <runtime> \
   --profile <performance> \
   --effort <effort> \
   --dir .claude
 
 # スキル（commands）にも同様に反映
 node <パッケージルート>/bin/lib/apply-model-profile.js \
+  --runtime <runtime> \
   --profile <performance> \
   --effort <effort> \
   --dir .claude/commands \
   --skills-only
 ```
+
+`runtime=grok` の場合、上記 apply は `.grok/agents/` と `.grok/commands/` へのミラーも行います（Grok Build がエージェント定義を読むため）。
 
 **方法B: スクリプトが使えない場合**
 

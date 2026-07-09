@@ -1,70 +1,51 @@
-# モデル・effort プロファイル定義
+# モデル・effort プロファイル定義（runtime 対応）
 #
-# setup（/ai-team-setup）で性能プロファイルと effort 深度を選択すると、
+# setup（/ai-team-setup）で runtime・性能・effort を選択すると、
 # 各エージェント定義・スキルの frontmatter（model / effort）に反映されます。
+# 再 setup で runtime を切り替え可能です。
 #
 # 細かい設定は各 md ファイルの model / effort を直接編集してください。
-# （再 setup で上書きされるため、恒久的な個別調整は setup 後に md を編集し、
-#  必要なら ai-team-config.yml の model_performance / effort_depth と整合させてください）
 #
-# モデルは必ずエイリアス（fable / opus / sonnet / haiku）で指定します。
-# バージョン固定のモデル ID（claude-opus-4-7 等）は禁止です。
-#
-# 実装の SSOT は bin/lib/model-profiles.js です。本ファイルは人間可読の写しです。
+# 実装の SSOT は bin/lib/model-profiles.js です。
 
 defaults:
+  runtime: claude-code
   performance: balance
   effort: normal
 
 # ---------------------------------------------------------------------------
-# 性能プロファイル（model の割当）
-# 指揮者(leader) → 作業者(worker) → 単純作業(simple)
+# 実行基盤
 # ---------------------------------------------------------------------------
-performance_profiles:
-  high-performance:
-    label: ハイパフォーマンス
-    description: 上流に fable、作業者に opus、単純作業に sonnet
-    models:
-      leader: fable
-      worker: opus
-      simple: sonnet
-
-  balance:
-    label: バランス（デフォルト）
-    description: 上流に opus、作業者に sonnet、単純作業に haiku
-    models:
-      leader: opus
-      worker: sonnet
-      simple: haiku
-
-  low-cost:
-    label: 低コスト
-    description: 上流に sonnet、作業者にも sonnet、単純作業に haiku
-    models:
-      leader: sonnet
-      worker: sonnet
-      simple: haiku
+runtimes:
+  claude-code:
+    label: Claude Code
+    models_note: fable / opus / sonnet / haiku
+  grok:
+    label: Grok Build
+    models_note: grok-4.5 / grok-composer-2.5-fast
+    mirror: .grok/agents と .grok/commands にミラー
 
 # ---------------------------------------------------------------------------
-# effort 深度（全 role 共通）
-# 深く=全て xhigh / 普通=high / 軽く=medium（high 未満）
+# 性能プロファイル × runtime × role
 # ---------------------------------------------------------------------------
-effort_profiles:
-  deep:
-    label: 深く
-    effort: xhigh
-  normal:
-    label: 普通（デフォルト）
-    effort: high
-  light:
-    label: 軽く
-    effort: medium
-
-# ---------------------------------------------------------------------------
-# role の意味
-# ---------------------------------------------------------------------------
-# leader  … オーケストレータ・チームリーダー。詳細な設計書を Issue に書いてから作業者へ委譲する
-# worker  … 実装・レビュー・調査など。リーダーの設計に従って作業する
-# simple  … PR 作成・版バンプ・公開など定型処理
+# Claude Code
+#   high-performance: leader=fable, worker=opus, simple=sonnet
+#   balance:          leader=opus,  worker=sonnet, simple=haiku
+#   low-cost:         leader=sonnet, worker=sonnet, simple=haiku
 #
-# 個別エージェントの role 対応表は bin/lib/model-profiles.js の AGENT_ROLES / SKILL_ROLES を参照
+# Grok Build
+#   high-performance / balance: leader=grok-4.5, worker=grok-4.5, simple=grok-composer-2.5-fast
+#   low-cost:                   すべて grok-composer-2.5-fast
+
+# ---------------------------------------------------------------------------
+# effort 深度 × runtime
+# ---------------------------------------------------------------------------
+# Claude: deep=xhigh, normal=high, light=medium
+# Grok:   deep=high,  normal=high, light=medium
+
+# ---------------------------------------------------------------------------
+# role
+# ---------------------------------------------------------------------------
+# leader  … オーケストレータ・チームリーダー
+# worker  … 実装・レビュー・調査
+# simple  … PR作成・版バンプ・公開など

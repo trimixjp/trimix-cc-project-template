@@ -72,38 +72,54 @@
 
 どちらを選択しても、`CLAUDE.md` にタスク受付ルールが追記されます。**hooks で強制** を選択した場合はさらに `.claude/hooks/ensure-issue.sh` が配置され、`.claude/settings.json` にフックが登録されます。
 
+### ステップ4a: 実行基盤（runtime）
+
+```
+? 実行基盤を選択してください
+❯ Claude Code（既定）
+    model: fable / opus / sonnet / haiku
+  Grok Build
+    model: grok-4.5 / grok-composer-2.5-fast
+    .grok/agents と .grok/commands にミラー
+```
+
+`runtime` は `.claude/ai-team-config.yml` に記録され、**再 setup で切り替え可能**です（「設定の切替のみ」モード）。
+
 ### ステップ4b: モデル性能と effort 深度
 
-各エージェント定義・スキル（コマンド）の frontmatter に `model` / `effort` を一括反映します。
+各エージェント定義・スキル（コマンド）の frontmatter に `model` / `effort` を一括反映します（割当は runtime 依存）。
 
 ```
 ? モデル性能プロファイルを選択してください
 ❯ バランス（推奨・デフォルト）
-    指揮者 opus、作業者 sonnet、単純作業 haiku
   ハイパフォーマンス
-    指揮者 fable、作業者 opus、単純作業 sonnet
   低コスト
-    指揮者 sonnet、作業者 sonnet、単純作業 haiku
 
 ? effort（推論の深さ）を選択してください
-❯ 普通（推奨・デフォルト）  → 全て high
-  深く                     → 全て xhigh
-  軽く                     → 全て medium
+❯ 普通（推奨・デフォルト）
+  深く
+  軽く
 ```
 
-選択結果は `.claude/ai-team-config.yml` の `model_performance` / `effort_depth` に記録され、`apply-model-profile` スクリプトで各 md の frontmatter に反映されます。
-
-| 性能プロファイル | leader | worker | simple |
-|-----------------|--------|--------|--------|
+| 性能（Claude） | leader | worker | simple |
+|----------------|--------|--------|--------|
 | high-performance | fable | opus | sonnet |
-| balance（デフォルト） | opus | sonnet | haiku |
+| balance | opus | sonnet | haiku |
 | low-cost | sonnet | sonnet | haiku |
 
-**細かい設定は md ファイルの変更で可能です。** 個別にモデルだけ変えたい場合は `.claude/teams/<team>/agents/*.md` や `.claude/commands/*.md` の `model` / `effort` を直接編集してください（バージョン固定のモデル ID は禁止。エイリアスのみ）。プロファイルの一括再適用:
+| 性能（Grok） | leader | worker | simple |
+|--------------|--------|--------|--------|
+| high-performance / balance | grok-4.5 | grok-4.5 | grok-composer-2.5-fast |
+| low-cost | grok-composer-2.5-fast | 同左 | 同左 |
+
+**細かい設定は md ファイルの変更で可能です。** 一括再適用:
 
 ```bash
 node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
-  --profile balance --effort normal --dir .claude
+  --runtime claude-code --profile balance --effort normal --dir .claude
+# Grok 切替例
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime grok --profile balance --effort normal --dir .claude
 ```
 
 定義の写しは `.claude/model-profiles.yml`、実装の SSOT は `bin/lib/model-profiles.js` です。
