@@ -4,23 +4,30 @@
 
 ---
 
-## モデル・effort プロファイル導入後の移行
+## モデル・effort プロファイル / runtime 導入後の移行
 
-エージェント定義とスキルに `model` / `effort` / `model_role` が入りました。既存プロジェクトを更新する場合:
+エージェント定義とスキルに `model` / `effort` / `model_role` が入り、実行基盤 `runtime`（`claude-code` | `grok`）を選べるようになりました。既存プロジェクトを更新する場合:
 
 1. パッケージを更新し、`templates/_shared/model-profiles.yml` を `.claude/model-profiles.yml` に配置する
-2. `.claude/ai-team-config.yml` に `model_performance` と `effort_depth` を追加する（推奨: `balance` / `normal`）
+2. `.claude/ai-team-config.yml` に次を追加する（推奨既定）:
+   - `runtime: claude-code`
+   - `model_performance: balance`
+   - `effort_depth: normal`
 3. 一括反映する:
 
 ```bash
 node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code \
   --profile balance --effort normal --dir .claude
 node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code \
   --profile balance --effort normal --dir .claude/commands --skills-only
 ```
 
-**細かい設定は md ファイルの変更で可能です。** 既に個別で `model` を書いている場合は、apply 前にバックアップするか、apply 後に再編集してください。
+Grok に切り替える場合は `--runtime grok` を使い、`AGENTS.md` と（hooks 利用時）`.grok/hooks/ensure-issue.json` を setup 手順どおり配置してください。
 
+**細かい設定は md ファイルの変更で可能です。** 既に個別で `model` を書いている場合は、apply 前にバックアップするか、apply 後に再編集してください。  
+カスタマイズの詳細は [エージェントのカスタマイズ](agents.md) を参照。
 ---
 
 ## v0.21.x から v0.22.0 への移行

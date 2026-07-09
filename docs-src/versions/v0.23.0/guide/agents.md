@@ -40,9 +40,10 @@ human-escalator を呼び出すべき状況を具体的に列挙します。
 
 frontmatter の `name` と `description` は Claude Code がエージェントを識別するために使用します。`description` は 1 行で簡潔に記述してください。
 
-### モデル・effort 指定
+### モデル・effort 指定（カスタマイズ）
 
-全エージェント定義とスキルは frontmatter で `model` / `effort` / `model_role` を明示します。モデルは**エイリアス**（`fable` / `opus` / `sonnet` / `haiku`）のみ。バージョン付きモデル ID は禁止です。
+全エージェント定義とスキルは frontmatter で `model` / `effort` / `model_role` を明示します。  
+**バージョン付きモデル ID（例: `claude-opus-4-7`）は禁止**です。runtime が解釈するエイリアスのみ使います。
 
 ```markdown
 ---
@@ -54,7 +55,23 @@ model_role: leader
 ---
 ```
 
-`/ai-team-setup` で性能プロファイル（ハイパフォーマンス / バランス / 低コスト）と effort 深度（深く / 普通 / 軽く）を選ぶと、役割（leader / worker / simple）に応じて一括反映されます。
+| frontmatter | 意味 |
+|-------------|------|
+| `model` | 実行モデルのエイリアス（runtime 依存） |
+| `effort` | 推論深度（`low` / `medium` / `high` / `xhigh` / `max`。runtime・モデルにより利用可範囲が異なる） |
+| `model_role` | プロファイル適用時の役割ヒント（`leader` / `worker` / `simple`） |
+
+#### setup での一括設定
+
+`/ai-team-setup` で次を選び、全エージェント・スキルへ反映します。**再 setup の「設定の切替のみ」でも変更可能**です。
+
+1. **runtime** … `claude-code`（既定）または `grok`
+2. **性能プロファイル** … ハイパフォーマンス / バランス / 低コスト
+3. **effort 深度** … 深く / 普通 / 軽く
+
+設定値は `.claude/ai-team-config.yml` の `runtime` / `model_performance` / `effort_depth` に記録されます。
+
+#### Claude Code（`runtime: claude-code`）
 
 | 性能 | leader | worker | simple |
 |------|--------|--------|--------|
@@ -62,15 +79,63 @@ model_role: leader
 | バランス（デフォルト） | opus | sonnet | haiku |
 | 低コスト | sonnet | sonnet | haiku |
 
-| effort 深度 | 値 |
-|------------|-----|
+| effort 深度 | effort 値 |
+|------------|-----------|
 | 深く | xhigh |
 | 普通（デフォルト） | high |
 | 軽く | medium |
 
-**リーダー（指揮者）** は次の担当へ渡す Issue コメントに詳細な設計書を書き、**作業者**は下位モデルでその設計に従って実装します。
+#### Grok Build（`runtime: grok`）
 
-**細かい設定は md ファイルの変更で可能です。** 個別調整後にプロファイルを再適用すると上書きされる点に注意してください。詳細は `.claude/model-profiles.yml` と `agent-writing-guide.md` の §3-8 を参照。
+| 性能 | leader | worker | simple |
+|------|--------|--------|--------|
+| ハイパフォーマンス / バランス | grok-4.5 | grok-4.5 | grok-composer-2.5-fast |
+| 低コスト | grok-composer-2.5-fast | 同左 | 同左 |
+
+| effort 深度 | effort 値 |
+|------------|-----------|
+| 深く / 普通 | high（Grok では xhigh を使わない） |
+| 軽く | medium |
+
+Grok 選択時は `.grok/agents/` と `.grok/commands/` にもエージェント・スキルがミラーされます。プロジェクト指示は **`AGENTS.md`（正規）** と `.claude/CLAUDE.md`（互換）の両方に配置します（詳細は [セットアップ](setup.md)）。
+
+#### 役割（model_role）
+
+| role | 例 | 期待 |
+|------|-----|------|
+| `leader` | dispatcher, tech-lead, frontend-lead | 次担当へ渡す Issue に**詳細な設計書**を書く |
+| `worker` | implementer, developer, reviewer | リーダーの設計に従って実装・検証 |
+| `simple` | pr-creator, version-bumper | 定型処理 |
+
+#### 細かいカスタマイズ（md 直接編集）
+
+**個別にモデルや effort だけ変えたい場合は、対象 md の frontmatter を直接編集してください。**
+
+```bash
+# 例: 実装者だけ sonnet → opus にしたい
+# .claude/teams/backend/agents/implementer.md の model: を編集
+```
+
+一括でプロファイルを掛け直す場合（**個別編集は上書きされる**点に注意）:
+
+```bash
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code \
+  --profile balance \
+  --effort normal \
+  --dir .claude
+
+# Grok に切替
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime grok \
+  --profile balance \
+  --effort normal \
+  --dir .claude
+```
+
+定義の写し: `.claude/model-profiles.yml`  
+実装の SSOT: `bin/lib/model-profiles.js`  
+記述ルール詳細: プロジェクト内 `.claude/docs/agent-writing-guide.md` の §3-8
 
 ---
 

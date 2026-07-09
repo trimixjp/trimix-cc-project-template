@@ -52,14 +52,18 @@
 <p>ウィザードは次を確認します。</p>
 
 <ol><li>現在の作業ディレクトリ（<code>pwd</code>）</li><li><code>.claude/</code> ディレクトリの有無</li><li>既存の <code>.claude/teams/</code> がある場合、セットアップ済みのチーム</li></ol>
-<p>既にセットアップ済みの場合、追加導入・ラベル再作成のために再実行することも可能です。</p>
+<p>既にセットアップ済みの場合、再実行で次を選べます。</p>
 
+<ul><li><strong>フルセットアップ</strong> … チーム選択からやり直し</li><li><strong>設定の切替のみ</strong> … <code>runtime</code> / モデル性能 / effort のみ再適用（エージェント定義の再配置は最小）</li></ul>
 <hr>
 
-<h2>ステップ 2: 導入チーム・運用モード・バージョン管理の選択</h2>
+<h2>ステップ 2: 導入チーム・運用モード・runtime・モデルの選択</h2>
 
 <code>AskUserQuestion</code> ツールで以下の質問が行われます。
 
+<h3>質問 0: 実行基盤（runtime）</h3>
+
+<table><thead><tr><th>選択肢</th><th>説明</th></tr></thead><tbody><tr><td>Claude Code（既定）</td><td><code>model</code> は fable/opus/sonnet/haiku。effort に xhigh 可</td></tr><tr><td>Grok Build</td><td><code>model</code> は grok-4.5 / grok-composer-2.5-fast。<code>.grok/agents</code>・<code>.grok/commands</code> にミラー。指示は <code>AGENTS.md</code> + <code>.claude/CLAUDE.md</code></td></tr></tbody></table>
 <h3>質問 1: 導入するチーム（複数選択可）</h3>
 
 <code>AskUserQuestion</code> の選択肢は最大 4 つのため、6 チームを 2 回に分けて確認します。
@@ -78,11 +82,25 @@
 <h3>質問 3: バージョン管理の方法</h3>
 
 <table><thead><tr><th>選択肢</th><th>動作</th><th>適性</th></tr></thead><tbody><tr><td>自動インクリメント（<code>auto</code>）</td><td>Reviewer 合格後に conventional commit に基づき <code>package.json</code> を自動更新</td><td>ソロ運用・小規模チーム</td></tr><tr><td>手動管理（<code>manual</code>）</td><td>バージョンアップはワークフロー外で人間が管理。Version-Bumper ステップは残り、スキップ報告のみ行う</td><td>チーム開発・独自リリースフロー・monorepo</td></tr><tr><td>使わない（<code>none</code>）※v0.23.0 で追加</td><td>バージョン管理をワークフローから完全に外す。version-bumper ステップ自体を削除し、Reviewer 合格後は直接 Tech-Writer へ</td><td>バージョン概念のないリポジトリ（アプリ運用・ドキュメント等）</td></tr></tbody></table>
-<h3>質問 4: Issue 強制チェックの方法</h3>
+<h3>質問 4: チケット管理方式</h3>
 
-<p>ファイル変更を伴う指示を GitHub Issue 起点に強制する方法を選択します。</p>
+<table><thead><tr><th>選択肢</th><th>説明</th></tr></thead><tbody><tr><td>GitHub Issues（既定）</td><td>従来どおり <code>gh</code> 経由</td></tr><tr><td>ローカル Markdown（Obsidian 推奨）</td><td><code>tickets/*.md</code> で完結。<code>ticket_backend: local</code></td></tr></tbody></table>
+<h3>質問 4b: Issue / チケット強制チェック</h3>
 
-<ul><li><strong>CLAUDE.md のみ（推奨）</strong>: タスク受付ルールを CLAUDE.md に記載し、Claude が内容を判断して Issue 経由を促す</li><li><strong>hooks で強制</strong>: <code>UserPromptSubmit</code> フックで、変更系キーワードを含む指示に Issue 番号がない場合に自動ブロックして案内する</li></ul>
+<ul><li><strong>CLAUDE.md / AGENTS.md のみ（推奨）</strong>: タスク受付ルールを指示書に記載（claude-code は <code>.claude/CLAUDE.md</code>、grok は <code>AGENTS.md</code> + CLAUDE.md）</li><li><strong>hooks で強制</strong>: 変更系プロンプトをフックで案内（claude: <code>.claude/settings.json</code>、grok: 加えて <code>.grok/hooks/ensure-issue.json</code>）</li></ul>
+<h3>質問 5: モデル性能プロファイル</h3>
+
+<table><thead><tr><th>プロファイル</th><th>概要（Claude の例）</th></tr></thead><tbody><tr><td>バランス（既定）</td><td>leader=opus, worker=sonnet, simple=haiku</td></tr><tr><td>ハイパフォーマンス</td><td>leader=fable, worker=opus, simple=sonnet</td></tr><tr><td>低コスト</td><td>全体を sonnet / haiku 寄り</td></tr></tbody></table>
+<p>Grok では balance 時 leader/worker=<code>grok-4.5</code>、simple=<code>grok-composer-2.5-fast</code> など runtime 別マップを使います。詳細は <a href="../guide/agents.md">エージェントのカスタマイズ</a>。</p>
+
+<h3>質問 6: effort 深度</h3>
+
+<table><thead><tr><th>深度</th><th>Claude</th><th>Grok</th></tr></thead><tbody><tr><td>深く</td><td>xhigh</td><td>high</td></tr><tr><td>普通（既定）</td><td>high</td><td>high</td></tr><tr><td>軽く</td><td>medium</td><td>medium</td></tr></tbody></table>
+<p><strong>細かい設定は各エージェント / スキル md の <code>model</code> / <code>effort</code> を直接編集できます。</strong> 一括再適用:</p>
+
+<pre><code class="language-bash">node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code --profile balance --effort normal --dir .claude</code></pre>
+
 <hr>
 
 <h2>ステップ 3: ファイルの配置</h2>
