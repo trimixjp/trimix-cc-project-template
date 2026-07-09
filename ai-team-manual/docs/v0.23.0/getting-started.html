@@ -157,21 +157,16 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 <h3>3-1. チケットを作成する（スキル）</h3>
 
-<p>セットアップ後は、Claude Code / Grok 上で次のスキルを呼び出します（github / local 両対応。内部で共通 CLI を実行します）。</p>
+<p>セットアップ後は、Claude Code / Grok 上で次を実行します。</p>
 
-<pre><code class="language-">/ai-team-ticket create --title "ログインAPIにレート制限を追加する" --body "## 目的
-ログイン試行のレート制限を実装する。
+<pre><code class="language-">/ai-team-ticket create</code></pre>
 
-## 完了条件
-- [ ] 連続失敗時にロックされる
-- [ ] テストが通る
-" --label backend:tech-lead</code></pre>
+<p>スキルが対話で次を聞いてきます（<strong>タイトルと本文は必須</strong>）。</p>
 
-<p>成功すると番号（<code>number</code>）が返ります。例: <code>1</code></p>
+<ol><li>チケットのタイトルを入力してください  </li><li>チケットの本文を入力してください（目的・完了条件など）  </li><li>起動ラベルは？（例: <code>backend:tech-lead</code>。不要なら「なし」）</li></ol>
+<p>成功すると番号（例: <code>1</code>）が返ります。</p>
 
-<table><thead><tr><th>操作</th><th>スキル</th></tr></thead><tbody><tr><td>作成</td><td><code>/ai-team-ticket create --title "..." --body "..." [--label ...]</code></td></tr><tr><td>一覧</td><td><code>/ai-team-ticket list</code></td></tr><tr><td>詳細</td><td><code>/ai-team-ticket view 1</code></td></tr><tr><td>ラベル</td><td><code>/ai-team-ticket edit 1 --add-label backend:tech-lead</code></td></tr><tr><td>コメント</td><td><code>/ai-team-ticket comment 1 --body "..."</code></td></tr><tr><td>クローズ</td><td><code>/ai-team-ticket close 1</code></td></tr></tbody></table>
-<p>シェルから直接叩く場合は同等の CLI も使えます: <code>npx @trimix/ai-team ticket create ...</code></p>
-
+<table><thead><tr><th>操作</th><th>呼び出し</th><th>対話で入力するもの</th></tr></thead><tbody><tr><td>作成</td><td><code>/ai-team-ticket create</code></td><td><strong>タイトル</strong>・<strong>本文</strong>（ラベルは任意）</td></tr><tr><td>一覧</td><td><code>/ai-team-ticket list</code></td><td>（不要）</td></tr><tr><td>詳細</td><td><code>/ai-team-ticket view</code></td><td><strong>チケット番号</strong></td></tr><tr><td>ラベル</td><td><code>/ai-team-ticket edit</code></td><td><strong>チケット番号</strong>・追加/削除ラベル</td></tr><tr><td>コメント</td><td><code>/ai-team-ticket comment</code></td><td><strong>チケット番号</strong>・コメント本文</td></tr><tr><td>クローズ</td><td><code>/ai-team-ticket close</code></td><td><strong>チケット番号</strong>（確認あり）</td></tr></tbody></table>
 <p>> <strong>local のとき</strong>: <code>tickets/open/</code> に md が作成されます。Obsidian で <code>tickets/</code> を開いても同じファイルを編集できます。  </p>
 <p>> <strong>github のとき</strong>: GitHub Issues 上に作成されます（要 <code>gh</code> 認証）。</p>
 <p>チーム別の起動ラベルの例:</p>
@@ -199,7 +194,9 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 <p>その後、別ターミナルなどで <strong>3-1</strong> のとおりチケットを作成し、<code>solo.target_labels</code> に含まれるラベルを付けておけば、ポーリングで自動検出されてワークフローが始まります。</p>
 
-<pre><code class="language-">/ai-team-ticket create --title "ドキュメントの誤字を直す" --body "README の導入手順の誤字修正" --label content:editor-in-chief</code></pre>
+<pre><code class="language-">/ai-team-ticket create</code></pre>
+
+<p>（対話でタイトル・本文・必要なら <code>content:editor-in-chief</code> を入力）</p>
 
 <code>.claude/ai-team-config.yml</code> の <code>solo.poll_interval_minutes</code>（デフォルト 5 分）ごとに新規チケットを検出します。停止は Ctrl+C です。
 

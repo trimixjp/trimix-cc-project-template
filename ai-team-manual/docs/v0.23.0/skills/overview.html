@@ -38,7 +38,7 @@
 
 <h2>スキル一覧</h2>
 
-<table><thead><tr><th>スキル</th><th>用途</th><th>引数</th></tr></thead><tbody><tr><td><a href="setup.html"><code>/ai-team-setup</code></a></td><td>AIチームをプロジェクトにセットアップするウィザード</td><td>なし</td></tr><tr><td><a href="ticket.html"><code>/ai-team-ticket</code></a></td><td>チケットの作成・一覧・詳細・コメント・ラベル・クローズ</td><td>create / list / view / …</td></tr><tr><td><a href="run.html"><code>/ai-team-run</code></a></td><td>チケットを読み込みワークフローを起動</td><td>チケットURL または ID</td></tr><tr><td><a href="watch.html"><code>/ai-team-watch</code></a></td><td>ソロモード用。チケットを定期監視</td><td>なし</td></tr><tr><td><a href="configure.html"><code>/ai-team-configure</code></a></td><td>チームの <code>workflow.yml</code> を会話形式で生成・編集</td><td>チームID</td></tr><tr><td><a href="create.html"><code>/ai-team-create</code></a></td><td>カスタムチームをゼロから作成するウィザード</td><td>チームID（省略可）</td></tr><tr><td><a href="install.html"><code>/ai-team-install</code></a></td><td>ワークフロープラグインをインストール</td><td>チームID</td></tr><tr><td><a href="gallery.html"><code>/ai-team-gallery</code></a></td><td>利用可能なプラグイン一覧を表示</td><td>なし</td></tr><tr><td><a href="resume.html"><code>/ai-team-resume</code></a></td><td>エスカレーション対応済みチケットの続きを再開</td><td>なし（または チケット番号/URL）</td></tr></tbody></table>
+<table><thead><tr><th>スキル</th><th>用途</th><th>引数</th></tr></thead><tbody><tr><td><a href="setup.html"><code>/ai-team-setup</code></a></td><td>AIチームをプロジェクトにセットアップするウィザード</td><td>なし</td></tr><tr><td><a href="ticket.html"><code>/ai-team-ticket</code></a></td><td>チケット操作（作成はタイトル・本文入力、他は番号入力）</td><td>create / list / view / …</td></tr><tr><td><a href="run.html"><code>/ai-team-run</code></a></td><td>チケットを読み込みワークフローを起動</td><td>チケットURL または ID</td></tr><tr><td><a href="watch.html"><code>/ai-team-watch</code></a></td><td>ソロモード用。チケットを定期監視</td><td>なし</td></tr><tr><td><a href="configure.html"><code>/ai-team-configure</code></a></td><td>チームの <code>workflow.yml</code> を会話形式で生成・編集</td><td>チームID</td></tr><tr><td><a href="create.html"><code>/ai-team-create</code></a></td><td>カスタムチームをゼロから作成するウィザード</td><td>チームID（省略可）</td></tr><tr><td><a href="install.html"><code>/ai-team-install</code></a></td><td>ワークフロープラグインをインストール</td><td>チームID</td></tr><tr><td><a href="gallery.html"><code>/ai-team-gallery</code></a></td><td>利用可能なプラグイン一覧を表示</td><td>なし</td></tr><tr><td><a href="resume.html"><code>/ai-team-resume</code></a></td><td>エスカレーション対応済みチケットの続きを再開</td><td>なし（または チケット番号/URL）</td></tr></tbody></table>
 <p>各スキルの定義ファイルはパッケージ内 <code>skills/*.md</code> にあり、<code>npx @trimix/ai-team install</code> で <code>.claude/commands/</code> にコピーされます。</p>
 
 <hr>
@@ -48,7 +48,7 @@
 <p>Claude Code を起動した状態で、メッセージ入力欄に <code>/</code> を入力するとスキル候補が表示されます。</p>
 
 <pre><code class="language-">/ai-team-setup
-/ai-team-ticket create --title "題名" --body "本文" --label backend:tech-lead
+/ai-team-ticket create          ← タイトル・本文を対話入力
 /ai-team-run 1
 /ai-team-watch
 /ai-team-configure backend</code></pre>
@@ -63,7 +63,7 @@
 
 <pre><code class="language-">1. npm install --save-dev ./trimix-ai-team-x.x.x.tgz
 2. /ai-team-setup            ← チーム選択・チケット方式・runtime
-3. /ai-team-ticket create --title "..." --body "..." --label backend:tech-lead
+3. /ai-team-ticket create    ← タイトル・本文を対話入力
 4. /ai-team-run 1            ← ワークフロー起動</code></pre>
 
 <h3>ソロ運用（自動監視）</h3>

@@ -50,11 +50,13 @@ Claude Code を起動して以下を実行してください：
 
 **例（チケット作成 → 起動）:**
 ```
-/ai-team-ticket create --title "題名" --body "本文" --label backend:tech-lead
+/ai-team-ticket create
+```
+スキルがタイトル・本文（と任意で起動ラベル）を聞いて作成します。番号が分かったら:
+
+```
 /ai-team-run 1
 ```
-
-（シェルから直接: `npx @trimix/ai-team ticket create ...` も可）
 AIチームがチケットを読み込み、ワークフローに従って自律的に処理します。人間の判断が必要な場面（PRのマージ・エスカレーション等）では自動的に停止して案内します。
 ---
 

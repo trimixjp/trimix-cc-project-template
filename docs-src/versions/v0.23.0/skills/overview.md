@@ -9,7 +9,7 @@
 | スキル | 用途 | 引数 |
 |--------|------|------|
 | [`/ai-team-setup`](setup.html) | AIチームをプロジェクトにセットアップするウィザード | なし |
-| [`/ai-team-ticket`](ticket.html) | チケットの作成・一覧・詳細・コメント・ラベル・クローズ | create / list / view / … |
+| [`/ai-team-ticket`](ticket.html) | チケット操作（作成はタイトル・本文入力、他は番号入力） | create / list / view / … |
 | [`/ai-team-run`](run.html) | チケットを読み込みワークフローを起動 | チケットURL または ID |
 | [`/ai-team-watch`](watch.html) | ソロモード用。チケットを定期監視 | なし |
 | [`/ai-team-configure`](configure.html) | チームの `workflow.yml` を会話形式で生成・編集 | チームID |
@@ -28,7 +28,7 @@ Claude Code を起動した状態で、メッセージ入力欄に `/` を入力
 
 ```
 /ai-team-setup
-/ai-team-ticket create --title "題名" --body "本文" --label backend:tech-lead
+/ai-team-ticket create          ← タイトル・本文を対話入力
 /ai-team-run 1
 /ai-team-watch
 /ai-team-configure backend
@@ -45,7 +45,7 @@ Claude Code を起動した状態で、メッセージ入力欄に `/` を入力
 ```
 1. npm install --save-dev ./trimix-ai-team-x.x.x.tgz
 2. /ai-team-setup            ← チーム選択・チケット方式・runtime
-3. /ai-team-ticket create --title "..." --body "..." --label backend:tech-lead
+3. /ai-team-ticket create    ← タイトル・本文を対話入力
 4. /ai-team-run 1            ← ワークフロー起動
 ```
 

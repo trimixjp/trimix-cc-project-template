@@ -72,9 +72,8 @@ Claude Code を起動し、セットアップウィザードを実行します�
 
 ## 次のステップ
 1. .claude/CLAUDE.md（または AGENTS.md）を確認・カスタマイズしてください
-2. チケットを作成してワークフローを起動します（例）:
-   /ai-team-ticket create --title "題名" --body "本文" --label backend:tech-lead
-   /ai-team-run 1
+2. /ai-team-ticket create でチケット作成（タイトル・本文を対話入力）
+3. /ai-team-run <番号> でワークフロー起動
 ```
 
 詳細は [セットアップガイド](guide/setup.html) と [クイックスタート（チケット作成）](getting-started.html#ステップ-3-最初のタスクの実行) を参照してください。

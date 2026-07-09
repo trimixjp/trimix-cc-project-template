@@ -170,30 +170,28 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 
 ### 3-1. チケットを作成する（スキル）
 
-セットアップ後は、Claude Code / Grok 上で次のスキルを呼び出します（github / local 両対応。内部で共通 CLI を実行します）。
+セットアップ後は、Claude Code / Grok 上で次を実行します。
 
 ```
-/ai-team-ticket create --title "ログインAPIにレート制限を追加する" --body "## 目的
-ログイン試行のレート制限を実装する。
-
-## 完了条件
-- [ ] 連続失敗時にロックされる
-- [ ] テストが通る
-" --label backend:tech-lead
+/ai-team-ticket create
 ```
 
-成功すると番号（`number`）が返ります。例: `1`
+スキルが対話で次を聞いてきます（**タイトルと本文は必須**）。
 
-| 操作 | スキル |
-|------|--------|
-| 作成 | `/ai-team-ticket create --title "..." --body "..." [--label ...]` |
-| 一覧 | `/ai-team-ticket list` |
-| 詳細 | `/ai-team-ticket view 1` |
-| ラベル | `/ai-team-ticket edit 1 --add-label backend:tech-lead` |
-| コメント | `/ai-team-ticket comment 1 --body "..."` |
-| クローズ | `/ai-team-ticket close 1` |
+1. チケットのタイトルを入力してください  
+2. チケットの本文を入力してください（目的・完了条件など）  
+3. 起動ラベルは？（例: `backend:tech-lead`。不要なら「なし」）
 
-シェルから直接叩く場合は同等の CLI も使えます: `npx @trimix/ai-team ticket create ...`
+成功すると番号（例: `1`）が返ります。
+
+| 操作 | 呼び出し | 対話で入力するもの |
+|------|----------|-------------------|
+| 作成 | `/ai-team-ticket create` | **タイトル**・**本文**（ラベルは任意） |
+| 一覧 | `/ai-team-ticket list` | （不要） |
+| 詳細 | `/ai-team-ticket view` | **チケット番号** |
+| ラベル | `/ai-team-ticket edit` | **チケット番号**・追加/削除ラベル |
+| コメント | `/ai-team-ticket comment` | **チケット番号**・コメント本文 |
+| クローズ | `/ai-team-ticket close` | **チケット番号**（確認あり） |
 
 > **local のとき**: `tickets/open/` に md が作成されます。Obsidian で `tickets/` を開いても同じファイルを編集できます。  
 > **github のとき**: GitHub Issues 上に作成されます（要 `gh` 認証）。
@@ -238,8 +236,10 @@ github の場合は URL でも可です。
 その後、別ターミナルなどで **3-1** のとおりチケットを作成し、`solo.target_labels` に含まれるラベルを付けておけば、ポーリングで自動検出されてワークフローが始まります。
 
 ```
-/ai-team-ticket create --title "ドキュメントの誤字を直す" --body "README の導入手順の誤字修正" --label content:editor-in-chief
+/ai-team-ticket create
 ```
+
+（対話でタイトル・本文・必要なら `content:editor-in-chief` を入力）
 
 `.claude/ai-team-config.yml` の `solo.poll_interval_minutes`（デフォルト 5 分）ごとに新規チケットを検出します。停止は Ctrl+C です。
 
