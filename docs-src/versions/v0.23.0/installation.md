@@ -71,11 +71,13 @@ Claude Code を起動し、セットアップウィザードを実行します�
 - 配置ファイル数: 32件
 
 ## 次のステップ
-1. .claude/CLAUDE.md を確認・カスタマイズしてください
-2. チケットを作成し /ai-team-run <チケット番号> でワークフローを開始します
+1. .claude/CLAUDE.md（または AGENTS.md）を確認・カスタマイズしてください
+2. チケットを作成してワークフローを起動します（例）:
+   npx @trimix/ai-team ticket create --title "題名" --body "本文" --label "backend:tech-lead"
+   /ai-team-run 1
 ```
 
-詳細は [セットアップガイド](guide/setup.html) を参照してください。
+詳細は [セットアップガイド](guide/setup.html) と [クイックスタート（チケット作成）](getting-started.html#ステップ-3-最初のタスクの実行) を参照してください。
 
 ---
 

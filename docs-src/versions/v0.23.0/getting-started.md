@@ -166,37 +166,97 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 
 ## ステップ 3: 最初のタスクの実行
 
-### 方法 A: マルチユーザーモード（個別実行）
+ワークフローは **チケット** を起点に動きます。まずチケットを作り、起動ラベルを付けてから `/ai-team-run` します。
 
-チケットを作成し、適切なリーダーラベル（例: `backend:tech-lead`）を付けます。担当者は Claude Code で以下を実行します。
+### 3-1. チケットを作成する（共通 CLI）
+
+セットアップ後は、置き場（github / local）に関わらず次のコマンドで作成できます（github 時は内部で `gh` を呼びます）。
+
+```bash
+# プロジェクトルートで実行
+# バックエンド向けの例（起動ラベルを同時付与）
+npx @trimix/ai-team ticket create \
+  --title "ログインAPIにレート制限を追加する" \
+  --body "$(cat <<'EOF'
+## 目的
+ログイン試行のレート制限を実装する。
+
+## 完了条件
+- [ ] 連続失敗時にロックされる
+- [ ] テストが通る
+EOF
+)" \
+  --label "backend:tech-lead"
+```
+
+成功すると JSON が返り、`number` がチケット番号です。
+
+```json
+{
+  "number": 1,
+  "url": "local://tickets/1",
+  "title": "ログインAPIにレート制限を追加する",
+  "state": "open"
+}
+```
+
+| 確認・操作 | コマンド |
+|-----------|----------|
+| 一覧 | `npx @trimix/ai-team ticket list` |
+| 詳細 | `npx @trimix/ai-team ticket view 1` |
+| ラベル追加 | `npx @trimix/ai-team ticket edit 1 --add-label "backend:tech-lead"` |
+
+> **local のとき**: `tickets/open/` に md が作成されます。Obsidian で `tickets/` を開いても同じファイルを編集できます。  
+> **github のとき**: GitHub Issues 上に Issue が作成されます（要 `gh` 認証）。
+
+チーム別の起動ラベルの例:
+
+| チーム | 先頭ラベル（例） |
+|--------|------------------|
+| バックエンド | `backend:tech-lead` |
+| フロントエンド | `frontend:designer` |
+| コンテンツ | `content:editor-in-chief` |
+| インフラ | `infra:infra-lead` |
+| SNS | `sns:strategist` |
+| YouTube | `youtube:director` |
+| Epic 分解 | `epic` または `dispatcher` |
+
+### 3-2. ワークフローを起動する
+
+#### 方法 A: マルチユーザーモード（個別実行）
+
+作成した番号で起動します。
 
 ```
-/ai-team-run 42
+/ai-team-run 1
 ```
 
-または チケットの URL を直接渡します。
+github の場合は URL でも可です。
 
 ```
-/ai-team-run https://github.com/.*/issues/42
+/ai-team-run https://github.com/your-org/your-repo/issues/1
 ```
 
-エージェントは次の順序で動作します（バックエンドチームの例）。
+担当チームはチケットのラベル・内容から決まり、そのチームの先頭エージェントから進みます（バックエンドなら Tech-Lead 起点、フロントなら Designer 起点など）。詳細は [チーム概要](teams/overview.html)。
 
-```
-tech-lead → implementer → tech-lead（レビュー方式判断）
-        → reviewer（または reviewer-a + reviewer-b → cross-review）
-        → tech-writer → pr-creator → 人間承認 → contributor → close
-```
+#### 方法 B: ソロモード（自動監視）
 
-### 方法 B: ソロモード（自動監視）
-
-`/ai-team-setup` でソロモードを選択した場合は、次のコマンドで自動監視を起動します。
+`/ai-team-setup` でソロモードを選んだ場合は、監視を起動したうえでチケットを作成します。
 
 ```
 /ai-team-watch
 ```
 
-`.claude/ai-team-config.yml` の `solo.poll_interval_minutes`（デフォルト 5 分）ごとに新規チケットを検出し、自動でワークフローを起動します。停止するまで監視ループが動作するため、停止には Ctrl+C を使用します。
+その後、別ターミナルなどで **3-1** のとおりチケットを作成し、`solo.target_labels` に含まれるラベルを付けておけば、ポーリングで自動検出されてワークフローが始まります。
+
+```bash
+npx @trimix/ai-team ticket create \
+  --title "ドキュメントの誤字を直す" \
+  --body "README の導入手順の誤字修正" \
+  --label "content:editor-in-chief"
+```
+
+`.claude/ai-team-config.yml` の `solo.poll_interval_minutes`（デフォルト 5 分）ごとに新規チケットを検出します。停止は Ctrl+C です。
 
 詳細は [ai-team-watch スキル](skills/watch.html) を参照してください。
 

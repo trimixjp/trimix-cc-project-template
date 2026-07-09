@@ -153,29 +153,71 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 <h2>ステップ 3: 最初のタスクの実行</h2>
 
-<h3>方法 A: マルチユーザーモード（個別実行）</h3>
+<p>ワークフローは <strong>チケット</strong> を起点に動きます。まずチケットを作り、起動ラベルを付けてから <code>/ai-team-run</code> します。</p>
 
-<p>チケットを作成し、適切なリーダーラベル（例: <code>backend:tech-lead</code>）を付けます。担当者は Claude Code で以下を実行します。</p>
+<h3>3-1. チケットを作成する（共通 CLI）</h3>
 
-<pre><code class="language-">/ai-team-run 42</code></pre>
+<p>セットアップ後は、置き場（github / local）に関わらず次のコマンドで作成できます（github 時は内部で <code>gh</code> を呼びます）。</p>
 
-<p>または チケットの URL を直接渡します。</p>
+<pre><code class="language-bash"># プロジェクトルートで実行
+# バックエンド向けの例（起動ラベルを同時付与）
+npx @trimix/ai-team ticket create \
+  --title "ログインAPIにレート制限を追加する" \
+  --body "$(cat &lt;&lt;'EOF'
+## 目的
+ログイン試行のレート制限を実装する。
 
-<pre><code class="language-">/ai-team-run https://github.com/.*/issues/42</code></pre>
+## 完了条件
+- [ ] 連続失敗時にロックされる
+- [ ] テストが通る
+EOF
+)" \
+  --label "backend:tech-lead"</code></pre>
 
-<p>エージェントは次の順序で動作します（バックエンドチームの例）。</p>
+<p>成功すると JSON が返り、<code>number</code> がチケット番号です。</p>
 
-<pre><code class="language-">tech-lead → implementer → tech-lead（レビュー方式判断）
-        → reviewer（または reviewer-a + reviewer-b → cross-review）
-        → tech-writer → pr-creator → 人間承認 → contributor → close</code></pre>
+<pre><code class="language-json">{
+  "number": 1,
+  "url": "local://tickets/1",
+  "title": "ログインAPIにレート制限を追加する",
+  "state": "open"
+}</code></pre>
 
-<h3>方法 B: ソロモード（自動監視）</h3>
+<table><thead><tr><th>確認・操作</th><th>コマンド</th></tr></thead><tbody><tr><td>一覧</td><td><code>npx @trimix/ai-team ticket list</code></td></tr><tr><td>詳細</td><td><code>npx @trimix/ai-team ticket view 1</code></td></tr><tr><td>ラベル追加</td><td><code>npx @trimix/ai-team ticket edit 1 --add-label "backend:tech-lead"</code></td></tr></tbody></table>
+<p>> <strong>local のとき</strong>: <code>tickets/open/</code> に md が作成されます。Obsidian で <code>tickets/</code> を開いても同じファイルを編集できます。  </p>
+<p>> <strong>github のとき</strong>: GitHub Issues 上に Issue が作成されます（要 <code>gh</code> 認証）。</p>
 
-<code>/ai-team-setup</code> でソロモードを選択した場合は、次のコマンドで自動監視を起動します。
+<p>チーム別の起動ラベルの例:</p>
+
+<table><thead><tr><th>チーム</th><th>先頭ラベル（例）</th></tr></thead><tbody><tr><td>バックエンド</td><td><code>backend:tech-lead</code></td></tr><tr><td>フロントエンド</td><td><code>frontend:designer</code></td></tr><tr><td>コンテンツ</td><td><code>content:editor-in-chief</code></td></tr><tr><td>インフラ</td><td><code>infra:infra-lead</code></td></tr><tr><td>SNS</td><td><code>sns:strategist</code></td></tr><tr><td>YouTube</td><td><code>youtube:director</code></td></tr><tr><td>Epic 分解</td><td><code>epic</code> または <code>dispatcher</code></td></tr></tbody></table>
+<h3>3-2. ワークフローを起動する</h3>
+
+<h4>方法 A: マルチユーザーモード（個別実行）</h4>
+
+<p>作成した番号で起動します。</p>
+
+<pre><code class="language-">/ai-team-run 1</code></pre>
+
+<p>github の場合は URL でも可です。</p>
+
+<pre><code class="language-">/ai-team-run https://github.com/your-org/your-repo/issues/1</code></pre>
+
+<p>担当チームはチケットのラベル・内容から決まり、そのチームの先頭エージェントから進みます（バックエンドなら Tech-Lead 起点、フロントなら Designer 起点など）。詳細は <a href="teams/overview.html">チーム概要</a>。</p>
+
+<h4>方法 B: ソロモード（自動監視）</h4>
+
+<code>/ai-team-setup</code> でソロモードを選んだ場合は、監視を起動したうえでチケットを作成します。
 
 <pre><code class="language-">/ai-team-watch</code></pre>
 
-<code>.claude/ai-team-config.yml</code> の <code>solo.poll_interval_minutes</code>（デフォルト 5 分）ごとに新規チケットを検出し、自動でワークフローを起動します。停止するまで監視ループが動作するため、停止には Ctrl+C を使用します。
+<p>その後、別ターミナルなどで <strong>3-1</strong> のとおりチケットを作成し、<code>solo.target_labels</code> に含まれるラベルを付けておけば、ポーリングで自動検出されてワークフローが始まります。</p>
+
+<pre><code class="language-bash">npx @trimix/ai-team ticket create \
+  --title "ドキュメントの誤字を直す" \
+  --body "README の導入手順の誤字修正" \
+  --label "content:editor-in-chief"</code></pre>
+
+<code>.claude/ai-team-config.yml</code> の <code>solo.poll_interval_minutes</code>（デフォルト 5 分）ごとに新規チケットを検出します。停止は Ctrl+C です。
 
 <p>詳細は <a href="skills/watch.html">ai-team-watch スキル</a> を参照してください。</p>
 
