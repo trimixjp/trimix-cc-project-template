@@ -48,12 +48,17 @@ model_role: leader
 - **手動管理（manual）**: バージョンアップはワークフロー外で人間が管理します。Version-Bumper ステップは残り、スキップ報告だけを行います。チーム開発・独自リリースフロー・monorepo に適しています
 - **使わない（none）**: バージョン管理をワークフローから完全に外します。version-bumper ステップ自体を削除するため、Reviewer 合格後は直接 Tech-Writer に引き継がれます。バージョン概念のないリポジトリ（アプリ運用・ドキュメント等）に適しています
 
-**質問4**: Issue 強制チェックの方法を選択してください（`AskUserQuestion` ツールを使用）
+**質問4**: チケット管理方式を選択してください（`AskUserQuestion` ツールを使用）
 
-ファイル変更を伴う指示は GitHub Issue を起点にすることで、インシデント記録・ラベル管理・作業履歴が機能します。チェック方法を選択してください。
+- **GitHub Issues（既定・エンジニア向け）**: 既存どおり `gh` 経由。協業・PR 連携向き
+- **ローカル Markdown（Obsidian 推奨・非エンジニア向け）**: プロジェクト内 `tickets/*.md` で完結。プライベート GitHub 不要。人間は Obsidian で `tickets/` を vault として開く運用を推奨（エージェントはファイル + CLI のみ）
 
-- **CLAUDE.md のみ（推奨）**: タスク受付ルールを CLAUDE.md に記載します。Claude が内容を判断して Issue 経由を促します。設定変更なしで導入できます
-- **hooks で強制**: `UserPromptSubmit` フックを設定します。変更系キーワードを含む指示に Issue 番号がない場合、スクリプトが自動でブロックして案内します。より確実に強制できますが、誤検知でブロックされる場合もあります
+**質問4b**: Issue / チケット強制チェックの方法を選択してください（`AskUserQuestion` ツールを使用）
+
+ファイル変更を伴う指示はチケットを起点にすることで、インシデント記録・ラベル管理・作業履歴が機能します。チェック方法を選択してください。
+
+- **CLAUDE.md のみ（推奨）**: タスク受付ルールを CLAUDE.md に記載します。Claude が内容を判断してチケット経由を促します
+- **hooks で強制**: `UserPromptSubmit` フックを設定します（GitHub Issue 番号 / ローカル番号の検出。local 時は数字 ID も可）
 
 **質問5**: モデル性能プロファイルを選択してください（`AskUserQuestion` ツールを使用）
 
@@ -117,9 +122,21 @@ templates/docs/workflow-guide.md            → .claude/docs/workflow-guide.md
 templates/docs/agent-writing-guide.md      → .claude/docs/agent-writing-guide.md
 templates/docs/domain-workflow-guide.md    → .claude/docs/domain-workflow-guide.md
 templates/docs/quickstart-by-domain.md    → .claude/docs/quickstart-by-domain.md
+templates/docs/local-tickets.md            → .claude/docs/local-tickets.md
 # 運用モード設定（選択したモードを記録）
 → .claude/ai-team-config.yml（内容は下記）
 ```
+
+### ローカルチケット（質問4で local を選んだ場合）
+
+```
+templates/tickets/README.md              → tickets/README.md
+templates/tickets/_templates/ticket.md   → tickets/_templates/ticket.md
+templates/tickets/open/.gitkeep          → tickets/open/.gitkeep
+templates/tickets/closed/.gitkeep        → tickets/closed/.gitkeep
+```
+
+`ticket_backend: local` のときはステップ4（GitHub ラベル作成）をスキップしてよい旨をユーザーに伝えます。
 
 ステップ2で選択した運用モード・モデル設定に応じて、以下の内容で `.claude/ai-team-config.yml` を生成してください：
 
@@ -144,6 +161,16 @@ model_performance: balance  # または high-performance / low-cost
 # normal: 全て high（デフォルト）
 # light:  全て medium
 effort_depth: normal  # または deep / light
+
+# チケット管理方式（質問4）
+# github: GitHub Issues（既定）
+# local:  リポジトリ内 Markdown（tickets/）。Obsidian 推奨 UI
+ticket_backend: github  # または local
+
+# local 時のみ有効
+local_tickets:
+  dir: tickets
+  id_prefix: ""
 
 # solo モードの設定（mode: solo の場合のみ有効）
 solo:
