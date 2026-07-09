@@ -38,11 +38,15 @@
 
 <h2>前提条件</h2>
 
-<p>セットアップを始める前に以下を確認してください。</p>
+<h3>必須（どのチケット方式でも）</h3>
 
-<table><thead><tr><th>項目</th><th>必須要件</th><th>確認コマンド</th></tr></thead><tbody><tr><td>Node.js</td><td>18.0.0 以上（<code>package.json</code> の <code>engines.node</code> で定義）</td><td><code>node --version</code></td></tr><tr><td>Claude Code または Grok Build</td><td>インストール済み・サインイン済み</td><td><code>claude --version</code> または <code>grok --version</code></td></tr><tr><td>Git リポジトリ</td><td>プロジェクトが Git で管理されている</td><td><code>git status</code></td></tr><tr><td>GitHub CLI（任意）</td><td><strong>ticket_backend: github</strong> のとき必須（ラベル・チケット操作）</td><td><code>gh auth status</code></td></tr><tr><td>GitHub リポジトリ（任意）</td><td><strong>ticket_backend: github</strong> のとき。Issues 有効</td><td><code>gh repo view</code></td></tr></tbody></table>
-<code>ticket_backend: local</code>（ローカル Markdown）を選ぶ場合、GitHub CLI / リモートリポジトリは必須ではありません。github 運用で未認証の場合は <code>gh auth login</code> を実行してください。
+<table><thead><tr><th>項目</th><th>要件</th><th>確認コマンド</th></tr></thead><tbody><tr><td>Node.js</td><td>18.0.0 以上（<code>package.json</code> の <code>engines.node</code>）</td><td><code>node --version</code></td></tr><tr><td>Claude Code または Grok Build</td><td>インストール済み・サインイン済み</td><td><code>claude --version</code> または <code>grok --version</code></td></tr><tr><td>Git リポジトリ</td><td>プロジェクトが Git で管理されている</td><td><code>git status</code></td></tr></tbody></table>
+<h3>任意（ticket_backend: github のときだけ必要）</h3>
 
+<p>setup でチケット管理に <strong>GitHub Issues</strong> を選ぶ場合のみ、次が必要です。<strong>ローカル Markdown（<code>ticket_backend: local</code>）を選ぶ場合は不要です。</strong></p>
+
+<table><thead><tr><th>項目</th><th>要件</th><th>確認コマンド</th></tr></thead><tbody><tr><td>GitHub CLI</td><td>インストール済み・認証済み（ラベル作成・チケット操作）</td><td><code>gh auth status</code></td></tr><tr><td>GitHub リポジトリ</td><td>リモートが存在し、Issues が有効</td><td><code>gh repo view</code></td></tr></tbody></table>
+<p>github 運用で未認証の場合は <code>gh auth login</code> を実行してください。</p>
 <hr>
 
 <h2>ステップ 1: パッケージのインストール</h2>
@@ -69,7 +73,7 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 <p>ウィザードが対話形式で次の項目を確認します。</p>
 
-<ol><li><strong>導入するチーム</strong>: backend / frontend / content / infra / sns（複数選択可）</li><li><strong>運用モード</strong>: <code>multi-user</code>（担当者ごとに <code>/ai-team-run</code> 起動）または <code>solo</code>（<code>/ai-team-watch</code> で自動監視）</li><li><strong>バージョン管理</strong>: <code>auto</code>（Reviewer 合格後に自動インクリメント）または <code>manual</code>（人間が管理）</li><li><strong>チケット強制チェック</strong>: <code>CLAUDE.md のみ</code>（Claude が判断して チケット作成を促す）または <code>hooks で強制</code>（変更系の指示に チケットがない場合にスクリプトでブロック）</li><li><strong>GitHub ラベルの作成</strong>: 選択したチームに対応するラベルを <code>gh label create</code> で一括作成するかどうか</li></ol>
+<ol><li><strong>実行基盤（runtime）</strong>: Claude Code / Grok Build</li><li><strong>導入するチーム</strong>: backend / frontend / content / infra / sns 等（複数選択可）</li><li><strong>運用モード</strong>: <code>multi-user</code>（担当者ごとに <code>/ai-team-run</code> 起動）または <code>solo</code>（<code>/ai-team-watch</code> で自動監視）</li><li><strong>バージョン管理</strong>: <code>auto</code> / <code>manual</code> / <code>none</code></li><li><strong>チケット管理方式</strong>: <strong>GitHub Issues</strong> または <strong>ローカル Markdown</strong>（後者は GitHub 不要）</li><li><strong>チケット強制チェック</strong>: 指示書のみ / hooks で強制</li><li><strong>モデル性能・effort</strong>: バランス / ハイパフォーマンス / 低コスト など</li><li><strong>ラベルの作成</strong>（<strong>github のときのみ</strong>）: <code>gh label create</code> で一括作成するか。local 運用ならスキップ可</li></ol>
 <p>セットアップが完了すると、プロジェクトルートに次のディレクトリが配置されます。</p>
 
 <pre><code class="language-">.claude/

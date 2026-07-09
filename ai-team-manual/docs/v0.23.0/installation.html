@@ -66,7 +66,7 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 <p>ウィザードが対話形式で以下を設定します。</p>
 
-<table><thead><tr><th>#</th><th>設定項目</th><th>選択肢</th></tr></thead><tbody><tr><td>1</td><td>導入するチーム</td><td>backend / frontend / content / infra / sns（複数選択可）</td></tr><tr><td>2</td><td>運用モード</td><td>multi-user（手動起動）/ solo（自動監視）</td></tr><tr><td>3</td><td>バージョン管理</td><td>auto（自動インクリメント）/ manual（手動管理）</td></tr><tr><td>4</td><td>チケット強制チェック</td><td>CLAUDE.md のみ / hooks で強制</td></tr><tr><td>5</td><td>GitHub ラベルの作成</td><td>今すぐ一括作成 / スキップ</td></tr></tbody></table>
+<table><thead><tr><th>#</th><th>設定項目</th><th>選択肢</th></tr></thead><tbody><tr><td>0</td><td>実行基盤（runtime）</td><td>Claude Code / Grok Build</td></tr><tr><td>1</td><td>導入するチーム</td><td>backend / frontend / content / infra / sns 等（複数選択可）</td></tr><tr><td>2</td><td>運用モード</td><td>multi-user（手動起動）/ solo（自動監視）</td></tr><tr><td>3</td><td>バージョン管理</td><td>auto / manual / none</td></tr><tr><td>4</td><td>チケット管理方式</td><td><strong>GitHub Issues</strong> または <strong>ローカル Markdown</strong>（後者は GitHub 不要）</td></tr><tr><td>4b</td><td>チケット強制チェック</td><td>指示書のみ / hooks で強制</td></tr><tr><td>5</td><td>モデル性能・effort</td><td>バランス / ハイパフォーマンス / 低コスト など</td></tr><tr><td>6</td><td>ラベルの作成</td><td>今すぐ一括作成 / スキップ（<strong>ticket_backend: github のとき</strong>。local なら不要）</td></tr></tbody></table>
 <p>セットアップ完了後のメッセージ例：</p>
 
 <pre><code class="language-">✅ AIチームのセットアップが完了しました

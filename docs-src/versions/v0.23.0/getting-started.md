@@ -6,18 +6,24 @@
 
 ## 前提条件
 
-セットアップを始める前に以下を確認してください。
+### 必須（どのチケット方式でも）
 
-| 項目 | 必須要件 | 確認コマンド |
-|------|---------|-------------|
-| Node.js | 18.0.0 以上（`package.json` の `engines.node` で定義） | `node --version` |
+| 項目 | 要件 | 確認コマンド |
+|------|------|-------------|
+| Node.js | 18.0.0 以上（`package.json` の `engines.node`） | `node --version` |
 | Claude Code または Grok Build | インストール済み・サインイン済み | `claude --version` または `grok --version` |
 | Git リポジトリ | プロジェクトが Git で管理されている | `git status` |
-| GitHub CLI（任意） | **ticket_backend: github** のとき必須（ラベル・チケット操作） | `gh auth status` |
-| GitHub リポジトリ（任意） | **ticket_backend: github** のとき。Issues 有効 | `gh repo view` |
 
-`ticket_backend: local`（ローカル Markdown）を選ぶ場合、GitHub CLI / リモートリポジトリは必須ではありません。github 運用で未認証の場合は `gh auth login` を実行してください。
+### 任意（ticket_backend: github のときだけ必要）
 
+setup でチケット管理に **GitHub Issues** を選ぶ場合のみ、次が必要です。**ローカル Markdown（`ticket_backend: local`）を選ぶ場合は不要です。**
+
+| 項目 | 要件 | 確認コマンド |
+|------|------|-------------|
+| GitHub CLI | インストール済み・認証済み（ラベル作成・チケット操作） | `gh auth status` |
+| GitHub リポジトリ | リモートが存在し、Issues が有効 | `gh repo view` |
+
+github 運用で未認証の場合は `gh auth login` を実行してください。
 ---
 
 ## ステップ 1: パッケージのインストール
@@ -50,11 +56,14 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 
 ウィザードが対話形式で次の項目を確認します。
 
-1. **導入するチーム**: backend / frontend / content / infra / sns（複数選択可）
-2. **運用モード**: `multi-user`（担当者ごとに `/ai-team-run` 起動）または `solo`（`/ai-team-watch` で自動監視）
-3. **バージョン管理**: `auto`（Reviewer 合格後に自動インクリメント）または `manual`（人間が管理）
-4. **チケット強制チェック**: `CLAUDE.md のみ`（Claude が判断して チケット作成を促す）または `hooks で強制`（変更系の指示に チケットがない場合にスクリプトでブロック）
-5. **GitHub ラベルの作成**: 選択したチームに対応するラベルを `gh label create` で一括作成するかどうか
+1. **実行基盤（runtime）**: Claude Code / Grok Build
+2. **導入するチーム**: backend / frontend / content / infra / sns 等（複数選択可）
+3. **運用モード**: `multi-user`（担当者ごとに `/ai-team-run` 起動）または `solo`（`/ai-team-watch` で自動監視）
+4. **バージョン管理**: `auto` / `manual` / `none`
+5. **チケット管理方式**: **GitHub Issues** または **ローカル Markdown**（後者は GitHub 不要）
+6. **チケット強制チェック**: 指示書のみ / hooks で強制
+7. **モデル性能・effort**: バランス / ハイパフォーマンス / 低コスト など
+8. **ラベルの作成**（**github のときのみ**）: `gh label create` で一括作成するか。local 運用ならスキップ可
 
 セットアップが完了すると、プロジェクトルートに次のディレクトリが配置されます。
 

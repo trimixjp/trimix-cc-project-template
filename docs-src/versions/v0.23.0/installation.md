@@ -42,11 +42,14 @@ Claude Code を起動し、セットアップウィザードを実行します�
 
 | # | 設定項目 | 選択肢 |
 |---|---------|--------|
-| 1 | 導入するチーム | backend / frontend / content / infra / sns（複数選択可） |
+| 0 | 実行基盤（runtime） | Claude Code / Grok Build |
+| 1 | 導入するチーム | backend / frontend / content / infra / sns 等（複数選択可） |
 | 2 | 運用モード | multi-user（手動起動）/ solo（自動監視） |
-| 3 | バージョン管理 | auto（自動インクリメント）/ manual（手動管理） |
-| 4 | チケット強制チェック | CLAUDE.md のみ / hooks で強制 |
-| 5 | GitHub ラベルの作成 | 今すぐ一括作成 / スキップ |
+| 3 | バージョン管理 | auto / manual / none |
+| 4 | チケット管理方式 | **GitHub Issues** または **ローカル Markdown**（後者は GitHub 不要） |
+| 4b | チケット強制チェック | 指示書のみ / hooks で強制 |
+| 5 | モデル性能・effort | バランス / ハイパフォーマンス / 低コスト など |
+| 6 | ラベルの作成 | 今すぐ一括作成 / スキップ（**ticket_backend: github のとき**。local なら不要） |
 
 セットアップ完了後のメッセージ例：
 
