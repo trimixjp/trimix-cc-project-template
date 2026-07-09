@@ -33,13 +33,25 @@
 
 ---
 
-### Q: GitHub 以外の Issue 管理ツール（Jira・Linear）は使えますか？
+### Q: GitHub 以外のチケット管理は使えますか？
 
-**A: 制限付きで対応しています。**
+**A: はい。ローカル Markdown が第一級で使えます。Jira・Linear は制限付きです。**
 
-`/ai-team-run` にチケットの URL または内容を渡すことで動作しますが、ラベル更新（`gh issue edit`）や Issue コメント投稿（`gh issue comment`）は GitHub 専用です。
+#### ローカル Markdown（推奨の代替）
 
-Jira・Linear を使用する場合はラベル更新ステップが手動対応になります。
+setup で `ticket_backend: local` を選ぶと、リポジトリ内の `tickets/*.md` だけで進捗管理できます（GitHub Issues 不要・オフライン可）。操作は共通 CLI です。
+
+```bash
+npx @trimix/ai-team ticket create --title "題名" --body "本文"
+npx @trimix/ai-team ticket list
+/ai-team-run 1
+```
+
+非エンジニア向けには **Obsidian で `tickets/` を開く**運用を推奨しています。詳細は [設定ファイル](reference/config.html)・[セットアップ](guide/setup.html)・`.claude/docs/local-tickets.md`。
+
+#### Jira・Linear
+
+`/ai-team-run` にチケットの URL または内容を渡すことで起動は可能ですが、ラベル更新やコメント投稿は GitHub / ローカル CLI ほど自動化されていません。ラベル更新ステップが手動対応になる場合があります。
 
 ---
 

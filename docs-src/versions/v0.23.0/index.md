@@ -1,6 +1,16 @@
 # @trimix/ai-team とは
 
-`@trimix/ai-team` は、Claude Code を使った AI チームをプロジェクトに導入するセットアップパッケージです。GitHub Issues（または Jira・Linear 等）のチケットをトリガーに、バックエンド・フロントエンド・コンテンツ・インフラ・SNS運用・YouTube動画制作の各 AI チームが自律的にタスクを処理します。
+`@trimix/ai-team` は、Claude Code（および Grok Build）を使った AI チームをプロジェクトに導入するセットアップパッケージです。**チケットをトリガー**に、バックエンド・フロントエンド・コンテンツ・インフラ・SNS運用・YouTube動画制作の各 AI チームが自律的にタスクを処理します。
+
+チケットの置き場は setup で選べます。
+
+| 方式 | 説明 | 向いている用途 |
+|------|------|----------------|
+| **GitHub Issues**（既定） | `gh` 経由。協業・PR 連携向き | エンジニア中心・公開/組織リポジトリ |
+| **ローカル Markdown** | リポジトリ内 `tickets/*.md`。CLI で操作 | **非公開 GitHub が使えない・オフライン・非エンジニア** |
+| Jira・Linear 等 | URL/本文の貼り付けで起動は可能 | ラベル更新などは手動になる場合あり |
+
+**ローカル Markdown は本テンプレートの特徴のひとつです。** プライベートリポジトリの課金を避けつつ、同じワークフロー（ラベル遷移・コメント履歴）をファイルだけで回せます。人間向け UI としては **Obsidian で `tickets/` を vault として開く**運用を推奨しています（エージェントは Obsidian API に依存せず、md + `npx @trimix/ai-team ticket` を使います）。設定は [設定ファイル](reference/config.html) の `ticket_backend`、手順は [セットアップ](guide/setup.html) とプロジェクト内 `.claude/docs/local-tickets.md` を参照してください。
 
 `package.json` の `description` には次のように定義されています。
 
@@ -8,7 +18,7 @@
 AIチームをプロジェクトにセットアップするウィザード
 ```
 
-このパッケージは 6 つの専門チームと Claude Code スキル（スラッシュコマンド）から構成されており、プロジェクト固有のワークフローを `.claude/teams/<team_id>/workflow.yml` で柔軟に定義できます。各チームは専用のエージェント群を持ちます（例: YouTube動画制作チームは 9 体）。
+このパッケージは 6 つの専門チームとスキル（スラッシュコマンド）から構成されており、プロジェクト固有のワークフローを `.claude/teams/<team_id>/workflow.yml` で柔軟に定義できます。各チームは専用のエージェント群を持ちます（例: YouTube動画制作チームは 9 体）。
 
 ---
 
@@ -16,26 +26,28 @@ AIチームをプロジェクトにセットアップするウィザード
 
 ### 1. 自律的なワークフロー実行
 
-担当者が `/ai-team-run <Issue番号>` を実行するだけで、Tech-Lead → Implementer → Reviewer → Tech-Writer → PR-Creator の順にエージェントが自動で引き継ぎながらタスクを進めます。各エージェントは Issue コメントに作業内容と判断根拠を記録するため、後から作業履歴を追跡できます。
+担当者が `/ai-team-run <チケット番号>` を実行するだけで、Tech-Lead → Implementer → Reviewer → Tech-Writer → PR-Creator の順にエージェントが自動で引き継ぎながらタスクを進めます。各エージェントはチケット（Issue コメント、またはローカル md の Comments 節）に作業内容と判断根拠を記録するため、後から作業履歴を追跡できます。
 
-### 2. ソロモード（自動監視）
+### 2. チケットバックエンドの選択（GitHub / ローカル md）
 
-`/ai-team-watch` を実行すると、GitHub Issues を定期的に監視して新しいタスクを自動検出します。1 人で運用する場合や、新規 Issue を取りこぼしたくない場合に有効です。監視間隔・対象ラベル・スキップラベルは `.claude/ai-team-config.yml` で設定できます。
+`ticket_backend: github | local` で進捗管理の置き場を切り替えます。操作は共通 CLI（`npx @trimix/ai-team ticket list|view|create|comment|edit|close`）に統一されており、エージェント定義・スキルは backend を意識しにくくなっています。local 時は `tickets/open/`・`tickets/closed/` に md が並び、Obsidian でもそのまま閲覧できます。
 
-### 3. 動的なレビュー方式（バックエンド・フロントエンド）
+### 3. ソロモード（自動監視）
+
+`/ai-team-watch` を実行すると、チケット（GitHub Issues またはローカル open 一覧）を定期的に監視して新しいタスクを自動検出します。1 人で運用する場合や、新規チケットを取りこぼしたくない場合に有効です。監視間隔・対象ラベル・スキップラベルは `.claude/ai-team-config.yml` で設定できます。
+### 4. 動的なレビュー方式（バックエンド・フロントエンド）
 
 実装内容の影響範囲に応じて、Tech-Lead（または Frontend-Lead）が自動的にシングルレビューとダブルレビューを使い分けます。判定基準は `.claude/teams/<team_id>/review-config.yml` で定義されており、認証・決済・公開 API 等の機密領域は自動的にダブルレビューに切り替わります。
 
-### 4. エスカレーション機構
+### 5. エスカレーション機構
 
 法的判断・予算承認・PR マージ・仕様の曖昧さなど、AI が判断すべきでない事項に遭遇した場合、エージェントは自動的に `human-escalator` を呼び出して人間にエスカレーションします。人間が対応を完了した後は `/ai-team-resume` で続きから再開できます。
 
-### 5. インシデント記録と再発防止
+### 6. インシデント記録と再発防止
 
-Contributor エージェントは Issue クローズ時にインシデントとして記録すべき情報がないか調査し、`.claude/incidents/` 配下にインシデントレポートを作成します。次回以降の作業開始時には、各リーダーエージェントが過去のインシデントを参照して「やってはいけないこと」を Issue に追記します。
+Contributor エージェントはチケットクローズ時にインシデントとして記録すべき情報がないか調査し、`.claude/incidents/` 配下にインシデントレポートを作成します。次回以降の作業開始時には、各リーダーエージェントが過去のインシデントを参照して「やってはいけないこと」をチケットに追記します。
 
-### 6. ドキュメント自動更新（Tech-Writer）
-
+### 7. ドキュメント自動更新（Tech-Writer）
 バックエンドチームでは、PR 作成前に Tech-Writer エージェントが起動し、コードの変更差分を `docs-src/` 配下の Markdown に反映してから `node docs-src/build.js` で `ai-team-manual/docs/` に HTML をビルドします。コードとドキュメントが乖離しない仕組みです。
 
 ---

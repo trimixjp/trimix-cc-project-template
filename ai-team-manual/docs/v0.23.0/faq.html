@@ -59,13 +59,23 @@
 
 <hr>
 
-<h3>Q: GitHub 以外の Issue 管理ツール（Jira・Linear）は使えますか？</h3>
+<h3>Q: GitHub 以外のチケット管理は使えますか？</h3>
 
-<p><strong>A: 制限付きで対応しています。</strong></p>
+<p><strong>A: はい。ローカル Markdown が第一級で使えます。Jira・Linear は制限付きです。</strong></p>
 
-<code>/ai-team-run</code> にチケットの URL または内容を渡すことで動作しますが、ラベル更新（<code>gh issue edit</code>）や Issue コメント投稿（<code>gh issue comment</code>）は GitHub 専用です。
+<h4>ローカル Markdown（推奨の代替）</h4>
 
-<p>Jira・Linear を使用する場合はラベル更新ステップが手動対応になります。</p>
+<p>setup で <code>ticket_backend: local</code> を選ぶと、リポジトリ内の <code>tickets/*.md</code> だけで進捗管理できます（GitHub Issues 不要・オフライン可）。操作は共通 CLI です。</p>
+
+<pre><code class="language-bash">npx @trimix/ai-team ticket create --title "題名" --body "本文"
+npx @trimix/ai-team ticket list
+/ai-team-run 1</code></pre>
+
+<p>非エンジニア向けには <strong>Obsidian で <code>tickets/</code> を開く</strong>運用を推奨しています。詳細は <a href="reference/config.html">設定ファイル</a>・<a href="guide/setup.html">セットアップ</a>・<code>.claude/docs/local-tickets.md</code>。</p>
+
+<h4>Jira・Linear</h4>
+
+<code>/ai-team-run</code> にチケットの URL または内容を渡すことで起動は可能ですが、ラベル更新やコメント投稿は GitHub / ローカル CLI ほど自動化されていません。ラベル更新ステップが手動対応になる場合があります。
 
 <hr>
 
