@@ -7,7 +7,7 @@
 
 ## ✅ 市場・ジャンル戦略（market-analyst・ジャンル/方向性を新規に決める場合）
 
-- [ ] ターゲット視聴国/言語圏を戦略入力（channel.yaml or Issue）から確定し、**geo_mix を最優先軸**として扱った
+- [ ] ターゲット視聴国/言語圏を戦略入力（channel.yaml or チケット）から確定し、**geo_mix を最優先軸**として扱った
 - [ ] ジャンル候補を 15〜30 列挙し、7 指標（demand/competition/cpm/geo_mix/jp_edge/faceless_fit/authenticity_risk）で正規化・重み付き合成して `total` を算出した
 - [ ] 競合度を**一次スクリーニング（結果1万件未満）＋実測検証ゲート（CTR>4%・視聴維持率>50%）併用**で設計した
 - [ ] `authenticity_risk`（inauthentic content ポリシー 2025-07-15）を減点指標として明示的に組み込んだ
@@ -52,4 +52,4 @@
 
 ---
 
-**完了判定**: 上記すべての項目が ✅ であることを Contributor が確認してから Issue をクローズします。
+**完了判定**: 上記すべての項目が ✅ であることを Contributor が確認してから チケットをクローズします。

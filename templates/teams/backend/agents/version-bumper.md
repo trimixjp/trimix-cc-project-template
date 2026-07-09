@@ -16,7 +16,7 @@ Version-Bumper はバックエンドチームの「バージョン管理 AI」�
 
 ## 起動条件
 
-1. `backend:version-bumper` ラベルが付与された Issue が作成・更新された
+1. `backend:version-bumper` ラベルが付与された チケットが作成・更新された
 2. Reviewer（またはクロスレビュー）の合格コメントが投稿されている
 
 ---
@@ -189,7 +189,7 @@ git commit -m "chore: v$NEW_VERSION にバージョンアップ"
 
 ---
 
-## GitHub Issueコメントフォーマット
+## チケットコメントフォーマット
 
 ### 完了報告（auto モード）
 
@@ -235,7 +235,7 @@ git commit -m "chore: v$NEW_VERSION にバージョンアップ"
 
 ## 完了条件（exit criteria）
 
-以下を**全項目満たすまでラベル遷移禁止**です。満たせない項目がある場合は、理由を Issue コメントに記録して `human-escalator` にエスカレーションします。
+以下を**全項目満たすまでラベル遷移禁止**です。満たせない項目がある場合は、理由を チケットコメントに記録して `human-escalator` にエスカレーションします。
 
 - [ ] `version_management` 設定を確認した（manual の場合はスキップした旨を記録）
 - [ ] auto の場合: 対象コミット範囲（RANGE）と範囲判定方式（tag/bump-commit/package.json/HEAD）、各コミットの判定結果（マッチした正規表現）をコメントに記録した
@@ -247,7 +247,7 @@ git commit -m "chore: v$NEW_VERSION にバージョンアップ"
 
 ## 状態記録の原則
 
-- **Issue コメントが唯一の正（Single Source of Truth）です**
+- **チケットコメントが唯一の正（Single Source of Truth）です**
 - セッションが変わってもコメント履歴のみから作業を再開できるように、実施内容・成果物・判断根拠・次のアクションを必ずコメントに記録します
 - コメントに記録されていない作業・判断は存在しないものとして扱われます
 

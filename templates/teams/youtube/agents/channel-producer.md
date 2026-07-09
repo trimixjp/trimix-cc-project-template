@@ -66,10 +66,10 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 
 以下のいずれかを満たした時点で起動します。
 
-1. `youtube:channel-producer` ラベルが付与された Issue が作成・更新された
+1. `youtube:channel-producer` ラベルが付与された チケットが作成・更新された
 2. director（director-planning）の完了報告でラベルが `youtube:channel-producer` に更新された（タスク種別の判定で channel-creation または episode-production に分岐）
 
-**モード判定（決定論・直前 ⏭️ 行の機械抽出）**: ラベルは setup / planning とも `youtube:channel-producer` で共通のため、Issue 本文の印象で判定せず、直前工程の引き継ぎコメント（`⏭️ 次のアクション:` 行）から機械的に判定します。
+**モード判定（決定論・直前 ⏭️ 行の機械抽出）**: ラベルは setup / planning とも `youtube:channel-producer` で共通のため、チケット本文の印象で判定せず、直前工程の引き継ぎコメント（`⏭️ 次のアクション:` 行）から機械的に判定します。
 
 1. **抽出**: `gh issue view <番号> --comments | grep '⏭️' | tail -1` を実行し、`⏭️` を含む**最後の行**（直前工程の引き継ぎ行）を取得します。
 2. **決定表で照合**（上から順に評価し、最初に一致した行で確定）:
@@ -90,9 +90,9 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 
 ### ステップ1: インシデント確認
 
-作業開始前に `.claude/incidents/index.yml` を読み込み、対象 Issue・対象チャンネルに関連するインシデントがないか確認します。
+作業開始前に `.claude/incidents/index.yml` を読み込み、対象チケット・対象チャンネルに関連するインシデントがないか確認します。
 
-- 関連あり → Issue 本文末尾に以下を追記する
+- 関連あり → チケット本文末尾に以下を追記する
 
 ```
 ## ⚠️ 関連インシデント注意事項
@@ -114,8 +114,8 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 
 あわせて**対象チャンネルを確定**します（①エピソード参照 → ②`channel:` ラベル → ③エスカレーションの優先順。本文の自由記述からは推測しない。命名規約・優先順の正は PRODUCTION-GUIDE.md §0）。
 
-- **モードB（エピソード企画・既存チャンネル）**: 対象 `.md` 未指定で企画から始まるため、対象チャンネルを ①Issue 本文/引数/コメントの `channels/<id>/episodes/...` パス・対象 .md の frontmatter `channel:` で自己確定 → 無ければ ②`gh issue view <番号> --json labels` で `channel:` プレフィックスのラベルから確定する。①②どちらでも確定できなければ `missing_channel` でエスカレーション（コメントに「どのチャンネルで作業するか」を人間へ問う文言を含める。本文から推測しない）。
-- **モードA（チャンネル作成・新設）**: 対象IDは Issue 本文・タイトルで**新規に与えられる**ため、その明示IDを採用します（`channel:` ラベル未作成でも可。本文・タイトルにも新IDが無い場合のみ `missing_channel` エスカレーション）。
+- **モードB（エピソード企画・既存チャンネル）**: 対象 `.md` 未指定で企画から始まるため、対象チャンネルを ①チケット本文/引数/コメントの `channels/<id>/episodes/...` パス・対象 .md の frontmatter `channel:` で自己確定 → 無ければ ②`gh issue view <番号> --json labels` で `channel:` プレフィックスのラベルから確定する。①②どちらでも確定できなければ `missing_channel` でエスカレーション（コメントに「どのチャンネルで作業するか」を人間へ問う文言を含める。本文から推測しない）。
+- **モードA（チャンネル作成・新設）**: 対象IDは チケット本文・タイトルで**新規に与えられる**ため、その明示IDを採用します（`channel:` ラベル未作成でも可。本文・タイトルにも新IDが無い場合のみ `missing_channel` エスカレーション）。
 
 確定した対象チャンネルIDと確定方法は必ずコメントに記録します。
 
@@ -131,7 +131,7 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
    - `channel.yaml` に **`upload.privacy: private`** と **`upload.ai_disclosure: false`（既定）** を明記する
    - **`upload.schedule` は null 固定**（予約はエピソード別 publish_at。チャンネル単一値だと同時刻予約事故になる。PRODUCTION-GUIDE §3・§14 事故源#5）
    - `glossary.yaml` は3分類（`force_all_languages` / `latin_only_for_western` / `season_culture_terms`）で記述する
-3. **スキーマ検証**: `channel.yaml` が Zod パースを通ることを `render --dry-run`（想定）で確認します（CLI 規約: `node <engine>/packages/app/dist/cli.js render --dry-run`。`<engine>` は Issue / チャンネル設定で与えられたエンジン repo のパス。本書にハードコードしない）。
+3. **スキーマ検証**: `channel.yaml` が Zod パースを通ることを `render --dry-run`（想定）で確認します（CLI 規約: `node <engine>/packages/app/dist/cli.js render --dry-run`。`<engine>` は チケット / チャンネル設定で与えられたエンジン repo のパス。本書にハードコードしない）。
 4. **人間残作業の提示**: YouTube Studio 手動設定・OAuth トークン・声の用意など人間しかできない作業をチェックリストで提示します（実行は次工程の director-channel-review → human-channel-setup で人間が担当）。
 
 ### ステップ3B: モードB「エピソード企画」の実施
@@ -156,14 +156,14 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 
 ### ステップ4: 完了報告
 
-作業結果を Issue コメントに記録し、次工程に引き継ぎます。
+作業結果を チケットコメントに記録し、次工程に引き継ぎます。
 
 - モードA（setup）完了 → `youtube:director`（director-channel-review。新設成果物の QA 基準は `yt-new-channel` の「成果物のQA合格基準」）へ
 - モードB（planning）完了 → `youtube:channel-producer-qa`（企画/編成の専用QA・別エージェント）へ。**企画/編成成果物の合否は channel-producer 自身ではなく channel-producer-qa が `yt-plan-month` の「成果物のQA合格基準」で判定**します（自己申告で次へ進めない・`_design/19 §0.3`。合格で scriptwriter へ進む）
 
 ---
 
-## GitHub Issue コメントフォーマット
+## チケットコメントフォーマット
 
 ### モードA「チャンネル作成」完了
 
@@ -301,7 +301,7 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 - [ ] インシデント確認（`.claude/incidents/index.yml`）を実施し、結果をコメントに記録した
 - [ ] モード判定（setup / planning）と判定根拠をコメントに記録した
 - [ ] 対象チャンネルを確定した（モードB＝①エピソード参照 → ②`channel:` ラベル、確定不能は `missing_channel`／モードA＝本文・タイトルの明示ID）。確定方法をコメントに記録した
-- [ ] 判断根拠・成果物をIssueコメントに記録した
+- [ ] 判断根拠・成果物をチケットコメントに記録した
 
 ### モードA（setup）の場合
 
@@ -325,7 +325,7 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 
 ## 状態記録の原則
 
-- **Issueコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。
+- **チケットコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。
 
 ---
 

@@ -46,7 +46,7 @@ flowchart TD
     VB --> J["tech-writer\ndocs-src/ 更新\nbuild.js 実行"]
     J --> K["pr-creator\ngh pr create\nescalated:human"]
     K --> L["⏸️ human-merge-approval\n人間がマージ"]
-    L --> M["contributor-close\nDOD 確認\nインシデント記録\nIssue クローズ"]
+    L --> M["contributor-close\nDOD 確認\nインシデント記録\nチケットクローズ"]
 ```
 
 ---
@@ -146,7 +146,7 @@ reviewer-a と reviewer-b が並列起動
 
 ### 差し戻し上限と決定論的カウント（v0.11.0）
 
-`workflow.yml` の `rework_limit: 2` により、同一 Issue での差し戻しは 2 回までです。3 回目の不合格は implementer へ差し戻さず `escalated:human` へエスカレーションします。
+`workflow.yml` の `rework_limit: 2` により、同一チケットでの差し戻しは 2 回までです。3 回目の不合格は implementer へ差し戻さず `escalated:human` へエスカレーションします。
 
 カウントは決定論的です。差し戻しコメントの**先頭行**を `❌ <エージェント名>: 差し戻し（差し戻し回数: n/2）` 形式に固定し、レビュー役エージェントが `gh api` でコメント先頭行のみを正規表現照合して数えます。本文中の引用による偽陽性はありません。独立レビューの暫定結果コメントは先頭行に「差し戻し」という語を使わないルールになっています（誤検出防止）。
 
@@ -229,7 +229,7 @@ gh pr create \
 
 PR 本文には次が含まれます：
 
-- 概要・関連 Issue（`Closes #<番号>`）
+- 概要・関連チケット（`Closes #<番号>`）
 - 変更内容（Implementer の完了報告から転記）
 - 設計方針（Tech-Lead の方針から要約）
 - テスト結果
@@ -252,7 +252,7 @@ PR 作成後は `escalated:human` ラベルが付与され、人間のマージ�
 | `dod/review.md` | コードレビュー | スコープ・重大度別整理・レビュー方式判断・全件対応 |
 | `dod/documentation.md` | ドキュメント更新（Tech-Writer 用） | 全変更箇所反映・バージョン管理・ビルド成功・コミット形式 |
 
-`contributor` エージェントが Issue クローズ前に該当 DOD の全項目チェックを実施します。
+`contributor` エージェントが チケットクローズ前に該当 DOD の全項目チェックを実施します。
 
 ---
 
@@ -274,7 +274,7 @@ PR 作成後は `escalated:human` ラベルが付与され、人間のマージ�
 | `pr-creator` | pr-creator | `backend:pr-creator` | PR 作成・人間に承認依頼 |
 | `human-merge-approval` | human-escalator | `escalated:human` | 人間がマージ |
 | `human-escalator` | human-escalator | `escalated:human` | 判断不能事項を人間にエスカレーション |
-| `contributor-close` | contributor | `contributor:ready` | DOD 確認・Issue クローズ（`action: close_issue`） |
+| `contributor-close` | contributor | `contributor:ready` | DOD 確認・チケットクローズ（`action: close_issue`） |
 
 ---
 

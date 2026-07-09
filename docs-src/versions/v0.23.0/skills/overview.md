@@ -9,13 +9,13 @@
 | スキル | 用途 | 引数 |
 |--------|------|------|
 | [`/ai-team-setup`](setup.html) | AIチームをプロジェクトにセットアップするウィザード | なし |
-| [`/ai-team-run`](run.html) | チケット（GitHub Issue 等）を読み込みワークフローを起動 | チケットURL または ID |
+| [`/ai-team-run`](run.html) | チケット（チケット 等）を読み込みワークフローを起動 | チケットURL または ID |
 | [`/ai-team-watch`](watch.html) | ソロモード用。GitHub Issues を定期監視 | なし |
 | [`/ai-team-configure`](configure.html) | チームの `workflow.yml` を会話形式で生成・編集 | チームID（backend/frontend/content/infra） |
 | [`/ai-team-create`](create.html) | カスタムチームをゼロから作成するウィザード | チームID（省略可） |
 | [`/ai-team-install`](install.html) | ワークフロープラグインをインストール | チームID |
 | [`/ai-team-gallery`](gallery.html) | 利用可能なプラグイン一覧を表示 | なし |
-| [`/ai-team-resume`](resume.html) | エスカレーション対応済みIssueの続きを再開 | なし（または Issue番号/URL） |
+| [`/ai-team-resume`](resume.html) | エスカレーション対応済みチケットの続きを再開 | なし（または チケット番号/URL） |
 
 各スキルの定義ファイルはパッケージ内 `skills/*.md` にあり、`npx @trimix/ai-team install` で `.claude/commands/` にコピーされます。
 
@@ -43,7 +43,7 @@ Claude Code を起動した状態で、メッセージ入力欄に `/` を入力
 ```
 1. npm install --save-dev ./trimix-ai-team-0.5.1.tgz
 2. /ai-team-setup            ← チーム選択・ラベル作成
-3. /ai-team-run <Issue番号>  ← 最初のタスクを実行
+3. /ai-team-run <チケット番号>  ← 最初のタスクを実行
 ```
 
 ### ソロ運用（自動監視）
@@ -51,7 +51,7 @@ Claude Code を起動した状態で、メッセージ入力欄に `/` を入力
 ```
 1. /ai-team-setup            ← 運用モードで「solo」を選択
 2. /ai-team-watch            ← 監視ループ開始
-3. （新規 Issue を作成 → 自動処理される）
+3. （新規チケットを作成 → 自動処理される）
 4. エスカレーション発生 → 人間が対応 → 自動再開
 ```
 
@@ -59,7 +59,7 @@ Claude Code を起動した状態で、メッセージ入力欄に `/` を入力
 
 ```
 1. /ai-team-setup            ← 運用モードで「multi-user」を選択
-2. 各メンバーが /ai-team-run <Issue番号> を実行
+2. 各メンバーが /ai-team-run <チケット番号> を実行
 3. エスカレーション発生 → 人間対応 → /ai-team-resume で再開
 ```
 
@@ -85,7 +85,7 @@ Claude Code を起動した状態で、メッセージ入力欄に `/` を入力
 1. /ai-team-create           ← 対話ウィザード開始
 2. チームID・エージェント構成・ワークフローを入力
 3. ファイル生成 → .claude/teams/<team_id>/ に展開される
-4. /ai-team-run <Issue番号>  ← カスタムチームで処理開始
+4. /ai-team-run <チケット番号>  ← カスタムチームで処理開始
 ```
 
 ---
@@ -97,7 +97,7 @@ Claude Code を起動した状態で、メッセージ入力欄に `/` を入力
 ```markdown
 ---
 name: ai-team-run
-description: チケット（GitHub Issue・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+description: チケット（チケット・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
 ---
 
 # /ai-team-run — ワークフロー起動

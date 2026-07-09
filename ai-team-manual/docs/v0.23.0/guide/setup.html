@@ -53,10 +53,10 @@
 
 <pre><code class="language-">? 運用モードを選択してください
 ❯ マルチユーザーモード
-    担当者が /ai-team-run &lt;Issue&gt; を実行して処理を開始します
+    担当者が /ai-team-run &lt;チケット&gt; を実行して処理を開始します
     複数人チームに適しています
   ソロモード
-    /ai-team-watch を起動すると新しいIssueを自動検出して処理します
+    /ai-team-watch を起動すると新しいチケットを自動検出して処理します
     1人での運用に適しています</code></pre>
 
 <h3>ステップ3: バージョン管理の設定</h3>
@@ -80,18 +80,18 @@
 
 <p>設定は <code>.claude/ai-team-config.yml</code> の <code>version_management</code> で変更できます。</p>
 
-<h3>ステップ4: Issue 強制チェックの設定</h3>
+<h3>ステップ4: チケット強制チェックの設定</h3>
 
-<p>ファイル変更を伴う指示は GitHub Issue を起点にすることで、インシデント記録・ラベル管理・作業履歴が正しく機能します。チェック方法を選択します。</p>
+<p>ファイル変更を伴う指示は チケットを起点にすることで、インシデント記録・ラベル管理・作業履歴が正しく機能します。チェック方法を選択します。</p>
 
-<pre><code class="language-">? Issue 強制チェックの方法を選択してください
+<pre><code class="language-">? チケット強制チェックの方法を選択してください
 ❯ CLAUDE.md のみ（推奨）
     タスク受付ルールを CLAUDE.md に記載します
-    Claude が内容を判断して Issue 経由を促します
+    Claude が内容を判断して チケット経由を促します
     設定変更なしで導入できます
   hooks で強制
     UserPromptSubmit フックを設定します
-    変更系キーワードを含む指示に Issue 番号がない場合、スクリプトが自動でブロックします
+    変更系キーワードを含む指示に チケット番号がない場合、スクリプトが自動でブロックします
     より確実に強制できますが、誤検知でブロックされる場合もあります</code></pre>
 
 <p>どちらを選択しても、<code>CLAUDE.md</code> にタスク受付ルールが追記されます。<strong>hooks で強制</strong> を選択した場合はさらに <code>.claude/hooks/ensure-issue.sh</code> が配置され、<code>.claude/settings.json</code> にフックが登録されます。</p>
@@ -109,7 +109,7 @@
 
 <h4>runtime 別の配置（指示書・hooks）</h4>
 
-<table><thead><tr><th>用途</th><th>claude-code</th><th>grok</th></tr></thead><tbody><tr><td>プロジェクト指示</td><td><code>.claude/CLAUDE.md</code></td><td><strong><code>AGENTS.md</code>（正規）</strong> + <code>.claude/CLAUDE.md</code>（互換）</td></tr><tr><td>エージェント</td><td><code>.claude/teams/*/agents/</code> 等</td><td>左記 + <code>.grok/agents/</code> ミラー</td></tr><tr><td>スキル</td><td><code>.claude/commands/</code></td><td>左記 + <code>.grok/commands/</code> ミラー</td></tr><tr><td>Issue 強制フック本体</td><td><code>.claude/hooks/ensure-issue.sh</code></td><td>同じスクリプトを共有</td></tr><tr><td>フック登録</td><td><code>.claude/settings.json</code></td><td>左記 + <code>.grok/hooks/ensure-issue.json</code></td></tr></tbody></table>
+<table><thead><tr><th>用途</th><th>claude-code</th><th>grok</th></tr></thead><tbody><tr><td>プロジェクト指示</td><td><code>.claude/CLAUDE.md</code></td><td><strong><code>AGENTS.md</code>（正規）</strong> + <code>.claude/CLAUDE.md</code>（互換）</td></tr><tr><td>エージェント</td><td><code>.claude/teams/*/agents/</code> 等</td><td>左記 + <code>.grok/agents/</code> ミラー</td></tr><tr><td>スキル</td><td><code>.claude/commands/</code></td><td>左記 + <code>.grok/commands/</code> ミラー</td></tr><tr><td>チケット強制フック本体</td><td><code>.claude/hooks/ensure-issue.sh</code></td><td>同じスクリプトを共有</td></tr><tr><td>フック登録</td><td><code>.claude/settings.json</code></td><td>左記 + <code>.grok/hooks/ensure-issue.json</code></td></tr></tbody></table>
 <p>Grok は Claude 互換で <code>.claude/</code> も読みますが、<strong>指示の正規は <code>AGENTS.md</code>、フックの明示配置は <code>.grok/hooks/</code></strong> です。hooks 選択時は両方に登録します。</p>
 
 <h3>ステップ4b: モデル性能と effort 深度</h3>
@@ -140,7 +140,7 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 
 <h4>hooks の判定ロジック</h4>
 
-<table><thead><tr><th>条件</th><th>動作</th></tr></thead><tbody><tr><td>Issue 番号（<code>#123</code>）または GitHub URL を含む</td><td>スルー</td></tr><tr><td><code>/ai-team </code> スキルを使用している</td><td>スルー</td></tr><tr><td>「確認・調査・教えて」等の調査系で始まる</td><td>スルー</td></tr><tr><td>「修正・実装・追加・fix・create」等の変更系キーワードを含む</td><td><strong>ブロック</strong> → Issue 作成を案内</td></tr><tr><td>それ以外</td><td>スルー</td></tr></tbody></table>
+<table><thead><tr><th>条件</th><th>動作</th></tr></thead><tbody><tr><td>チケット番号（<code>#123</code>）または GitHub URL を含む</td><td>スルー</td></tr><tr><td><code>/ai-team </code> スキルを使用している</td><td>スルー</td></tr><tr><td>「確認・調査・教えて」等の調査系で始まる</td><td>スルー</td></tr><tr><td>「修正・実装・追加・fix・create」等の変更系キーワードを含む</td><td><strong>ブロック</strong> → チケット作成を案内</td></tr><tr><td>それ以外</td><td>スルー</td></tr></tbody></table>
 <h3>ステップ5: GitHub ラベルの作成</h3>
 
 <p>選択したチームに対応するラベルを <code>gh label create</code> で一括作成するかどうか確認します。既存ラベルは <code>--force</code> オプションで上書き更新されます。</p>

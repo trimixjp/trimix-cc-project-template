@@ -46,7 +46,7 @@ model_role: <leader | worker | simple>  # プロファイル適用時の役割
 
 以下のいずれかを満たした時点で起動します。
 
-1. `<チーム>:<エージェント名>` ラベルが付与された Issue が作成・更新された
+1. `<チーム>:<エージェント名>` ラベルが付与された チケットが作成・更新された
 2. （必要に応じて追加条件を記載）
 
 ---
@@ -63,7 +63,7 @@ model_role: <leader | worker | simple>  # プロファイル適用時の役割
 
 ---
 
-## GitHub Issueコメントフォーマット
+## チケットコメントフォーマット
 
 ### <フォーマット名（例: 作業開始時、完了報告）>
 
@@ -97,7 +97,7 @@ model_role: <leader | worker | simple>  # プロファイル適用時の役割
 
 ## 状態記録の原則
 
-- **Issue コメントが唯一の正（Single Source of Truth）です**
+- **チケットコメントが唯一の正（Single Source of Truth）です**
 - コメントに記録されていない作業・判断は存在しないものとして扱われます
 
 ---
@@ -115,7 +115,7 @@ model_role: <leader | worker | simple>  # プロファイル適用時の役割
 | `## 役割` | 必須 | 1〜3 文で簡潔に |
 | `## 起動条件` | 必須 | 番号付きリストで列挙 |
 | `## 動作フロー` | 必須 | ステップ形式で記述 |
-| `## GitHub Issueコメントフォーマット` | 必須 | コードブロックで定義 |
+| `## チケットコメントフォーマット` | 必須 | コードブロックで定義 |
 | `## エスカレーション条件` | 必須 | **省略禁止**（Human-Escalator 自身を除く） |
 | `## 失敗時挙動` | 必須 | 失敗ケースの分岐を最低1つ定義する（9-5 参照） |
 | `## 完了条件（exit criteria）` | 必須 | 検証可能なチェックリスト（9-1 参照） |
@@ -161,7 +161,7 @@ Implementer はバックエンドチームの「実装担当AI」です。Tech-L
 
 以下のいずれかを満たした時点で起動します。
 
-1. `backend:implementer` ラベルが付与された Issue が作成・更新された
+1. `backend:implementer` ラベルが付与された チケットが作成・更新された
 2. Reviewer からの差し戻しにより `backend:implementer` ラベルが再付与された
 ```
 
@@ -178,11 +178,11 @@ Implementer はバックエンドチームの「実装担当AI」です。Tech-L
 
 ### ステップ1: インシデント確認
 
-`.claude/incidents/index.yml` を読み込み、対象 Issue に関連するインシデントがないか確認します。
+`.claude/incidents/index.yml` を読み込み、対象チケットに関連するインシデントがないか確認します。
 
 ### ステップ2: 要件分析
 
-Issue 本文・関連ドキュメントを読み込み、以下を確認します。
+チケット本文・関連ドキュメントを読み込み、以下を確認します。
 
 | 確認項目 | 内容 |
 |----------|------|
@@ -195,10 +195,10 @@ Issue 本文・関連ドキュメントを読み込み、以下を確認しま�
 - インシデント確認ステップ（Tech-Lead・Frontend-Lead・Editor-in-Chief等のリーダー）は必ずステップ1に置く
 - テーブルは `| 列1 | 列2 |` / `|-----|-----|` の形式を使用する
 
-### 3-5. GitHub Issueコメントフォーマットセクション
+### 3-5. チケットコメントフォーマットセクション
 
 ```markdown
-## GitHub Issueコメントフォーマット
+## チケットコメントフォーマット
 
 ### 設計方針コメント
 
@@ -308,7 +308,7 @@ model_role: leader
 Grok 選択時は `.grok/agents/` と `.grok/commands/` にもミラーされます。
 
 役割の例:
-- **leader**: dispatcher, contributor, tech-lead, frontend-lead, editor-in-chief, infra-lead, architect, strategist, director 等。**次の担当へ渡す Issue コメントには詳細な設計書（要件・方針・タスク分割・制約・完了条件）を書く**
+- **leader**: dispatcher, contributor, tech-lead, frontend-lead, editor-in-chief, infra-lead, architect, strategist, director 等。**次の担当へ渡す チケットコメントには詳細な設計書（要件・方針・タスク分割・制約・完了条件）を書く**
 - **worker**: implementer, developer, reviewer, writer, researcher 等。リーダーの設計に従って実装・検証する
 - **simple**: pr-creator, version-bumper, tech-writer, publisher, editor（レンダ）等
 
@@ -355,7 +355,7 @@ node <パッケージルート>/bin/lib/apply-model-profile.js \
 
 ---
 
-**完了判定**: 上記すべての項目が ✅ であることを Contributor が確認してから Issue をクローズします。
+**完了判定**: 上記すべての項目が ✅ であることを Contributor が確認してから チケットをクローズします。
 ```
 
 ### 4-3. チェックリスト項目の書き方
@@ -395,7 +395,7 @@ node <パッケージルート>/bin/lib/apply-model-profile.js \
 ```yaml
 ---
 name: ai-team-run
-description: チケット（GitHub Issue・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+description: チケット（チケット・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
 ---
 ```
 
@@ -497,7 +497,7 @@ description: コンテンツチームの執筆担当AI。Editor-in-Chiefの方�
 3. `## 役割`
 4. `## 起動条件`
 5. `## 動作フロー`
-6. `## GitHub Issueコメントフォーマット`
+6. `## チケットコメントフォーマット`
 7. `## エスカレーション条件`
 8. `## 失敗時挙動`
 9. `## 完了条件（exit criteria）`
@@ -546,7 +546,7 @@ description: コンテンツチームの執筆担当AI。Editor-in-Chiefの方�
 ```markdown
 ## 完了条件（exit criteria）
 
-- [ ] 設計方針コメントを Issue に投稿した
+- [ ] 設計方針コメントを チケットに投稿した
 - [ ] 参照したルール・仕様書を方針コメントに明記した
 - [ ] 次のステップのラベル（`backend:implementer`）を付与した
 ```
@@ -569,7 +569,7 @@ description: コンテンツチームの執筆担当AI。Editor-in-Chiefの方�
 
 ### 9-2. 状態記録の原則
 
-- ワークフローの状態は **Issue のラベルとコメントのみ**で表現する（エージェントの内部状態・会話コンテキストに依存しない）
+- ワークフローの状態は **チケットのラベルとコメントのみ**で表現する（エージェントの内部状態・会話コンテキストに依存しない）
 - セッションが中断しても `/ai-team-resume` が**コメント履歴のみ**で状態を復元し、続きから再開できる状態を常に保つ
 - 判断・分岐を行った場合は、その根拠と参照ドキュメントを必ずコメントに残す
 - 各エージェント定義の「状態記録の原則」セクションには、次の一文を必ず含める（省略禁止）:
@@ -602,7 +602,7 @@ description: コンテンツチームの執筆担当AI。Editor-in-Chiefの方�
 - `.claude/rules/security.md` の環境変数ルールに基づき config 参照方式を採用
 
 ## 完了条件チェック
-- [x] 設計方針コメントを Issue に投稿した
+- [x] 設計方針コメントを チケットに投稿した
 - [x] 参照したルール・仕様書を明記した
 
 ⏭️ 次のアクション: backend:implementer に引き継ぎます
@@ -641,7 +641,7 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 - 差し戻し以外のコメント（独立レビューの暫定結果等）では、**先頭行に「差し戻し」の語を使ってはいけません**（カウントの偽陽性を防ぐため。例: 独立レビューの暫定結果は `🔍 Reviewer-A: 独立レビュー完了（暫定）` のように書く）
 - 本文中での「差し戻し」への言及・引用はカウントに影響しません（先頭行のみを照合するため）
 - 定義本文で上限に言及する際は必ず「workflow.yml の `rework_limit` が正」と出典を併記します（9-8 参照）
-- **同一 Issue に複数の差し戻しループが共存するチーム**（例: sns の Strategist→Researcher と Operator→Writer）では、カウント正規表現を必ずエージェント名でアンカーします（例: `grep -cE '^❌ Strategist: 差し戻し'`）。汎用パターン `^❌ .+: 差し戻し` のままでは他ループの差し戻しを誤カウントします
+- **同一チケットに複数の差し戻しループが共存するチーム**（例: sns の Strategist→Researcher と Operator→Writer）では、カウント正規表現を必ずエージェント名でアンカーします（例: `grep -cE '^❌ Strategist: 差し戻し'`）。汎用パターン `^❌ .+: 差し戻し` のままでは他ループの差し戻しを誤カウントします
 
 ### 9-5. 「失敗時挙動」セクション（必須）
 
@@ -651,7 +651,7 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 - 対象範囲を広げすぎない（計測不能時に全件・全履歴を対象にしない）
 - より厳格なレビュー方式を選ぶ
-- 判断できない場合は停止し、経緯を Issue コメントに記録してエスカレーションする
+- 判断できない場合は停止し、経緯を チケットコメントに記録してエスカレーションする
 
 **模範例（`frontend-lead.md`）:** 基準ブランチの存在確認（`git rev-parse --verify <base_branch>`）に失敗した場合は「計測不能」とみなし、安全側に倒して**ダブルレビュー**を選択し、その旨を判断コメントに記録する。
 

@@ -24,7 +24,7 @@ Render-Reviewer は YouTube 動画制作チームの「**レンダ成果物のQA
 
 以下をすべて満たした時点で起動します。
 
-1. `youtube:render-reviewer` ラベルが付与された Issue が更新された
+1. `youtube:render-reviewer` ラベルが付与された チケットが更新された
 2. `editor-render` の完了報告コメント（生成完了・一次確認まで）が投稿されている
 
 ---
@@ -33,7 +33,7 @@ Render-Reviewer は YouTube 動画制作チームの「**レンダ成果物のQA
 
 ### ステップ1: 検証対象の特定
 
-Issue コメント履歴から以下を確認します。
+チケットコメント履歴から以下を確認します。
 
 - 対象エピソード（`channels/<id>/episodes/NNNN-slug.md`）と制作エンジン repo の絶対パス（`<engine>`）
 - editor-render の完了報告（生成したセクション動画 `output/<id>/<episode>/sections/NN-*.mp4`・preview.html のパス）
@@ -67,7 +67,7 @@ Issue コメント履歴から以下を確認します。
 
 ## 差し戻しカウント手順
 
-合否判定を行い差し戻し（rework）を発生させる役割です。**不合格（差し戻し）と判定した場合、差し戻しの前に過去の差し戻し回数を機械的にカウント**します。差し戻し回数は `editor-review` / `editor-render` / `render-review` 等、同一 Issue の全 rework で共有します。
+合否判定を行い差し戻し（rework）を発生させる役割です。**不合格（差し戻し）と判定した場合、差し戻しの前に過去の差し戻し回数を機械的にカウント**します。差し戻し回数は `editor-review` / `editor-render` / `render-review` 等、同一 チケットの全 rework で共有します。
 
 差し戻しコメントの**先頭行**は必ず `❌ Render-Reviewer: 差し戻し（差し戻し回数: n/2）` 形式とします。差し戻しではないコメント（合格報告等）の先頭行には「差し戻し」という語を**使いません**（カウントの偽陽性防止）。
 
@@ -85,7 +85,7 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ---
 
-## GitHub Issue コメントフォーマット
+## チケットコメントフォーマット
 
 ### 書式1: QA 合格
 
@@ -202,7 +202,7 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ## 状態記録の原則
 
-- **Issue コメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・計測値・次のアクションを必ずコメントに記録します。
+- **チケットコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・計測値・次のアクションを必ずコメントに記録します。
 - コメントに記録されていない検証・判断は存在しないものとして扱われます。
 
 ---

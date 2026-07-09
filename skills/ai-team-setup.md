@@ -1,6 +1,6 @@
 ---
 name: ai-team-setup
-description: AIチームをプロジェクトにセットアップするウィザード。.claude/ディレクトリにエージェント定義・ワークフロー・設定ファイルを配置し、GitHub Issuesのラベルを作成します。
+description: AIチームをプロジェクトにセットアップするウィザード。.claude/ディレクトリにエージェント定義・ワークフロー・設定ファイルを配置し、チケット用ラベルを作成します（ticket_backend: github の場合）。
 model: opus
 effort: high
 model_role: leader
@@ -74,8 +74,8 @@ node <パッケージルート>/bin/lib/apply-model-profile.js \
 両質問の回答をまとめて「導入するチーム一覧」として扱います。
 
 **質問2**: 運用モードを選択してください（`AskUserQuestion` ツールを使用）
-- **マルチユーザーモード**: 担当者が `/ai-team-run <Issue>` を実行して処理を開始します。複数人チームに適しています
-- **ソロモード**: `/ai-team-watch` を起動すると新しいIssueを自動検出して処理します。1人での運用に適しています
+- **マルチユーザーモード**: 担当者が `/ai-team-run <チケット>` を実行して処理を開始します。複数人チームに適しています
+- **ソロモード**: `/ai-team-watch` を起動すると新しいチケットを自動検出して処理します。1人での運用に適しています
 
 **質問3**: バージョン管理の方法を選択してください（`AskUserQuestion` ツールを使用）
 - **自動インクリメント（auto）**: Reviewer 合格後に conventional commit に基づき `package.json` のバージョンを自動更新します。ソロ運用・小規模チームに適しています
@@ -87,12 +87,12 @@ node <パッケージルート>/bin/lib/apply-model-profile.js \
 - **GitHub Issues（既定・エンジニア向け）**: 既存どおり `gh` 経由。協業・PR 連携向き
 - **ローカル Markdown（Obsidian 推奨・非エンジニア向け）**: プロジェクト内 `tickets/*.md` で完結。プライベート GitHub 不要。人間は Obsidian で `tickets/` を vault として開く運用を推奨（エージェントはファイル + CLI のみ）
 
-**質問4b**: Issue / チケット強制チェックの方法を選択してください（`AskUserQuestion` ツールを使用）
+**質問4b**: チケット / チケット強制チェックの方法を選択してください（`AskUserQuestion` ツールを使用）
 
 ファイル変更を伴う指示はチケットを起点にすることで、インシデント記録・ラベル管理・作業履歴が機能します。チェック方法を選択してください。
 
 - **CLAUDE.md のみ（推奨）**: タスク受付ルールを CLAUDE.md に記載します。Claude が内容を判断してチケット経由を促します
-- **hooks で強制**: `UserPromptSubmit` フックを設定します（GitHub Issue 番号 / ローカル番号の検出。local 時は数字 ID も可）
+- **hooks で強制**: `UserPromptSubmit` フックを設定します（チケット 番号 / ローカル番号の検出。local 時は数字 ID も可）
 
 **質問5**: モデル性能プロファイルを選択してください（`AskUserQuestion` ツールを使用）
 
@@ -213,7 +213,7 @@ runtime: claude-code  # または grok
 
 # solo モードの設定（mode: solo の場合のみ有効）
 solo:
-  poll_interval_minutes: 5      # Issue監視の間隔（分）
+  poll_interval_minutes: 5      # チケット監視の間隔（分）
   target_labels:                # 処理対象とするラベル（いずれか1つでも付いていれば対象）
     - dispatcher
     - backend:tech-lead
@@ -284,7 +284,7 @@ head -8 .claude/commands/ai-team-run.md
 skills/ai-team-watch.md → .claude/commands/ai-team-watch.md
 ```
 
-### Issue 強制チェック（hooks を選択した場合）
+### チケット強制チェック（hooks を選択した場合）
 
 #### フックスクリプトの配置（runtime 共通）
 
@@ -430,7 +430,7 @@ templates/teams/youtube/dod/*.md            → .claude/teams/youtube/dod/
 templates/teams/youtube/PRODUCTION-GUIDE.md → .claude/teams/youtube/PRODUCTION-GUIDE.md
 ```
 
-### GitHub Issueテンプレート（常に配置）
+### チケットテンプレート（常に配置）
 
 ```
 templates/.github/ISSUE_TEMPLATE/*.yml → .github/ISSUE_TEMPLATE/
@@ -455,7 +455,7 @@ grep -qF "# @trimix/ai-team - AIチーム設定" .gitignore 2>/dev/null || cat >
 .claude/escalation-rules.yml
 .claude/model-profiles.yml
 
-# @trimix/ai-team - GitHub Issue テンプレート
+# @trimix/ai-team - チケット テンプレート
 .github/ISSUE_TEMPLATE/
 EOF
 ```
@@ -474,7 +474,7 @@ EOF
 > 以降は通常通り `git add` / `git commit` で変更を管理できます。
 > 個人環境でのみ使う設定（`hooks/` など）は引き続き `.gitignore` で除外してください。
 
-## ステップ4: GitHub Issuesラベルの作成
+## ステップ4: ラベルの作成（ticket_backend: github の場合）
 
 ### 4-1: リポジトリの確認
 
@@ -519,7 +519,7 @@ gh auth status
 
 `AskUserQuestion` ツールを使い、以下を確認してください：
 
-**質問**: GitHub Issuesにラベルを作成しますか？
+**質問**: チケット用ラベルを GitHub に作成しますか？（local のみ運用ならスキップ可）
 - はい、今すぐ作成する（選択したチームに対応するラベルを一括作成）
 - いいえ、スキップする（後で手動作成するか、/ai-team-setup を再実行して作成できます）
 
@@ -658,7 +658,7 @@ grep -qF "## AIチーム設定" AGENTS.md 2>/dev/null || cat "$RULES" >> AGENTS.
 | プロジェクト指示 | `.claude/CLAUDE.md` | `AGENTS.md` + `.claude/CLAUDE.md` |
 | エージェント定義 | `.claude/agents/` / `.claude/teams/*/agents/` | 左記 + ミラー `.grok/agents/` |
 | スキル（コマンド） | `.claude/commands/` | 左記 + ミラー `.grok/commands/` |
-| Issue 強制フック本体 | `.claude/hooks/ensure-issue.sh` | 同じ（共有） |
+| チケット強制フック本体 | `.claude/hooks/ensure-issue.sh` | 同じ（共有） |
 | フック登録 | `.claude/settings.json` | 左記 + `.grok/hooks/ensure-issue.json` |
 | 運用設定 | `.claude/ai-team-config.yml`（`runtime` キー） | 同じ |
 ## コマンド失敗時のフォールバック
@@ -714,6 +714,6 @@ grep -qF "## AIチーム設定" AGENTS.md 2>/dev/null || cat "$RULES" >> AGENTS.
 - **プロファイルの一括変更**: `node <パッケージルート>/bin/lib/apply-model-profile.js --runtime <claude-code|grok> --profile <id> --effort <id> --dir .claude`
 
 ## 運用モードについて
-- **マルチユーザーモード**: Issueを作成し、担当者をアサインしたら `/ai-team-run <IssueのURL>` でワークフローを開始します
-- **ソロモード**: `/ai-team-watch` を実行すると新しいIssueの自動監視が始まります。停止するまでバックグラウンドで動作します
+- **マルチユーザーモード**: チケットを作成し、担当者をアサインしたら `/ai-team-run <チケットのURL>` でワークフローを開始します
+- **ソロモード**: `/ai-team-watch` を実行すると新しいチケットの自動監視が始まります。停止するまでバックグラウンドで動作します
 ```

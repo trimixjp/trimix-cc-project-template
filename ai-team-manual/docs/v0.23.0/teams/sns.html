@@ -59,7 +59,7 @@
     F -->|ルール違反| F
     F --> G["operator\nガイドライン確認\nスケジュール策定\n人間への公開指示"]
     G -->|差し戻し| F
-    G -->|合格| H["contributor-close\nDOD確認\nIssueクローズ"]
+    G -->|合格| H["contributor-close\nDOD確認\nチケットクローズ"]
     G -->|炎上リスク| I["⏸️ human-escalator\n人間が判断"]
     I --> J[return_to_previous]</div>
 
@@ -114,10 +114,10 @@
 
 <h2>ステップ定義詳細（workflow.yml より）</h2>
 
-<table><thead><tr><th>step id</th><th>agent</th><th>label</th><th>概要</th></tr></thead><tbody><tr><td><code>strategist-planning</code></td><td>strategist</td><td><code>sns:strategist</code></td><td>目的・ターゲット・方針策定、調査要否の判断</td></tr><tr><td><code>researcher</code></td><td>researcher</td><td><code>sns:researcher</code></td><td>トレンド・競合・エンゲージメント・masterclass 調査</td></tr><tr><td><code>strategist-review</code></td><td>strategist</td><td><code>sns:strategist</code></td><td>調査結果確認・方針更新（researcher 起動時のみ）。調査レポートが不十分な場合は <code>on_rework</code> で researcher へ差し戻し</td></tr><tr><td><code>writer</code></td><td>writer</td><td><code>sns:writer</code></td><td>X・Instagram 向け投稿文執筆</td></tr><tr><td><code>operator-review</code></td><td>operator</td><td><code>sns:operator</code></td><td>ガイドライン確認・スケジュール策定・公開指示作成</td></tr><tr><td><code>human-escalator</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>炎上リスク・判断不能事項を人間にエスカレーション</td></tr><tr><td><code>contributor-close</code></td><td>contributor</td><td><code>contributor:ready</code></td><td>DOD 確認・Issue クローズ</td></tr></tbody></table>
+<table><thead><tr><th>step id</th><th>agent</th><th>label</th><th>概要</th></tr></thead><tbody><tr><td><code>strategist-planning</code></td><td>strategist</td><td><code>sns:strategist</code></td><td>目的・ターゲット・方針策定、調査要否の判断</td></tr><tr><td><code>researcher</code></td><td>researcher</td><td><code>sns:researcher</code></td><td>トレンド・競合・エンゲージメント・masterclass 調査</td></tr><tr><td><code>strategist-review</code></td><td>strategist</td><td><code>sns:strategist</code></td><td>調査結果確認・方針更新（researcher 起動時のみ）。調査レポートが不十分な場合は <code>on_rework</code> で researcher へ差し戻し</td></tr><tr><td><code>writer</code></td><td>writer</td><td><code>sns:writer</code></td><td>X・Instagram 向け投稿文執筆</td></tr><tr><td><code>operator-review</code></td><td>operator</td><td><code>sns:operator</code></td><td>ガイドライン確認・スケジュール策定・公開指示作成</td></tr><tr><td><code>human-escalator</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>炎上リスク・判断不能事項を人間にエスカレーション</td></tr><tr><td><code>contributor-close</code></td><td>contributor</td><td><code>contributor:ready</code></td><td>DOD 確認・チケットクローズ</td></tr></tbody></table>
 <h3>調査結果の品質ゲート（strategist-review の差し戻し）</h3>
 
-<code>strategist-review</code> には <code>on_rework</code> が定義されており、Strategist が調査レポートを不十分（再調査が必要）と判定した場合は Researcher へ差し戻して再調査させます。差し戻し上限（<code>rework_limit: 2</code>）を超えた場合、すなわち同一 Issue で 3 回目の不合格となった場合は、Researcher へ差し戻さず <code>human-escalator</code> にエスカレーションします。不十分な調査結果のまま Writer の執筆工程へ進むことを防ぐための品質ゲートです。
+<code>strategist-review</code> には <code>on_rework</code> が定義されており、Strategist が調査レポートを不十分（再調査が必要）と判定した場合は Researcher へ差し戻して再調査させます。差し戻し上限（<code>rework_limit: 2</code>）を超えた場合、すなわち同一チケットで 3 回目の不合格となった場合は、Researcher へ差し戻さず <code>human-escalator</code> にエスカレーションします。不十分な調査結果のまま Writer の執筆工程へ進むことを防ぐための品質ゲートです。
 
       </article>
     </div>

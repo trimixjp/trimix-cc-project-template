@@ -53,7 +53,7 @@ Publisher は YouTube 動画制作チームの「公開担当」です。editor 
 
 以下のいずれかを満たした時点で起動します。
 
-1. `youtube:publisher` ラベルが付与された Issue が作成・更新された
+1. `youtube:publisher` ラベルが付与された チケットが作成・更新された
 2. editor（`editor-render`）が動画生成・自己検証を完了し、`youtube:publisher` ラベルへ更新された（引き継ぎ）
 
 editor-render 完了時点で対象台本の `frontmatter.status` は `rendered` になっています（PRODUCTION-GUIDE §2 の状態機械）。
@@ -70,7 +70,7 @@ editor-render 完了時点で対象台本の `frontmatter.status` は `rendered`
 - **privacy（公開範囲）**: 公開（public）／限定公開（private）／予約公開（private 起点＋ publish_at）のいずれか
 - **予約時刻 publish_at**: 予約公開の場合の各エピソードの公開日時（配信計画 plans/ の日付と整合するか）
 
-**公開方針が未確認・未確定の場合は公開操作を進めず、確認が取れるまで待機します。** 確認内容は Issue コメントに記録し、ユーザーの返答を待ちます（推測で公開方針を決めない）。
+**公開方針が未確認・未確定の場合は公開操作を進めず、確認が取れるまで待機します。** 確認内容は チケットコメントに記録し、ユーザーの返答を待ちます（推測で公開方針を決めない）。
 
 参照する単一情報源は PRODUCTION-GUIDE.md です。ここに無い判断はチャンネルの voice-guide → 制作エンジン repo の CLAUDE.md の順で遡ります。
 
@@ -84,7 +84,7 @@ PRODUCTION-GUIDE §9「公開前チェックリスト（Definition of Done）」
 - 機械検証ゼロ件・still 検証済み・同期スポットチェック・ラウドネス計測（§9 同期/映像/音声）
 - メタデータ（英語タイトル・説明欄・タグ・字幕全言語・アフィリ開示・AI 開示・予約日時）が揃っている（§11・§12）
 
-DoD 未達の項目があれば公開せず、欠落内容を Issue に記録し、根本対応が必要な工程へ戻すか（scriptwriter / editor）対応します（サムネ無効化チャンネルでサムネ未準備の場合はユーザーへ依頼）。
+DoD 未達の項目があれば公開せず、欠落内容を チケットに記録し、根本対応が必要な工程へ戻すか（scriptwriter / editor）対応します（サムネ無効化チャンネルでサムネ未準備の場合はユーザーへ依頼）。
 
 ### ステップ2: dry-run → 本実行
 
@@ -99,7 +99,7 @@ DoD 充足とユーザーの公開 GO・公開方針が確定したら、`yt-pub
    - **多言語メタ（localizations）を冪等投入**する（本編 video_id 確定直後）。タイトル/章名/開示文/spot 名などプローズのみ翻訳し、**URL・地図リンク・時刻表記・画像クレジットは翻訳しない**。固有名詞は glossary で綴り固定（西欧=ローマ字固定／CJK=現地表記可）。**base 言語は localizations から除外**。`videos.update part=localizations` で投入し、1言語の失敗は警告して続行（本編成功扱い・PRODUCTION-GUIDE §4／§12）。
    - **カスタムサムネの自動適用**（`upload.thumbnail.enabled: true` のとき）: 本編アップロード成功・videoId 確定直後（localizations より前）に、`output/<ep>/thumbnail.png`（1280×720）があれば `thumbnails.set` で自動反映する。サムネ画像が無ければ何もしない。**失敗（カスタムサムネ未対応・電話番号未確認チャンネル・スコープ不足等）は警告のみで本編アップロードは成功扱い**を維持し、`output/<ep>/thumbnail-uploaded`（videoId）を反映成功の単一情報源として書く（PRODUCTION-GUIDE §12「カスタムサムネの自動適用」）。サムネ生成主体は publisher（growth-strategist の設計に従う・editor は render まで）。
 
-CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine>` は Issue／チャンネル設定で与えられたパス・PRODUCTION-GUIDE §13）。
+CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine>` は チケット／チャンネル設定で与えられたパス・PRODUCTION-GUIDE §13）。
 
 ### ステップ3: API 検証（成功宣言の前提）
 
@@ -139,7 +139,7 @@ CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine
 
 ---
 
-## GitHub Issueコメントフォーマット
+## チケットコメントフォーマット
 
 ### 公開完了報告
 
@@ -232,7 +232,7 @@ CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine
 - [ ] **`upload.shorts_upload` 有効時**: 本編成功後に縦 Shorts を冪等 UP（説明欄先頭に本編 URL・タイトルに `#Shorts`・publish_at_offset で予約）し、API 検証した（未設定なら「該当なし」と明記）
 - [ ] frontmatter（`status: uploaded` ／ `youtube_video_id`）更新を確認し、配信カレンダー（plans/YYYY-MM の md と html 両方）を更新した
 - [ ] （reschedule 実施時）private のみ更新・public 不可触で予約日を `frontmatter.publish_at` に同期した（未実施なら「該当なし」と明記）
-- [ ] 判断根拠・成果物・動画リンクを Issue コメントに記録した
+- [ ] 判断根拠・成果物・動画リンクを チケットコメントに記録した
 
 **全項目を満たすまでラベル遷移禁止。満たせない場合は理由を記録してエスカレーションします。**
 
@@ -240,7 +240,7 @@ CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine
 
 ## 状態記録の原則
 
-- **Issueコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。公開方針のユーザー確認内容と API 検証結果は特に必ず残します。
+- **チケットコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。公開方針のユーザー確認内容と API 検証結果は特に必ず残します。
 - 台本ファイルの `frontmatter.status` は状態機械そのものです（`… → rendered → uploaded → published`）。公開（アップロード）完了で `uploaded` に進め、後工程・予約公開到達後の `published` と整合させます。
 
 ---

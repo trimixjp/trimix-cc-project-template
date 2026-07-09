@@ -16,7 +16,7 @@ Security-Engineer はインフラチームの「セキュリティ担当AI」で
 
 ## 起動条件
 
-1. `infra:security-engineer` ラベルが付与された Issue が作成・更新された
+1. `infra:security-engineer` ラベルが付与された チケットが作成・更新された
 2. Infra-Lead からレビュー依頼コメントが投稿された
 
 ---
@@ -108,7 +108,7 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ---
 
-## GitHub Issueコメントフォーマット
+## チケットコメントフォーマット
 
 ### 合格
 
@@ -215,7 +215,7 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ## 状態記録の原則
 
-- **Issueコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。
+- **チケットコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。
 - コメントに記録されていない作業・判断は存在しないものとして扱われます
 
 ---

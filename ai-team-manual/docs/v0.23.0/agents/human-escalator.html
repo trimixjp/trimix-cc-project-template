@@ -42,7 +42,7 @@
 
 <p>Human-Escalator は次の 2 つのことを行います。</p>
 
-<ol><li><strong>エスカレーションコメントの投稿</strong> — 何が判断できないか・どんな選択肢があるかを人間に伝えるコメントを Issue に投稿する</li><li><strong>処理の停止</strong> — <code>escalated:human</code> ラベルを付与して、人間が返答するまでエージェント処理を止める</li></ol>
+<ol><li><strong>エスカレーションコメントの投稿</strong> — 何が判断できないか・どんな選択肢があるかを人間に伝えるコメントを チケットに投稿する</li><li><strong>処理の停止</strong> — <code>escalated:human</code> ラベルを付与して、人間が返答するまでエージェント処理を止める</li></ol>
 <p>Human-Escalator 自身は判断を下しません。エスカレーションの理由と選択肢を提示することが唯一の役割です。</p>
 
 <hr>
@@ -78,7 +78,7 @@
 
 <h2>エスカレーションコメントの形式</h2>
 
-<p>対象 Issue に次のフォーマットでコメントが投稿されます。v0.11.0 から <code>エスカレーション元ステップ</code> / <code>エスカレーション種別</code> / <code>人間への質問</code> / <code>選択肢と推奨</code> の<strong>構造化フィールドが必須</strong>になりました。</p>
+<p>対象チケットに次のフォーマットでコメントが投稿されます。v0.11.0 から <code>エスカレーション元ステップ</code> / <code>エスカレーション種別</code> / <code>人間への質問</code> / <code>選択肢と推奨</code> の<strong>構造化フィールドが必須</strong>になりました。</p>
 
 <pre><code class="language-">🚨 エスカレーション: 人間の判断が必要です
 
@@ -103,12 +103,12 @@
 - **選択肢B**: （内容と想定される影響）
 - **推奨**: （推奨する選択肢とその理由）
 
-→ このIssueにコメントで判断を返してください
+→ このチケットにコメントで判断を返してください
 ⏸️ 人間の返答があるまでエージェント処理は停止します
 
 ## 対応完了後の手順
 
-1. このIssueに判断内容をコメントしてください
+1. このチケットに判断内容をコメントしてください
 2. `escalated:human` ラベルを外してください
 3. 以下のコマンドでワークフローを再開してください：
    /ai-team-resume
@@ -122,7 +122,7 @@
 
 <p>エスカレーションコメントを投稿する前に、Human-Escalator は次のドキュメントを確認して「調査したが判断基準が見つからなかった」という証跡を残します。</p>
 
-<ul><li><code>.claude/rules/</code> 配下の全 <code>.md</code> ファイル</li><li><code>CLAUDE.md</code></li><li><code>docs/</code> 配下の仕様書</li><li>関連 Issue のコメント履歴</li></ul>
+<ul><li><code>.claude/rules/</code> 配下の全 <code>.md</code> ファイル</li><li><code>CLAUDE.md</code></li><li><code>docs/</code> 配下の仕様書</li><li>関連 チケットのコメント履歴</li></ul>
 <p>調査結果はエスカレーションコメントの「調査済みのドキュメント」セクションに列挙されます。</p>
 
 <hr>
@@ -131,7 +131,7 @@
 
 <p>エスカレーションコメント投稿後、Human-Escalator は次の操作を行ってから処理を停止します。</p>
 
-<table><thead><tr><th>操作</th><th>説明</th></tr></thead><tbody><tr><td><code>escalated:human</code> ラベルの付与</td><td>Issue がエスカレーション中であることを示す</td></tr><tr><td>担当者のアサイン</td><td>プロジェクト設定に従い、判断を担当する人間をアサインする</td></tr></tbody></table>
+<table><thead><tr><th>操作</th><th>説明</th></tr></thead><tbody><tr><td><code>escalated:human</code> ラベルの付与</td><td>チケットがエスカレーション中であることを示す</td></tr><tr><td>担当者のアサイン</td><td>プロジェクト設定に従い、判断を担当する人間をアサインする</td></tr></tbody></table>
 <hr>
 
 <h2>人間が無応答の場合のリマインド（v0.11.0）</h2>
@@ -150,19 +150,19 @@
 
 <h2>人間が対応した後の再開手順</h2>
 
-<ol><li>Issue に判断内容をコメントする</li><li><code>escalated:human</code> ラベルを手動で外す</li><li><code>/ai-team-resume</code> を実行してワークフローを再開する（ソロモードでは自動再開）</li></ol>
+<ol><li>チケットに判断内容をコメントする</li><li><code>escalated:human</code> ラベルを手動で外す</li><li><code>/ai-team-resume</code> を実行してワークフローを再開する（ソロモードでは自動再開）</li></ol>
 <p>再開時は、エスカレーションコメントの <code>エスカレーション元ステップ</code> フィールドをもとに、workflow.yml の <code>return_to_previous</code> が指す復帰先ステップが機械的に決定されます。</p>
 
 <hr>
 
 <h2>重要な原則</h2>
 
-<ul><li>エスカレーション理由を曖昧にしてはいけません。「なぜ判断できないか」を具体的に記述します</li><li>調査したドキュメントをすべて列挙します（「調査したが見つからなかった」という証跡が重要）</li><li>人間の返答なしに処理を再開してはいけません</li><li>エスカレーション内容は次のエージェントが参照できるよう Issue コメントに残します</li></ul>
+<ul><li>エスカレーション理由を曖昧にしてはいけません。「なぜ判断できないか」を具体的に記述します</li><li>調査したドキュメントをすべて列挙します（「調査したが見つからなかった」という証跡が重要）</li><li>人間の返答なしに処理を再開してはいけません</li><li>エスカレーション内容は次のエージェントが参照できるよう チケットコメントに残します</li></ul>
 <hr>
 
 <h2>関連ドキュメント</h2>
 
-<ul><li><a href="dispatcher.html">Dispatcher</a> — Epic 分解・タスク振り分け担当</li><li><a href="contributor.html">Contributor</a> — 作業完了確認・Issue クローズ担当</li><li><a href="../reference/escalation.html">エスカレーションルール</a> — エスカレーション条件と <code>escalation-rules.yml</code> の詳細</li><li><a href="../guide/workflow.html">ワークフローガイド</a> — <code>/ai-team-resume</code> の使い方を含む全体フロー</li></ul>
+<ul><li><a href="dispatcher.html">Dispatcher</a> — Epic 分解・タスク振り分け担当</li><li><a href="contributor.html">Contributor</a> — 作業完了確認・チケットクローズ担当</li><li><a href="../reference/escalation.html">エスカレーションルール</a> — エスカレーション条件と <code>escalation-rules.yml</code> の詳細</li><li><a href="../guide/workflow.html">ワークフローガイド</a> — <code>/ai-team-resume</code> の使い方を含む全体フロー</li></ul>
       </article>
     </div>
   </div>

@@ -101,7 +101,7 @@ node node_modules/@trimix/ai-team/bin/setup.js install <team_id>
 インストールが完了しました。次のステップ:
 1. /ai-team-setup を実行してプロジェクトへのセットアップを完了してください
 2. GitHub のラベルが作成されたか確認してください
-3. /ai-team-run <Issue番号> でワークフローを起動できます
+3. /ai-team-run <チケット番号> でワークフローを起動できます
 ```
 
 ---

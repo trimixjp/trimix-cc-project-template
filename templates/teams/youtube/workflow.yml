@@ -1,8 +1,8 @@
 # YouTube動画制作チーム ワークフロー定義
-# Director がIssueを分析し、タスク種別を3分岐で判定します
+# Director がチケットを分析し、タスク種別を3分岐で判定します
 # （チャンネル立ち上げ / エピソード制作 / グロース単発）
 #
-# 2ゲート自律生産（Issue #37・2026-06-20 ユーザー確定）:
+# 2ゲート自律生産（チケット #37・2026-06-20 ユーザー確定）:
 #   エピソード制作の人間ゲートは2点だけ。
 #     ゲート1 = 台本チェック（human-picture-lock = preview承認）
 #     ゲート2 = 動画チェック（human-video-review = レンダ後・公開前に限定公開動画を人間が承認）
@@ -10,7 +10,7 @@
 #   自動の検証ゲート（人間ゲートにしない）。各 producer 成果物の QA は専用QA（producer とは
 #   別エージェント）が自動で判定する（人間ゲートではない）。**QAステップは人間ゲートにしない。**
 #
-# 成果物検証の大原則 — producer ⇔ 専用QA の 1:1（Issue #38/#39・設計19 §0.3・2026-06-20 ユーザー確定）:
+# 成果物検証の大原則 — producer ⇔ 専用QA の 1:1（チケット #38/#39・設計19 §0.3・2026-06-20 ユーザー確定）:
 #   各 producer ステップ（作る役）の成果物は、必ず「producer とは別の専用QAエージェント」が
 #   QA（品質チェック）して合否を出す（AI は自分の成果物に過信するため・自己申告で次へ進めない）。
 #   ワークフローは `producer →（バトン）→ 専用QA →（合格）→ 次の producer ／（不合格）→ 元の producer へ
@@ -39,7 +39,7 @@
 name: youtube-workflow
 description: YouTube動画の企画・台本・生成・公開・収益最大化を一貫して行うワークフロー
 
-# 同一Issueでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
+# 同一チケットでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
 # （カウント手順は各レビュー役エージェント定義の「差し戻しカウント手順」を参照）
 rework_limit: 2
 
@@ -69,7 +69,7 @@ labels:
     - "escalated:human"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ラベル→エージェント ディスパッチ索引（#A / Issue #44・ai-team-watch 自動前進用）
+# ラベル→エージェント ディスパッチ索引（#A / チケット #44・ai-team-watch 自動前進用）
 # ─────────────────────────────────────────────────────────────────────────────
 # ai-team-watch がポーリングで検出した `youtube:<step>` ラベルから、起動すべき
 # エージェントと現在 step を引くための索引。**状態機械の正は上の steps: 定義**であり、
@@ -200,7 +200,7 @@ steps:
   - id: director-planning
     agent: director
     label: "youtube:director"
-    description: Issue分析・インシデント確認・タスク種別の判定（3分岐）
+    description: チケット分析・インシデント確認・タスク種別の判定（3分岐）
     on_complete:
       conditions:
         - id: channel-creation
@@ -312,7 +312,7 @@ steps:
     on_rework:
       condition: 不合格
       next: channel-producer-planning
-      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は差し戻さず human-escalator へ
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は差し戻さず human-escalator へ
       limit_exceeded_next: human-escalator
     on_escalation:
       next: human-escalator
@@ -355,7 +355,7 @@ steps:
       condition: 不合格（台本起因は scriptwriter／重複・スタブ起因は channel-producer）
       next: scriptwriter
       next_if_planning_root_cause: channel-producer-planning
-      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は差し戻さず human-escalator へ
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は差し戻さず human-escalator へ
       limit_exceeded_next: human-escalator
     on_escalation:
       next: human-escalator
@@ -457,7 +457,7 @@ steps:
     on_rework:
       condition: render-review から差し戻された場合（該当チャンク差分再レンダで自己修復）
       next: editor-render
-      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は editor-render へ差し戻さず human-escalator へ
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は editor-render へ差し戻さず human-escalator へ
       limit_exceeded_next: human-escalator
     on_escalation:
       next: human-escalator
@@ -481,7 +481,7 @@ steps:
       condition: 不合格（差分再レンダで直るなら editor-render／台本起因なら scriptwriter）
       next: editor-render
       next_if_script_root_cause: scriptwriter
-      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は差し戻さず human-escalator へ
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は差し戻さず human-escalator へ
       limit_exceeded_next: human-escalator
     on_escalation:
       next: human-escalator
@@ -638,7 +638,7 @@ steps:
     label: "contributor:ready"
     description: |
       【終端の別エージェントQA / 成果物検証 §0.3】producer 群とは別エージェント(contributor)が
-      DoD(設計19 §1)確認・コメント品質チェック・Issueクローズ・インシデント調査を行う。
+      DoD(設計19 §1)確認・コメント品質チェック・チケットクローズ・インシデント調査を行う。
       未達があれば該当工程へ差し戻す（合格までクローズしない）。
     on_complete:
       action: close_issue

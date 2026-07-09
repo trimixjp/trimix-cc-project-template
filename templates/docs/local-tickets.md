@@ -76,7 +76,7 @@ npx @trimix/ai-team ticket close <id>
 /ai-team-run 1
 ```
 
-ローカル時は Issue 番号 = `tickets/open/` 内 frontmatter の `id` です。
+ローカル時は チケット番号 = `tickets/open/` 内 frontmatter の `id` です。
 
 ---
 

@@ -1,6 +1,6 @@
 # チーム概要
 
-`@trimix/ai-team` は 6 つの専門チームを提供します。各チームは独自のワークフロー定義（`workflow.yml`）とエージェント群を持ち、担当する Issue の種類に応じて自律的に処理を進めます。
+`@trimix/ai-team` は 6 つの専門チームを提供します。各チームは独自のワークフロー定義（`workflow.yml`）とエージェント群を持ち、担当する チケットの種類に応じて自律的に処理を進めます。
 
 ---
 
@@ -90,9 +90,9 @@
 
 | エージェント | 役割 |
 |------------|------|
-| `dispatcher` | Epic Issue を Sub Issue に分解 |
+| `dispatcher` | Epic チケットを サブチケットに分解 |
 | `human-escalator` | 判断不能事項を人間にエスカレーション |
-| `contributor` | 全体管理・DOD 確認・Issue クローズ・インシデント記録 |
+| `contributor` | 全体管理・DOD 確認・チケットクローズ・インシデント記録 |
 
 ### 共通ラベル
 
@@ -156,4 +156,4 @@ youtube:editor            youtube:growth-strategist youtube:affiliate
 youtube:publisher         youtube:sns-distributor   youtube:monetizer
 ```
 
-Issue にこれらのラベルを付与すると、対応するエージェントが処理を開始します。
+チケットにこれらのラベルを付与すると、対応するエージェントが処理を開始します。

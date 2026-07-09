@@ -32,7 +32,7 @@
       <article class="content">
         <h1>チーム概要</h1>
 
-<code>@trimix/ai-team</code> は 6 つの専門チームを提供します。各チームは独自のワークフロー定義（<code>workflow.yml</code>）とエージェント群を持ち、担当する Issue の種類に応じて自律的に処理を進めます。
+<code>@trimix/ai-team</code> は 6 つの専門チームを提供します。各チームは独自のワークフロー定義（<code>workflow.yml</code>）とエージェント群を持ち、担当する チケットの種類に応じて自律的に処理を進めます。
 
 <hr>
 
@@ -81,7 +81,7 @@
 
 <h3>共通エージェント（<code>.claude/agents/</code>）</h3>
 
-<table><thead><tr><th>エージェント</th><th>役割</th></tr></thead><tbody><tr><td><code>dispatcher</code></td><td>Epic Issue を Sub Issue に分解</td></tr><tr><td><code>human-escalator</code></td><td>判断不能事項を人間にエスカレーション</td></tr><tr><td><code>contributor</code></td><td>全体管理・DOD 確認・Issue クローズ・インシデント記録</td></tr></tbody></table>
+<table><thead><tr><th>エージェント</th><th>役割</th></tr></thead><tbody><tr><td><code>dispatcher</code></td><td>Epic チケットを サブチケットに分解</td></tr><tr><td><code>human-escalator</code></td><td>判断不能事項を人間にエスカレーション</td></tr><tr><td><code>contributor</code></td><td>全体管理・DOD 確認・チケットクローズ・インシデント記録</td></tr></tbody></table>
 <h3>共通ラベル</h3>
 
 <table><thead><tr><th>ラベル</th><th>用途</th></tr></thead><tbody><tr><td><code>epic</code></td><td>複数チームにまたがる大規模タスク</td></tr><tr><td><code>dispatcher</code></td><td>Dispatcher が自動分解中</td></tr><tr><td><code>incident</code></td><td>インシデント報告</td></tr><tr><td><code>escalated:human</code></td><td>人間の判断が必要（処理停止中）</td></tr><tr><td><code>contributor:ready</code></td><td>Contributor が完了確認中</td></tr><tr><td><code>ai-team:in-progress</code></td><td>AI エージェントが処理中（二重実行防止）</td></tr></tbody></table>
@@ -124,7 +124,7 @@ youtube:director          youtube:channel-producer  youtube:scriptwriter
 youtube:editor            youtube:growth-strategist youtube:affiliate
 youtube:publisher         youtube:sns-distributor   youtube:monetizer</code></pre>
 
-<p>Issue にこれらのラベルを付与すると、対応するエージェントが処理を開始します。</p>
+<p>チケットにこれらのラベルを付与すると、対応するエージェントが処理を開始します。</p>
 
       </article>
     </div>

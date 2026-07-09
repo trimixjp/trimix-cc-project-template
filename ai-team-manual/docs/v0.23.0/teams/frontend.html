@@ -34,7 +34,7 @@
 
 <p>フロントエンドチームは、UI 設計・コンポーネント実装・アクセシビリティ対応・PR 作成までを自律的に行う AI チームです。バックエンドチームと同様にシングル / ダブルレビューを自動で使い分けますが、最初のステップに「Designer」エージェントが追加されている点が特徴です。</p>
 
-<p>ワークフローの最初のステップが <code>designer-analysis</code> であるため、Issue にワークフローを起動させるためのラベルは <strong><code>frontend:designer</code></strong> です（v0.23.0 で <code>frontend:frontend-lead</code> から統一。キーワード判定表・ソロモードの <code>target_labels</code>・Dispatcher の割り当ても同様）。<code>frontend:frontend-lead</code> は Frontend-Lead が担当する中間ステップのラベルとして引き続き使われます。</p>
+<p>ワークフローの最初のステップが <code>designer-analysis</code> であるため、チケットにワークフローを起動させるためのラベルは <strong><code>frontend:designer</code></strong> です（v0.23.0 で <code>frontend:frontend-lead</code> から統一。キーワード判定表・ソロモードの <code>target_labels</code>・Dispatcher の割り当ても同様）。<code>frontend:frontend-lead</code> は Frontend-Lead が担当する中間ステップのラベルとして引き続き使われます。</p>
 
 <p>> <strong>ワークフロー定義</strong>: <code>.claude/teams/frontend/workflow.yml</code></p>
 <p>> <strong>レビュー判定</strong>: <code>.claude/teams/frontend/review-config.yml</code></p>
@@ -70,19 +70,19 @@
 
 <p>バックエンドとの違い：</p>
 
-<ul><li><strong>Designer ステップが最初に追加</strong>: 参考サイト・UI 仕様を策定してから設計に入る</li><li><strong>Tech-Writer が存在しない</strong>: フロントエンドにはドキュメント自動更新ステップなし</li><li><strong>PR にスクリーンショット添付の案内</strong>: PR-Creator が PR 本文と Issue コメントで案内</li></ul>
+<ul><li><strong>Designer ステップが最初に追加</strong>: 参考サイト・UI 仕様を策定してから設計に入る</li><li><strong>Tech-Writer が存在しない</strong>: フロントエンドにはドキュメント自動更新ステップなし</li><li><strong>PR にスクリーンショット添付の案内</strong>: PR-Creator が PR 本文と チケットコメントで案内</li></ul>
 <hr>
 
 <h2>Designer エージェントの動作</h2>
 
-<p>社内にデザイナーがいないことを前提に、Issue に記載された参考サイト・既存画面・要件から UI 仕様を策定します。コードは書きません。</p>
+<p>社内にデザイナーがいないことを前提に、チケットに記載された参考サイト・既存画面・要件から UI 仕様を策定します。コードは書きません。</p>
 
 <h3>入力</h3>
 
-<p>Issue 本文から以下を収集：</p>
+<p>チケット本文から以下を収集：</p>
 
 <ul><li>参考サイト URL</li><li>画像・既存画面のスクリーンショット</li><li>要件記述</li></ul>
-<p>参考資料がない場合は Issue コメントで補足情報を人間に確認します（推測で進めない）。</p>
+<p>参考資料がない場合は チケットコメントで補足情報を人間に確認します（推測で進めない）。</p>
 
 <h3>出力（UI 仕様コメント）</h3>
 
@@ -148,7 +148,7 @@
 - [ ] アクセシビリティ検証済み
 - [ ] レスポンシブデザイン確認済み</code></pre>
 
-<p>PR 作成時の Issue コメントでも、スクリーンショット添付を必ず案内します。</p>
+<p>PR 作成時の チケットコメントでも、スクリーンショット添付を必ず案内します。</p>
 
 <hr>
 

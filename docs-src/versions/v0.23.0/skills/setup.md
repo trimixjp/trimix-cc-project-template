@@ -64,8 +64,8 @@ AIチームをプロジェクトに導入するための対話型ウィザード
 
 | モード | 説明 | 適性 |
 |--------|------|------|
-| `multi-user` | 担当者が `/ai-team-run <Issue>` を実行して処理を開始 | 複数人チーム |
-| `solo` | `/ai-team-watch` で新規 Issue を自動検出して処理 | 1人運用 |
+| `multi-user` | 担当者が `/ai-team-run <チケット>` を実行して処理を開始 | 複数人チーム |
+| `solo` | `/ai-team-watch` で新規チケットを自動検出して処理 | 1人運用 |
 
 選択した運用モードは `.claude/ai-team-config.yml` に記録されます。
 
@@ -84,7 +84,7 @@ AIチームをプロジェクトに導入するための対話型ウィザード
 | GitHub Issues（既定） | 従来どおり `gh` 経由 |
 | ローカル Markdown（Obsidian 推奨） | `tickets/*.md` で完結。`ticket_backend: local` |
 
-### 質問 4b: Issue / チケット強制チェック
+### 質問 4b: チケット / チケット強制チェック
 
 - **CLAUDE.md / AGENTS.md のみ（推奨）**: タスク受付ルールを指示書に記載（claude-code は `.claude/CLAUDE.md`、grok は `AGENTS.md` + CLAUDE.md）
 - **hooks で強制**: 変更系プロンプトをフックで案内（claude: `.claude/settings.json`、grok: 加えて `.grok/hooks/ensure-issue.json`）
@@ -144,7 +144,7 @@ templates/docs/workflow-guide.md            → .claude/docs/workflow-guide.md
 mode: solo
 
 solo:
-  poll_interval_minutes: 5      # Issue監視の間隔（分）
+  poll_interval_minutes: 5      # チケット監視の間隔（分）
   target_labels:                # 処理対象とするラベル
     - dispatcher
     - backend:tech-lead
@@ -168,7 +168,7 @@ solo:
 | content | `agents/*.md` / `workflow.yml` / `dod/*.md` / `compliance-rules/*.md` |
 | infra | `agents/*.md` / `workflow.yml` / `dod/*.md` |
 
-### GitHub Issue テンプレート
+### チケット テンプレート
 
 `templates/.github/ISSUE_TEMPLATE/*.yml` が `.github/ISSUE_TEMPLATE/` にコピーされます。バックエンドなら `backend-feature.yml` / `backend-bugfix.yml` などが対象です。
 
@@ -254,7 +254,7 @@ gh label create "backend:pr-creator"  --color "1d76db" --force
 - インフラチーム: クラウド構成・ネットワーク・セキュリティ
 
 ### ワークフローの起動
-チケットを担当したら `/ai-team-run <IssueのURL または Issue番号>` を実行してください。
+チケットを担当したら `/ai-team-run <チケットのURL または チケット番号>` を実行してください。
 
 ### 参照ドキュメント
 - ワークフローガイド: `.claude/docs/workflow-guide.md`
@@ -277,7 +277,7 @@ gh label create "backend:pr-creator"  --color "1d76db" --force
 ## 次のステップ
 1. `.claude/CLAUDE.md` を確認・カスタマイズしてください
 2. チームメンバーに npm install --save-dev ./trimix-ai-team-x.x.x.tgz を実行してもらいます
-3. Issueを作成し、担当者をアサインしたら /ai-team-run <IssueのURL> でワークフローを開始します
+3. チケットを作成し、担当者をアサインしたら /ai-team-run <チケットのURL> でワークフローを開始します
 ```
 
 ---

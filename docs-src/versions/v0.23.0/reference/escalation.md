@@ -14,7 +14,7 @@ AI エージェントが判断できない・判断してはいけない事項�
 flowchart TD
     A["エージェント実行中"] --> B{"escalation_triggers\nに該当?"}
     B -->|Yes| C["human-escalator エージェント呼び出し\n関連ドキュメントを全て調査"]
-    C --> D["🚨 エスカレーションコメントを Issue に投稿\nescalated:human ラベル付与\n担当者アサイン"]
+    C --> D["🚨 エスカレーションコメントを チケットに投稿\nescalated:human ラベル付与\n担当者アサイン"]
     D --> E["⏸️ 処理停止"]
     E --> F["人間が確認・対応"]
     F --> G["人間がコメントで判断を投稿\nescalated:human ラベル除去"]
@@ -123,7 +123,7 @@ transparency_rules:
 - `.claude/rules/` 配下の全 `.md` ファイル
 - `CLAUDE.md`
 - `docs/` 配下の仕様書
-- 関連する Issue のコメント履歴
+- 関連する チケットのコメント履歴
 
 ### ステップ 2: エスカレーションコメントの投稿
 
@@ -155,14 +155,14 @@ v0.11.0 から、エスカレーションコメントには**機械可読の構�
 
 ## 次のアクション
 
-このIssueにコメントで判断を返してください。
+このチケットにコメントで判断を返してください。
 返答例: 「選択肢Aで進めてください」
 
 ⏸️ 人間の返答があるまでエージェント処理は停止します。
 
 ## 対応完了後の手順
 
-1. このIssueに判断内容をコメントしてください
+1. このチケットに判断内容をコメントしてください
 2. escalated:human ラベルを外してください
 3. 以下のコマンドでワークフローを再開してください：
    /ai-team-resume
@@ -200,7 +200,7 @@ gh issue edit <番号> --add-assignee "<GitHubユーザー名>"
 
 エスカレーションを受けた人間は次の手順で対応します。
 
-1. **Issue を確認**: `🚨 エスカレーション` コメントから理由・選択肢を把握
+1. **チケットを確認**: `🚨 エスカレーション` コメントから理由・選択肢を把握
 2. **判断のコメント投稿**: 「選択肢 A で進めてください」「変更ファイル数 6 ですがダブルレビュー不要、シングルでお願いします」など、AI に対する明確な指示を記録
 3. **ラベル除去**: `gh issue edit <番号> --remove-label "escalated:human"` または GitHub UI でラベルを外す
 4. **再開**:
@@ -268,7 +268,7 @@ gh issue edit <番号> --add-assignee "<GitHubユーザー名>"
 2. Implementer → Human-Escalator 呼び出し
    - 種別: legal
    - 理由: GDPR 対応の有無で実装方針が変わる
-3. Human-Escalator: Issue に 🚨 エスカレーション投稿 + escalated:human ラベル
+3. Human-Escalator: チケットに 🚨 エスカレーション投稿 + escalated:human ラベル
 4. 人間: 「日本居住ユーザーのみ対象なので GDPR 対応不要、APPI 準拠で実装」
 5. 人間: escalated:human ラベル除去
 6. /ai-team-resume → Implementer 再起動（人間の判断をコンテキストに含む）
@@ -280,9 +280,9 @@ gh issue edit <番号> --add-assignee "<GitHubユーザー名>"
 ```
 1. PR-Creator: gh pr create 完了
 2. PR-Creator → Human-Escalator（merge_approval）
-3. Issue に 「⚠️ 承認・マージは人間が行います」コメント投稿
+3. チケットに 「⚠️ 承認・マージは人間が行います」コメント投稿
 4. 人間: PR をレビューしてマージ
-5. /ai-team-resume → Contributor 起動 → DOD 確認 → Issue クローズ
+5. /ai-team-resume → Contributor 起動 → DOD 確認 → チケットクローズ
 ```
 
 ---

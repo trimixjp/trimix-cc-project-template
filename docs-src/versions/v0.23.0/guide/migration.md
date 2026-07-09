@@ -154,7 +154,7 @@ npm install --save-dev ./trimix-ai-team-0.11.0.tgz
 
 ### v0.10.x からの破壊的変更
 
-ワークフローの構造に**破壊的変更はありません**。ただし旧形式のエスカレーションコメント（「エスカレーション元ステップ」フィールドなし）が残っている Issue では、`/ai-team-resume` が復帰先を機械的に決定できないため、コメント履歴から文脈で判断するフォールバック動作になります。
+ワークフローの構造に**破壊的変更はありません**。ただし旧形式のエスカレーションコメント（「エスカレーション元ステップ」フィールドなし）が残っている チケットでは、`/ai-team-resume` が復帰先を機械的に決定できないため、コメント履歴から文脈で判断するフォールバック動作になります。
 
 ---
 
@@ -165,7 +165,7 @@ npm install --save-dev ./trimix-ai-team-0.11.0.tgz
 | 変更内容 | 詳細 |
 |---------|------|
 | SNS運用チームの追加 | Strategist / Researcher / Writer / Operator の 4 エージェント構成のテンプレートが新規追加 |
-| Issue 強制チェック（hooks）オプション | セットアップ時に `UserPromptSubmit` フックで変更系指示をブロックする設定を選択可能に |
+| チケット強制チェック（hooks）オプション | セットアップ時に `UserPromptSubmit` フックで変更系指示をブロックする設定を選択可能に |
 | `.gitignore` の自動更新 | セットアップ時に `.claude/` 配下の個人設定ファイルを `.gitignore` から除外するパターンを追記 |
 
 ---
@@ -186,7 +186,7 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 
 #### ステップ 2: セットアップウィザードを再実行（オプション）
 
-SNS チームを追加したい場合や、hooks による Issue 強制チェックを有効にしたい場合は、`/ai-team-setup` を再実行してください。
+SNS チームを追加したい場合や、hooks による チケット強制チェックを有効にしたい場合は、`/ai-team-setup` を再実行してください。
 
 ```
 /ai-team-setup
@@ -257,7 +257,7 @@ version_management: manual  # または auto
 | v0.10.0 | `/ai-team-create` スキル追加（カスタムチーム作成ウィザード） |
 | v0.9.0 | `/ai-team-gallery` の実行環境判定バグ修正・`npm run sync` 追加 |
 | v0.8.0 | ワークフロー設計の汎用化・全チーム workflow.yml の整合性修正・月次見直しの仕組み追加 |
-| v0.7.0 | SNS運用チーム追加・hooks による Issue 強制チェック・`.gitignore` 自動更新 |
+| v0.7.0 | SNS運用チーム追加・hooks による チケット強制チェック・`.gitignore` 自動更新 |
 | v0.6.0 | Version-Bumper ステップ追加・バージョン管理設定サポート |
 | v0.5.2 | Mermaid.js 対応・マニュアル全体の構造再編成 |
 | v0.5.1 | postinstall でスキルファイルが展開されない問題を修正 |

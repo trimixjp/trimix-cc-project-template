@@ -67,7 +67,7 @@
     VB --> J["tech-writer\ndocs-src/ 更新\nbuild.js 実行"]
     J --> K["pr-creator\ngh pr create\nescalated:human"]
     K --> L["⏸️ human-merge-approval\n人間がマージ"]
-    L --> M["contributor-close\nDOD 確認\nインシデント記録\nIssue クローズ"]</div>
+    L --> M["contributor-close\nDOD 確認\nインシデント記録\nチケットクローズ"]</div>
 
 <hr>
 
@@ -129,7 +129,7 @@
 <table><thead><tr><th>結果</th><th>次のステップ</th></tr></thead><tbody><tr><td>合格</td><td><code>version-bumper</code></td></tr><tr><td>不合格</td><td><code>implementer</code>（差し戻し、<code>on_rework</code>）</td></tr><tr><td>不合格（3 回目 = <code>rework_limit: 2</code> 超過）</td><td><code>human-escalator</code>（差し戻さずエスカレーション）</td></tr><tr><td>意見不一致（ダブルレビュー）</td><td><code>human-escalator</code></td></tr></tbody></table>
 <h3>差し戻し上限と決定論的カウント（v0.11.0）</h3>
 
-<code>workflow.yml</code> の <code>rework_limit: 2</code> により、同一 Issue での差し戻しは 2 回までです。3 回目の不合格は implementer へ差し戻さず <code>escalated:human</code> へエスカレーションします。
+<code>workflow.yml</code> の <code>rework_limit: 2</code> により、同一チケットでの差し戻しは 2 回までです。3 回目の不合格は implementer へ差し戻さず <code>escalated:human</code> へエスカレーションします。
 
 <p>カウントは決定論的です。差し戻しコメントの<strong>先頭行</strong>を <code>❌ &lt;エージェント名&gt;: 差し戻し（差し戻し回数: n/2）</code> 形式に固定し、レビュー役エージェントが <code>gh api</code> でコメント先頭行のみを正規表現照合して数えます。本文中の引用による偽陽性はありません。独立レビューの暫定結果コメントは先頭行に「差し戻し」という語を使わないルールになっています（誤検出防止）。</p>
 
@@ -189,7 +189,7 @@
 
 <p>PR 本文には次が含まれます：</p>
 
-<ul><li>概要・関連 Issue（<code>Closes #&lt;番号&gt;</code>）</li><li>変更内容（Implementer の完了報告から転記）</li><li>設計方針（Tech-Lead の方針から要約）</li><li>テスト結果</li><li>レビュー結果</li><li>チェックリスト</li></ul>
+<ul><li>概要・関連チケット（<code>Closes #&lt;番号&gt;</code>）</li><li>変更内容（Implementer の完了報告から転記）</li><li>設計方針（Tech-Lead の方針から要約）</li><li>テスト結果</li><li>レビュー結果</li><li>チェックリスト</li></ul>
 <p>PR 作成後は <code>escalated:human</code> ラベルが付与され、人間のマージを待ちます。マージは AI ではなく必ず人間が行います。</p>
 
 <hr>
@@ -199,7 +199,7 @@
 <p>バックエンドチーム用に 5 種類の DOD テンプレートが用意されています。</p>
 
 <table><thead><tr><th>ファイル</th><th>用途</th><th>主なチェック項目</th></tr></thead><tbody><tr><td><code>dod/feature.md</code></td><td>新機能実装</td><td>設計方針・実装・テスト・カバレッジ 80%・レビュー・バージョン管理・PR・ドキュメント</td></tr><tr><td><code>dod/bugfix.md</code></td><td>バグ修正</td><td>再現手順・根本原因・リグレッションテスト・同種バグ確認・バージョン管理・PR</td></tr><tr><td><code>dod/refactor.md</code></td><td>リファクタリング</td><td>目的明記・機能変更なし・カバレッジ維持・PR</td></tr><tr><td><code>dod/review.md</code></td><td>コードレビュー</td><td>スコープ・重大度別整理・レビュー方式判断・全件対応</td></tr><tr><td><code>dod/documentation.md</code></td><td>ドキュメント更新（Tech-Writer 用）</td><td>全変更箇所反映・バージョン管理・ビルド成功・コミット形式</td></tr></tbody></table>
-<code>contributor</code> エージェントが Issue クローズ前に該当 DOD の全項目チェックを実施します。
+<code>contributor</code> エージェントが チケットクローズ前に該当 DOD の全項目チェックを実施します。
 
 <hr>
 
@@ -207,7 +207,7 @@
 
 <code>.claude/teams/backend/workflow.yml</code> の主要ステップ：
 
-<table><thead><tr><th>step id</th><th>agent</th><th>label</th><th>概要</th></tr></thead><tbody><tr><td><code>tech-lead-analysis</code></td><td>tech-lead</td><td><code>backend:tech-lead</code></td><td>要件分析・設計方針決定・インシデント確認</td></tr><tr><td><code>implementer</code></td><td>implementer</td><td><code>backend:implementer</code></td><td>実装・テスト実施</td></tr><tr><td><code>tech-lead-review-decision</code></td><td>tech-lead</td><td><code>backend:tech-lead</code></td><td>レビュー方式を <code>conditions</code> で分岐判定</td></tr><tr><td><code>reviewer</code></td><td>reviewer</td><td><code>backend:reviewer</code></td><td>シングルレビュー</td></tr><tr><td><code>reviewer-a</code></td><td>reviewer-a</td><td><code>backend:reviewer-a</code></td><td>ダブルレビュー A（<code>parallel_with: reviewer-b</code>）</td></tr><tr><td><code>reviewer-b</code></td><td>reviewer-b</td><td><code>backend:reviewer-b</code></td><td>ダブルレビュー B（<code>parallel_with: reviewer-a</code>）</td></tr><tr><td><code>cross-review</code></td><td>reviewer-a</td><td><code>backend:reviewer-a</code></td><td>クロスレビュー（<code>requires: [reviewer-a, reviewer-b]</code>）</td></tr><tr><td><code>version-bumper</code></td><td>version-bumper</td><td><code>backend:version-bumper</code></td><td><code>ai-team-config.yml</code> の設定に従いバージョンを管理（auto/manual。<code>none</code> 選択時はセットアップでこのステップ自体が削除される）</td></tr><tr><td><code>tech-writer</code></td><td>tech-writer</td><td><code>backend:tech-writer</code></td><td>docs-src 更新・build.js 実行</td></tr><tr><td><code>pr-creator</code></td><td>pr-creator</td><td><code>backend:pr-creator</code></td><td>PR 作成・人間に承認依頼</td></tr><tr><td><code>human-merge-approval</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>人間がマージ</td></tr><tr><td><code>human-escalator</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>判断不能事項を人間にエスカレーション</td></tr><tr><td><code>contributor-close</code></td><td>contributor</td><td><code>contributor:ready</code></td><td>DOD 確認・Issue クローズ（<code>action: close_issue</code>）</td></tr></tbody></table>
+<table><thead><tr><th>step id</th><th>agent</th><th>label</th><th>概要</th></tr></thead><tbody><tr><td><code>tech-lead-analysis</code></td><td>tech-lead</td><td><code>backend:tech-lead</code></td><td>要件分析・設計方針決定・インシデント確認</td></tr><tr><td><code>implementer</code></td><td>implementer</td><td><code>backend:implementer</code></td><td>実装・テスト実施</td></tr><tr><td><code>tech-lead-review-decision</code></td><td>tech-lead</td><td><code>backend:tech-lead</code></td><td>レビュー方式を <code>conditions</code> で分岐判定</td></tr><tr><td><code>reviewer</code></td><td>reviewer</td><td><code>backend:reviewer</code></td><td>シングルレビュー</td></tr><tr><td><code>reviewer-a</code></td><td>reviewer-a</td><td><code>backend:reviewer-a</code></td><td>ダブルレビュー A（<code>parallel_with: reviewer-b</code>）</td></tr><tr><td><code>reviewer-b</code></td><td>reviewer-b</td><td><code>backend:reviewer-b</code></td><td>ダブルレビュー B（<code>parallel_with: reviewer-a</code>）</td></tr><tr><td><code>cross-review</code></td><td>reviewer-a</td><td><code>backend:reviewer-a</code></td><td>クロスレビュー（<code>requires: [reviewer-a, reviewer-b]</code>）</td></tr><tr><td><code>version-bumper</code></td><td>version-bumper</td><td><code>backend:version-bumper</code></td><td><code>ai-team-config.yml</code> の設定に従いバージョンを管理（auto/manual。<code>none</code> 選択時はセットアップでこのステップ自体が削除される）</td></tr><tr><td><code>tech-writer</code></td><td>tech-writer</td><td><code>backend:tech-writer</code></td><td>docs-src 更新・build.js 実行</td></tr><tr><td><code>pr-creator</code></td><td>pr-creator</td><td><code>backend:pr-creator</code></td><td>PR 作成・人間に承認依頼</td></tr><tr><td><code>human-merge-approval</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>人間がマージ</td></tr><tr><td><code>human-escalator</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>判断不能事項を人間にエスカレーション</td></tr><tr><td><code>contributor-close</code></td><td>contributor</td><td><code>contributor:ready</code></td><td>DOD 確認・チケットクローズ（<code>action: close_issue</code>）</td></tr></tbody></table>
 <hr>
 
 <h2>関連ドキュメント</h2>

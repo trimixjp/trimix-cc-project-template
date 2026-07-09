@@ -2,7 +2,7 @@
 
 **ファイル名規則**: `YYYYMMDD-kebab-case-summary.md`
 **登録日**: YYYY-MM-DD
-**関連Issue**: #xxx
+**関連チケット**: #xxx
 **重大度**: P1 / P2 / P3
 **影響チーム**: backend / infra / content
 

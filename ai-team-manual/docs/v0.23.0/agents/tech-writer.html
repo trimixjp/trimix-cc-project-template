@@ -41,7 +41,7 @@
 
 <h2>起動条件</h2>
 
-<ol><li><code>backend:tech-writer</code> ラベルが付与された Issue が作成・更新された</li><li>Reviewer（またはクロスレビュー）の合格後、ワークフローが Tech-Writer ステップに進んだ</li></ol>
+<ol><li><code>backend:tech-writer</code> ラベルが付与された チケットが作成・更新された</li><li>Reviewer（またはクロスレビュー）の合格後、ワークフローが Tech-Writer ステップに進んだ</li></ol>
 <hr>
 
 <h2>動作フロー</h2>
@@ -65,7 +65,7 @@ git diff --name-only $RANGE
 # 変更内容の詳細
 git diff $RANGE -- '*.md' '*.yml' '*.json' '*.js' '*.ts'</code></pre>
 
-<p>Issue コメント履歴から以下を把握します：</p>
+<p>チケットコメント履歴から以下を把握します：</p>
 
 <ul><li>Tech-Lead の設計方針（追加・変更された機能の概要）</li><li>Implementer の完了報告（変更ファイル一覧・実装内容）</li><li>Reviewer の合格コメント（変更点の評価）</li></ul>
 <h3>ステップ 2: バージョン確認とディレクトリ準備</h3>
@@ -110,7 +110,7 @@ fi</code></pre>
 ls ai-team-manual/docs/
 ls ai-team-manual/docs/v$VERSION/</code></pre>
 
-<p>ビルドが失敗した場合は、コミット前の状態のままエラー原因（Markdown 構文エラー・config.json の nav 参照切れ等）を特定して <code>docs-src/</code> 側を修正し、再実行します。<strong>再実行は 2 回まで</strong>とし、それでも成功しない場合はエラーメッセージ全文・終了コード・試行した修正内容を Issue コメントに記録して human-escalator にエスカレーションします。</p>
+<p>ビルドが失敗した場合は、コミット前の状態のままエラー原因（Markdown 構文エラー・config.json の nav 参照切れ等）を特定して <code>docs-src/</code> 側を修正し、再実行します。<strong>再実行は 2 回まで</strong>とし、それでも成功しない場合はエラーメッセージ全文・終了コード・試行した修正内容を チケットコメントに記録して human-escalator にエスカレーションします。</p>
 
 <h3>ステップ 5: ドキュメント変更のコミット</h3>
 

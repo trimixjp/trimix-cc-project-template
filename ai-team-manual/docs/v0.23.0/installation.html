@@ -66,7 +66,7 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 <p>ウィザードが対話形式で以下を設定します。</p>
 
-<table><thead><tr><th>#</th><th>設定項目</th><th>選択肢</th></tr></thead><tbody><tr><td>1</td><td>導入するチーム</td><td>backend / frontend / content / infra / sns（複数選択可）</td></tr><tr><td>2</td><td>運用モード</td><td>multi-user（手動起動）/ solo（自動監視）</td></tr><tr><td>3</td><td>バージョン管理</td><td>auto（自動インクリメント）/ manual（手動管理）</td></tr><tr><td>4</td><td>Issue 強制チェック</td><td>CLAUDE.md のみ / hooks で強制</td></tr><tr><td>5</td><td>GitHub ラベルの作成</td><td>今すぐ一括作成 / スキップ</td></tr></tbody></table>
+<table><thead><tr><th>#</th><th>設定項目</th><th>選択肢</th></tr></thead><tbody><tr><td>1</td><td>導入するチーム</td><td>backend / frontend / content / infra / sns（複数選択可）</td></tr><tr><td>2</td><td>運用モード</td><td>multi-user（手動起動）/ solo（自動監視）</td></tr><tr><td>3</td><td>バージョン管理</td><td>auto（自動インクリメント）/ manual（手動管理）</td></tr><tr><td>4</td><td>チケット強制チェック</td><td>CLAUDE.md のみ / hooks で強制</td></tr><tr><td>5</td><td>GitHub ラベルの作成</td><td>今すぐ一括作成 / スキップ</td></tr></tbody></table>
 <p>セットアップ完了後のメッセージ例：</p>
 
 <pre><code class="language-">✅ AIチームのセットアップが完了しました
@@ -78,7 +78,7 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 ## 次のステップ
 1. .claude/CLAUDE.md を確認・カスタマイズしてください
-2. Issue を作成し /ai-team-run &lt;Issue番号&gt; でワークフローを開始します</code></pre>
+2. チケットを作成し /ai-team-run &lt;チケット番号&gt; でワークフローを開始します</code></pre>
 
 <p>詳細は <a href="guide/setup.html">セットアップガイド</a> を参照してください。</p>
 
@@ -122,7 +122,7 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
     ├── ai-team-install.md
     └── ai-team-configure.md</code></pre>
 
-<code>.github/ISSUE_TEMPLATE/</code> には、選択したチームに応じた Issue テンプレートが配置されます。
+<code>.github/ISSUE_TEMPLATE/</code> には、選択したチームに応じた チケットテンプレートが配置されます。
 
 <hr>
 

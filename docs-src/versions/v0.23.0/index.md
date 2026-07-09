@@ -26,7 +26,7 @@ AIチームをプロジェクトにセットアップするウィザード
 
 ### 1. 自律的なワークフロー実行
 
-担当者が `/ai-team-run <チケット番号>` を実行すると、チケットの**ラベル・タイトル・内容**から担当チームとワークフローが決まり、そのチームの先頭エージェントから順に処理が進みます（例: バックエンドなら Tech-Lead 起点、フロントエンドなら Designer 起点、コンテンツなら Editor-in-Chief 起点。Epic なら Dispatcher が Sub Issue に分解）。各エージェントはチケット（Issue コメント、またはローカル md の Comments 節）に作業内容と判断根拠を記録し、`workflow.yml` の定義に従って次の担当へラベルで引き継ぎます。チームごとの流れは [チーム概要](teams/overview.html) を参照してください。
+担当者が `/ai-team-run <チケット番号>` を実行すると、チケットの**ラベル・タイトル・内容**から担当チームとワークフローが決まり、そのチームの先頭エージェントから順に処理が進みます（例: バックエンドなら Tech-Lead 起点、フロントエンドなら Designer 起点、コンテンツなら Editor-in-Chief 起点。Epic なら Dispatcher が サブチケットに分解）。各エージェントはチケットコメント（github なら Issue コメント、local なら md の Comments 節）に作業内容と判断根拠を記録し、`workflow.yml` の定義に従って次の担当へラベルで引き継ぎます。チームごとの流れは [チーム概要](teams/overview.html) を参照してください。
 
 ### 2. チケットバックエンドの選択（GitHub / ローカル md）
 
@@ -71,12 +71,12 @@ Contributor エージェントはチケットクローズ時にインシデン�
   - **エージェント記述標準の新設（agent-writing-guide §9-5〜9-8）**: 「失敗時挙動」セクションの必須化・機械的検証の原則・モデル非依存の原則・設定値のハードコード禁止を、エージェント定義の記述標準として明文化しました。全エージェントに「失敗時挙動」を水平展開し、曖昧な自然文の判断を決定表・転記式チェックに統一しています
   - **SNS 運用チームの品質ゲート追加**: `strategist-review` ステップに `on_rework`（調査レポートが不十分な場合の Researcher への差し戻し）を追加し、差し戻し上限超過時は human-escalator へ遷移するようにしました
   - **Tech-Writer の差分範囲判定を多段フォールバック化**: Version-Bumper と同一の 4 段フォールバック（git タグ → 版バンプコミット → package.json 変更 → HEAD 全件）を Tech-Writer にも水平展開し、ドキュメント更新対象の誤範囲を防ぎます
-  - **フロントエンドチームの起動ラベルを `frontend:designer` に統一**: ワークフローの最初のステップが `designer-analysis` であるため、Issue 起動ラベル（キーワード判定表・ソロモードの `target_labels`）を `frontend:frontend-lead` から `frontend:designer` に統一しました
+  - **フロントエンドチームの起動ラベルを `frontend:designer` に統一**: ワークフローの最初のステップが `designer-analysis` であるため、チケット起動ラベル（キーワード判定表・ソロモードの `target_labels`）を `frontend:frontend-lead` から `frontend:designer` に統一しました
   - **YouTube チームのステップ判定を決定論化**: director のマルチモード判定（`director-planning` / `director-channel-review`）を、直前の引き継ぎコメント（`⏭️` 行）の機械抽出＋決定表照合に変更し、失敗時挙動を追加しました
   - **バージョン管理の選択肢に「使わない（none）」を追加**: `/ai-team-setup` のバージョン管理の質問に `none` を追加。選択すると version-bumper ステップ自体をワークフローから削除し、Reviewer 合格後は直接 Tech-Writer に引き継がれます（バージョン概念のないリポジトリ向け）
   - **テンプレート同梱チーム（sns / youtube）の install ガードと gallery 区別表示**: `distribution: "template"` のチームはプラグインパッケージ非配布であることを明示し、`/ai-team-install` では案内メッセージを表示、`/ai-team-gallery` では「テンプレート同梱（/ai-team-setup で追加）」として区別表示するようにしました
   - **postinstall の配布欠落修正**: `ai-team-create.md` が `.claude/commands/` に展開されない欠落を修正し、配布スキル一覧を `bin/lib/skill-files.js` に単一情報源化しました（展開されるスキルは 8 件）
-  - **ensure-issue.sh の修正**: ハイフン区切りの `/ai-team-*` コマンド（正準表記）が Issue 強制チェックにブロックされる問題を修正しました
+  - **ensure-issue.sh の修正**: ハイフン区切りの `/ai-team-*` コマンド（正準表記）が チケット強制チェックにブロックされる問題を修正しました
   - 詳細は [v0.23.0 の変更点](changelog.html) を参照
 
 ### v0.22.x シリーズの主な変更点
@@ -97,9 +97,9 @@ Contributor エージェントはチケットクローズ時にインシデン�
 ### v0.15.x シリーズの主な変更点
 
 - v0.15.0: **Contributor のインシデント判定基準を改善**。運用中に判明した過検出（本来インシデントではない正常なフローまでインシデント化する問題）を解消しました。主な変更:
-  - **PR 承認・マージ待ちをインシデント対象外に**: PR の承認・main マージは設計上すべての PR で必ず発生する正規ゲート（`human-merge-approval` ステップ）です。`escalated:human` の有無だけで判定すると正常に完了したほぼ全 Issue がインシデント記録されてしまうため、エスカレーションコメントの構造化フィールド「エスカレーション種別」を読み、`merge_approval` 種別を除外しました。`legal` / `budget` / `ambiguous_spec` の真のエスカレーションのみインシデント候補とします
+  - **PR 承認・マージ待ちをインシデント対象外に**: PR の承認・main マージは設計上すべての PR で必ず発生する正規ゲート（`human-merge-approval` ステップ）です。`escalated:human` の有無だけで判定すると正常に完了したほぼ全チケットがインシデント記録されてしまうため、エスカレーションコメントの構造化フィールド「エスカレーション種別」を読み、`merge_approval` 種別を除外しました。`legal` / `budget` / `ambiguous_spec` の真のエスカレーションのみインシデント候補とします
   - **本文キーワードの部分一致による誤検出を廃止**: バグ修正の判定で本文に「fix」等が含まれるかを部分一致で確認していたため、`fix:` 等のコミットプレフィックスに誤ヒットしていました。`incident` ラベルまたは適用 DOD（`bugfix.md` 判定）で判定する方式に変更し、補助キーワードを使う場合もタイトル限定・完全一致に制限しました
-  - **DOD カバレッジ 80% に計測手段なし時の除外を明記**: バックエンド feature DOD のカバレッジ項目に「カバレッジ計測手段がないプロジェクトは対象外（根拠を Issue コメントに記録）」を追記し、計測手段のないプロジェクトでの過剰な差し戻しを防ぎます
+  - **DOD カバレッジ 80% に計測手段なし時の除外を明記**: バックエンド feature DOD のカバレッジ項目に「カバレッジ計測手段がないプロジェクトは対象外（根拠を チケットコメントに記録）」を追記し、計測手段のないプロジェクトでの過剰な差し戻しを防ぎます
   - 詳細は [Contributor](agents/contributor.html) の「インシデント判定基準」、[DOD テンプレート](reference/dod.html)、[エスカレーションルール](reference/escalation.html) を参照
 
 ### v0.13.x シリーズの主な変更点
@@ -131,7 +131,7 @@ Contributor エージェントはチケットクローズ時にインシデン�
 
 - v0.11.0: **Opus 最適化と再現性強化**。全エージェントが Claude Opus で動作する前提に最適化（モデルはエイリアス指定。助言役の `architect` のみ frontmatter に `model: opus` を明示）。主な変更:
   - **レビュー方式の機械判定化**: `review-config.yml` の `sensitive_areas` に正規表現 `pattern` を追加し、`detection_procedure`（base_branch 検証 → `git diff` 計測 → パス照合=該当確定 / 本文照合=参考値）で機械的に判定
-  - **差し戻し上限 `rework_limit: 2`**: 同一 Issue で 3 回目の不合格は implementer へ差し戻さず `escalated:human` へ。コメント先頭行照合による決定論的カウント（全 5 チーム）
+  - **差し戻し上限 `rework_limit: 2`**: 同一チケットで 3 回目の不合格は implementer へ差し戻さず `escalated:human` へ。コメント先頭行照合による決定論的カウント（全 5 チーム）
   - **AND 待機のアトミック遷移**: `requires_all_of` 合流時のレースコンディションを防ぐ手順（待機パス再確認・冪等なラベル付与・誤発動ガード付きリカバリ）を全エージェントに導入
   - **`return_to_previous` の構造化**: human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、`/ai-team-resume` が機械的に復帰先を決定
   - **人間無応答時のリマインド方針**: 最終エスカレーションコメントから 48 時間経過後に 1 回のみリマインド
@@ -149,7 +149,7 @@ Contributor エージェントはチケットクローズ時にインシデン�
 
 ### v0.8.x シリーズの主な変更点
 
-- v0.8.0: ワークフロー設計の汎用化・業務ドメイン別拡張設計ドキュメントを追加。全チームの `workflow.yml` の整合性修正（`on_complete.conditions` 形式統一・`requires_all_of` 統一・`on_escalation` の網羅性向上）。月次ワークフロー見直しの仕組み（Issueテンプレート・GitHub Actions）を追加。
+- v0.8.0: ワークフロー設計の汎用化・業務ドメイン別拡張設計ドキュメントを追加。全チームの `workflow.yml` の整合性修正（`on_complete.conditions` 形式統一・`requires_all_of` 統一・`on_escalation` の網羅性向上）。月次ワークフロー見直しの仕組み（チケットテンプレート・GitHub Actions）を追加。
 
 ### v0.7.x シリーズの主な変更点
 

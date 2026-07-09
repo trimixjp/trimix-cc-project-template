@@ -64,7 +64,7 @@ gh issue create \
   --body "JWTベースの認証APIを実装する..."
 
 # 4. ワークフローを起動
-/ai-team-run <Issue番号>
+/ai-team-run <チケット番号>
 ```
 
 ### workflow.yml 調整ポイント
@@ -130,7 +130,7 @@ escalation_triggers:
 ### よくある落とし穴
 
 - **認証系ファイルへの変更を過小評価しない**: `auth/` `session/` `token/` を含むファイルの変更は必ずダブルレビューを適用する
-- **インフラ変更のロールバック計画**: インフラ変更前に必ずロールバック手順をIssueに記載しておく
+- **インフラ変更のロールバック計画**: インフラ変更前に必ずロールバック手順をチケットに記載しておく
 - **テナント間のデータ漏洩**: マルチテナント処理の変更は「他テナントのデータが見えないか」の観点でレビューする
 
 ---
@@ -164,13 +164,13 @@ infra チーム:    補助（決済インフラ・セキュリティ設定）
 mkdir -p .claude/teams/content/compliance-rules
 # → ec-commerce.md, personal-information.md, payment.md を作成（後述のテンプレートを使用）
 
-# 3. 特商法表記のIssueを作成
+# 3. 特商法表記のチケットを作成
 gh issue create \
   --title "[Content] 特商法ページの作成" \
   --label "content:editor-in-chief" \
   --body "特定商取引法に基づく表記ページを作成する..."
 
-# 4. 決済APIのIssueを作成
+# 4. 決済APIのチケットを作成
 gh issue create \
   --title "[Backend] 決済API実装" \
   --label "backend:tech-lead" \
@@ -248,7 +248,7 @@ escalation_triggers:
 
 ### よくある落とし穴
 
-- **特商法表記の更新漏れ**: 事業者情報が変わったら必ずcontentチームにIssueを作成する
+- **特商法表記の更新漏れ**: 事業者情報が変わったら必ずcontentチームにチケットを作成する
 - **在庫処理のレースコンディション**: 在庫変更APIの変更は必ずトランザクションの整合性レビューを実施する
 - **カート情報のセッション管理**: セッションや認証の変更がカート状態に影響しないか確認する
 
@@ -282,7 +282,7 @@ backend チーム:  補助（CMS API・配信システム・全文検索）
 mkdir -p .claude/teams/content/compliance-rules
 # → sponsored-content.md, copyright.md, fact-check.md を作成（後述のテンプレートを使用）
 
-# 3. 記事作成のIssueを作成
+# 3. 記事作成のチケットを作成
 gh issue create \
   --title "[Content] 〇〇に関する解説記事の作成" \
   --label "content:editor-in-chief" \
@@ -353,7 +353,7 @@ gh issue create \
 mode: solo
 solo:
   poll_interval_minutes: 2   # デフォルト5分 → 2分に短縮
-  max_concurrent_issues: 3   # 同時処理Issue数（将来の機能拡張用）
+  max_concurrent_issues: 3   # 同時処理チケット数（将来の機能拡張用）
 ```
 
 ### エスカレーションルール設定例
@@ -375,7 +375,7 @@ escalation_triggers:
 
 ### よくある落とし穴
 
-- **大量記事での品質低下**: Issueを細分化しすぎず、1記事1Issueを基本にする
+- **大量記事での品質低下**: チケットを細分化しすぎず、1記事1チケットを基本にする
 - **ファクトチェックの省略**: Researcherステップを「不要」と判断する前に、統計・数値の出典を必ず確認する
 - **画像の著作権確認**: 本文は問題なくても画像に著作権問題が発生するケースが多い
 
@@ -412,7 +412,7 @@ content チーム:  補助（納品ドキュメント・マニュアル作成）
 gh label create "client:review" --color "FBCA04" --description "クライアントレビュー待ち"
 gh label create "client:approved" --color "0E8A16" --description "クライアント承認済み"
 
-# 4. 実装Issueを作成
+# 4. 実装チケットを作成
 gh issue create \
   --title "[Backend] ユーザー管理API実装（仕様書v1.2準拠）" \
   --label "backend:tech-lead" \
@@ -488,8 +488,8 @@ escalation_triggers:
 
 ### よくある落とし穴
 
-- **仕様書バージョンの取り違え**: Issueに参照する仕様書のバージョンとパスを必ず明記する
-- **口頭指示の未記録**: クライアントからの口頭・チャット指示は必ずIssueに起こしてから作業する
+- **仕様書バージョンの取り違え**: チケットに参照する仕様書のバージョンとパスを必ず明記する
+- **口頭指示の未記録**: クライアントからの口頭・チャット指示は必ずチケットに起こしてから作業する
 - **納品前の動作確認省略**: PRマージ前にクライアント環境での動作確認ステップを設ける
 
 ---
@@ -521,7 +521,7 @@ frontend チーム: 補助（必要に応じて有効化）
 
 # 2. ダブルレビュー基準を緩和する（後述）
 
-# 3. 素早いイテレーション用のIssue作成
+# 3. 素早いイテレーション用のチケット作成
 gh issue create \
   --title "[Backend] 勤怠入力フォームのバリデーション修正" \
   --label "backend:tech-lead" \
@@ -582,7 +582,7 @@ escalation_triggers:
 
 - **「社内だから」でセキュリティを軽視しない**: 個人情報や機密情報を扱う機能は外部公開ツールと同様の基準で実装する
 - **テストの省略**: スピード重視でもユニットテストの最低限のカバレッジは維持する
-- **ドキュメント更新の後回し**: 「あとで書く」ドキュメントは永遠に書かれない。IssueのDODにドキュメント更新を含める
+- **ドキュメント更新の後回し**: 「あとで書く」ドキュメントは永遠に書かれない。チケットのDODにドキュメント更新を含める
 
 ---
 
@@ -673,7 +673,7 @@ escalation_triggers:
 **設定方針**:
 1. `backend/workflow.yml` はB2B SaaS設定を適用する
 2. `content/compliance-rules/` に広告・著作権ルールを追加する
-3. 両チームが別々のIssueを処理するため、ラベル命名規則が衝突しないように注意する
+3. 両チームが別々のチケットを処理するため、ラベル命名規則が衝突しないように注意する
 
 ### 「社内ツールだが個人情報も扱う」場合
 
@@ -684,7 +684,7 @@ escalation_triggers:
 **設定方針**:
 1. デフォルトはシングルレビューで運用する
 2. `privacy` `個人情報` `PII` キーワードをエスカレーショントリガーに設定する
-3. 個人情報関連Issueには `security-sensitive` ラベルを手動付与するルールを設ける
+3. 個人情報関連チケットには `security-sensitive` ラベルを手動付与するルールを設ける
 
 ---
 

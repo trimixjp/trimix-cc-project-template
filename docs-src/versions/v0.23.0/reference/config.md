@@ -48,7 +48,7 @@ local_tickets:
 
 # solo モードの設定（mode: solo の場合のみ有効）
 solo:
-  poll_interval_minutes: 5      # Issue 監視の間隔（分）
+  poll_interval_minutes: 5      # チケット監視の間隔（分）
   target_labels:                # 処理対象ラベル（OR 条件）
     - dispatcher
     - backend:tech-lead
@@ -99,7 +99,7 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 | 観点 | multi-user | solo |
 |------|-----------|------|
 | 起動方法 | 担当者が `/ai-team-run` 実行 | `/ai-team-watch` で監視ループ |
-| 新規 Issue の検出 | 手動 | ポーリングで自動 |
+| 新規チケットの検出 | 手動 | ポーリングで自動 |
 | 二重実行防止 | 担当者の運用に依存 | `ai-team:in-progress` ラベル |
 | solo セクション | 不要 | 必須 |
 

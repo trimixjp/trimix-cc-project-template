@@ -8,7 +8,7 @@
 name: content-workflow
 description: 記事・ドキュメント・コンテンツ作成タスクのワークフロー
 
-# 同一Issueでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
+# 同一チケットでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
 # （カウント手順は各レビュー役エージェント定義の「差し戻しカウント手順」を参照）
 rework_limit: 2
 
@@ -62,7 +62,7 @@ steps:
     on_rework:
       condition: 調査レポートが不十分・追加調査が必要
       next: researcher
-      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は researcher へ差し戻さず human-escalator へ
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は researcher へ差し戻さず human-escalator へ
       limit_exceeded_next: human-escalator
     on_escalation:
       next: human-escalator
@@ -76,7 +76,7 @@ steps:
     on_rework:
       condition: 調査レポートが不十分・再調査が必要
       next: researcher
-      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は researcher へ差し戻さず human-escalator へ
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は researcher へ差し戻さず human-escalator へ
       limit_exceeded_next: human-escalator
     on_escalation:
       next: human-escalator
@@ -92,7 +92,7 @@ steps:
     on_rework:
       condition: Complianceからの差し戻し時
       next: writer
-      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は writer へ差し戻さず human-escalator へ
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は writer へ差し戻さず human-escalator へ
       limit_exceeded_next: human-escalator
 
   - id: compliance
@@ -108,7 +108,7 @@ steps:
     on_rework:
       condition: 不合格
       next: writer
-      # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は writer へ差し戻さず human-escalator へ
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は writer へ差し戻さず human-escalator へ
       limit_exceeded_next: human-escalator
     on_escalation:
       condition: 法的判断が必要
@@ -125,6 +125,6 @@ steps:
   - id: contributor-close
     agent: contributor
     label: "contributor:ready"
-    description: DOD確認・コメント品質チェック・Issueクローズ・インシデント調査
+    description: DOD確認・コメント品質チェック・チケットクローズ・インシデント調査
     on_complete:
       action: close_issue

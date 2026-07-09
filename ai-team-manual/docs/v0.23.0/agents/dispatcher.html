@@ -32,7 +32,7 @@
       <article class="content">
         <h1>Dispatcher エージェント</h1>
 
-<p>Dispatcher は、大きな作業要件（Epic Issue）を受け取り、各チームが実行できる単位のタスクに分解して割り当てる「仕事の振り分け役」です。このエージェントが動くことで、複雑な要件でも適切なチームへスムーズに引き継がれます。</p>
+<p>Dispatcher は、大きな作業要件（Epic チケット）を受け取り、各チームが実行できる単位のタスクに分解して割り当てる「仕事の振り分け役」です。このエージェントが動くことで、複雑な要件でも適切なチームへスムーズに引き継がれます。</p>
 
 <p>> <strong>定義場所</strong>: <code>.claude/agents/dispatcher.md</code></p>
 
@@ -42,25 +42,25 @@
 
 <p>Dispatcher は次の 2 つのことを行います。</p>
 
-<ol><li><strong>Epic の内容を読み解く</strong> — Issue に書かれた要件を解析し、どのチームが関係するかを判断する</li><li><strong>タスクを振り分ける</strong> — 単一チームで完結するならそのままディスパッチし、複数チームにまたがるなら Sub Issue を生成して各チームへ割り当てる</li></ol>
-<p>実行計画（フェーズ・依存関係）は必ず Epic Issue のコメントとして記録されるため、<strong>人間も含めた全員がどの順序で何が進んでいるかを把握</strong>できます。</p>
+<ol><li><strong>Epic の内容を読み解く</strong> — チケットに書かれた要件を解析し、どのチームが関係するかを判断する</li><li><strong>タスクを振り分ける</strong> — 単一チームで完結するならそのままディスパッチし、複数チームにまたがるなら サブチケットを生成して各チームへ割り当てる</li></ol>
+<p>実行計画（フェーズ・依存関係）は必ず Epic チケットのコメントとして記録されるため、<strong>人間も含めた全員がどの順序で何が進んでいるかを把握</strong>できます。</p>
 
 <hr>
 
 <h2>起動条件</h2>
 
-<table><thead><tr><th>条件</th><th>説明</th></tr></thead><tbody><tr><td><code>epic</code> ラベル付き Issue の作成・更新</td><td>新しい Epic が登録されたとき</td></tr><tr><td><code>dispatcher</code> ラベルの付与</td><td>既存 Issue を Dispatcher に再処理させたいとき</td></tr><tr><td><code>dispatcher:run</code> ラベルの手動付与</td><td>人間や他のエージェントが明示的に起動を要求したとき</td></tr></tbody></table>
+<table><thead><tr><th>条件</th><th>説明</th></tr></thead><tbody><tr><td><code>epic</code> ラベル付き チケットの作成・更新</td><td>新しい Epic が登録されたとき</td></tr><tr><td><code>dispatcher</code> ラベルの付与</td><td>既存 チケットを Dispatcher に再処理させたいとき</td></tr><tr><td><code>dispatcher:run</code> ラベルの手動付与</td><td>人間や他のエージェントが明示的に起動を要求したとき</td></tr></tbody></table>
 <hr>
 
 <h2>動作フロー</h2>
 
 <div class="mermaid">flowchart TD
-    A[Epic Issue が登録される] --> B[🔍 分析開始コメントを投稿]
+    A[Epic チケットが登録される] --> B[🔍 分析開始コメントを投稿]
     B --> C{複数チームにまたがるか?}
     C -- 単一チームで完結 --> D[ケースA: Epic に担当ラベルを直接付与]
-    C -- 複数チームにまたがる --> E[ケースB: チームごとに Sub Issue を生成]
+    C -- 複数チームにまたがる --> E[ケースB: チームごとに サブチケットを生成]
     D --> F[📋 ディスパッチ完了コメントを投稿]
-    E --> G[Sub Issue を Epic にリンク]
+    E --> G[サブチケットを Epic にリンク]
     G --> H[実行フェーズ・依存関係を Epic コメントに記録]
     H --> F
     F --> I[各チームのリーダーエージェントへ引き継ぎ]</div>
@@ -69,7 +69,7 @@
 
 <h2>ケースA: 単一チームで完結する場合</h2>
 
-<p>作業がひとつのチームの範囲に収まる場合は、Sub Issue を新たに作らず Epic Issue 本体に担当チームのラベルを付与して直接ディスパッチします。</p>
+<p>作業がひとつのチームの範囲に収まる場合は、サブチケットを新たに作らず Epic チケット 本体に担当チームのラベルを付与して直接ディスパッチします。</p>
 
 <p><strong>典型的な判断基準</strong></p>
 
@@ -78,22 +78,22 @@
 
 <h2>ケースB: 複数チームにまたがる場合</h2>
 
-<p>作業が複数のチームに関わる場合は、チームごとに Sub Issue を 1 件ずつ生成します。各 Sub Issue には担当チームのラベルが付与され、対応するチームリーダーエージェントが自動的に起動します。</p>
+<p>作業が複数のチームに関わる場合は、チームごとに サブチケットを 1 件ずつ生成します。各 サブチケットには担当チームのラベルが付与され、対応するチームリーダーエージェントが自動的に起動します。</p>
 
-<p>Sub Issue 間に依存関係がある場合（例: インフラ設定が完了してからバックエンド実装を開始するなど）は、フェーズを分けた実行計画がコメントに記録されます。</p>
+<p>サブチケット 間に依存関係がある場合（例: インフラ設定が完了してからバックエンド実装を開始するなど）は、フェーズを分けた実行計画がコメントに記録されます。</p>
 
 <div class="mermaid">sequenceDiagram
     actor 人間
     participant Dispatcher
     participant GitHub Issues
 
-    人間->>GitHub Issues: Epic Issue を登録
+    人間->>GitHub Issues: Epic チケットを登録
     GitHub Issues->>Dispatcher: epic ラベルを検知して起動
     Dispatcher->>GitHub Issues: 🔍 分析開始コメントを投稿
     Dispatcher->>Dispatcher: 要件を解析・チーム境界を判定
-    Dispatcher->>GitHub Issues: Sub Issue #A を生成（チームA担当）
-    Dispatcher->>GitHub Issues: Sub Issue #B を生成（チームB担当）
-    Dispatcher->>GitHub Issues: 📋 Sub Issue 分解完了コメントを投稿<br/>（フェーズ・依存関係を含む）
+    Dispatcher->>GitHub Issues: サブチケット#A を生成（チームA担当）
+    Dispatcher->>GitHub Issues: サブチケット#B を生成（チームB担当）
+    Dispatcher->>GitHub Issues: 📋 サブチケット分解完了コメントを投稿<br/>（フェーズ・依存関係を含む）
     GitHub Issues-->>チームA: backend:tech-lead ラベルで起動
     GitHub Issues-->>チームB: infra:engineer ラベルで起動</div>
 
@@ -103,11 +103,11 @@
 
 <h3>分析開始時</h3>
 
-<p>Epic Issue に次のコメントが投稿されます。</p>
+<p>Epic チケットに次のコメントが投稿されます。</p>
 
 <pre><code class="language-">🔍 Dispatcher: 分析を開始します
 
-対象Issue: #&lt;番号&gt; &lt;タイトル&gt;
+対象チケット: #&lt;番号&gt; &lt;タイトル&gt;
 分析中のシステム領域: &lt;フロントエンド / バックエンド / インフラ / ドキュメント 等&gt;</code></pre>
 
 <h3>ケースA 完了時（単一チームへのディスパッチ）</h3>
@@ -119,15 +119,15 @@
 
 <h3>ケースB 完了時（複数チームへの分解）</h3>
 
-<pre><code class="language-">📋 Dispatcher: Sub Issue 分解完了
+<pre><code class="language-">📋 Dispatcher: サブチケット分解完了
 
-生成した Sub Issue:
+生成した サブチケット:
 - #&lt;番号&gt; [tech-lead] &lt;タイトル&gt;
 - #&lt;番号&gt; [infra-engineer] &lt;タイトル&gt;
 - #&lt;番号&gt; [editor-in-chief] &lt;タイトル&gt;
 
 実行フェーズ: &lt;フェーズ数&gt;
-並列実行可能な Sub Issue: &lt;番号リスト&gt;
+並列実行可能な サブチケット: &lt;番号リスト&gt;
 依存関係あり（順序制約）: &lt;番号 → 番号&gt;</code></pre>
 
 <h3>判断不能時（エスカレーション前）</h3>
@@ -151,12 +151,12 @@ human-escalator を呼び出して人間に確認を求めます。
 
 <h2>重要な原則</h2>
 
-<ul><li>Dispatcher 自身はコードを書かず、実装判断も行いません</li><li>Sub Issue のタイトル・本文には、担当リーダーが作業を開始できる十分な情報が含まれます</li><li>依存関係を明確にせずに Sub Issue を生成することはありません</li><li>1 つの Sub Issue の担当チームは必ず 1 つです</li></ul>
+<ul><li>Dispatcher 自身はコードを書かず、実装判断も行いません</li><li>サブチケットのタイトル・本文には、担当リーダーが作業を開始できる十分な情報が含まれます</li><li>依存関係を明確にせずに サブチケットを生成することはありません</li><li>1 つの サブチケットの担当チームは必ず 1 つです</li></ul>
 <hr>
 
 <h2>関連ドキュメント</h2>
 
-<ul><li><a href="contributor.html">Contributor</a> — 作業完了確認・Issue クローズ担当</li><li><a href="human-escalator.html">Human-Escalator</a> — 人間へのエスカレーション担当</li><li><a href="../reference/escalation.html">エスカレーションルール</a> — エスカレーション条件の詳細</li></ul>
+<ul><li><a href="contributor.html">Contributor</a> — 作業完了確認・チケットクローズ担当</li><li><a href="human-escalator.html">Human-Escalator</a> — 人間へのエスカレーション担当</li><li><a href="../reference/escalation.html">エスカレーションルール</a> — エスカレーション条件の詳細</li></ul>
       </article>
     </div>
   </div>

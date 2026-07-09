@@ -46,14 +46,14 @@
 /ai-team-setup
 # → backend / frontend / content を同時に選択可能</code></pre>
 
-<p>ただし、1 つの Issue を複数チームが同時処理することはできません。Epic Issue を作成して Dispatcher に分解させる方法が適しています（<a href="agents/dispatcher.html">Dispatcher エージェント</a> 参照）。</p>
+<p>ただし、1 つのチケットを複数チームが同時処理することはできません。Epic チケットを作成して Dispatcher に分解させる方法が適しています（<a href="agents/dispatcher.html">Dispatcher エージェント</a> 参照）。</p>
 
 <hr>
 
 <h3>Q: ソロモードとマルチユーザーモードはどう使い分けますか？</h3>
 
-<table><thead><tr><th>モード</th><th>向いているケース</th></tr></thead><tbody><tr><td><strong>マルチユーザーモード</strong></td><td>複数人が担当を分担する・タスクのタイミングを自分で制御したい</td></tr><tr><td><strong>ソロモード</strong></td><td>1 人で運用する・Issue が作成されたら即座に自動処理したい</td></tr></tbody></table>
-<p>マルチユーザーモードでは担当者が <code>/ai-team-run &lt;Issue番号&gt;</code> を手動実行します。ソロモードでは <code>/ai-team-watch</code> が定期的に未処理 Issue を検出して自動実行します。</p>
+<table><thead><tr><th>モード</th><th>向いているケース</th></tr></thead><tbody><tr><td><strong>マルチユーザーモード</strong></td><td>複数人が担当を分担する・タスクのタイミングを自分で制御したい</td></tr><tr><td><strong>ソロモード</strong></td><td>1 人で運用する・チケットが作成されたら即座に自動処理したい</td></tr></tbody></table>
+<p>マルチユーザーモードでは担当者が <code>/ai-team-run &lt;チケット番号&gt;</code> を手動実行します。ソロモードでは <code>/ai-team-watch</code> が定期的に未処理チケットを検出して自動実行します。</p>
 
 <p>設定は <code>/ai-team-setup</code> の再実行または <code>.claude/ai-team-config.yml</code> の直接編集で変更できます（<a href="reference/config.html">設定ファイル</a> 参照）。</p>
 
@@ -85,8 +85,8 @@ npx @trimix/ai-team ticket list
 
 <p>以下の手順で対処してください。</p>
 
-<ol><li>Issue のコメントで問題点を指摘し、<code>escalated:human</code> ラベルを手動で除去して（または付与後に対応して）ワークフローを再開します。</li><li><code>/ai-team-resume</code> を実行すると、最後に停止したステップから再開できます。</li><li>差し戻しが必要な場合は、Issue のコメントに修正内容を明記してから <code>/ai-team-run</code> を再実行してください。エージェントはコメント履歴を読み取り、指摘内容を考慮して処理します。</li></ol>
-<p>重大な問題の場合は、PR をマージせずに Issue に「差し戻し理由」をコメントしてください。エスカレーションルール（<a href="reference/escalation.html">エスカレーション</a> 参照）に従って人間の判断を求めることもできます。</p>
+<ol><li>チケットのコメントで問題点を指摘し、<code>escalated:human</code> ラベルを手動で除去して（または付与後に対応して）ワークフローを再開します。</li><li><code>/ai-team-resume</code> を実行すると、最後に停止したステップから再開できます。</li><li>差し戻しが必要な場合は、チケットのコメントに修正内容を明記してから <code>/ai-team-run</code> を再実行してください。エージェントはコメント履歴を読み取り、指摘内容を考慮して処理します。</li></ol>
+<p>重大な問題の場合は、PR をマージせずに チケットに「差し戻し理由」をコメントしてください。エスカレーションルール（<a href="reference/escalation.html">エスカレーション</a> 参照）に従って人間の判断を求めることもできます。</p>
 
 <hr>
 
@@ -127,7 +127,7 @@ npx @trimix/ai-team ticket list
 <pre><code class="language-bash"># "timeout" に関連するインシデントを検索
 grep -r "timeout" .claude/incidents/</code></pre>
 
-<p>エージェントは Issue 処理開始時に <code>index.yml</code> を自動参照して関連インシデントがあれば注意事項として Issue に追記します（<a href="agents/contributor.html">Contributor エージェント</a> 参照）。</p>
+<p>エージェントは チケット処理開始時に <code>index.yml</code> を自動参照して関連インシデントがあれば注意事項として チケットに追記します（<a href="agents/contributor.html">Contributor エージェント</a> 参照）。</p>
 
 <hr>
 

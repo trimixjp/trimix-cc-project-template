@@ -38,7 +38,7 @@
 
 <h2>スキル一覧</h2>
 
-<table><thead><tr><th>スキル</th><th>用途</th><th>引数</th></tr></thead><tbody><tr><td><a href="setup.html"><code>/ai-team-setup</code></a></td><td>AIチームをプロジェクトにセットアップするウィザード</td><td>なし</td></tr><tr><td><a href="run.html"><code>/ai-team-run</code></a></td><td>チケット（GitHub Issue 等）を読み込みワークフローを起動</td><td>チケットURL または ID</td></tr><tr><td><a href="watch.html"><code>/ai-team-watch</code></a></td><td>ソロモード用。GitHub Issues を定期監視</td><td>なし</td></tr><tr><td><a href="configure.html"><code>/ai-team-configure</code></a></td><td>チームの <code>workflow.yml</code> を会話形式で生成・編集</td><td>チームID（backend/frontend/content/infra）</td></tr><tr><td><a href="create.html"><code>/ai-team-create</code></a></td><td>カスタムチームをゼロから作成するウィザード</td><td>チームID（省略可）</td></tr><tr><td><a href="install.html"><code>/ai-team-install</code></a></td><td>ワークフロープラグインをインストール</td><td>チームID</td></tr><tr><td><a href="gallery.html"><code>/ai-team-gallery</code></a></td><td>利用可能なプラグイン一覧を表示</td><td>なし</td></tr><tr><td><a href="resume.html"><code>/ai-team-resume</code></a></td><td>エスカレーション対応済みIssueの続きを再開</td><td>なし（または Issue番号/URL）</td></tr></tbody></table>
+<table><thead><tr><th>スキル</th><th>用途</th><th>引数</th></tr></thead><tbody><tr><td><a href="setup.html"><code>/ai-team-setup</code></a></td><td>AIチームをプロジェクトにセットアップするウィザード</td><td>なし</td></tr><tr><td><a href="run.html"><code>/ai-team-run</code></a></td><td>チケット（チケット 等）を読み込みワークフローを起動</td><td>チケットURL または ID</td></tr><tr><td><a href="watch.html"><code>/ai-team-watch</code></a></td><td>ソロモード用。GitHub Issues を定期監視</td><td>なし</td></tr><tr><td><a href="configure.html"><code>/ai-team-configure</code></a></td><td>チームの <code>workflow.yml</code> を会話形式で生成・編集</td><td>チームID（backend/frontend/content/infra）</td></tr><tr><td><a href="create.html"><code>/ai-team-create</code></a></td><td>カスタムチームをゼロから作成するウィザード</td><td>チームID（省略可）</td></tr><tr><td><a href="install.html"><code>/ai-team-install</code></a></td><td>ワークフロープラグインをインストール</td><td>チームID</td></tr><tr><td><a href="gallery.html"><code>/ai-team-gallery</code></a></td><td>利用可能なプラグイン一覧を表示</td><td>なし</td></tr><tr><td><a href="resume.html"><code>/ai-team-resume</code></a></td><td>エスカレーション対応済みチケットの続きを再開</td><td>なし（または チケット番号/URL）</td></tr></tbody></table>
 <p>各スキルの定義ファイルはパッケージ内 <code>skills/*.md</code> にあり、<code>npx @trimix/ai-team install</code> で <code>.claude/commands/</code> にコピーされます。</p>
 
 <hr>
@@ -62,19 +62,19 @@
 
 <pre><code class="language-">1. npm install --save-dev ./trimix-ai-team-0.5.1.tgz
 2. /ai-team-setup            ← チーム選択・ラベル作成
-3. /ai-team-run &lt;Issue番号&gt;  ← 最初のタスクを実行</code></pre>
+3. /ai-team-run &lt;チケット番号&gt;  ← 最初のタスクを実行</code></pre>
 
 <h3>ソロ運用（自動監視）</h3>
 
 <pre><code class="language-">1. /ai-team-setup            ← 運用モードで「solo」を選択
 2. /ai-team-watch            ← 監視ループ開始
-3. （新規 Issue を作成 → 自動処理される）
+3. （新規チケットを作成 → 自動処理される）
 4. エスカレーション発生 → 人間が対応 → 自動再開</code></pre>
 
 <h3>マルチユーザー運用</h3>
 
 <pre><code class="language-">1. /ai-team-setup            ← 運用モードで「multi-user」を選択
-2. 各メンバーが /ai-team-run &lt;Issue番号&gt; を実行
+2. 各メンバーが /ai-team-run &lt;チケット番号&gt; を実行
 3. エスカレーション発生 → 人間対応 → /ai-team-resume で再開</code></pre>
 
 <h3>ワークフローのカスタマイズ</h3>
@@ -94,7 +94,7 @@
 <pre><code class="language-">1. /ai-team-create           ← 対話ウィザード開始
 2. チームID・エージェント構成・ワークフローを入力
 3. ファイル生成 → .claude/teams/&lt;team_id&gt;/ に展開される
-4. /ai-team-run &lt;Issue番号&gt;  ← カスタムチームで処理開始</code></pre>
+4. /ai-team-run &lt;チケット番号&gt;  ← カスタムチームで処理開始</code></pre>
 
 <hr>
 
@@ -104,7 +104,7 @@
 
 <pre><code class="language-markdown">---
 name: ai-team-run
-description: チケット（GitHub Issue・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+description: チケット（チケット・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
 ---
 
 # /ai-team-run — ワークフロー起動

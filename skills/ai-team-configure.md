@@ -174,7 +174,7 @@ ls .claude/teams/<team_id>/agents/*.md 2>/dev/null | xargs -I{} basename {} .md
 > **ステップ `<step_id>`（agent: `<agent>`）の基本設定**
 >
 > 1. **label**（デフォルト: `<prefix>:<agent>`）
->    GitHub Issue に表示されるラベル名です
+>    チケットに表示されるラベル名です
 > 2. **description**（省略可）
 >    このステップが何をするかの説明です
 >
@@ -189,7 +189,7 @@ ls .claude/teams/<team_id>/agents/*.md 2>/dev/null | xargs -I{} basename {} .md
 >
 > [1] 次のステップへ進む
 > [2] 条件によって分岐する（例: 変更規模によってシングル/ダブルレビューを切り替える）
-> [3] ここで終了（Issueをクローズする）
+> [3] ここで終了（チケットをクローズする）
 
 #### 選択肢1: 次のステップへ
 
@@ -209,7 +209,7 @@ ls .claude/teams/<team_id>/agents/*.md 2>/dev/null | xargs -I{} basename {} .md
 >    例: `変更ファイル数が5未満 / 認証関連の変更なし`
 > 4. **この条件の次ステップ**（複数の場合はカンマ区切りで → 並列実行になります）
 
-#### 選択肢3: Issueをクローズ
+#### 選択肢3: チケットをクローズ
 
 `on_complete.action: close_issue` を設定します。追加入力は不要です。
 
@@ -261,7 +261,7 @@ ls .claude/teams/<team_id>/agents/*.md 2>/dev/null | xargs -I{} basename {} .md
 name: <name>
 description: <description>
 
-# 同一Issueでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
+# 同一チケットでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
 rework_limit: 2
 
 labels:

@@ -11,12 +11,12 @@
 | 項目 | 必須要件 | 確認コマンド |
 |------|---------|-------------|
 | Node.js | 18.0.0 以上（`package.json` の `engines.node` で定義） | `node --version` |
-| Claude Code CLI | インストール済み・サインイン済み | `claude --version` |
-| GitHub CLI | インストール済み・認証済み（ラベル作成・Issue 操作に使用） | `gh auth status` |
+| Claude Code または Grok Build | インストール済み・サインイン済み | `claude --version` または `grok --version` |
 | Git リポジトリ | プロジェクトが Git で管理されている | `git status` |
-| GitHub リポジトリ | GitHub にリモートリポジトリが存在する（Issues 有効） | `gh repo view` |
+| GitHub CLI（任意） | **ticket_backend: github** のとき必須（ラベル・チケット操作） | `gh auth status` |
+| GitHub リポジトリ（任意） | **ticket_backend: github** のとき。Issues 有効 | `gh repo view` |
 
-GitHub CLI が未認証の場合は `gh auth login` を実行してください。
+`ticket_backend: local`（ローカル Markdown）を選ぶ場合、GitHub CLI / リモートリポジトリは必須ではありません。github 運用で未認証の場合は `gh auth login` を実行してください。
 
 ---
 
@@ -53,7 +53,7 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 1. **導入するチーム**: backend / frontend / content / infra / sns（複数選択可）
 2. **運用モード**: `multi-user`（担当者ごとに `/ai-team-run` 起動）または `solo`（`/ai-team-watch` で自動監視）
 3. **バージョン管理**: `auto`（Reviewer 合格後に自動インクリメント）または `manual`（人間が管理）
-4. **Issue 強制チェック**: `CLAUDE.md のみ`（Claude が判断して Issue 作成を促す）または `hooks で強制`（変更系の指示に Issue がない場合にスクリプトでブロック）
+4. **チケット強制チェック**: `CLAUDE.md のみ`（Claude が判断して チケット作成を促す）または `hooks で強制`（変更系の指示に チケットがない場合にスクリプトでブロック）
 5. **GitHub ラベルの作成**: 選択したチームに対応するラベルを `gh label create` で一括作成するかどうか
 
 セットアップが完了すると、プロジェクトルートに次のディレクトリが配置されます。
@@ -69,7 +69,7 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 ├── incidents/               # インシデントレポート（初期状態は空）
 ├── docs/workflow-guide.md   # ワークフロー運用ガイド
 ├── hooks/                   # UserPromptSubmit フック（hooks を選択した場合のみ）
-│   └── ensure-issue.sh      # ファイル変更系の指示に Issue 番号がなければブロック
+│   └── ensure-issue.sh      # ファイル変更系の指示に チケット番号がなければブロック
 └── commands/                # postinstall で展開された 7 個のスキル
 ```
 
@@ -81,16 +81,16 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 
 ### 方法 A: マルチユーザーモード（個別実行）
 
-GitHub Issue を作成し、適切なリーダーラベル（例: `backend:tech-lead`）を付けます。担当者は Claude Code で以下を実行します。
+チケットを作成し、適切なリーダーラベル（例: `backend:tech-lead`）を付けます。担当者は Claude Code で以下を実行します。
 
 ```
 /ai-team-run 42
 ```
 
-または Issue の URL を直接渡します。
+または チケットの URL を直接渡します。
 
 ```
-/ai-team-run https://github.com/your-org/your-repo/issues/42
+/ai-team-run https://github.com/.*/issues/42
 ```
 
 エージェントは次の順序で動作します（バックエンドチームの例）。
@@ -109,7 +109,7 @@ tech-lead → implementer → tech-lead（レビュー方式判断）
 /ai-team-watch
 ```
 
-`.claude/ai-team-config.yml` の `solo.poll_interval_minutes`（デフォルト 5 分）ごとに新規 Issue を検出し、自動でワークフローを起動します。停止するまで監視ループが動作するため、停止には Ctrl+C を使用します。
+`.claude/ai-team-config.yml` の `solo.poll_interval_minutes`（デフォルト 5 分）ごとに新規チケットを検出し、自動でワークフローを起動します。停止するまで監視ループが動作するため、停止には Ctrl+C を使用します。
 
 詳細は [ai-team-watch スキル](skills/watch.html) を参照してください。
 
@@ -117,7 +117,7 @@ tech-lead → implementer → tech-lead（レビュー方式判断）
 
 ## ステップ 4: 人間の判断が必要になった場合
 
-AI エージェントが法的判断・予算承認・PR マージ・仕様の曖昧さに遭遇すると、`human-escalator` が起動して `escalated:human` ラベルを付与し処理を停止します。Issue には以下のような案内が投稿されます。
+AI エージェントが法的判断・予算承認・PR マージ・仕様の曖昧さに遭遇すると、`human-escalator` が起動して `escalated:human` ラベルを付与し処理を停止します。チケットには以下のような案内が投稿されます。
 
 ```
 🚨 エスカレーション: 人間の判断が必要です
@@ -127,7 +127,7 @@ AI エージェントが法的判断・予算承認・PR マージ・仕様の�
 理由: （具体的に何が判断できないか）
 
 ## 対応完了後の手順
-1. このIssueに判断内容をコメントしてください
+1. このチケットに判断内容をコメントしてください
 2. escalated:human ラベルを外してください
 3. 以下のコマンドでワークフローを再開してください：
    /ai-team-resume
@@ -139,7 +139,7 @@ AI エージェントが法的判断・予算承認・PR マージ・仕様の�
 /ai-team-resume
 ```
 
-引数なしで実行すると、再開対象 Issue を自動検出します。詳細は [ai-team-resume スキル](skills/resume.html) を参照してください。
+引数なしで実行すると、再開対象チケットを自動検出します。詳細は [ai-team-resume スキル](skills/resume.html) を参照してください。
 
 ---
 

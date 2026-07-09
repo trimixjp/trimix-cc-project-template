@@ -9,7 +9,7 @@ Tech-Writer はバックエンドチームの「ドキュメント専門 AI」�
 
 ## 起動条件
 
-1. `backend:tech-writer` ラベルが付与された Issue が作成・更新された
+1. `backend:tech-writer` ラベルが付与された チケットが作成・更新された
 2. Reviewer（またはクロスレビュー）の合格後、ワークフローが Tech-Writer ステップに進んだ
 
 ---
@@ -43,7 +43,7 @@ git diff --name-only $RANGE
 git diff $RANGE -- '*.md' '*.yml' '*.json' '*.js' '*.ts'
 ```
 
-Issue コメント履歴から以下を把握します：
+チケットコメント履歴から以下を把握します：
 
 - Tech-Lead の設計方針（追加・変更された機能の概要）
 - Implementer の完了報告（変更ファイル一覧・実装内容）
@@ -110,7 +110,7 @@ ls ai-team-manual/docs/
 ls ai-team-manual/docs/v$VERSION/
 ```
 
-ビルドが失敗した場合は、コミット前の状態のままエラー原因（Markdown 構文エラー・config.json の nav 参照切れ等）を特定して `docs-src/` 側を修正し、再実行します。**再実行は 2 回まで**とし、それでも成功しない場合はエラーメッセージ全文・終了コード・試行した修正内容を Issue コメントに記録して human-escalator にエスカレーションします。
+ビルドが失敗した場合は、コミット前の状態のままエラー原因（Markdown 構文エラー・config.json の nav 参照切れ等）を特定して `docs-src/` 側を修正し、再実行します。**再実行は 2 回まで**とし、それでも成功しない場合はエラーメッセージ全文・終了コード・試行した修正内容を チケットコメントに記録して human-escalator にエスカレーションします。
 
 ### ステップ 5: ドキュメント変更のコミット
 

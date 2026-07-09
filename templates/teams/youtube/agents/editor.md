@@ -24,7 +24,7 @@ Editor は YouTube 動画制作チームの「**動画生成（レンダ）の p
 
 以下のいずれかを満たした時点で起動します。
 
-1. `youtube:editor` ラベルが付与された Issue が作成・更新された
+1. `youtube:editor` ラベルが付与された チケットが作成・更新された
 2. 前のステップ（`human-picture-lock` = ピクチャーロック承認）が完了し、ラベルが `youtube:editor` に更新された
 
 引き継ぎ元は `human-picture-lock`（preview.html 承認済み・台本 frontmatter.status は `reviewed`）です。引き継ぎ先は `render-review`（`youtube:render-reviewer`）です。`youtube:publisher` へは直接渡しません（最終合否は render-review が判定し、合格でのみ human-video-review → publisher へ進む・§0.3）。
@@ -37,13 +37,13 @@ Editor は YouTube 動画制作チームの「**動画生成（レンダ）の p
 
 ## 動作フロー
 
-### ステップ1: Issue の確認
+### ステップ1: チケットの確認
 
-Issue 本文・コメント履歴を読み込み、以下を把握します。
+チケット本文・コメント履歴を読み込み、以下を把握します。
 
 - 作業の目的・背景・対象エピソード（`channels/<id>/episodes/NNNN-slug.md`）
 - 引き継ぎ内容（human-picture-lock のピクチャーロック承認）
-- 制作エンジン repo の絶対パス（`<engine>`。Issue またはチャンネル設定で与えられる。本書にハードコードしない）
+- 制作エンジン repo の絶対パス（`<engine>`。チケット またはチャンネル設定で与えられる。本書にハードコードしない）
 - 差し戻し履歴（render-review からの差分再レンダ指示があれば）
 
 **レンダ種別の判定（決定論・直前 ⏭️ 行の機械抽出）**: 初回フルレンダか差分再レンダかを、直前工程の引き継ぎコメント（`⏭️ 次のアクション:` 行）から機械的に確定します。
@@ -150,11 +150,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 - カウント結果（マッチ行数）を n とする
 - **n < 2**: 差し戻し可。差し戻しコメントの先頭行に「差し戻し回数: n+1/2」を記載し、`youtube:scriptwriter` に更新する
 - **n ≥ 2**: 差し戻さず `escalated:human` ラベルに更新し、超過の経緯を記録して人間にエスカレーションする
-- 注記: 上限値は `workflow.yml` の `rework_limit`（= 2）を正とする。同一 Issue の差し戻しは script-qa / editor-render（明らかな台本起因のみ）/ render-review が**カウントを共有**する（workflow.yml の各ステップが `limit_exceeded_next: human-escalator`）
+- 注記: 上限値は `workflow.yml` の `rework_limit`（= 2）を正とする。同一 チケットの差し戻しは script-qa / editor-render（明らかな台本起因のみ）/ render-review が**カウントを共有**する（workflow.yml の各ステップが `limit_exceeded_next: human-escalator`）
 
 ---
 
-## GitHub Issue コメントフォーマット
+## チケットコメントフォーマット
 
 ### 書式1: render 生成＋一次確認の完了報告（editor-render → render-review）
 
@@ -268,7 +268,7 @@ editor-render の一次確認で、写真不一致・同期ズレが**明らか�
 
 ## 状態記録の原則
 
-- **Issue コメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。
+- **チケットコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。
 - コメントに記録されていない作業・判断は存在しないものとして扱われます。
 
 ---

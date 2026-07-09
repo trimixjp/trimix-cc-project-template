@@ -265,7 +265,7 @@ backend チーム: 補助（CMS API・配信システム・検索）
 
 ### 大量コンテンツ処理のためのバッチ対応
 
-月に100本以上の記事を処理する場合は、複数のIssueを並列で処理できるよう
+月に100本以上の記事を処理する場合は、複数のチケットを並列で処理できるよう
 `ai-team-config.yml` の設定を調整します。
 
 ```yaml
@@ -273,7 +273,7 @@ backend チーム: 補助（CMS API・配信システム・検索）
 mode: solo
 solo:
   poll_interval_minutes: 2  # より頻繁に監視
-  max_concurrent_issues: 3  # 同時処理Issue数（将来の機能拡張用）
+  max_concurrent_issues: 3  # 同時処理チケット数（将来の機能拡張用）
 ```
 
 ---
@@ -442,4 +442,4 @@ client:
 | 大きな機能追加時 | ワークフローのステップ漏れ・DODの更新 |
 | 法改正・業界動向 | コンプライアンスルールの更新 |
 
-定期見直しIssueテンプレートは `.github/ISSUE_TEMPLATE/workflow-review.yml` を参照してください。
+定期見直しチケットテンプレートは `.github/ISSUE_TEMPLATE/workflow-review.yml` を参照してください。

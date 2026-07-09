@@ -45,7 +45,7 @@ Claude Code を起動して以下を実行してください：
 
 **例（GitHub Issues）:**
 ```
-/ai-team-run https://github.com/your-org/your-repo/issues/42
+/ai-team-run https://github.com/.*/issues/42
 ```
 
 **例（ローカル Markdown）:**

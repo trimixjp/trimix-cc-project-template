@@ -57,10 +57,10 @@ description: 一行の説明
 
 ## 動作フロー
 起動後にどのような手順で処理を進めるかを記述します。
-GitHub Issue へのコメント投稿や次のエージェントへの引き継ぎ手順を含めます。
+チケットへのコメント投稿や次のエージェントへの引き継ぎ手順を含めます。
 
-## GitHub Issue コメントフォーマット
-このエージェントが Issue に投稿するコメントのテンプレートを記述します。
+## チケットコメントフォーマット
+このエージェントが チケットに投稿するコメントのテンプレートを記述します。
 
 ## エスカレーション条件
 human-escalator を呼び出すべき状況を具体的に列挙します。
@@ -103,7 +103,7 @@ model_role: leader
 
 <h4>役割（model_role）</h4>
 
-<table><thead><tr><th>role</th><th>例</th><th>期待</th></tr></thead><tbody><tr><td><code>leader</code></td><td>dispatcher, tech-lead, frontend-lead</td><td>次担当へ渡す Issue に<strong>詳細な設計書</strong>を書く</td></tr><tr><td><code>worker</code></td><td>implementer, developer, reviewer</td><td>リーダーの設計に従って実装・検証</td></tr><tr><td><code>simple</code></td><td>pr-creator, version-bumper</td><td>定型処理</td></tr></tbody></table>
+<table><thead><tr><th>role</th><th>例</th><th>期待</th></tr></thead><tbody><tr><td><code>leader</code></td><td>dispatcher, tech-lead, frontend-lead</td><td>次担当へ渡す チケットに<strong>詳細な設計書</strong>を書く</td></tr><tr><td><code>worker</code></td><td>implementer, developer, reviewer</td><td>リーダーの設計に従って実装・検証</td></tr><tr><td><code>simple</code></td><td>pr-creator, version-bumper</td><td>定型処理</td></tr></tbody></table>
 <h4>細かいカスタマイズ（md 直接編集）</h4>
 
 <p><strong>個別にモデルや effort だけ変えたい場合は、対象 md の frontmatter を直接編集してください。</strong></p>
@@ -142,7 +142,7 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 
 <pre><code class="language-markdown">## 完了条件（exit criteria）
 
-- [ ] 設計方針コメントを Issue に投稿した
+- [ ] 設計方針コメントを チケットに投稿した
 - [ ] 参照したルール・仕様書を方針コメントに明記した
 - [ ] 次のステップのラベル（`backend:implementer`）を付与した</code></pre>
 
@@ -150,7 +150,7 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 
 <h3>2. 状態記録の原則</h3>
 
-<ul><li>ワークフローの状態は <strong>Issue のラベルとコメントのみ</strong>で表現する（エージェントの内部状態・会話コンテキストに依存しない）</li><li>セッションが中断しても <code>/ai-team-resume</code> が<strong>コメント履歴のみ</strong>で状態を復元できる状態を常に保つ</li><li>判断・分岐を行った場合は、その根拠と参照ドキュメントを必ずコメントに残す</li></ul>
+<ul><li>ワークフローの状態は <strong>チケットのラベルとコメントのみ</strong>で表現する（エージェントの内部状態・会話コンテキストに依存しない）</li><li>セッションが中断しても <code>/ai-team-resume</code> が<strong>コメント履歴のみ</strong>で状態を復元できる状態を常に保つ</li><li>判断・分岐を行った場合は、その根拠と参照ドキュメントを必ずコメントに残す</li></ul>
 <h3>3. コメント必須 5 フィールド</h3>
 
 <p>各エージェントの完了報告コメントには、以下の 5 フィールドを必ず含めます。</p>
@@ -175,7 +175,7 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 <code>## 動作フロー</code> セクションの手順を書き換えます。たとえばテスト実施の基準を厳格化したい場合は、Implementer の動作フローにカバレッジ閾値の確認ステップを追記します。
 
 <p><strong>コメントフォーマットを変更する場合</strong></p>
-<code>## GitHub Issue コメントフォーマット</code> セクションのテンプレートを書き換えます。プロジェクト固有の情報（チケット番号形式・通知先など）を追加する場合に使います。
+<code>## チケットコメントフォーマット</code> セクションのテンプレートを書き換えます。プロジェクト固有の情報（チケット番号形式・通知先など）を追加する場合に使います。
 
 <p><strong>エスカレーション条件を変更する場合</strong></p>
 <code>## エスカレーション条件</code> セクションの記述を変更します。AI に判断させる範囲を広げたい場合は条件を減らし、人間の承認を必須にしたい操作がある場合は条件を追加します。
@@ -197,7 +197,7 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 
 <h2>共通エージェントについて</h2>
 
-<code>dispatcher</code>（Epic の Issue 分解）・<code>contributor</code>（Issue クローズ管理）・<code>human-escalator</code>（人間へのエスカレーション）の 3 エージェントは <code>.claude/agents/</code> に配置されており、全チームで共有されます。これらは特別な理由がない限り変更不要です。変更する場合は全チームの動作に影響することを念頭においてください。
+<code>dispatcher</code>（Epic の チケット分解）・<code>contributor</code>（チケットクローズ管理）・<code>human-escalator</code>（人間へのエスカレーション）の 3 エージェントは <code>.claude/agents/</code> に配置されており、全チームで共有されます。これらは特別な理由がない限り変更不要です。変更する場合は全チームの動作に影響することを念頭においてください。
 
 <hr>
 

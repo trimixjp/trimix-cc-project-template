@@ -45,7 +45,7 @@ Claude Code を起動し、セットアップウィザードを実行します�
 | 1 | 導入するチーム | backend / frontend / content / infra / sns（複数選択可） |
 | 2 | 運用モード | multi-user（手動起動）/ solo（自動監視） |
 | 3 | バージョン管理 | auto（自動インクリメント）/ manual（手動管理） |
-| 4 | Issue 強制チェック | CLAUDE.md のみ / hooks で強制 |
+| 4 | チケット強制チェック | CLAUDE.md のみ / hooks で強制 |
 | 5 | GitHub ラベルの作成 | 今すぐ一括作成 / スキップ |
 
 セットアップ完了後のメッセージ例：
@@ -60,7 +60,7 @@ Claude Code を起動し、セットアップウィザードを実行します�
 
 ## 次のステップ
 1. .claude/CLAUDE.md を確認・カスタマイズしてください
-2. Issue を作成し /ai-team-run <Issue番号> でワークフローを開始します
+2. チケットを作成し /ai-team-run <チケット番号> でワークフローを開始します
 ```
 
 詳細は [セットアップガイド](guide/setup.html) を参照してください。
@@ -107,7 +107,7 @@ Claude Code を起動し、セットアップウィザードを実行します�
     └── ai-team-configure.md
 ```
 
-`.github/ISSUE_TEMPLATE/` には、選択したチームに応じた Issue テンプレートが配置されます。
+`.github/ISSUE_TEMPLATE/` には、選択したチームに応じた チケットテンプレートが配置されます。
 
 ---
 
