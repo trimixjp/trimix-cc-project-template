@@ -2,23 +2,25 @@
  * モデル・effort プロファイルをエージェント / スキル md に反映する。
  *
  * 使い方:
- *   node bin/lib/apply-model-profile.js --profile balance --effort normal --dir templates
- *   node bin/lib/apply-model-profile.js --profile high-performance --effort deep --dir .claude
- *   node bin/lib/apply-model-profile.js --profile low-cost --effort light --dir . --skills-only
+ *   node bin/lib/apply-model-profile.js --runtime claude-code --profile balance --effort normal --dir templates
+ *   node bin/lib/apply-model-profile.js --runtime grok --profile balance --effort normal --dir .claude --mirror-grok
  *   node bin/lib/apply-model-profile.js --dry --profile balance --effort normal --dir templates
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'fs';
-import { join, relative, resolve, dirname } from 'path';
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, copyFileSync, statSync } from 'fs';
+import { join, relative, resolve, dirname, basename } from 'path';
 import { fileURLToPath } from 'url';
 import {
   PERFORMANCE_PROFILES,
   EFFORT_PROFILES,
+  RUNTIMES,
   DEFAULT_PERFORMANCE_PROFILE,
   DEFAULT_EFFORT_PROFILE,
+  DEFAULT_RUNTIME,
   resolveRole,
   resolveModel,
   resolveEffort,
+  normalizeRuntime,
   upsertModelEffortFrontmatter,
   extractFrontmatterName,
 } from './model-profiles.js';
@@ -31,23 +33,27 @@ const packageRoot = resolve(__dirname, '../..');
  */
 export function parseArgs(argv = process.argv.slice(2)) {
   const opts = {
+    runtime: DEFAULT_RUNTIME,
     profile: DEFAULT_PERFORMANCE_PROFILE,
     effort: DEFAULT_EFFORT_PROFILE,
     dir: null,
     dry: false,
     skillsOnly: false,
     agentsOnly: false,
+    mirrorGrok: false,
     help: false,
   };
 
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === '--profile' || a === '-p') opts.profile = argv[++i];
+    if (a === '--runtime' || a === '-r') opts.runtime = argv[++i];
+    else if (a === '--profile' || a === '-p') opts.profile = argv[++i];
     else if (a === '--effort' || a === '-e') opts.effort = argv[++i];
     else if (a === '--dir' || a === '-d') opts.dir = argv[++i];
     else if (a === '--dry') opts.dry = true;
     else if (a === '--skills-only') opts.skillsOnly = true;
     else if (a === '--agents-only') opts.agentsOnly = true;
+    else if (a === '--mirror-grok') opts.mirrorGrok = true;
     else if (a === '--help' || a === '-h') opts.help = true;
     else throw new Error(`不明な引数: ${a}`);
   }
@@ -134,7 +140,7 @@ export function collectSkillFiles(root) {
  * @param {string} filePath
  * @param {{ performanceId: string, effortId: string, kind: 'agent' | 'skill', dry?: boolean }} opts
  */
-export function applyToFile(filePath, { performanceId, effortId, kind, dry = false }) {
+export function applyToFile(filePath, { performanceId, effortId, kind, runtimeId = DEFAULT_RUNTIME, dry = false }) {
   const original = readFileSync(filePath, 'utf-8');
   let name = extractFrontmatterName(original);
 
@@ -151,8 +157,8 @@ export function applyToFile(filePath, { performanceId, effortId, kind, dry = fal
   }
 
   const role = name === '_agent-template' ? 'worker' : resolveRole(name, kind);
-  const model = resolveModel(performanceId, role);
-  const effort = resolveEffort(effortId);
+  const model = resolveModel(performanceId, role, runtimeId);
+  const effort = resolveEffort(effortId, runtimeId);
 
   const { content, changed } = upsertModelEffortFrontmatter(original, {
     model,
@@ -164,22 +170,85 @@ export function applyToFile(filePath, { performanceId, effortId, kind, dry = fal
     writeFileSync(filePath, content, 'utf-8');
   }
 
-  return { filePath, name, role, model, effort, changed };
+  return { filePath, name, role, model, effort, runtimeId, changed };
+}
+
+/**
+ * Grok 用にエージェント md を `.grok/agents/` へフラットコピーする。
+ * 同一 name の衝突時は `<team>-<name>.md` にする。
+ *
+ * @param {string} projectRoot  プロジェクトルート（.claude と .grok の親）
+ * @param {{ dry?: boolean }} [opts]
+ */
+export function mirrorAgentsToGrok(projectRoot, opts = {}) {
+  const dry = opts.dry ?? false;
+  const claudeRoot = join(projectRoot, '.claude');
+  const destDir = join(projectRoot, '.grok', 'agents');
+  const sources = collectAgentFiles(claudeRoot);
+  const used = new Set();
+  const copied = [];
+
+  if (!dry) mkdirSync(destDir, { recursive: true });
+
+  for (const src of sources) {
+    const content = readFileSync(src, 'utf-8');
+    let name = extractFrontmatterName(content) || basename(src, '.md');
+    if (name.includes('{{') || name.startsWith('_')) continue;
+
+    // チーム名をパスから推定: .claude/teams/<team>/agents/foo.md
+    const norm = src.replace(/\\/g, '/');
+    const teamMatch = norm.match(/\/teams\/([^/]+)\/agents\//);
+    const team = teamMatch ? teamMatch[1] : null;
+
+    let fileBase = name;
+    if (used.has(fileBase) && team) {
+      fileBase = `${team}-${name}`;
+    }
+    used.add(fileBase);
+
+    const dest = join(destDir, `${fileBase}.md`);
+    if (!dry) copyFileSync(src, dest);
+    copied.push({ src, dest, name: fileBase });
+  }
+
+  // 共有エージェント
+  // collectAgentFiles が既に .claude/agents も含む
+
+  // skills → .grok/commands（Claude 互換に加え明示配置）
+  const cmdSrc = join(projectRoot, '.claude', 'commands');
+  const cmdDest = join(projectRoot, '.grok', 'commands');
+  const skillCopies = [];
+  if (existsSync(cmdSrc)) {
+    if (!dry) mkdirSync(cmdDest, { recursive: true });
+    for (const f of readdirSync(cmdSrc)) {
+      if (!f.endsWith('.md')) continue;
+      const s = join(cmdSrc, f);
+      const d = join(cmdDest, f);
+      if (!dry) copyFileSync(s, d);
+      skillCopies.push({ src: s, dest: d });
+    }
+  }
+
+  return { agents: copied, skills: skillCopies };
 }
 
 /**
  * @param {{
  *   performanceId?: string,
  *   effortId?: string,
+ *   runtimeId?: string,
  *   root: string,
  *   dry?: boolean,
  *   skillsOnly?: boolean,
  *   agentsOnly?: boolean,
+ *   mirrorGrok?: boolean,
+ *   projectRoot?: string,
  * }} options
  */
 export function applyModelProfile(options) {
   const performanceId = options.performanceId ?? DEFAULT_PERFORMANCE_PROFILE;
   const effortId = options.effortId ?? DEFAULT_EFFORT_PROFILE;
+  const runtimeId = normalizeRuntime(options.runtimeId ?? DEFAULT_RUNTIME);
   const root = resolve(options.root);
   const dry = options.dry ?? false;
 
@@ -198,28 +267,50 @@ export function applyModelProfile(options) {
 
   if (!options.skillsOnly) {
     for (const file of collectAgentFiles(root)) {
-      results.push(applyToFile(file, { performanceId, effortId, kind: 'agent', dry }));
+      results.push(applyToFile(file, { performanceId, effortId, runtimeId, kind: 'agent', dry }));
     }
   }
   if (!options.agentsOnly) {
     for (const file of collectSkillFiles(root)) {
-      results.push(applyToFile(file, { performanceId, effortId, kind: 'skill', dry }));
+      results.push(applyToFile(file, { performanceId, effortId, runtimeId, kind: 'skill', dry }));
+    }
+  }
+
+  let mirror = null;
+  if (options.mirrorGrok || runtimeId === 'grok') {
+    const projectRoot = options.projectRoot || (basename(root) === '.claude' ? dirname(root) : root);
+    // root が .claude のとき親を project root とみなす
+    const pr =
+      existsSync(join(projectRoot, '.claude'))
+        ? projectRoot
+        : existsSync(join(root, 'agents')) && basename(root) === '.claude'
+          ? dirname(root)
+          : projectRoot;
+    if (existsSync(join(pr, '.claude'))) {
+      mirror = mirrorAgentsToGrok(pr, { dry });
     }
   }
 
   return {
     performanceId,
     effortId,
+    runtimeId,
     root,
     dry,
     results,
     changedCount: results.filter((r) => r.changed).length,
+    mirror,
   };
 }
 
 function printHelp() {
   console.log(`使い方:
-  node bin/lib/apply-model-profile.js --profile <id> --effort <id> --dir <path>
+  node bin/lib/apply-model-profile.js --runtime <id> --profile <id> --effort <id> --dir <path>
+
+runtime (--runtime):
+${Object.values(RUNTIMES)
+  .map((r) => `  ${r.id.padEnd(18)} ${r.label} — ${r.description}`)
+  .join('\n')}
 
 性能プロファイル (--profile):
 ${Object.values(PERFORMANCE_PROFILES)
@@ -233,14 +324,16 @@ ${Object.values(EFFORT_PROFILES)
 
 オプション:
   --dir, -d         適用対象ルート（例: templates / .claude / .）
+  --runtime, -r     claude-code | grok（既定: claude-code）
+  --mirror-grok     runtime に関わらず .grok/agents へミラー
   --dry             書き込まず差分候補のみ表示
   --agents-only     エージェント md のみ
   --skills-only     スキル md のみ
   --help, -h        ヘルプ
 
 例:
-  node bin/lib/apply-model-profile.js --profile balance --effort normal --dir templates
-  node bin/lib/apply-model-profile.js --profile high-performance --effort deep --dir .claude
+  node bin/lib/apply-model-profile.js --runtime claude-code --profile balance --effort normal --dir templates
+  node bin/lib/apply-model-profile.js --runtime grok --profile balance --effort normal --dir .claude
 `);
 }
 
@@ -264,14 +357,16 @@ if (isMain) {
     const report = applyModelProfile({
       performanceId: opts.profile,
       effortId: opts.effort,
+      runtimeId: opts.runtime,
       root,
       dry: opts.dry,
       skillsOnly: opts.skillsOnly,
       agentsOnly: opts.agentsOnly,
+      mirrorGrok: opts.mirrorGrok,
     });
 
     console.log(
-      `${report.dry ? '🔍 ドライラン' : '✅ 適用完了'}: profile=${report.performanceId} effort=${report.effortId}`
+      `${report.dry ? '🔍 ドライラン' : '✅ 適用完了'}: runtime=${report.runtimeId} profile=${report.performanceId} effort=${report.effortId}`
     );
     console.log(`対象: ${report.root}`);
     console.log(`変更: ${report.changedCount} / ${report.results.length} ファイル\n`);
@@ -281,6 +376,12 @@ if (isMain) {
       const rel = relative(packageRoot, r.filePath);
       console.log(
         `  ${mark} ${rel}  [${r.role}] model=${r.model} effort=${r.effort}${r.changed ? '' : ' (変更なし)'}`
+      );
+    }
+
+    if (report.mirror) {
+      console.log(
+        `\nGrok ミラー: agents=${report.mirror.agents.length} skills=${report.mirror.skills.length}${report.dry ? ' (dry)' : ''}`
       );
     }
   } catch (err) {

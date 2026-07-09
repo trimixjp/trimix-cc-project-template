@@ -22,15 +22,17 @@ fi
 # ③ 変更系キーワードを含む場合はブロック
 if echo "$PROMPT" | grep -iqE '(fix|implement|add|update|change|modify|create|delete|remove|refactor|migrate|edit|write|install|直|修正|実装|追加|変更|作成|削除|リファクタ|移行|書き|インストール|セットアップ|setup)'; then
   cat >&2 <<'EOF'
-⚠️  Issue 経由が必要です
+⚠️  チケット経由が必要です
 
-ファイル変更を伴う作業は GitHub Issue を起点にしてください：
+ファイル変更を伴う作業はチケットを起点にしてください：
 
-  1. 関連 Issue を探す:  gh issue list --state open
-  2. Issue を作成する:   gh issue create --title "..." --body "..."
-  3. ワークフロー起動:   /ai-team-run <Issue番号>
+  1. 一覧:   npx @trimix/ai-team ticket list --state open
+  2. 作成:   npx @trimix/ai-team ticket create --title "..." --body "..."
+  3. 起動:   /ai-team-run <番号>
 
-Issue 番号を指定するか、/ai-team-run で指示を再入力してください。
+（github の場合は gh issue でも可。local の場合は tickets/ 配下の md）
+
+番号を指定するか、/ai-team-run で指示を再入力してください。
 EOF
   exit 2
 fi

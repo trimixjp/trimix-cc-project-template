@@ -277,19 +277,35 @@ model_role: leader
 
 **setup 時の一括設定（推奨）:**
 
-`/ai-team-setup` で性能プロファイルと effort 深度を選び、全エージェント・スキルに反映します。
+`/ai-team-setup` で **runtime（Claude Code / Grok Build）**・性能プロファイル・effort 深度を選び、全エージェント・スキルに反映します。**再 setup で runtime を切り替え可能**です。
 
-| 性能プロファイル | leader（指揮者） | worker（作業者） | simple（単純作業） |
-|-----------------|-----------------|-----------------|-------------------|
+**Claude Code:**
+
+| 性能プロファイル | leader | worker | simple |
+|-----------------|--------|--------|--------|
 | ハイパフォーマンス | fable | opus | sonnet |
 | バランス（デフォルト） | opus | sonnet | haiku |
 | 低コスト | sonnet | sonnet | haiku |
 
-| effort 深度 | 全 role の effort |
-|------------|-------------------|
+| effort 深度 | Claude effort |
+|------------|---------------|
 | 深く | xhigh |
 | 普通（デフォルト） | high |
 | 軽く | medium |
+
+**Grok Build:**
+
+| 性能プロファイル | leader | worker | simple |
+|-----------------|--------|--------|--------|
+| ハイパフォーマンス / バランス | grok-4.5 | grok-4.5 | grok-composer-2.5-fast |
+| 低コスト | grok-composer-2.5-fast | grok-composer-2.5-fast | grok-composer-2.5-fast |
+
+| effort 深度 | Grok effort |
+|------------|-------------|
+| 深く / 普通 | high |
+| 軽く | medium |
+
+Grok 選択時は `.grok/agents/` と `.grok/commands/` にもミラーされます。
 
 役割の例:
 - **leader**: dispatcher, contributor, tech-lead, frontend-lead, editor-in-chief, infra-lead, architect, strategist, director 等。**次の担当へ渡す Issue コメントには詳細な設計書（要件・方針・タスク分割・制約・完了条件）を書く**
@@ -300,7 +316,10 @@ model_role: leader
 
 ```bash
 node <パッケージルート>/bin/lib/apply-model-profile.js \
-  --profile balance --effort normal --dir .claude
+  --runtime claude-code --profile balance --effort normal --dir .claude
+# Grok に切替:
+node <パッケージルート>/bin/lib/apply-model-profile.js \
+  --runtime grok --profile balance --effort normal --dir .claude
 ```
 
 定義の詳細は `.claude/model-profiles.yml` および `bin/lib/model-profiles.js` を参照してください。

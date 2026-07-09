@@ -14,17 +14,21 @@ import { fileURLToPath } from 'node:url';
 import {
   PERFORMANCE_PROFILES,
   EFFORT_PROFILES,
+  RUNTIMES,
   DEFAULT_PERFORMANCE_PROFILE,
   DEFAULT_EFFORT_PROFILE,
+  DEFAULT_RUNTIME,
   AGENT_ROLES,
   SKILL_ROLES,
   resolveRole,
   resolveModel,
   resolveEffort,
+  normalizeRuntime,
   upsertModelEffortFrontmatter,
   extractFrontmatterName,
   ALLOWED_MODEL_ALIASES,
   ALLOWED_EFFORT_LEVELS,
+  RUNTIME_MODEL_MAP,
 } from '../bin/lib/model-profiles.js';
 import { collectAgentFiles, collectSkillFiles, applyToFile } from '../bin/lib/apply-model-profile.js';
 
@@ -38,33 +42,52 @@ function listAgentMd(dir) {
     .map((f) => join(dir, f));
 }
 
-test('デフォルトプロファイルは balance / normal', () => {
+test('デフォルトは claude-code / balance / normal', () => {
+  assert.equal(DEFAULT_RUNTIME, 'claude-code');
   assert.equal(DEFAULT_PERFORMANCE_PROFILE, 'balance');
   assert.equal(DEFAULT_EFFORT_PROFILE, 'normal');
+  assert.ok(RUNTIMES['claude-code']);
+  assert.ok(RUNTIMES.grok);
 });
 
-test('性能プロファイルのモデル割当が仕様どおり', () => {
-  assert.deepEqual(PERFORMANCE_PROFILES['high-performance'].models, {
+test('Claude 向けモデル割当が仕様どおり', () => {
+  assert.deepEqual(RUNTIME_MODEL_MAP['claude-code']['high-performance'], {
     leader: 'fable',
     worker: 'opus',
     simple: 'sonnet',
   });
-  assert.deepEqual(PERFORMANCE_PROFILES.balance.models, {
+  assert.deepEqual(RUNTIME_MODEL_MAP['claude-code'].balance, {
     leader: 'opus',
     worker: 'sonnet',
     simple: 'haiku',
   });
-  assert.deepEqual(PERFORMANCE_PROFILES['low-cost'].models, {
+  assert.deepEqual(RUNTIME_MODEL_MAP['claude-code']['low-cost'], {
     leader: 'sonnet',
     worker: 'sonnet',
     simple: 'haiku',
   });
 });
 
-test('effort プロファイルの値が仕様どおり', () => {
-  assert.equal(EFFORT_PROFILES.deep.effort, 'xhigh');
-  assert.equal(EFFORT_PROFILES.normal.effort, 'high');
-  assert.equal(EFFORT_PROFILES.light.effort, 'medium');
+test('Grok 向けモデル割当が仕様どおり', () => {
+  assert.deepEqual(RUNTIME_MODEL_MAP.grok.balance, {
+    leader: 'grok-4.5',
+    worker: 'grok-4.5',
+    simple: 'grok-composer-2.5-fast',
+  });
+  assert.deepEqual(RUNTIME_MODEL_MAP.grok['low-cost'], {
+    leader: 'grok-composer-2.5-fast',
+    worker: 'grok-composer-2.5-fast',
+    simple: 'grok-composer-2.5-fast',
+  });
+});
+
+test('effort は runtime ごとに解決される', () => {
+  assert.equal(resolveEffort('deep', 'claude-code'), 'xhigh');
+  assert.equal(resolveEffort('normal', 'claude-code'), 'high');
+  assert.equal(resolveEffort('light', 'claude-code'), 'medium');
+  assert.equal(resolveEffort('deep', 'grok'), 'high');
+  assert.equal(resolveEffort('normal', 'grok'), 'high');
+  assert.equal(resolveEffort('light', 'grok'), 'medium');
 });
 
 test('resolveModel / resolveEffort が role ごとに正しい値を返す', () => {
@@ -72,8 +95,11 @@ test('resolveModel / resolveEffort が role ごとに正しい値を返す', () 
   assert.equal(resolveModel('balance', 'worker'), 'sonnet');
   assert.equal(resolveModel('balance', 'simple'), 'haiku');
   assert.equal(resolveModel('high-performance', 'leader'), 'fable');
+  assert.equal(resolveModel('balance', 'leader', 'grok'), 'grok-4.5');
+  assert.equal(resolveModel('balance', 'simple', 'grok'), 'grok-composer-2.5-fast');
   assert.equal(resolveEffort('deep'), 'xhigh');
   assert.equal(resolveEffort('light'), 'medium');
+  assert.equal(normalizeRuntime('grok-build'), 'grok');
 });
 
 test('resolveRole: leader / worker / simple の代表例', () => {
@@ -89,24 +115,26 @@ test('resolveRole: leader / worker / simple の代表例', () => {
 });
 
 test('全 AGENT_ROLES / SKILL_ROLES の model が許可エイリアスに解決できる', () => {
-  for (const profileId of Object.keys(PERFORMANCE_PROFILES)) {
-    for (const [name, role] of Object.entries(AGENT_ROLES)) {
-      const model = resolveModel(profileId, role);
-      assert.ok(
-        ALLOWED_MODEL_ALIASES.has(model),
-        `${name} (${role}) @ ${profileId} → ${model}`
-      );
+  for (const runtimeId of Object.keys(RUNTIMES)) {
+    for (const profileId of Object.keys(PERFORMANCE_PROFILES)) {
+      for (const [name, role] of Object.entries(AGENT_ROLES)) {
+        const model = resolveModel(profileId, role, runtimeId);
+        assert.ok(
+          ALLOWED_MODEL_ALIASES.has(model),
+          `${name} (${role}) @ ${runtimeId}/${profileId} → ${model}`
+        );
+      }
+      for (const [name, role] of Object.entries(SKILL_ROLES)) {
+        const model = resolveModel(profileId, role, runtimeId);
+        assert.ok(
+          ALLOWED_MODEL_ALIASES.has(model),
+          `skill ${name} (${role}) @ ${runtimeId}/${profileId} → ${model}`
+        );
+      }
     }
-    for (const [name, role] of Object.entries(SKILL_ROLES)) {
-      const model = resolveModel(profileId, role);
-      assert.ok(
-        ALLOWED_MODEL_ALIASES.has(model),
-        `skill ${name} (${role}) @ ${profileId} → ${model}`
-      );
+    for (const effortId of Object.keys(EFFORT_PROFILES)) {
+      assert.ok(ALLOWED_EFFORT_LEVELS.has(resolveEffort(effortId, runtimeId)));
     }
-  }
-  for (const effortId of Object.keys(EFFORT_PROFILES)) {
-    assert.ok(ALLOWED_EFFORT_LEVELS.has(resolveEffort(effortId)));
   }
 });
 
@@ -195,6 +223,7 @@ test('applyToFile の dry 実行で high-performance/deep が解決される', (
     performanceId: 'high-performance',
     effortId: 'deep',
     kind: 'agent',
+    runtimeId: 'claude-code',
     dry: true,
   });
   assert.equal(result.name, 'tech-lead');
@@ -202,6 +231,19 @@ test('applyToFile の dry 実行で high-performance/deep が解決される', (
   assert.equal(result.model, 'fable');
   assert.equal(result.effort, 'xhigh');
   assert.equal(result.changed, true);
+});
+
+test('applyToFile dry: grok runtime では grok モデルになる', () => {
+  const sample = join(packageRoot, 'templates/teams/backend/agents/tech-lead.md');
+  const result = applyToFile(sample, {
+    performanceId: 'balance',
+    effortId: 'deep',
+    kind: 'agent',
+    runtimeId: 'grok',
+    dry: true,
+  });
+  assert.equal(result.model, 'grok-4.5');
+  assert.equal(result.effort, 'high');
 });
 
 test('model-profiles.yml が templates に存在する', () => {

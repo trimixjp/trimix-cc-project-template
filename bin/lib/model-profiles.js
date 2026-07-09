@@ -13,58 +13,113 @@
 /** @typedef {'leader' | 'worker' | 'simple'} ModelRole */
 /** @typedef {'high-performance' | 'balance' | 'low-cost'} PerformanceProfile */
 /** @typedef {'deep' | 'normal' | 'light'} EffortProfile */
+/** @typedef {'claude-code' | 'grok'} RuntimeId */
 
 /**
- * 性能プロファイル → role ごとのモデルエイリアス
- * （バージョン固定のモデル ID は禁止。opus / sonnet / haiku / fable のみ）
+ * 実行基盤（setup で選択。再 setup で切替可能）
+ */
+export const RUNTIMES = {
+  'claude-code': {
+    id: 'claude-code',
+    label: 'Claude Code',
+    description: 'Anthropic Claude Code。model は fable/opus/sonnet/haiku、effort は xhigh 可',
+  },
+  grok: {
+    id: 'grok',
+    label: 'Grok Build',
+    description: 'xAI Grok Build。model は grok-4.5 / grok-composer-2.5-fast、effort は high まで',
+  },
+};
+
+/**
+ * 性能プロファイルのメタ情報（ラベル表示用）
  */
 export const PERFORMANCE_PROFILES = {
   'high-performance': {
     id: 'high-performance',
     label: 'ハイパフォーマンス',
-    description: '指揮者 fable、作業者 opus、単純作業 sonnet',
-    models: { leader: 'fable', worker: 'opus', simple: 'sonnet' },
+    description: '上流に高能力モデル、単純作業は一段下',
   },
   balance: {
     id: 'balance',
     label: 'バランス（デフォルト）',
-    description: '指揮者 opus、作業者 sonnet、単純作業 haiku',
-    models: { leader: 'opus', worker: 'sonnet', simple: 'haiku' },
+    description: '上流に高能力、作業者に中位、単純作業に軽量',
   },
   'low-cost': {
     id: 'low-cost',
     label: '低コスト',
-    description: '指揮者 sonnet、作業者 sonnet、単純作業 haiku',
-    models: { leader: 'sonnet', worker: 'sonnet', simple: 'haiku' },
+    description: '全体をコスト優先モデルに寄せる',
   },
 };
 
 /**
- * effort 深度プロファイル
- * 深く=全て xhigh / 普通=high / 軽く=medium（high 未満）
+ * runtime × 性能プロファイル → role ごとのモデル
+ * （バージョン固定 ID は禁止。ランタイムが解釈するエイリアスのみ）
+ */
+export const RUNTIME_MODEL_MAP = {
+  'claude-code': {
+    'high-performance': { leader: 'fable', worker: 'opus', simple: 'sonnet' },
+    balance: { leader: 'opus', worker: 'sonnet', simple: 'haiku' },
+    'low-cost': { leader: 'sonnet', worker: 'sonnet', simple: 'haiku' },
+  },
+  grok: {
+    'high-performance': {
+      leader: 'grok-4.5',
+      worker: 'grok-4.5',
+      simple: 'grok-composer-2.5-fast',
+    },
+    balance: {
+      leader: 'grok-4.5',
+      worker: 'grok-4.5',
+      simple: 'grok-composer-2.5-fast',
+    },
+    'low-cost': {
+      leader: 'grok-composer-2.5-fast',
+      worker: 'grok-composer-2.5-fast',
+      simple: 'grok-composer-2.5-fast',
+    },
+  },
+};
+
+/**
+ * effort 深度プロファイル（メタ）
+ * 実際の値は runtime ごとに resolveEffort で解決
  */
 export const EFFORT_PROFILES = {
   deep: {
     id: 'deep',
     label: '深く',
-    description: '全エージェント・スキルに xhigh',
-    effort: 'xhigh',
+    description: '深い推論（Claude: xhigh / Grok: high）',
   },
   normal: {
     id: 'normal',
     label: '普通（デフォルト）',
-    description: '全エージェント・スキルに high',
-    effort: 'high',
+    description: '標準の推論深度（high）',
   },
   light: {
     id: 'light',
     label: '軽く',
-    description: '全エージェント・スキルに medium',
-    effort: 'medium',
+    description: '軽い推論（medium）',
+  },
+};
+
+/** runtime × effort 深度 → effort 値 */
+export const RUNTIME_EFFORT_MAP = {
+  'claude-code': {
+    deep: 'xhigh',
+    normal: 'high',
+    light: 'medium',
+  },
+  grok: {
+    // Grok Build は high が実質上限寄り。xhigh は使わない
+    deep: 'high',
+    normal: 'high',
+    light: 'medium',
   },
 };
 
 /** テンプレート既定（未指定時） */
+export const DEFAULT_RUNTIME = 'claude-code';
 export const DEFAULT_PERFORMANCE_PROFILE = 'balance';
 export const DEFAULT_EFFORT_PROFILE = 'normal';
 
@@ -148,8 +203,19 @@ export const SKILL_ROLES = {
   'ai-team-gallery': 'simple',
 };
 
-/** 許可するモデルエイリアス（バージョン固定 ID は禁止） */
-export const ALLOWED_MODEL_ALIASES = new Set(['fable', 'opus', 'sonnet', 'haiku', 'inherit']);
+/** Claude Code 向けモデルエイリアス */
+export const CLAUDE_MODEL_ALIASES = new Set(['fable', 'opus', 'sonnet', 'haiku', 'inherit']);
+
+/** Grok Build 向けモデルエイリアス（環境の `grok models` に合わせる） */
+export const GROK_MODEL_ALIASES = new Set([
+  'grok-4.5',
+  'grok-composer-2.5-fast',
+  'grok-build',
+  'inherit',
+]);
+
+/** 許可するモデルエイリアス（全 runtime 合算。バージョン固定 ID は禁止） */
+export const ALLOWED_MODEL_ALIASES = new Set([...CLAUDE_MODEL_ALIASES, ...GROK_MODEL_ALIASES]);
 
 /** 許可する effort 値 */
 export const ALLOWED_EFFORT_LEVELS = new Set(['low', 'medium', 'high', 'xhigh', 'max']);
@@ -165,32 +231,60 @@ export function resolveRole(name, kind = 'agent') {
 }
 
 /**
+ * @param {string} runtimeId
+ * @returns {RuntimeId}
+ */
+export function normalizeRuntime(runtimeId) {
+  if (!runtimeId || runtimeId === 'claude' || runtimeId === 'claude-code') return 'claude-code';
+  if (runtimeId === 'grok' || runtimeId === 'grok-build') return 'grok';
+  throw new Error(`不明な runtime: ${runtimeId}（候補: claude-code, grok）`);
+}
+
+/**
  * @param {PerformanceProfile | string} performanceId
  * @param {ModelRole} role
+ * @param {RuntimeId | string} [runtimeId]
  * @returns {string}
  */
-export function resolveModel(performanceId, role) {
-  const profile = PERFORMANCE_PROFILES[performanceId];
-  if (!profile) {
+export function resolveModel(performanceId, role, runtimeId = DEFAULT_RUNTIME) {
+  const runtime = normalizeRuntime(runtimeId);
+  if (!PERFORMANCE_PROFILES[performanceId]) {
     throw new Error(`不明な性能プロファイル: ${performanceId}`);
   }
-  const model = profile.models[role];
+  const byPerf = RUNTIME_MODEL_MAP[runtime]?.[performanceId];
+  if (!byPerf) {
+    throw new Error(`runtime="${runtime}" に性能プロファイル ${performanceId} がありません`);
+  }
+  const model = byPerf[role];
   if (!model) {
-    throw new Error(`role "${role}" のモデル定義がありません（profile=${performanceId}）`);
+    throw new Error(`role "${role}" のモデル定義がありません（runtime=${runtime}, profile=${performanceId}）`);
   }
   return model;
 }
 
 /**
  * @param {EffortProfile | string} effortId
+ * @param {RuntimeId | string} [runtimeId]
  * @returns {string}
  */
-export function resolveEffort(effortId) {
-  const profile = EFFORT_PROFILES[effortId];
-  if (!profile) {
+export function resolveEffort(effortId, runtimeId = DEFAULT_RUNTIME) {
+  const runtime = normalizeRuntime(runtimeId);
+  if (!EFFORT_PROFILES[effortId]) {
     throw new Error(`不明な effort プロファイル: ${effortId}`);
   }
-  return profile.effort;
+  const effort = RUNTIME_EFFORT_MAP[runtime]?.[effortId];
+  if (!effort) {
+    throw new Error(`runtime="${runtime}" に effort ${effortId} がありません`);
+  }
+  return effort;
+}
+
+/**
+ * 後方互換: Claude 向けの旧 PERFORMANCE_PROFILES[].models 相当
+ * @deprecated resolveModel(perf, role, runtime) を使う
+ */
+export function claudeModelsFor(performanceId) {
+  return RUNTIME_MODEL_MAP['claude-code'][performanceId];
 }
 
 /**
