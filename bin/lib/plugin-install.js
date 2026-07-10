@@ -20,6 +20,18 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '../..');
 
+/** カスタマイズ保護マーカー */
+const CUSTOMIZED_MARKER = '# customized: true';
+
+/**
+ * ファイルがカスタマイズ保護マーカー（# customized: true）を含むか判定する。
+ * 単一ファイル分岐・ワイルドカード分岐の双方から共通利用する（DRY）。
+ */
+export function isCustomized(filePath) {
+  if (!existsSync(filePath)) return false;
+  return readFileSync(filePath, 'utf-8').includes(CUSTOMIZED_MARKER);
+}
+
 /** ai-team-config.yml の solo.target_labels にラベルを追加する */
 export function updateConfigTargetLabels(cwd, labelsToAdd) {
   const configPath = join(cwd, '.claude', 'ai-team-config.yml');
@@ -181,14 +193,11 @@ export async function installPlugin(idOrTeamId, { cwd, force = false }) {
       const destPath = join(cwd, destRelPath);
       mkdirSync(dirname(destPath), { recursive: true });
       // カスタマイズ済みファイルの上書き保護
-      if (!force && existsSync(destPath)) {
-        const existing = readFileSync(destPath, 'utf-8');
-        if (existing.includes('# customized: true')) {
-          console.log(`  ⏭️  スキップ: ${destRelPath}（カスタマイズ済み。上書きする場合は --force を使用）`);
-          installedFiles.push(destRelPath);
-          skippedCustomized++;
-          continue;
-        }
+      if (!force && isCustomized(destPath)) {
+        console.log(`  ⏭️  スキップ: ${destRelPath}（カスタマイズ済み。上書きする場合は --force を使用）`);
+        installedFiles.push(destRelPath);
+        skippedCustomized++;
+        continue;
       }
       copyFileSync(srcFile, destPath);
       installedFiles.push(destRelPath);
@@ -202,8 +211,9 @@ export async function installPlugin(idOrTeamId, { cwd, force = false }) {
       }
       const destFull = join(cwd, destDir);
       mkdirSync(destFull, { recursive: true });
-      const copied = copyDirAndTrack(srcDirPath, destFull, destDir);
+      const { files: copied, skipped } = copyDirAndTrack(srcDirPath, destFull, destDir, force);
       installedFiles.push(...copied);
+      skippedCustomized += skipped;
       console.log(`  ✅ ${destDir} (${copied.length} ファイル)`);
     }
   }
@@ -253,20 +263,35 @@ export async function installPlugin(idOrTeamId, { cwd, force = false }) {
   console.log('');
 }
 
-/** ディレクトリをコピーしてファイルパス一覧を返す */
-function copyDirAndTrack(src, dest, destPrefix) {
-  const result = [];
+/**
+ * ディレクトリを再帰コピーし、コピーしたファイルパス一覧とスキップ件数を返す。
+ * force === false かつ退避先がカスタマイズ済み（# customized: true）の場合はコピーをスキップし、
+ * 単一ファイル分岐と同一形式のスキップログを出力する。
+ * @returns {{ files: string[], skipped: number }}
+ */
+export function copyDirAndTrack(src, dest, destPrefix, force = false) {
+  const files = [];
+  let skipped = 0;
   for (const entry of readdirSync(src)) {
     const srcPath = join(src, entry);
     const destPath = join(dest, entry);
     const relPath = join(destPrefix, entry);
     if (statSync(srcPath).isDirectory()) {
       mkdirSync(destPath, { recursive: true });
-      result.push(...copyDirAndTrack(srcPath, destPath, relPath));
+      const sub = copyDirAndTrack(srcPath, destPath, relPath, force);
+      files.push(...sub.files);
+      skipped += sub.skipped;
     } else {
+      // カスタマイズ済みファイルの上書き保護（単一ファイル分岐と同じ判定を共通利用）
+      if (!force && isCustomized(destPath)) {
+        console.log(`  ⏭️  スキップ: ${relPath}（カスタマイズ済み。上書きする場合は --force を使用）`);
+        files.push(relPath);
+        skipped++;
+        continue;
+      }
       copyFileSync(srcPath, destPath);
-      result.push(relPath);
+      files.push(relPath);
     }
   }
-  return result;
+  return { files, skipped };
 }
