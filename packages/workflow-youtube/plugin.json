@@ -1,0 +1,41 @@
+{
+  "id": "trimix-youtube",
+  "team_id": "youtube",
+  "label_prefix": "youtube",
+  "name": "YouTube動画制作チーム",
+  "version": "1.6.0",
+  "description": "YouTube動画の企画・台本・生成・公開・収益最大化を一貫して行うワークフロー。各工程の品質ゲート（QA層）と複数チャンネルのルーティングに対応",
+  "package": "@trimix/workflow-trimix-youtube",
+  "distribution": "template",
+  "category": "content",
+  "tags": ["youtube", "video", "script", "monetization", "affiliate", "shorts", "localization", "tiktok", "chart", "comparison", "market-analysis", "genre-strategy", "cpm", "qa", "quality-gate", "channel-routing", "multi-channel"],
+  "install": {
+    "templates/agents/*": ".claude/teams/youtube/agents/",
+    "templates/workflow.yml": ".claude/teams/youtube/workflow.yml",
+    "templates/dod/*": ".claude/teams/youtube/dod/",
+    "templates/PRODUCTION-GUIDE.md": ".claude/teams/youtube/PRODUCTION-GUIDE.md",
+    "github/ISSUE_TEMPLATE/*": ".github/ISSUE_TEMPLATE/"
+  },
+  "labels": [
+    { "name": "youtube:director", "color": "c4302b", "description": "Directorが統括・タスク判定中" },
+    { "name": "youtube:market-analyst", "color": "c4302b", "description": "Market-Analystが市場・ジャンル戦略を分析中" },
+    { "name": "youtube:channel-producer", "color": "c4302b", "description": "Channel-Producerがチャンネル設計・編成中" },
+    { "name": "youtube:channel-producer-qa", "color": "c4302b", "description": "Channel-Producer-QAが企画/編成成果物をQA中" },
+    { "name": "youtube:scriptwriter", "color": "c4302b", "description": "Scriptwriterが台本を執筆中" },
+    { "name": "youtube:script-qa", "color": "c4302b", "description": "Script-QAが台本成果物をQA中" },
+    { "name": "youtube:growth-strategist", "color": "c4302b", "description": "Growth-Strategistがパッケージング設計中" },
+    { "name": "youtube:growth-qa", "color": "c4302b", "description": "Growth-QAがパッケージング成果物をQA中" },
+    { "name": "youtube:affiliate", "color": "c4302b", "description": "Affiliateがアフィリ収益設計中" },
+    { "name": "youtube:affiliate-qa", "color": "c4302b", "description": "Affiliate-QAがアフィリ成果物をQA中" },
+    { "name": "youtube:editor", "color": "c4302b", "description": "Editorがレンダ（動画生成）を実行中" },
+    { "name": "youtube:render-reviewer", "color": "c4302b", "description": "Render-Reviewerがレンダ成果物をQA中" },
+    { "name": "youtube:publisher", "color": "c4302b", "description": "Publisherが公開・字幕登録中" },
+    { "name": "youtube:publish-qa", "color": "c4302b", "description": "Publish-QAが公開成果物をQA中" },
+    { "name": "youtube:sns-distributor", "color": "c4302b", "description": "SNS-DistributorがSNS拡散を設計中" },
+    { "name": "youtube:sns-qa", "color": "c4302b", "description": "SNS-QAがSNS拡散成果物をQA中" },
+    { "name": "youtube:monetizer", "color": "c4302b", "description": "Monetizerが収益最大化施策を提案中" },
+    { "name": "youtube:monetizer-qa", "color": "c4302b", "description": "Monetizer-QAが収益施策成果物をQA中" }
+  ],
+  "solo_target_labels": ["youtube:director"],
+  "claude_md_entry": "- YouTube動画制作チーム: 企画・台本・生成・公開・収益最大化"
+}

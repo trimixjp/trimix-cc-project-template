@@ -1,0 +1,12 @@
+{
+  "name": "@trimix/workflow-trimix-youtube",
+  "version": "1.6.0",
+  "description": "ai-team youtube workflow plugin",
+  "files": ["plugin.json", "templates/", "github/"],
+  "keywords": ["ai-team-plugin", "trimix", "workflow", "youtube"],
+  "author": "Trimix",
+  "license": "MIT",
+  "peerDependencies": {
+    "@trimix/ai-team": ">=0.4.0"
+  }
+}

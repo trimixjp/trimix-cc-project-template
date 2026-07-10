@@ -1,0 +1,25 @@
+{
+  "id": "trimix-sns",
+  "team_id": "sns",
+  "label_prefix": "sns",
+  "name": "SNS運用チーム",
+  "version": "1.0.0",
+  "description": "X・Instagram の投稿戦略・調査・執筆・公開指示ワークフロー",
+  "package": "@trimix/workflow-trimix-sns",
+  "distribution": "template",
+  "category": "marketing",
+  "tags": ["sns", "twitter", "instagram", "marketing"],
+  "install": {
+    "templates/agents/*": ".claude/teams/sns/agents/",
+    "templates/workflow.yml": ".claude/teams/sns/workflow.yml",
+    "templates/dod/*": ".claude/teams/sns/dod/"
+  },
+  "labels": [
+    { "name": "sns:strategist", "color": "e91e63", "description": "Strategistが戦略策定中" },
+    { "name": "sns:researcher", "color": "e91e63", "description": "Researcherが調査中" },
+    { "name": "sns:writer", "color": "e91e63", "description": "Writerが投稿文執筆中" },
+    { "name": "sns:operator", "color": "e91e63", "description": "Operatorがガイドライン確認中" }
+  ],
+  "solo_target_labels": ["sns:strategist"],
+  "claude_md_entry": "- SNS運用チーム: 投稿戦略・調査・執筆・公開指示"
+}
