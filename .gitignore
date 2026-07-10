@@ -2,6 +2,7 @@ node_modules/
 *.log
 .DS_Store
 *.tgz
+*.zip
 
 # 配布用マニュアルツリー（prepack で生成・postpack で削除。Git 管理対象外）
 ai-team-manual-dist/
