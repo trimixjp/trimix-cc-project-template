@@ -23,6 +23,7 @@ import { execFileSync } from 'node:child_process';
 
 import { runUpgrade, enumerateUpgradeTargets, diffTargets } from '../bin/lib/upgrade.js';
 import { recordFiles, loadBaseline, normalizedHash } from '../bin/lib/baseline.js';
+import { applyProfileToContent } from '../bin/lib/apply-model-profile.js';
 
 /** dest（OS依存セパレータ）を POSIX 形式（/）に正規化する */
 function toPosix(p) {
@@ -1485,6 +1486,139 @@ test('(#84-4c) dest が FIFO（名前付きパイプ）のとき、書き込み�
     assert.ok(out.includes('通常ファイルではありません'), `FIFO の通常ファイル以外スキップ明示が無い:\n${out}`);
     assert.ok(out.includes('FIFO（名前付きパイプ）'), `種別（FIFO）が per-item で示されていない:\n${out}`);
     assert.ok(out.includes(destRel), `スキップした FIFO dest のパスが表示されていない:\n${out}`);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+// ===========================================================================
+// #85 差し戻し1: 非既定モデルプロファイルでの upgrade 冪等性（実効テンプレート）
+//
+// 既定（balance / normal）は変換が恒等写像になる特異点であり、実効テンプレート化の存在自体を
+// 隠す。ここでは必ず非既定プロファイル（low-cost / high-performance）を1つ以上通す。加えて、
+// 「非既定プロファイルが実際に frontmatter へ反映された（既定 balance へ黙ってフォールバック
+// していない）」ことを対抗的サニティとして毎回確認する（教訓14 の規律3・チケット記載の
+// 設定キー取り違えによる偽陽性を防ぐ）。
+// ===========================================================================
+
+/** frontmatter の model 値を取り出す（先頭の model: 行） */
+function frontmatterModel(text) {
+  const m = text.match(/^model:\s*(.+)$/m);
+  return m ? m[1].trim() : null;
+}
+
+/**
+ * 指定プロファイルで upgrade を2回連続実行し、
+ *  - 1回目: 全対象を新規作成し、非既定プロファイルが frontmatter に反映される（対抗的サニティ）
+ *  - 2回目: 「すべて最新です」に到達し、バックアップ世代が増えない（冪等）
+ * ことを実測で確認する。
+ *
+ * @param {{ perf: string, effort: string, leaderModel: string }} p
+ *        leaderModel はそのプロファイルでの leader（tech-lead）の期待モデル（≠ balance の opus）。
+ */
+async function assertProfileIdempotent({ perf, effort, leaderModel }) {
+  const cwd = mkdtempSync(join(tmpdir(), `ai-team-upgrade-idem-${perf}-`));
+  writeUnder(cwd, '.claude/ai-team-config.yml',
+    `runtime: claude-code\nmodel_performance: ${perf}\neffort_depth: ${effort}\n`);
+  try {
+    // --- run 1: 全対象を新規作成 + プロファイル適用 ---
+    const code1 = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code1, 0, `${perf}: run1 は正常終了すべき`);
+    const gen1 = backupGenCount(cwd);
+    assert.equal(gen1, 1, `${perf}: run1 でバックアップ世代が1になっていない`);
+
+    // サニティ（否定的観測「世代が増えない」の対）: upgrade が早期 return せず実処理した証拠。
+    assert.ok(
+      existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      `${perf}: run1 で ai-team-run.md が作られていない（早期 return の疑い）`
+    );
+    // 対抗的サニティ: 非既定プロファイルが実際に frontmatter へ反映された（既定 balance への
+    // 黙ったフォールバックではない）。これが成り立たないと、以降の冪等性は「恒等特異点を見て
+    // 正常と誤読した」だけになる（教訓14 の規律3）。
+    const techLead1 = readFileSync(join(cwd, '.claude/teams/backend/agents/tech-lead.md'), 'utf-8');
+    assert.notEqual(leaderModel, 'opus',
+      '前提: テスト対象は既定 balance（opus）と異なるプロファイルでなければ意味がない');
+    assert.equal(frontmatterModel(techLead1), leaderModel,
+      `${perf}: run1 で非既定プロファイルが tech-lead に反映されていない（balance へフォールバックの疑い）`);
+
+    // --- run 2: 冪等であるべき ---
+    let code2;
+    const out2 = await captureStdout(async () => {
+      code2 = await runUpgrade(['backend', '--yes'], { cwd });
+    });
+    assert.equal(code2, 0, `${perf}: run2 は正常終了すべき`);
+    assert.ok(
+      out2.includes('すべて最新です'),
+      `${perf}: run2 が「すべて最新です」に到達しない（非冪等）:\n${out2}`
+    );
+    assert.equal(
+      backupGenCount(cwd), gen1,
+      `${perf}: run2 でバックアップ世代が増えた（${gen1} → ${backupGenCount(cwd)}・非冪等）`
+    );
+    // frontmatter のプロファイルも run2 後に維持されている
+    const techLead2 = readFileSync(join(cwd, '.claude/teams/backend/agents/tech-lead.md'), 'utf-8');
+    assert.equal(frontmatterModel(techLead2), leaderModel, `${perf}: run2 後にプロファイルが失われた`);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+}
+
+test('(#85-11) 非既定プロファイル low-cost で upgrade が冪等（2回目で「すべて最新です」・世代が増えない）', async () => {
+  await assertProfileIdempotent({ perf: 'low-cost', effort: 'normal', leaderModel: 'sonnet' });
+});
+
+test('(#85-12) 非既定プロファイル high-performance/deep でも upgrade が冪等', async () => {
+  await assertProfileIdempotent({ perf: 'high-performance', effort: 'deep', leaderModel: 'fable' });
+});
+
+test('(#85-13) 保護された profile 対象の .new は実効テンプレート（プロファイル適用後）である', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-neweff-'));
+  try {
+    writeUnder(cwd, '.claude/ai-team-config.yml',
+      'runtime: claude-code\nmodel_performance: low-cost\neffort_depth: normal\n');
+    const rel = '.claude/teams/backend/agents/tech-lead.md';
+    const newRel = `${rel}.new`;
+    // ヘッダにマーカーを置き「カスタマイズ済み（保護）」にする（本体は上書きされない）。
+    const customized = '# customized: true\n# 手編集した tech-lead\ncustom: true\n';
+    writeUnder(cwd, rel, customized);
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 0);
+
+    // 本体は保護される
+    assert.equal(readFileSync(join(cwd, rel), 'utf-8'), customized, '保護ファイル本体が上書きされた');
+    // .new が書き出される
+    assert.ok(existsSync(join(cwd, newRel)), '.new が書き出されていない');
+    const newContent = readFileSync(join(cwd, newRel), 'utf-8');
+
+    // 実効テンプレート = 生テンプレートに low-cost/normal を適用した内容
+    const rawTemplate = readTemplate('teams/backend/agents/tech-lead.md');
+    const effective = applyProfileToContent(rawTemplate, {
+      performanceId: 'low-cost', effortId: 'normal', runtimeId: 'claude-code', kind: 'agent'
+    }).content;
+
+    // 生テンプレート leader=opus（balance 既定）と実効 low-cost=sonnet が異なることが、
+    // 「.new が生ではなく実効である」ことを検証可能にする（恒等特異点を避ける）。
+    assert.equal(frontmatterModel(rawTemplate), 'opus', '前提: 生テンプレートの leader は opus');
+    assert.equal(frontmatterModel(effective), 'sonnet', '前提: low-cost の leader は sonnet');
+    assert.notEqual(newContent, rawTemplate, '.new が生テンプレートのまま（プロファイル未適用のノイズを見せている）');
+    assert.equal(newContent, effective, '.new が実効テンプレート（プロファイル適用後）と一致しない');
+    assert.equal(frontmatterModel(newContent), 'sonnet', '.new の model が low-cost の sonnet になっていない');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#85-14) 非既定プロファイルでも --dry は無副作用（書き込み・バックアップ・.new なし）', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-dryeff-'));
+  try {
+    writeUnder(cwd, '.claude/ai-team-config.yml',
+      'runtime: claude-code\nmodel_performance: high-performance\neffort_depth: deep\n');
+    const code = await runUpgrade(['backend', '--dry'], { cwd });
+    assert.equal(code, 0, '--dry は正常終了すべき');
+    assert.ok(!existsSync(join(cwd, '.claude/commands/ai-team-run.md')), '--dry で新規スキルが作られた');
+    assert.ok(!existsSync(join(cwd, '.claude/teams/backend/agents/tech-lead.md')), '--dry で agent が作られた');
+    assert.ok(!existsSync(join(cwd, '.ai-team-backups')), '--dry でバックアップが作られた');
   } finally {
     rmSync(cwd, { recursive: true, force: true });
   }
