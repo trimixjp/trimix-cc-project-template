@@ -87,7 +87,17 @@ function markdownToHtml(md) {
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy">');
 
   // リンク
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  // 相対リンクの拡張子 .md は、出力先に合わせて .html へ書き換える。
+  // Markdown ソース同士のリンク（例: [FAQ](faq.md)）をそのまま出力するとビルド後にリンク切れになるため。
+  // 絶対 URL（http/https/mailto 等のスキーム付き）とアンカーのみのリンクは対象外。
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, text, href) => {
+    const isAbsolute = /^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith('//');
+    const resolved =
+      isAbsolute || href.startsWith('#')
+        ? href
+        : href.replace(/\.md(?=$|#|\?)/i, '.html');
+    return `<a href="${resolved}">${text}</a>`;
+  });
 
   // 段落（ブロックタグ・プレースホルダ・空行以外の行を <p> で囲む）
   html = html.replace(/^(?!<[hupol]|<li|<pre|<table|<hr|<ul|<ol|\x00BLOCK)(.+)$/gm, (match) => {

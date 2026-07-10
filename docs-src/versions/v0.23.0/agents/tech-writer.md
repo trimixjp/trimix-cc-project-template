@@ -316,5 +316,5 @@ Tech-Writer の作業完了は `.claude/teams/backend/dod/documentation.md` で�
 ## 関連ドキュメント
 
 - [バックエンドチーム](../teams/backend.html) — Tech-Writer が組み込まれているワークフロー
-- [バックエンドエージェント](backend.html) — 他のエージェントの定義
+- [バックエンドチーム](../teams/backend.md) — 他のエージェントの定義
 - [DOD テンプレート](../reference/dod.html) — `documentation.md` を含む DOD 一覧
