@@ -17,9 +17,9 @@ import {
 } from 'node:fs';
 import { join, resolve, dirname, sep } from 'node:path';
 import { tmpdir } from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Readable } from 'node:stream';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 
 import { runUpgrade, enumerateUpgradeTargets, diffTargets } from '../bin/lib/upgrade.js';
 import { recordFiles, loadBaseline, normalizedHash } from '../bin/lib/baseline.js';
@@ -1622,4 +1622,92 @@ test('(#85-14) 非既定プロファイルでも --dry は無副作用（書き�
   } finally {
     rmSync(cwd, { recursive: true, force: true });
   }
+});
+
+// ===========================================================================
+// #85 差し戻し2: 読み込み経路の封じ込め（readModelProfileConfig）
+//
+// upgrade はテンプレート適用後に .claude/ai-team-config.yml のモデルプロファイルを
+// 再適用する（readModelProfileConfig）。この設定ファイルが FIFO のとき readFileSync が
+// プロセスごと同期ブロックしてハングし、try/catch では捕捉できない。書き込み側 inspectDest
+// と対称に、読み込み前へ irregularFileType のガードを入れて弾く。
+//
+// FIFO の同期ハングはインプロセスのタイマでは計測できないため、別プロセス（spawn）+ 親からの
+// SIGKILL で検証する。ガードを外すと子（runUpgrade）がハング → SIGKILL → 本テストが落ちる。
+// ===========================================================================
+
+const UPGRADE_MODULE = pathToFileURL(join(packageRoot, 'bin/lib/upgrade.js')).href;
+
+/**
+ * 別プロセスで runUpgrade を実行し、親のタイムアウトで SIGKILL する。
+ * ガードが機能していれば子は完走する。ガードを外すと config の FIFO 読み込みで同期ブロック
+ * してハングし、タイムアウトで SIGKILL される（hung=true）。
+ *
+ * @param {string} cwd 子プロセスの作業ディレクトリ
+ * @param {number} timeoutMs 親のハング判定タイムアウト
+ * @returns {Promise<{ hung: boolean, code: number|null, out: string }>}
+ */
+function runUpgradeInChild(cwd, timeoutMs = 15000) {
+  const script = `
+    const { runUpgrade } = await import(${JSON.stringify(UPGRADE_MODULE)});
+    const code = await runUpgrade(['backend', '--yes'], { cwd: ${JSON.stringify(cwd)} });
+    process.stdout.write('CHILD_DONE:' + code);
+  `;
+  return new Promise((res) => {
+    const child = spawn(process.execPath, ['--input-type=module', '-e', script], {
+      cwd, stdio: ['ignore', 'pipe', 'pipe']
+    });
+    let out = '';
+    child.stdout.on('data', (d) => { out += d; });
+    child.stderr.on('data', (d) => { out += d; });
+    let hung = false;
+    const timer = setTimeout(() => { hung = true; child.kill('SIGKILL'); }, timeoutMs);
+    child.on('exit', (code) => { clearTimeout(timer); res({ hung, code, out }); });
+  });
+}
+
+test('(#85-18) ai-team-config.yml が FIFO のとき upgrade はハングせず既定プロファイルで続行する（別プロセス+SIGKILL・変異テスト）', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-config-fifo-'));
+  try {
+    const cfgAbs = join(cwd, '.claude', 'ai-team-config.yml');
+    mkdirSync(dirname(cfgAbs), { recursive: true });
+    execFileSync('mkfifo', [cfgAbs]);
+    assert.ok(lstatSync(cfgAbs).isFIFO(), '前提: config は FIFO であるべき');
+
+    // 別プロセスで runUpgrade を実行。ガードがあれば config の read を回避して完走し、
+    // 無ければ readModelProfileConfig の readFileSync(FIFO) で同期ブロックしてハングする。
+    const r = await runUpgradeInChild(cwd);
+
+    assert.ok(!r.hung,
+      'FIFO config で upgrade がハングした（ガードが無い＝変異テストが検出すべき事象）');
+    assert.ok(r.out.includes('CHILD_DONE:0'), `upgrade が正常終了していない:\n${r.out}`);
+    assert.ok(r.out.includes('既定のモデルプロファイルを使います'),
+      `FIFO config のスキップ警告が出ていない:\n${r.out}`);
+    // 実処理が進んだこと（新規スキルの生成）＝安全側で続行したことの裏取り
+    assert.ok(existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      'FIFO config でも upgrade が実処理を続行したはず（コマンド未生成）');
+    // config は FIFO のまま（読み書きで置き換えられていない）
+    assert.ok(lstatSync(cfgAbs).isFIFO(), 'FIFO config が置き換えられた');
+  } finally { rmSync(cwd, { recursive: true, force: true }); }
+});
+
+test('(#85-19) ai-team-config.yml がディレクトリのとき upgrade は生クラッシュせず既定プロファイルで続行する', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-config-dir-'));
+  try {
+    const cfgAbs = join(cwd, '.claude', 'ai-team-config.yml');
+    mkdirSync(cfgAbs, { recursive: true }); // config パスをディレクトリにする
+    assert.ok(lstatSync(cfgAbs).isDirectory(), '前提: config はディレクトリであるべき');
+
+    // ディレクトリは readFileSync が EISDIR を投げ、既存 try/catch が拾って既定になる（ハングは
+    // しない）。ガードがあれば読まずに種別を明示する（この文言が変異テストの識別点）。
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0, 'ディレクトリ config でも upgrade は正常終了すべき');
+    });
+
+    assert.ok(out.includes('ai-team-config.yml が通常ファイルではない'),
+      `ディレクトリ config のガード警告（種別明示）が出ていない:\n${out}`);
+    assert.ok(existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      'ディレクトリ config でも upgrade が実処理を続行したはず（コマンド未生成）');
+  } finally { rmSync(cwd, { recursive: true, force: true }); }
 });

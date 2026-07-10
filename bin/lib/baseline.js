@@ -92,6 +92,16 @@ export function loadBaseline(cwd) {
   const abs = join(cwd, BASELINE_REL);
   if (!existsSync(abs)) return emptyBaseline();
 
+  // 通常ファイル以外（FIFO / ディレクトリ / ソケット / デバイス）は読まずに空扱いにする。
+  // FIFO の readFileSync はリーダー／ライターが揃うまでプロセスごと同期ブロックしてハングし、
+  // 同期ブロックは例外ではないため下の try/catch では捕捉できない。書き込み側 saveBaseline に
+  // 入れた封じ込め（irregularFileType）を、読み込み側にも対称に施す（インシデント #4 教訓15）。
+  const irregular = irregularFileType(abs);
+  if (irregular) {
+    console.log(`  ⚠️  baseline（${BASELINE_REL}）が通常ファイルではない（${irregular.fileType}）ため、読み込みをスキップし空として扱います。`);
+    return emptyBaseline();
+  }
+
   let raw;
   try {
     raw = readFileSync(abs, 'utf-8');

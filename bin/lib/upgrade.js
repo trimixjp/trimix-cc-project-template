@@ -167,6 +167,14 @@ function readModelProfileConfig(cwd) {
   };
   const configPath = join(cwd, '.claude', 'ai-team-config.yml');
   if (!existsSync(configPath)) return cfg;
+  // 通常ファイル以外（FIFO / ディレクトリ / ソケット / デバイス）は読まずに既定プロファイルへ。
+  // FIFO の readFileSync は同期ブロックでハングし、下の try/catch では捕捉できないため事前に弾く
+  // （書き込み側の inspectDest と対称の封じ込め・インシデント #4 教訓15）。
+  const irregular = irregularFileType(configPath);
+  if (irregular) {
+    console.log(`  ⚠️  .claude/ai-team-config.yml が通常ファイルではない（${fileTypeLabel(irregular.fileType)}）ため、既定のモデルプロファイルを使います。`);
+    return cfg;
+  }
   let text;
   try {
     text = readFileSync(configPath, 'utf-8');

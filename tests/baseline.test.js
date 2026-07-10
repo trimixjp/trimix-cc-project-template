@@ -21,7 +21,8 @@ import {
 } from 'node:fs';
 import { join, resolve, dirname, sep } from 'node:path';
 import { tmpdir } from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { spawn, execFileSync } from 'node:child_process';
 
 import { runUpgrade, diffTargets, enumerateUpgradeTargets, runBaseline } from '../bin/lib/upgrade.js';
 import {
@@ -495,5 +496,93 @@ test('(#85-15) --dry では baseline を書かない（副作用ゼロ）', asyn
     assert.equal(code, 0);
 
     assert.ok(!existsSync(join(cwd, BASELINE_REL)), '--dry なのに baseline が作られた');
+  } finally { rmSync(cwd, { recursive: true, force: true }); }
+});
+
+// ===========================================================================
+// #85 差し戻し2: 読み込み経路の封じ込め（loadBaseline）
+//
+// 書き込み側 saveBaseline には symlink / hardlink / irregular の3検査があるのに、
+// 読み込み側 loadBaseline に写し忘れていた。baseline が FIFO のとき readFileSync が
+// リーダー／ライターの揃うまでプロセスごと同期ブロックしてハングする（try/catch では
+// 捕捉できない。同期ブロックは例外ではない）。
+//
+// 同期ハングはインプロセスのタイマ（setTimeout / Promise.race）では計測できないため、
+// FIFO ケースは必ず別プロセス（spawn）+ 親からの SIGKILL で検証する。ガードを外すと
+// 子がハング → 親が SIGKILL → この回帰テストが落ちる（変異テスト）。
+// ===========================================================================
+
+const BASELINE_MODULE = pathToFileURL(join(packageRoot, 'bin/lib/baseline.js')).href;
+
+/**
+ * 別プロセスで module 関数を実行し、親のタイムアウトで SIGKILL する。
+ * ガードが機能していれば子は即座に完走する。ガードを外すと FIFO の readFileSync で
+ * 同期ブロックしてハングし、タイムアウトで SIGKILL される（hung=true）。
+ *
+ * @param {string} script `--input-type=module -e` に渡す ESM スニペット（トップレベル await 可）
+ * @param {string} cwd 子プロセスの作業ディレクトリ
+ * @param {number} timeoutMs 親のハング判定タイムアウト
+ * @returns {Promise<{ hung: boolean, code: number|null, signal: string|null, out: string }>}
+ */
+function runGuardChild(script, cwd, timeoutMs = 12000) {
+  return new Promise((res) => {
+    const child = spawn(process.execPath, ['--input-type=module', '-e', script], {
+      cwd, stdio: ['ignore', 'pipe', 'pipe']
+    });
+    let out = '';
+    child.stdout.on('data', (d) => { out += d; });
+    child.stderr.on('data', (d) => { out += d; });
+    let hung = false;
+    const timer = setTimeout(() => { hung = true; child.kill('SIGKILL'); }, timeoutMs);
+    child.on('exit', (code, signal) => { clearTimeout(timer); res({ hung, code, signal, out }); });
+  });
+}
+
+test('(#85-16) baseline が FIFO のとき loadBaseline はハングせず空扱い+警告する（別プロセス+SIGKILL・変異テスト）', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-baseline-fifo-'));
+  try {
+    const abs = join(cwd, BASELINE_REL);
+    mkdirSync(dirname(abs), { recursive: true });
+    // Node に mkfifoSync は無いため mkfifo(1) を使う（既存 FIFO テストと同じ Unix 前提）
+    execFileSync('mkfifo', [abs]);
+    assert.ok(lstatSync(abs).isFIFO(), '前提: baseline は FIFO であるべき');
+
+    // 別プロセスで loadBaseline を呼ぶ。ガードがあれば即座に完走し、無ければ FIFO の
+    // readFileSync で同期ブロックしてハングする（親が SIGKILL で hung=true にする）。
+    const script = `
+      const { loadBaseline } = await import(${JSON.stringify(BASELINE_MODULE)});
+      const b = loadBaseline(${JSON.stringify(cwd)});
+      process.stdout.write('CHILD_DONE:' + JSON.stringify(b.files));
+    `;
+    const r = await runGuardChild(script, cwd);
+
+    assert.ok(!r.hung,
+      'FIFO baseline で loadBaseline がハングした（ガードが無い＝変異テストが検出すべき事象）');
+    assert.equal(r.code, 0, `子プロセスが異常終了した: ${r.out}`);
+    assert.ok(r.out.includes('CHILD_DONE:{}'),
+      `loadBaseline が空 baseline を返していない（FIFO を読んでしまった）:\n${r.out}`);
+    assert.ok(r.out.includes('通常ファイルではない'),
+      `FIFO baseline のスキップ警告が出ていない:\n${r.out}`);
+    // FIFO のまま（読み書きで置き換えられていない）
+    assert.ok(lstatSync(abs).isFIFO(), 'FIFO baseline が置き換えられた');
+  } finally { rmSync(cwd, { recursive: true, force: true }); }
+});
+
+test('(#85-17) baseline がディレクトリのとき loadBaseline は生クラッシュせず空扱い+警告する', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-baseline-dir-'));
+  try {
+    const abs = join(cwd, BASELINE_REL);
+    // baseline パスをディレクトリにする。ガードが無いと readFileSync が EISDIR を投げ、
+    // 既存 try/catch が拾って空になるが、警告文言が異なる。ガードがあれば読まずに
+    // 「通常ファイルではない（directory）」と明示する（この文言が変異テストの識別点）。
+    mkdirSync(abs, { recursive: true });
+    assert.ok(lstatSync(abs).isDirectory(), '前提: baseline はディレクトリであるべき');
+
+    let bl;
+    const out = await captureStdout(async () => { bl = loadBaseline(cwd); });
+
+    assert.deepEqual(bl.files, {}, 'ディレクトリ baseline なのに空でない');
+    assert.ok(out.includes('通常ファイルではない（directory）'),
+      `ディレクトリ baseline のガード警告（種別明示）が出ていない:\n${out}`);
   } finally { rmSync(cwd, { recursive: true, force: true }); }
 });
