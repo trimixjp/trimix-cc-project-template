@@ -27,7 +27,7 @@ import {
   createBackup, ensureGitignore, printBackupIntro, printBackupSummary
 } from './backup.js';
 import { checkPluginUpdates, printUpdateNotice } from './version-check.js';
-import { firstSymlinkInPath, hardlinkNlink } from './link-safety.js';
+import { firstSymlinkInPath, hardlinkNlink, irregularFileType } from './link-safety.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '../..');
@@ -35,7 +35,7 @@ const packageRoot = resolve(__dirname, '../..');
 /**
  * 書き込み先 rel（cwd 相対）へ安全に書き込めるかを検査する（R-1）。
  *
- * 2 段階で検査する:
+ * 3 段階で検査する:
  *  1. 封じ込め: cwd から rel まで各パス要素を1つずつ降り、途中にシンボリックリンクが
  *     1つでもあれば不許可。葉（最終要素）だけでなく中間ディレクトリのリンクも辿られる
  *     （mkdirSync(recursive) / copyFileSync が辿る）ため、必ずパス全体を走査する。
@@ -43,6 +43,11 @@ const packageRoot = resolve(__dirname, '../..');
  *     不許可とする（安全側に倒し、内外の判別は試みない）。
  *  2. ハードリンク: rel 自体が nlink > 1 の通常ファイルなら不許可（copyFileSync が共有
  *     inode を上書きして外部ファイルを破壊するため）。
+ *  3. 通常ファイル以外: rel 自体がディレクトリ / FIFO / ソケット / デバイスファイル等の
+ *     「通常ファイルでない実体」なら不許可（#84）。copyFileSync / readFileSync は通常ファイルを
+ *     前提としており、ディレクトリなら EISDIR、FIFO ならブロック（ハング）、デバイスなら
+ *     想定外の副作用を招く。ディレクトリだけを個別に直すのではなく、「通常ファイルでない
+ *     ものはすべて」一律スキップして明示する（インシデント #4 の教訓1・7）。
  *
  * 違反があれば skip 記述子を返す。安全に書ける場合は null。
  *
@@ -50,6 +55,7 @@ const packageRoot = resolve(__dirname, '../..');
  * @param {string} rel cwd からの相対パス
  * @returns {{ rel: string, kind: 'symlink', linkRel: string, target: string }
  *          | { rel: string, kind: 'hardlink', nlink: number }
+ *          | { rel: string, kind: 'irregular', fileType: string }
  *          | null}
  */
 function inspectDest(cwd, rel) {
@@ -57,9 +63,14 @@ function inspectDest(cwd, rel) {
   if (link) {
     return { rel, kind: 'symlink', linkRel: link.rel, target: link.target };
   }
-  const nlink = hardlinkNlink(join(cwd, rel));
+  const abs = join(cwd, rel);
+  const nlink = hardlinkNlink(abs);
   if (nlink) {
     return { rel, kind: 'hardlink', nlink };
+  }
+  const irregular = irregularFileType(abs);
+  if (irregular) {
+    return { rel, kind: 'irregular', fileType: irregular.fileType };
   }
   return null;
 }
@@ -67,32 +78,50 @@ function inspectDest(cwd, rel) {
 /**
  * 保護ファイルの隣に書き出す <dest>.new（cwd 相対）へ安全に書き込めるかを検査する（R-1）。
  * <dest>.new も本体（dest）と同様に copyFileSync で書き出すため、検査内容は inspectDest と
- * 同一である。すなわち封じ込め（経路のシンボリックリンク）に加えて、ハードリンク（nlink>1）も
- * 検査する。経路上のリンクを辿れば .claude/ の外を、ハードリンクなら共有 inode（外部の実体）を
- * copyFileSync が破壊しうるため、いずれの場合も辿らずスキップする。
+ * 同一である。すなわち封じ込め（経路のシンボリックリンク）・ハードリンク（nlink>1）に加えて、
+ * 通常ファイル以外（ディレクトリ / FIFO / ソケット / デバイス）も検査する。経路上のリンクを
+ * 辿れば .claude/ の外を、ハードリンクなら共有 inode を copyFileSync が破壊し、ディレクトリなら
+ * EISDIR、FIFO ならハングを招くため、いずれの場合も辿らず（触れず）スキップする。
  * 違反があれば skip 記述子、無ければ null。
  *
  * @param {string} cwd
  * @param {string} newRel `${dest}.new`
  * @returns {{ rel: string, kind: 'symlink', linkRel: string, target: string }
  *          | { rel: string, kind: 'hardlink', nlink: number }
+ *          | { rel: string, kind: 'irregular', fileType: string }
  *          | null}
  */
 function inspectNew(cwd, newRel) {
   return inspectDest(cwd, newRel);
 }
 
+/** 通常ファイル以外の種別（irregularFileType の fileType）を日本語ラベルに変換する */
+function fileTypeLabel(fileType) {
+  switch (fileType) {
+    case 'directory': return 'ディレクトリ';
+    case 'fifo': return 'FIFO（名前付きパイプ）';
+    case 'socket': return 'ソケット';
+    case 'blockDevice': return 'ブロックデバイス';
+    case 'charDevice': return 'キャラクタデバイス';
+    default: return '通常ファイル以外の実体';
+  }
+}
+
 /**
- * skip 記述子を1行の説明文に整形する。シンボリックリンクとハードリンクを区別し、
- * リンク先パス（symlink）または nlink（hardlink）を明示する（silent cap の禁止）。
- * 葉ではなく祖先ディレクトリがリンクの場合は、どの要素がリンクなのかも示す。
+ * skip 記述子を1行の説明文に整形する。シンボリックリンク・ハードリンク・通常ファイル以外
+ * （ディレクトリ / FIFO 等）を区別し、リンク先パス（symlink）・nlink（hardlink）・種別
+ * （irregular）を明示する（silent cap の禁止）。葉ではなく祖先ディレクトリがリンクの場合は、
+ * どの要素がリンクなのかも示す。
  *
- * @param {{rel, kind, linkRel?, target?, nlink?}} s
+ * @param {{rel, kind, linkRel?, target?, nlink?, fileType?}} s
  * @returns {string}
  */
 function formatSkip(s) {
   if (s.kind === 'hardlink') {
     return `${s.rel}: ハードリンク（外部 inode を共有・nlink=${s.nlink}）`;
+  }
+  if (s.kind === 'irregular') {
+    return `${s.rel}: 通常ファイルではありません（${fileTypeLabel(s.fileType)}）`;
   }
   if (s.linkRel && s.linkRel !== s.rel) {
     return `${s.rel}: 祖先 ${s.linkRel} がシンボリックリンク → ${s.target}`;
@@ -151,11 +180,15 @@ function collectFile(srcPath, destRel, out) {
 
 /**
  * チームの plugin.json を読み込む。
- * packages/workflow-<team>/plugin.json を単一の正として参照する。
+ * <pluginRoot>/packages/workflow-<team>/plugin.json を単一の正として参照する。
+ * pluginRoot は既定でパッケージルート（本番経路は不変）。テストが壊れた plugin.json を
+ * 差し込んで runUpgrade の fail-closed 挙動を検証できるよう、読み取り元だけを注入可能にする。
+ * @param {string} team
+ * @param {string} pluginRoot plugin.json を探すルート（既定: packageRoot）
  * @returns {object|null} plugin.json の内容。存在しなければ null。
  */
-function loadTeamPlugin(team) {
-  const pluginJsonPath = join(packageRoot, 'packages', `workflow-${team}`, 'plugin.json');
+function loadTeamPlugin(team, pluginRoot = packageRoot) {
+  const pluginJsonPath = join(pluginRoot, 'packages', `workflow-${team}`, 'plugin.json');
   if (!existsSync(pluginJsonPath)) return null;
   const raw = readFileSync(pluginJsonPath, 'utf-8');
   try {
@@ -181,9 +214,10 @@ function loadTeamPlugin(team) {
  * @param {string} team
  * @param {{ src: string, dest: string }[]} out         upgrade 対象の蓄積先
  * @param {{ team: string, srcPattern: string, destDir: string }[]} excluded 対象外の蓄積先
+ * @param {string} pluginRoot plugin.json を探すルート（既定: packageRoot）
  */
-function collectTeamTargetsFromPlugin(team, out, excluded) {
-  const plugin = loadTeamPlugin(team);
+function collectTeamTargetsFromPlugin(team, out, excluded, pluginRoot = packageRoot) {
+  const plugin = loadTeamPlugin(team, pluginRoot);
   if (!plugin || !plugin.install) {
     // 既知チームは Task 1 で必ずパッケージを持つため通常ここには来ない。
     // 万一欠落していても黙って全消しにせず、警告して当該チームをスキップする。
@@ -228,10 +262,12 @@ function collectTeamTargetsFromPlugin(team, out, excluded) {
  * github/ISSUE_TEMPLATE 等の .claude/ 外のリポジトリ設定は対象外とし、
  * excludedRepoConfig に記録して実行時に明示する。
  *
- * @param {{ teams: string[] }} opts
+ * @param {{ teams: string[], pluginRoot?: string }} opts
+ *        pluginRoot は plugin.json を探すルート（既定: packageRoot）。本番経路は不変で、
+ *        テストが壊れた plugin.json を差し込むための注入点。
  * @returns {{ targets: {src,dest}[], excludedRepoConfig: {team,srcPattern,destDir}[] }}
  */
-export function enumerateUpgradeTargets({ teams }) {
+export function enumerateUpgradeTargets({ teams, pluginRoot = packageRoot }) {
   const targets = [];
   const excludedRepoConfig = [];
   const T = join(packageRoot, 'templates');
@@ -246,7 +282,7 @@ export function enumerateUpgradeTargets({ teams }) {
 
   // --- チーム別（plugin.json の install マップ由来） ---
   for (const team of teams) {
-    collectTeamTargetsFromPlugin(team, targets, excludedRepoConfig);
+    collectTeamTargetsFromPlugin(team, targets, excludedRepoConfig, pluginRoot);
   }
 
   return { targets, excludedRepoConfig };
@@ -322,9 +358,17 @@ export function protectedNewNeedsWrite(cwd, d) {
  * 書き換える／外部 inode を破壊するのを避けるため、書き込まずスキップする。当該ファイル
  * のみスキップし、他のファイルの更新は続ける。
  *
- * TOCTOU（R-1 / #4）: diffTargets の分類（'blocked'）を鵜呑みにせず、書き込み直前に
- * inspectDest / inspectNew を再実行する。分類から書き込みまでの間にリンクが差し込まれても、
- * 書き込む瞬間の状態で判定する（完全な排除は求めないが、直前再検査で窓を最小化する）。
+ * TOCTOU（R-1 / #4 / #84 の項目5）: diffTargets の分類（'blocked'）を鵜呑みにせず、書き込み
+ * 直前に inspectDest / inspectNew を再実行する。分類から書き込みまでの間にリンク等が差し込まれても、
+ * 書き込む瞬間の状態で判定する。
+ *
+ * 判断（#84 項目5・対応不要）: 分類〜書き込みの間、および createBackup が返す世代ディレクトリの
+ * 生成〜使用の間には、なお極小の TOCTOU 窓が残る。しかしこれ以上の対策（O_NOFOLLOW / fd ベースの
+ * 書き込み等）は現時点では不要と判断する。理由は (1) 悪用には cwd への既存のローカル書き込み権限が
+ * 前提であり、この窓を突いても新たな権限昇格にはならない、(2) 上書きは事前に createBackup で退避
+ * 済みで復元可能、(3) この「書き込み直前の再検査」により窓はミリ秒未満に最小化されている、の3点。
+ * 両レビュアーが独立に MEDIUM と較正しており、現状の直前再検査で十分である。将来 fd ベースの
+ * 書き込みを導入する余地は残す。
  *
  * @param {{ cwd: string, diffs: {src,dest,category,block?}[] }} opts
  * @returns {{ applied: string[], skippedProtected: string[], unchanged: string[], writtenNew: string[], skipped: object[] }}
@@ -391,7 +435,7 @@ function printDiff(diffs) {
   console.log(`     保護のためスキップ（カスタマイズ済み）: ${protectedItems.length} 件`);
   console.log(`     変更なし: ${same.length} 件`);
   if (blocked.length > 0) {
-    console.log(`     リンクのためスキップ（シンボリックリンク／ハードリンク）: ${blocked.length} 件`);
+    console.log(`     安全に書き込めずスキップ（リンク／通常ファイル以外）: ${blocked.length} 件`);
   }
 
   if (updates.length > 0) {
@@ -436,17 +480,18 @@ function collectSkips(cwd, diffs) {
 }
 
 /**
- * リンクのためスキップする書き込み先を差分サマリに明示する（R-1）。
+ * 安全に書き込めない書き込み先を差分サマリに明示する（R-1 / #84）。
  * 黙って落とす（silent cap）ことは禁止（RULES.md / Professional Honesty）。
- * シンボリックリンクとハードリンクを区別し、リンク先パス／nlink を表示する。
- * --dry でも差分提示フェーズで呼ばれるため、書き込み前に何がスキップされるか分かる。
+ * シンボリックリンク・ハードリンク・通常ファイル以外（ディレクトリ / FIFO 等）を区別し、
+ * リンク先パス／nlink／種別を表示する。--dry でも差分提示フェーズで呼ばれるため、
+ * 書き込み前に何がスキップされるか分かる。
  */
 function printSkips(skips) {
   if (skips.length === 0) return;
   console.log('');
-  console.log('  ⚠️  リンクのためスキップします（.claude/ の外を書き換えず、外部 inode も壊さないため）:');
+  console.log('  ⚠️  安全に書き込めないためスキップします（.claude/ の外を書き換えず、外部 inode も壊さず、ディレクトリ／FIFO 等も触らないため）:');
   for (const s of skips) console.log(`     - ${formatSkip(s)}`);
-  console.log('   シンボリックリンクは解除するかリンク先を直接編集し、ハードリンクは通常ファイルに置き換えてください。');
+  console.log('   シンボリックリンクは解除するかリンク先を直接編集し、ハードリンクや通常ファイル以外（ディレクトリ／FIFO 等）は通常ファイルに置き換えてください。');
 }
 
 /**
@@ -529,10 +574,14 @@ function printExcludedRepoConfig(excluded) {
   }
 }
 
-/** 対話プロンプトで y/N を尋ねる */
-function askYesNo(question) {
+/**
+ * 対話プロンプトで y/N を尋ねる。
+ * stdin は注入可能（既定は process.stdin）。テストは既に閉じた（非TTYの）stdin を渡すことで、
+ * 対話端末で実行してもプロンプト待ちでハングしないようにできる。
+ */
+function askYesNo(question, stdin = process.stdin) {
   return new Promise((resolve) => {
-    const rl = createInterface({ input: process.stdin, output: process.stdout });
+    const rl = createInterface({ input: stdin, output: process.stdout });
     rl.question(question, (answer) => {
       rl.close();
       resolve(/^y(es)?$/i.test(answer.trim()));
@@ -547,17 +596,22 @@ function askYesNo(question) {
  * 破壊的な上書きを無確認で走らせないため、明示フラグ --yes が無い限り安全側に倒して
  * 中止する。--yes を付けた場合のみ、意図的な続行とみなして確認を省略する。
  *
+ * stdin は注入可能（既定は process.stdin で本番挙動は不変）。判定・プロンプトの入力元を
+ * 引数の stdin に統一することで、テストが対話端末の実行でも確定的に非対話経路を通せる
+ * （TTY 環境で askYesNo がプロンプト待ちハングするのを防ぐ・#84）。
+ *
+ * @param {{ yes: boolean, stdin?: NodeJS.ReadStream }} opts
  * @returns {Promise<boolean>} true なら適用を続行してよい
  */
-async function confirmProceed({ yes }) {
+async function confirmProceed({ yes, stdin = process.stdin }) {
   if (yes) return true;
-  if (!process.stdin.isTTY) {
+  if (!stdin.isTTY) {
     console.error('');
     console.error('⚠️  非対話環境のため確認を取得できません。安全のためアップグレードを中止します。');
     console.error('   意図的に続行する場合は --yes を付けて再実行してください。');
     return false;
   }
-  return askYesNo('\nこの内容でアップグレードを適用しますか？ [y/N]: ');
+  return askYesNo('\nこの内容でアップグレードを適用しますか？ [y/N]: ', stdin);
 }
 
 /**
@@ -566,10 +620,12 @@ async function confirmProceed({ yes }) {
  * これにより単体テストからも安全に呼び出せる。
  *
  * @param {string[]} args  'upgrade' を除いた引数配列
- * @param {{ cwd: string }} ctx
+ * @param {{ cwd: string, pluginRoot?: string, stdin?: NodeJS.ReadStream }} ctx
+ *        pluginRoot / stdin は既定でパッケージルート / process.stdin（本番挙動は不変）。
+ *        テストが壊れた plugin.json や非TTYの stdin を注入して安全経路を検証するための注入点。
  * @returns {Promise<number>} 終了コード
  */
-export async function runUpgrade(args, { cwd }) {
+export async function runUpgrade(args, { cwd, pluginRoot = packageRoot, stdin = process.stdin }) {
   const isDry = args.includes('--dry');
   const force = args.includes('--force');
   const yes = args.includes('--yes');
@@ -595,7 +651,19 @@ export async function runUpgrade(args, { cwd }) {
   printUpdateNotice(checkPluginUpdates(cwd));
 
   // 1. 対象ファイルの列挙（グローバル + 選択チーム。plugin.json の install マップ由来）
-  const { targets, excludedRepoConfig } = enumerateUpgradeTargets({ teams });
+  //    列挙段階は書き込みより前（fail-closed）。壊れた plugin.json（JSON.parse 失敗）などの
+  //    例外を握らず素通しすると、setup.js まで未捕捉例外として上がりスタックトレースが露出する。
+  //    ここで捕捉し、どのファイルが不正かを日本語で示して終了コード1で停止する（#84）。
+  //    書き込み前なのでデータ損失は無い。
+  let targets, excludedRepoConfig;
+  try {
+    ({ targets, excludedRepoConfig } = enumerateUpgradeTargets({ teams, pluginRoot }));
+  } catch (e) {
+    console.error('');
+    console.error(`❌ アップグレード対象の列挙に失敗しました: ${e.message}`);
+    console.error('   （書き込み前に停止したため、ファイルは一切変更していません）');
+    return 1;
+  }
   printExcludedRepoConfig(excludedRepoConfig);
   if (targets.length === 0) {
     console.log('');
@@ -656,7 +724,7 @@ export async function runUpgrade(args, { cwd }) {
   }
 
   // 4. ユーザー確認
-  const proceed = await confirmProceed({ yes });
+  const proceed = await confirmProceed({ yes, stdin });
   if (!proceed) {
     console.log('');
     console.log('🚫 アップグレードを中止しました。');
@@ -719,15 +787,20 @@ export async function runUpgrade(args, { cwd }) {
     for (const dest of result.skippedProtected) {
       const newRel = `${dest}.new`;
       console.log(`     - ${dest}`);
-      // <dest>.new がリンク（経路のシンボリックリンク／ハードリンク）だった場合は書き出しを
-      // スキップしている（R-1）。「保存しました」と誤って案内しないよう、スキップした旨を明示する。
-      // シンボリックリンクとハードリンクは扱い（解除方法）が異なるため、種別に応じて案内文を変える。
+      // <dest>.new が「安全に書けない先」（経路のシンボリックリンク／ハードリンク／
+      // 通常ファイル以外）だった場合は書き出しをスキップしている（R-1 / #84）。
+      // 「保存しました」と誤って案内しないよう、スキップした旨を明示する。
+      // 種別（symlink / hardlink / irregular）ごとに解除方法が異なるため案内文を変える。
       const newSkip = result.skipped.find((s) => s.slot === 'new' && s.rel === newRel);
       if (newSkip) {
-        const kindLabel = newSkip.kind === 'hardlink' ? 'ハードリンク' : 'シンボリックリンク';
+        const kindLabel = newSkip.kind === 'hardlink' ? 'ハードリンク'
+          : newSkip.kind === 'irregular' ? '通常ファイル以外'
+            : 'シンボリックリンク';
         console.log(`       ⚠️  ${newRel} は${kindLabel}のため書き出しをスキップしました（${formatSkip(newSkip)}）`);
         if (newSkip.kind === 'hardlink') {
           console.log('       外部の実体（共有 inode）を破壊しないためです。通常ファイルに置き換えると次回から .new を書き出せます。');
+        } else if (newSkip.kind === 'irregular') {
+          console.log('       ディレクトリや FIFO 等は上書きしないためです。通常ファイルに置き換えると次回から .new を書き出せます。');
         } else {
           console.log('       .claude/ の外を書き換えないためです。リンクを解除すると次回から .new を書き出せます。');
         }
@@ -750,6 +823,7 @@ export async function runUpgrade(args, { cwd }) {
   const destSkips = result.skipped.filter((s) => s.slot === 'dest');
   const destSymlinks = destSkips.filter((s) => s.kind === 'symlink');
   const destHardlinks = destSkips.filter((s) => s.kind === 'hardlink');
+  const destIrregular = destSkips.filter((s) => s.kind === 'irregular');
   if (destSymlinks.length > 0) {
     console.log('');
     console.log('  ⚠️  シンボリックリンクのためスキップしました（.claude/ の外を書き換えないため）:');
@@ -761,6 +835,14 @@ export async function runUpgrade(args, { cwd }) {
     console.log('  ⚠️  ハードリンクのためスキップしました（外部 inode の破壊を防ぐため）:');
     for (const s of destHardlinks) console.log(`     - ${formatSkip(s)}`);
     console.log('   通常ファイル（実体のコピー）に置き換えてから再実行してください。');
+  }
+  if (destIrregular.length > 0) {
+    // ディレクトリ / FIFO / ソケット / デバイスは通常ファイルでないため上書きしない（#84）。
+    // copyFileSync が EISDIR で落ちたり FIFO でハングするのを未然に防ぐ。silent cap の禁止。
+    console.log('');
+    console.log('  ⚠️  通常ファイルでないためスキップしました（ディレクトリ／FIFO／ソケット／デバイス等は上書きしません）:');
+    for (const s of destIrregular) console.log(`     - ${formatSkip(s)}`);
+    console.log('   通常ファイルに置き換えてから再実行してください。');
   }
   return 0;
 }

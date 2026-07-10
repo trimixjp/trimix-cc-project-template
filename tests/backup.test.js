@@ -37,6 +37,20 @@ function hashOf(content) {
   return createHash('sha256').update(Buffer.from(content)).digest('hex');
 }
 
+/**
+ * createBackupDir が世代ディレクトリ名に使う YYYYMMDD-HHMMSS 形式を再現する。
+ * bin/lib/backup.js の formatTimestamp と同一のローカル時刻ロジック。
+ * (f) が「実時計に依存せず」連番分岐を通すため、createBackup 実行時に生成される世代名を
+ * 先回りして作成するのに使う。
+ */
+function timestampName(date) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return (
+    `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}` +
+    `-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`
+  );
+}
+
 test('(a) 全ファイルが元の相対パスを保って退避される', () => {
   const cwd = makeCwd();
   const targets = [
@@ -159,37 +173,57 @@ test('(e) ensureGitignore は冪等（2回実行しても行が重複しない�
   assert.equal(afterSecond, afterFirst, '2回目で .gitignore の内容が変化してはならない');
 });
 
-test('(f) 同一秒に2回呼んでも先行世代が黙って上書きされない（世代ディレクトリの衝突回避・R-1）', () => {
+test('(f) 既存の世代ディレクトリを再利用せず連番へ退避する（実時計に依存せず連番分岐を決定的に通す・R-1）', () => {
   const cwd = makeCwd();
   const rel = '.claude/teams/backend/workflow.yml';
+  const root = join(cwd, BACKUP_ROOT_DIRNAME);
 
-  // 第1世代: 内容A を退避
-  writeUnder(cwd, rel, '第1世代の内容\n');
-  const b1 = createBackup({ cwd, targets: [rel], packageVersion: '1.0.0' });
+  // createBackup 実行時に createBackupDir が生成する世代名（YYYYMMDD-HHMMSS）を「事前に作成」し、
+  // mkdirSync(recursive:false) を EEXIST で弾かせて連番分岐（-2 以降）を決定的に通す。
+  // これにより「秒境界をまたいでタイムスタンプが元から異なり、連番分岐を一度も通らないまま緑になる」
+  // 実時計依存の偽陽性を排除する。
+  //
+  // 世代名は createBackup 呼び出し時点の秒に依存するため、直前の数回のファイル操作で秒境界を
+  // またいでも確実に先回りできるよう、現在秒と次秒の両方の世代ディレクトリを先に作る。
+  // それぞれに番兵ファイルを置き、createBackupDir が既存世代を黙って再利用（上書き）していないことを
+  // 後で検出できるようにする（recursive:true への実装退行は、番兵を含むこのディレクトリを退避先に
+  // 再利用してしまうため、下の assert で確実に落ちる）。
+  const occupied = [new Date(), new Date(Date.now() + 1000)].map(timestampName);
+  for (const name of occupied) {
+    mkdirSync(join(root, name), { recursive: true });
+    writeFileSync(join(root, name, 'sentinel.txt'), `既存世代 ${name} の番兵\n`, 'utf-8');
+  }
 
-  // 同一秒内に内容を変えて第2世代を退避する（2回の呼び出しはミリ秒未満の間隔で
-  // ほぼ確実に同一秒になり、秒精度タイムスタンプの衝突経路を通す）
-  writeUnder(cwd, rel, '第2世代の内容\n');
-  const b2 = createBackup({ cwd, targets: [rel], packageVersion: '1.0.0' });
+  writeUnder(cwd, rel, '退避対象の内容\n');
+  const b = createBackup({ cwd, targets: [rel], packageVersion: '1.0.0' });
 
-  // 別々の世代ディレクトリが作られること（既存ディレクトリを黙って再利用しない）
-  assert.notEqual(b1.dir, b2.dir, '同一秒の2回呼び出しで同じ世代ディレクトリが再利用された');
-
-  // 第1世代に退避した内容が、第2世代の退避で上書きされず保持されていること
-  assert.equal(
-    readFileSync(join(b1.dir, rel), 'utf-8'), '第1世代の内容\n',
-    '第1世代の退避内容が第2世代に上書きされた'
+  // 退避先が「事前作成した世代名」そのものではなく、連番分岐を通った `-2` であること。
+  // どちらの秒に着地しても該当秒の `-2` に退避されるため、両候補のいずれかに一致すればよい。
+  const expectedDirs = occupied.map((name) => join(root, `${name}-2`));
+  assert.ok(
+    expectedDirs.includes(b.dir),
+    `連番分岐（-2）を通っていない。退避先=${b.dir} / 期待=${expectedDirs.join(' | ')}`
   );
-  assert.equal(
-    readFileSync(join(b2.dir, rel), 'utf-8'), '第2世代の内容\n',
-    '第2世代の退避内容が正しくない'
-  );
 
-  // 第1世代の manifest.json も第2世代に上書きされていないこと
-  const m1 = JSON.parse(readFileSync(join(b1.dir, 'manifest.json'), 'utf-8'));
+  // 事前作成した既存世代が黙って再利用（上書き）されていないこと（番兵が無傷）。
+  // recursive:true への退行では、退避先として既存世代を再利用し番兵と同ディレクトリに書き込むため、
+  // b.dir が上の `-2` 期待に一致せず、この assert 群の前段で落ちる。
+  for (const name of occupied) {
+    assert.equal(
+      readFileSync(join(root, name, 'sentinel.txt'), 'utf-8'), `既存世代 ${name} の番兵\n`,
+      `既存世代 ${name} の番兵が上書きされた（世代ディレクトリが黙って再利用された）`
+    );
+  }
+
+  // 退避内容そのものは正しく新世代へ書かれていること（退避が実際に走ったことのサニティチェック）。
   assert.equal(
-    m1.files.find((f) => f.path === rel).sha256, hashOf('第1世代の内容\n'),
-    '第1世代の manifest.json が第2世代に上書きされた'
+    readFileSync(join(b.dir, rel), 'utf-8'), '退避対象の内容\n',
+    '新世代へ退避した内容が正しくない'
+  );
+  const m = JSON.parse(readFileSync(join(b.dir, 'manifest.json'), 'utf-8'));
+  assert.equal(
+    m.files.find((f) => f.path === rel).sha256, hashOf('退避対象の内容\n'),
+    '新世代の manifest.json の sha256 が退避内容と一致しない'
   );
 });
 
