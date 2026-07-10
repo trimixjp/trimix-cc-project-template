@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v0.24.0 の変更点 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.24.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class=""><a href="faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/upgrade.html">アップグレード</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class="active"><a href="changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">v0.24.0 の変更点</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/changelog.html" >v0.5.1</option><option value="../v0.5.2/changelog.html" >v0.5.2</option><option value="../v0.6.0/changelog.html" >v0.6.0</option><option value="../v0.7.0/changelog.html" >v0.7.0</option><option value="../v0.8.0/changelog.html" >v0.8.0</option><option value="../v0.9.0/changelog.html" >v0.9.0</option><option value="../v0.10.0/changelog.html" >v0.10.0</option><option value="../v0.11.0/changelog.html" >v0.11.0</option><option value="../v0.12.0/changelog.html" >v0.12.0</option><option value="../v0.13.0/changelog.html" >v0.13.0</option><option value="../v0.14.0/changelog.html" >v0.14.0</option><option value="../v0.15.0/changelog.html" >v0.15.0</option><option value="../v0.16.0/changelog.html" >v0.16.0</option><option value="../v0.17.0/changelog.html" >v0.17.0</option><option value="../v0.18.0/changelog.html" >v0.18.0</option><option value="../v0.20.0/changelog.html" >v0.20.0</option><option value="../v0.21.0/changelog.html" >v0.21.0</option><option value="../v0.21.1/changelog.html" >v0.21.1</option><option value="../v0.22.0/changelog.html" >v0.22.0</option><option value="../v0.22.1/changelog.html" >v0.22.1</option><option value="../v0.23.0/changelog.html" >v0.23.0</option><option value="../v0.24.0/changelog.html" selected>v0.24.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>v0.24.0 の変更点</h1>
+
+<p>このページは、直前バージョン <strong>v0.23.0</strong> から <strong>v0.24.0</strong> までの変更点をまとめたものです。ソースコードのコミット履歴（前回の版バンプコミット <code>24fe650</code> 以降）に基づいて記載しています。</p>
+
+<hr>
+
+<h2>概要</h2>
+
+<p>v0.24.0 の主眼は、<strong>導入先プロジェクトのテンプレートを安全に最新化する仕組み</strong>の新設です（Issue #82・親 Epic #80）。</p>
+
+<p>これまで <code>npm install</code> で更新されるのは <strong>スキル（<code>.claude/commands/</code>）と同梱マニュアルだけ</strong>でした。エージェント定義・ワークフロー・DOD・レビュー判定基準・エスカレーションルールなどは、一度配置されたら永久に古いままで、テンプレート側の改善を受け取る手段がありませんでした。有料商材として販売するうえで、この「更新できない」状態は出荷の妨げになっていました。</p>
+
+<p>v0.24.0 では <strong><code>upgrade</code> コマンド</strong>を新設し、<code>.claude/</code> 配下のテンプレート一式を単一コマンドで最新版へ追随できるようにしました。最優先の制約は「<strong>ユーザーがカスタマイズしたファイルを黙って破壊しないこと</strong>」で、上書き前の自動バックアップと、カスタマイズ済みファイルの上書き保護という二重の安全策を備えています。</p>
+
+<p>使い方は <a href="guide/upgrade.html">アップグレード</a> を参照してください。</p>
+
+<hr>
+
+<h2>新機能</h2>
+
+<h3><code>upgrade</code> コマンドの新設（Issue #82）</h3>
+
+<code>npx @trimix/ai-team upgrade [team_id]</code> を追加しました。<code>.claude/</code> 配下のテンプレート（共通エージェント・チームのエージェント／ワークフロー／DOD／レビュー判定基準・エスカレーションルール・モデルプロファイル・スキル）を最新版へ更新します。<code>team_id</code> を省略すると導入済みの全チームが対象になります。
+
+<ul><li>既定の動作は「<strong>差分を提示 → ユーザー確認 → バックアップ → 適用</strong>」で、確認なしの一括上書きは行いません</li><li><code>--dry</code> — 差分の提示のみ（書き込み・バックアップとも行いません）</li><li><code>--force</code> — カスタマイズ済みファイル（<code># customized: true</code>）も上書きします</li><li><code>--yes</code> — 確認プロンプトを省略します。非対話環境（CI・パイプ実行）では続行に必須です</li><li>更新対象は各チームの <code>plugin.json</code> の <code>install</code> マップから導出します。ファイル種別をハードコードしないため、<code>content</code> チームの <code>compliance-rules/</code> や <code>youtube</code> チームの <code>PRODUCTION-GUIDE.md</code> など、チーム固有のファイルも取りこぼしません</li><li><code>.github/ISSUE_TEMPLATE/</code> は <code>.claude/</code> 外のリポジトリ設定のため対象外です。黙って落とさず、対象外である旨を実行時に明示します</li></ul>
+<h3>アップグレード前の自動バックアップ（Issue #82・追加要件）</h3>
+
+<code>upgrade</code> は、ファイルを上書きする前に、対象ファイルを <strong><code>.ai-team-backups/&lt;YYYYMMDD-HHMMSS&gt;/</code></strong> へ元の相対パスを保ったまま退避します。
+
+<ul><li>退避後に <strong>SHA-256 を再計算して退避元と一致することを検証</strong>し、<code>manifest.json</code> に作成日時・パッケージバージョン・各ファイルのハッシュを記録します</li><li><strong>バックアップが 1 ファイルでも失敗したら、アップグレードを実行せず終了コード 1 で停止します（fail-closed）</strong>。退避できない状態での上書きは決して行いません</li><li>復元は <code>cp -R .ai-team-backups/&lt;日時&gt;/.claude ./</code> の 1 行で完了します。開始前にバックアップの趣旨、完了後に保存先・復元方法・自動削除されないことを表示します</li><li>世代ディレクトリは同一秒に複数回実行しても連番（<code>-2</code>, <code>-3</code> …）で衝突を回避し、先行世代を上書きしません</li><li>バックアップ作成時に <code>.gitignore</code> へ <code>.ai-team-backups/</code> を冪等に追記します</li></ul>
+<hr>
+
+<h2>バグ修正</h2>
+
+<h3>カスタマイズ上書き保護をワイルドカード展開にも適用（データ損失・Issue #82）</h3>
+
+<code># customized: true</code> による上書き保護が単一ファイル分岐（<code>workflow.yml</code> / <code>review-config.yml</code>）にしか実装されておらず、<strong>ワイルドカードで展開される <code>agents/*</code> と <code>dod/*</code> は <code>--force</code> を付けなくてもユーザーのカスタマイズが黙って上書きされていました</strong>（データ損失）。
+
+<p>保護判定を共通関数（<code>isCustomized</code>）に切り出し、単一ファイル分岐とワイルドカード分岐（<code>copyDirAndTrack</code>）の両方から呼ぶよう統一しました。これにより <code>agents/</code> や <code>dod/</code> のカスタマイズ済みファイルも、<code>--force</code> を指定したときだけ上書きされます。</p>
+
+<p>あわせて、このバグを長期間見逃す原因となっていた既存テスト（テスト内で組み立てた文字列リテラルに <code>assert</code> するだけで、実際の配置処理を一度も呼んでいないトートロジー）を、一時ディレクトリ上で実際に配置処理を呼んでファイル内容を検証する形に書き直しました。</p>
+
+<hr>
+
+<h2>改善</h2>
+
+<h3>スキル配布リストの動的走査化（Issue #82・#27 の積み残し）</h3>
+
+<p>配布スキルの一覧を静的なハードコードから、<code>skills/</code> ディレクトリを走査して <code>ai-team-*.md</code> に一致するファイルを返す方式へ置き換えました。スキルを追加したときに配布リストへの追記を忘れて配置漏れが起きる事故（<code>ai-team-ticket.md</code> で実際に発生）を構造的に防ぎます。README など命名規則に合わないファイルは除外されます。あわせて <code>bin/sync-templates.js</code> に <code>skills/ → .claude/commands/</code> の同期を追加し、開発リポジトリでもドッグフーディングが成立するようにしました。</p>
+
+<h3>sns / youtube のミラーパッケージ追加（Issue #82）</h3>
+
+<p>SNS 運用チームと YouTube 動画制作チームのミラーパッケージ（<code>packages/workflow-sns</code> / <code>packages/workflow-youtube</code>）を、既存 4 チームと同一構造で追加しました。これにより 6 チームすべてが <code>plugin.json</code> を持ち、<code>upgrade</code> がすべてのチームの更新対象を <code>install</code> マップから導出できるようになりました。テンプレート整合性テスト（SHA-256 一致検証）の対象も 4 チームから 6 チームへ拡張しています。</p>
+
+<h3>バージョン更新通知（Issue #82）</h3>
+
+<p>導入先プロジェクトの <code>ai-team-plugins.json</code> に記録された導入時バージョンと、配布物の <code>registry.json</code> の最新バージョンを比較し、差があれば <code>upgrade</code> 実行時と <code>postinstall</code> 完了時に「更新があります」と通知するようにしました。更新に気づけるようにするための通知で、更新の実行自体は <code>upgrade</code> で行います。</p>
+
+<hr>
+
+<h2>破壊的変更</h2>
+
+<p>なし。</p>
+
+<code>npm install</code>（<code>postinstall</code>）の挙動は従来どおりで、スキルとマニュアルのみを展開します。<code>upgrade</code> はユーザーが明示的に実行するコマンドとして追加されたものであり、既存の運用を変更しません。
+
+<hr>
+
+<h2>既知の制限</h2>
+
+<ul><li><strong>マーカーの無い手編集ファイルは <code>upgrade</code> で上書きされます。</strong> 上書き保護は <code># customized: true</code> マーカーの有無だけで判定するため、マーカーの付かない手編集ファイル（例: <code>agents/*.md</code> の <code>model</code> / <code>effort</code> を直接編集したもの）は上書き対象になります。ただし適用前に必ずバックアップへ退避されるため、復元は可能です。この制限は保護判定をハッシュ照合へ移行する <a href="https://github.com/takufukagawa/trimix-cc-project-template/issues/85">Issue #85</a> で対応予定です</li><li><code>upgrade</code> / バックアップのテスト堅牢性の改善（実時計依存・対話端末でのハング・壊れた <code>plugin.json</code> の未捕捉例外）は <a href="https://github.com/takufukagawa/trimix-cc-project-template/issues/84">Issue #84</a> で追跡しています</li></ul>
+<hr>
+
+<h2>関連 Issue</h2>
+
+<ul><li>Issue #82: <code>upgrade</code> コマンドの新設とカスタマイズ上書き保護の修正</li><li>Issue #80: テンプレートのアップグレード機構が存在しない（親 Epic）</li><li>Issue #85: upgrade の保護判定をマーカー方式からハッシュ照合へ移行（フォローアップ）</li><li>Issue #84: upgrade / backup のテスト堅牢性の改善（フォローアップ）</li><li>Issue #27: postinstall のスキルリスト漏れ（<code>SKILL_FILES</code> の動的走査化で解消）</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIチームのセットアップ - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.24.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class="active"><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/upgrade.html">アップグレード</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">AIチームのセットアップ</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/guide/setup.html" >v0.5.1</option><option value="../../v0.5.2/guide/setup.html" >v0.5.2</option><option value="../../v0.6.0/guide/setup.html" >v0.6.0</option><option value="../../v0.7.0/guide/setup.html" >v0.7.0</option><option value="../../v0.8.0/guide/setup.html" >v0.8.0</option><option value="../../v0.9.0/guide/setup.html" >v0.9.0</option><option value="../../v0.10.0/guide/setup.html" >v0.10.0</option><option value="../../v0.11.0/guide/setup.html" >v0.11.0</option><option value="../../v0.12.0/guide/setup.html" >v0.12.0</option><option value="../../v0.13.0/guide/setup.html" >v0.13.0</option><option value="../../v0.14.0/guide/setup.html" >v0.14.0</option><option value="../../v0.15.0/guide/setup.html" >v0.15.0</option><option value="../../v0.16.0/guide/setup.html" >v0.16.0</option><option value="../../v0.17.0/guide/setup.html" >v0.17.0</option><option value="../../v0.18.0/guide/setup.html" >v0.18.0</option><option value="../../v0.20.0/guide/setup.html" >v0.20.0</option><option value="../../v0.21.0/guide/setup.html" >v0.21.0</option><option value="../../v0.21.1/guide/setup.html" >v0.21.1</option><option value="../../v0.22.0/guide/setup.html" >v0.22.0</option><option value="../../v0.22.1/guide/setup.html" >v0.22.1</option><option value="../../v0.23.0/guide/setup.html" >v0.23.0</option><option value="../../v0.24.0/guide/setup.html" selected>v0.24.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>AIチームのセットアップ</h1>
+
+<code>/ai-team-setup</code> コマンドを実行すると、対話形式のウィザードが起動します。
+
+<hr>
+
+<h2>セットアップの流れ</h2>
+
+<h3>ステップ1: チームの選択</h3>
+
+<p>使用するチームを選択します。複数選択可能です。</p>
+
+<pre><code class="language-">? 導入するチームを選択してください（複数選択可）
+❯ ◉ バックエンドチーム（コード実装・レビュー・PR作成）
+  ◉ フロントエンドチーム（UI実装・コンポーネント開発・アクセシビリティ）
+  ○ コンテンツチーム（記事・ドキュメント作成）
+  ○ インフラチーム（クラウド構成・ネットワーク・セキュリティ）
+  ○ SNS運用チーム（X・Instagram の投稿戦略・執筆・公開指示）</code></pre>
+
+<h3>ステップ2: 運用モードの選択</h3>
+
+<pre><code class="language-">? 運用モードを選択してください
+❯ マルチユーザーモード
+    担当者が /ai-team-run &lt;チケット&gt; を実行して処理を開始します
+    複数人チームに適しています
+  ソロモード
+    /ai-team-watch を起動すると新しいチケットを自動検出して処理します
+    1人での運用に適しています</code></pre>
+
+<h3>ステップ3: バージョン管理の設定</h3>
+
+<code>package.json</code> のバージョンを自動管理するか選択します。
+
+<pre><code class="language-">? バージョン管理の方法を選択してください
+❯ 自動インクリメント（auto）
+    Reviewer 合格後に conventional commit に基づき自動更新
+    ソロ運用・小規模チームに適しています
+  手動管理（manual）
+    バージョンアップはワークフロー外で人間が管理
+    チーム開発・独自リリースフロー・monorepo に適しています
+  使わない（none）
+    バージョン管理をワークフローから完全に外す
+    バージョン概念のないリポジトリに適しています</code></pre>
+
+<p><strong>auto</strong> を選択した場合: Reviewer 合格後に Version-Bumper エージェントが <code>package.json</code> のバージョンを自動インクリメントします。  </p>
+<p><strong>manual</strong> を選択した場合: <code>npm version patch|minor|major</code> で手動更新します。Version-Bumper ステップは残り、スキップ報告のみ行います。  </p>
+<p><strong>none</strong> を選択した場合（v0.23.0 で追加）: version-bumper ステップ自体が <code>workflow.yml</code> から削除され、Reviewer 合格後は直接 Tech-Writer に引き継がれます。アプリ運用・ドキュメントリポジトリなど、バージョン概念のないプロジェクトに適しています。</p>
+
+<p>設定は <code>.claude/ai-team-config.yml</code> の <code>version_management</code> で変更できます。</p>
+
+<h3>ステップ4: チケット強制チェックの設定</h3>
+
+<p>ファイル変更を伴う指示は チケットを起点にすることで、インシデント記録・ラベル管理・作業履歴が正しく機能します。チェック方法を選択します。</p>
+
+<pre><code class="language-">? チケット強制チェックの方法を選択してください
+❯ CLAUDE.md のみ（推奨）
+    タスク受付ルールを CLAUDE.md に記載します
+    Claude が内容を判断して チケット経由を促します
+    設定変更なしで導入できます
+  hooks で強制
+    UserPromptSubmit フックを設定します
+    変更系キーワードを含む指示に チケット番号がない場合、スクリプトが自動でブロックします
+    より確実に強制できますが、誤検知でブロックされる場合もあります</code></pre>
+
+<p>どちらを選択しても、<code>CLAUDE.md</code> にタスク受付ルールが追記されます。<strong>hooks で強制</strong> を選択した場合はさらに <code>.claude/hooks/ensure-issue.sh</code> が配置され、<code>.claude/settings.json</code> にフックが登録されます。</p>
+
+<h3>ステップ4a: 実行基盤（runtime）</h3>
+
+<pre><code class="language-">? 実行基盤を選択してください
+❯ Claude Code（既定）
+    model: fable / opus / sonnet / haiku
+  Grok Build
+    model: grok-4.5 / grok-composer-2.5-fast
+    .grok/agents と .grok/commands にミラー</code></pre>
+
+<code>runtime</code> は <code>.claude/ai-team-config.yml</code> に記録され、<strong>再 setup で切り替え可能</strong>です（「設定の切替のみ」モード）。
+
+<h4>runtime 別の配置（指示書・hooks）</h4>
+
+<table><thead><tr><th>用途</th><th>claude-code</th><th>grok</th></tr></thead><tbody><tr><td>プロジェクト指示</td><td><code>.claude/CLAUDE.md</code></td><td><strong><code>AGENTS.md</code>（正規）</strong> + <code>.claude/CLAUDE.md</code>（互換）</td></tr><tr><td>エージェント</td><td><code>.claude/teams/*/agents/</code> 等</td><td>左記 + <code>.grok/agents/</code> ミラー</td></tr><tr><td>スキル</td><td><code>.claude/commands/</code></td><td>左記 + <code>.grok/commands/</code> ミラー</td></tr><tr><td>チケット強制フック本体</td><td><code>.claude/hooks/ensure-issue.sh</code></td><td>同じスクリプトを共有</td></tr><tr><td>フック登録</td><td><code>.claude/settings.json</code></td><td>左記 + <code>.grok/hooks/ensure-issue.json</code></td></tr></tbody></table>
+<p>Grok は Claude 互換で <code>.claude/</code> も読みますが、<strong>指示の正規は <code>AGENTS.md</code>、フックの明示配置は <code>.grok/hooks/</code></strong> です。hooks 選択時は両方に登録します。</p>
+
+<h3>ステップ4b: モデル性能と effort 深度</h3>
+
+<p>各エージェント定義・スキル（コマンド）の frontmatter に <code>model</code> / <code>effort</code> を一括反映します（割当は runtime 依存）。</p>
+
+<pre><code class="language-">? モデル性能プロファイルを選択してください
+❯ バランス（推奨・デフォルト）
+  ハイパフォーマンス
+  低コスト
+
+? effort（推論の深さ）を選択してください
+❯ 普通（推奨・デフォルト）
+  深く
+  軽く</code></pre>
+
+<table><thead><tr><th>性能（Claude）</th><th>leader</th><th>worker</th><th>simple</th></tr></thead><tbody><tr><td>high-performance</td><td>fable</td><td>opus</td><td>sonnet</td></tr><tr><td>balance</td><td>opus</td><td>sonnet</td><td>haiku</td></tr><tr><td>low-cost</td><td>sonnet</td><td>sonnet</td><td>haiku</td></tr></tbody></table>
+<table><thead><tr><th>性能（Grok）</th><th>leader</th><th>worker</th><th>simple</th></tr></thead><tbody><tr><td>high-performance / balance</td><td>grok-4.5</td><td>grok-4.5</td><td>grok-composer-2.5-fast</td></tr><tr><td>low-cost</td><td>grok-composer-2.5-fast</td><td>同左</td><td>同左</td></tr></tbody></table>
+<p><strong>細かい設定は md ファイルの変更で可能です。</strong> 一括再適用:</p>
+
+<pre><code class="language-bash">node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code --profile balance --effort normal --dir .claude
+# Grok 切替例
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime grok --profile balance --effort normal --dir .claude</code></pre>
+
+<p>定義の写しは <code>.claude/model-profiles.yml</code>、実装の SSOT は <code>bin/lib/model-profiles.js</code> です。</p>
+
+<h4>hooks の判定ロジック</h4>
+
+<table><thead><tr><th>条件</th><th>動作</th></tr></thead><tbody><tr><td>チケット番号（<code>#123</code>）または GitHub URL を含む</td><td>スルー</td></tr><tr><td><code>/ai-team </code> スキルを使用している</td><td>スルー</td></tr><tr><td>「確認・調査・教えて」等の調査系で始まる</td><td>スルー</td></tr><tr><td>「修正・実装・追加・fix・create」等の変更系キーワードを含む</td><td><strong>ブロック</strong> → チケット作成を案内</td></tr><tr><td>それ以外</td><td>スルー</td></tr></tbody></table>
+<h3>ステップ4c: AI が作業する「場所」</h3>
+
+<p>AI がコードを書くとき、あなたが開いているファイルと混ざらないよう、作業する場所を分けます。分け方は2通りです。</p>
+
+<table><thead><tr><th>方式</th><th>どういうことか</th><th>向いている人</th></tr></thead><tbody><tr><td><strong>ブランチ</strong>（既定）</td><td>いまのフォルダの中で、履歴だけを切り替えて作業する。準備が要らない</td><td>Git のブランチ操作に慣れていない人／AI の作業中は手を止めて待つ人／ディスク容量に余裕がない人</td></tr><tr><td><strong>ワークツリー</strong></td><td>プロジェクトの複製フォルダ（<code>.claude/worktrees/issue-123/</code> など）を作り、その中だけで作業する。手元のファイルは変わらない</td><td>AI に任せつつ自分も同じプロジェクトを触りたい人／チケットを2件以上、同時に走らせたい人</td></tr></tbody></table>
+<p><strong>迷ったら「ブランチ」で構いません。</strong>ひとりでチケットを1件ずつ順番に処理する使い方なら、これで十分です。</p>
+
+<p>選んだ内容は <code>.claude/ai-team-config.yml</code> の <code>workspace.strategy</code> に保存されます。</p>
+
+<pre><code class="language-yaml">workspace:
+  strategy: branch          # または worktree
+  worktree_dir: .claude/worktrees</code></pre>
+
+<p>いずれを選んでも後から変更できます。</p>
+
+<ul><li><strong>既定を変える</strong>: <code>/ai-team-setup</code> を再実行する</li><li><strong>このチケットだけ変える</strong>: チケットに <code>workspace:worktree</code> または <code>workspace:branch</code> ラベルを貼る（ラベルが設定より優先されます）</li></ul>
+<p>ワークツリーを選んだ場合、setup は <code>.gitignore</code> に <code>.claude/worktrees/</code> を追記します（冪等）。ブランチ既定のままチケット単位でワークツリーに切り替えたときは、Implementer が同じ追記を行います。</p>
+
+<p>どちらの方式で作業したかは、Implementer が完了報告に <code>作業方式:</code> と <code>作業ディレクトリ:</code> として必ず記録するため、後から追えます。</p>
+
+<h3>ステップ5: GitHub ラベルの作成</h3>
+
+<p>選択したチームに対応するラベルを <code>gh label create</code> で一括作成するかどうか確認します。既存ラベルは <code>--force</code> オプションで上書き更新されます。</p>
+
+<hr>
+
+<h2>セットアップ後のファイル構成</h2>
+
+<code>/ai-team-setup</code> を完了すると、以下が生成されます（バックエンド + hooks 選択の例）。
+
+<pre><code class="language-">.claude/
+├── CLAUDE.md                       # タスク受付ルールを含む AIチーム設定
+├── ai-team-config.yml              # 運用モード・バージョン管理・作業空間の方式・model/effort 設定
+├── escalation-rules.yml            # エスカレーション条件
+├── model-profiles.yml              # モデル・effort プロファイルの説明（人間可読）
+├── agents/
+│   ├── contributor.md
+│   ├── dispatcher.md
+│   └── human-escalator.md
+├── teams/
+│   └── backend/
+│       ├── workflow.yml
+│       ├── review-config.yml
+│       ├── agents/
+│       └── dod/
+├── dod/
+│   ├── README.md
+│   └── incident.md
+├── incidents/
+│   ├── README.md
+│   ├── TEMPLATE.md
+│   └── index.yml
+├── docs/
+│   └── workflow-guide.md
+├── hooks/                          # hooks 選択時のみ
+│   └── ensure-issue.sh
+└── commands/                       # postinstall で展開済み（変更不要）
+    ├── ai-team-setup.md
+    ├── ai-team-run.md
+    └── ...</code></pre>
+
+<hr>
+
+<h2>再セットアップ・設定変更</h2>
+
+<p>セットアップ後に設定を変更したい場合は、再度 <code>/ai-team-setup</code> を実行できます。  </p>
+<code>.claude/teams/</code> 配下のカスタマイズ済みファイルは <code># customized: true</code> コメントがある場合は上書きされません。
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
