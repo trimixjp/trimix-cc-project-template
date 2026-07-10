@@ -77,7 +77,8 @@ Implementer の作業空間を **ブランチ**（いまのフォルダで履歴
   - **`upgrade` コマンド**: `npx @trimix/ai-team upgrade [team_id]` で `.claude/` 配下のテンプレートを更新。既定は「差分提示 → 確認 → バックアップ → 適用」。`--dry`（差分提示のみ）・`--force`（カスタマイズ済みも上書き）・`--yes`（非対話環境で確認省略）のオプションを持ちます。更新対象は各チームの `plugin.json` の `install` マップから導出し、`.github/ISSUE_TEMPLATE/` など `.claude/` 外は対象外として明示します
   - **アップグレード前の自動バックアップ**: 上書き前に対象ファイルを `.ai-team-backups/<日時>/` へ相対パスを保って退避し、SHA-256 で検証します。バックアップが失敗したらアップグレードを実行しません（fail-closed）。復元は `cp -R .ai-team-backups/<日時>/.claude ./` の 1 行。自動削除はされません
   - **カスタマイズ上書き保護のデータ損失バグ修正**: `# customized: true` の保護が `agents/*` や `dod/*` のワイルドカード展開に効かず、`--force` なしで上書きされていた問題を修正しました
-  - **既知の制限**: マーカーの無い手編集ファイルは上書きされる（バックアップには退避。[Issue #85](https://github.com/takufukagawa/trimix-cc-project-template/issues/85) で対応予定）、保護されたファイルへ最新テンプレートを取り込む組み込み手段が無い（[Issue #86](https://github.com/takufukagawa/trimix-cc-project-template/issues/86) で対応予定）等をマニュアルに明記しています
+  - **手編集ファイルの保護をハッシュ照合へ移行**（[Issue #85](https://github.com/takufukagawa/trimix-cc-project-template/issues/85)）: マーカー不要で、baseline（`.claude/.template-baseline.json`）と現物のハッシュ照合により手編集ファイルを自動保護します。正規化は CRLF と末尾改行のみで空白は削りません。`upgrade` はモデルプロファイル（`model` / `effort`）を維持し、`baseline record` / `baseline show` を追加しました
+  - **保護されたファイルへ最新テンプレートを取り込む手段**（[Issue #86](https://github.com/takufukagawa/trimix-cc-project-template/issues/86)）: 保護ファイルの隣に最新テンプレートを `<ファイル名>.new` として書き出し、`--diff` で差分を確認できます
   - **その他**: スキル配布リストの動的走査化・sns / youtube のミラーパッケージ追加・バージョン更新通知
   - 詳細は [v0.24.0 の変更点](changelog.html) と [アップグレード](guide/upgrade.html) を参照
 

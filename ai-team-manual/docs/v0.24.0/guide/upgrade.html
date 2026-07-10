@@ -78,7 +78,7 @@ npx @trimix/ai-team upgrade --yes</code></pre>
 
 <code>upgrade</code> は次の順序で処理します。この順序は安全のために固定されており、崩れることはありません。
 
-<ol><li><strong>更新対象の列挙</strong> — 共通設定と、対象チームの <code>plugin.json</code> の <code>install</code> マップから対象ファイルを導き出します</li><li><strong>残置 <code>.new</code> の警告</strong> — 前回書き出した <code>.new</code> が残っていれば冒頭で告知します（削除はしません。後述）</li><li><strong>差分の提示</strong> — 各ファイルを「新規作成 / 上書き更新 / 保護のためスキップ / 変更なし」に分類して表示します（<code>--diff</code> 指定時は変更の中身も表示）</li><li><code>--dry</code> ならここで終了（何も書き込みません）</li><li>適用する差分が無ければ「すべて最新です」で終了</li><li><strong>ユーザーへの確認</strong>（<code>--yes</code> 指定時は省略）</li><li><strong>バックアップの作成</strong>（次章。失敗したら適用せず中止）</li><li><strong>適用</strong> — 差分のあるファイルを書き込みます。保護対象は本体を維持し、最新テンプレートを <code>&lt;ファイル名&gt;.new</code> として書き出します</li><li><strong>結果表示</strong> — 更新件数・保護スキップ件数・変更なし件数を表示します</li></ol>
+<ol><li><strong>更新対象の列挙</strong> — 共通設定と、対象チームの <code>plugin.json</code> の <code>install</code> マップから対象ファイルを導き出します</li><li><strong>残置 <code>.new</code> の警告</strong> — 前回書き出した <code>.new</code> が残っていれば冒頭で告知します（削除はしません。後述）</li><li><strong>差分の提示</strong> — 各ファイルを「新規作成 / 上書き更新 / 保護のためスキップ / 変更なし」に分類して表示します（<code>--diff</code> 指定時は変更の中身も表示）</li><li><code>--dry</code> ならここで終了（何も書き込みません）</li><li>適用する差分が無ければ「すべて最新です」で終了</li><li><strong>ユーザーへの確認</strong>（<code>--yes</code> 指定時は省略）</li><li><strong>バックアップの作成</strong>（次章。失敗したら適用せず中止）</li><li><strong>適用</strong> — 差分のあるファイルを書き込みます。保護対象は本体を維持し、最新テンプレートを <code>&lt;ファイル名&gt;.new</code> として書き出します</li><li><strong>モデルプロファイルの再適用</strong> — 今回書き込んだエージェント／スキルの <code>model</code> / <code>effort</code> を、<code>ai-team-config.yml</code> の選択済みプロファイルへ復元します（後述）</li><li><strong>baseline の更新</strong> — 実際に書き込んだファイルのハッシュを baseline に記録します（次回の自動判定に使う）</li><li><strong>結果表示</strong> — 更新件数・保護スキップ件数・変更なし件数・プロファイル再適用件数を表示します</li></ol>
 <hr>
 
 <h2>アップグレード前の自動バックアップ</h2>
@@ -87,7 +87,7 @@ npx @trimix/ai-team upgrade --yes</code></pre>
 
 <h3>なぜバックアップするのか</h3>
 
-<p>後述の <code># customized: true</code> による上書き保護は、マーカーが付いているファイルしか守れません。旧バージョンで生成されたファイルや、あなたが手で書き換えたファイル（マーカーの付かないもの）は保護対象になりません。バックアップは、その隙間を埋める<strong>最後の防衛線</strong>として機能します。実行前に次の説明が表示されます。</p>
+<p>後述のハッシュ照合による上書き保護は、baseline に記録があるファイルを自動的に守ります。しかし baseline がまだ確立していない状況（既存導入先へ初めて本バージョンを入れた直後など）や、<code>--force</code> で意図的に上書きする場合もあります。バックアップは、そうした隙間を埋める<strong>最後の防衛線</strong>として、保護判定の結果に関わらず常に機能します。実行前に次の説明が表示されます。</p>
 
 <pre><code class="language-">🛟 アップグレード前に、上書き対象の既存ファイルをバックアップします
    理由: カスタマイズしたエージェント定義やワークフローが上書きで失われる事故を防ぐためです。
@@ -140,48 +140,71 @@ npx @trimix/ai-team upgrade --yes</code></pre>
 
 <hr>
 
-<h2>カスタマイズ済みファイルの上書き保護</h2>
+<h2>手編集ファイルの上書き保護（ハッシュ照合）</h2>
 
-<p>先頭に <strong><code># customized: true</code></strong> コメントを持つファイルは、<code>upgrade</code>（および <code>/ai-team-setup</code> の再実行・<code>/ai-team-install</code>）で<strong>保護され、上書きされません</strong>。差分提示では「保護のためスキップ」に分類され、次のように表示されます。</p>
+<p><strong>v0.24.0 では、あなたが手で編集したファイルを <code>upgrade</code> が自動的に保護します。</strong> マーカー（<code># customized: true</code>）を付ける必要はありません。判定は <strong>ハッシュ照合（dpkg の conffile と同じ考え方）</strong> で行います。</p>
+
+<code>install</code> / <code>/ai-team-setup</code> / <code>upgrade</code> など、テンプレートをプロジェクトへ配置するすべての経路は、配置した各ファイルの SHA-256 を <strong>baseline（<code>.claude/.template-baseline.json</code>）</strong> に記録します。<code>upgrade</code> は、この baseline と現物のハッシュを突き合わせて三方比較します。
+
+<table><thead><tr><th>現物の状態</th><th>判定</th><th>動作</th></tr></thead><tbody><tr><td>新テンプレートと同一</td><td>変更なし</td><td>スキップ</td></tr><tr><td><strong>baseline と一致</strong>（前回このツールが書いた内容のまま）</td><td>ユーザー未編集</td><td>安全に更新し、baseline を更新</td></tr><tr><td><strong>baseline と不一致</strong></td><td>ユーザーが編集した</td><td>🛡️ 保護し <code>&lt;ファイル名&gt;.new</code> を書き出す</td></tr><tr><td><strong>baseline に記録が無い</strong></td><td>判定不能</td><td>🛡️ 安全側で保護（<code>baseline record</code> を案内）</td></tr><tr><td>ヘッダ5行に <code># customized: true</code></td><td>—</td><td>🛡️ ハッシュに関わらず保護（後方互換）</td></tr></tbody></table>
+<p>これにより、<strong>製品が手編集を勧めているファイル</strong>（セットアップ後に <code>model</code> / <code>effort</code> を直接書き換える <code>.claude/teams/&lt;team&gt;/agents/*.md</code> や <code>.claude/commands/*.md</code> など）も、マーカーを付けずに保護されます。保護されたファイルは、あなたの版を上書きしない代わりに、<strong>最新テンプレートを隣に <code>&lt;ファイル名&gt;.new</code> として書き出します</strong>（後述の「保護されたファイルへ最新の変更を取り込む」を参照）。</p>
+
+<p>差分提示では「保護のためスキップ」に分類され、次のように表示されます。</p>
 
 <pre><code class="language-">  🛡️  保護のためスキップ（--force で上書き可能）:
      - .claude/teams/backend/workflow.yml</code></pre>
 
-<p>保護されたファイルについては、あなたの版を上書きしない代わりに、<strong>最新テンプレートを隣に <code>&lt;ファイル名&gt;.new</code> として書き出します</strong>（後述の「保護されたファイルへ最新の変更を取り込む」を参照）。本体はそのまま維持されます。</p>
+<p>保護されたファイルを最新テンプレートへ揃えたい場合は、<strong><code>--force</code> を付けて再実行</strong>します。<code>--force</code> を指定したときだけ、編集済み・カスタマイズ済みファイルも上書き対象になります（シンボリックリンク・ハードリンクの保護は <code>--force</code> でも無効化されません）。</p>
 
-<p>このマーカーが付いたファイルを最新テンプレートへ揃えたい場合は、<strong><code>--force</code> を付けて再実行</strong>します。<code>--force</code> を指定したときだけ、カスタマイズ済みファイルも上書き対象になります。</p>
+<h3>ハッシュの正規化（CRLF と末尾改行のみ・空白は削らない）</h3>
 
-<p>> <strong>v0.24.0 での修正（データ損失バグ）</strong>: 以前は、この上書き保護が単一ファイル（<code>workflow.yml</code> / <code>review-config.yml</code>）にしか効いておらず、<strong>ワイルドカードで展開されるファイル（<code>agents/*</code> や <code>dod/*</code>）は <code>--force</code> を付けなくても黙って上書きされていました</strong>。v0.24.0 で保護判定を両方の経路に統一し、<code>agents/</code> や <code>dod/</code> のカスタマイズ済みファイルも <code>--force</code> を付けたときだけ上書きされるように修正しました。</p>
+<p>ハッシュを取る前に <strong>次の2つだけ</strong> を正規化します。<strong>それ以上は正規化しません。</strong></p>
 
-<h3>⚠️ 重要な注意点: マーカーの無い手編集ファイルは上書きされる</h3>
+<ol><li>改行コードを LF に統一する（CRLF → LF）</li><li>ファイル末尾の改行の有無を揃える</li></ol>
+<p><strong>行頭・行末・行中の空白は削りません。</strong> 空白を削ると、YAML のインデントや Markdown のコードブロックの意味が変わり、<strong>本物の編集を見逃して上書きしてしまう</strong>からです。誤判定するなら「編集していないのに保護する」側へ倒します。</p>
 
-<p>上書き保護は <strong><code># customized: true</code> マーカーの有無だけ</strong>で判定します。このマーカーは、<code>/ai-team-configure</code> が生成する <code>workflow.yml</code> には自動的に付きますが、それ以外のファイルには付きません。</p>
+<ul><li>改行コードだけを CRLF → LF に変えたファイル、末尾改行を足した／消しただけのファイルは、<strong>編集していない扱いで更新</strong>されます（Windows と macOS/Linux の間でチェックアウトしても誤って保護されません）。</li><li>一方、行頭にインデントを1つ足すなど<strong>空白を変えた編集は「編集済み」として保護</strong>されます。</li></ul>
+<h3>baseline が無い場合と <code>baseline record</code></h3>
 
-<p>したがって、<strong>マーカーの付いていない手編集ファイルは <code>upgrade</code> で上書きされます</strong>。たとえば、セットアップ後に <code>.claude/teams/&lt;team&gt;/agents/*.md</code> や <code>.claude/commands/*.md</code> の <code>model</code> / <code>effort</code> を直接書き換えた場合、それらのファイルにはマーカーが付かないため、次の <code>upgrade</code> で最新テンプレートに置き換えられます。</p>
+<code>upgrade</code> は、baseline に記録が無いファイルを「編集したのか、単に未記録なのか区別できない」ため、<strong>安全側に倒して保護</strong>します（黙って上書きはしません）。このとき、次のように案内します。
 
-<table><thead><tr><th>ファイル</th><th><code># customized: true</code></th><th><code>upgrade</code> の挙動</th></tr></thead><tbody><tr><td><code>teams/backend/workflow.yml</code>（<code>/ai-team-configure</code> 生成）</td><td>あり</td><td>🛡️ 保護されスキップ</td></tr><tr><td><code>teams/backend/agents/tech-lead.md</code>（<code>model</code> を手編集）</td><td>なし</td><td>✏️ 上書きされる（<strong>バックアップには退避される</strong>）</td></tr></tbody></table>
-<p>ただし、完全に黙って消えるわけではありません。上書き対象として一覧表示され、確認を求められ、<strong>適用前に必ずバックアップへ退避されます</strong>。上書きされてしまった場合は、前章の復元手順（<code>cp -R .ai-team-backups/&lt;日時&gt;/.claude ./</code>）で元に戻せます。</p>
+<pre><code class="language-">  ℹ️  baseline に記録が無いため安全側で保護したファイルが N 件あります:
+     - .claude/teams/backend/workflow.yml
+   これらを自動判定の対象にするには、編集していないことを確認のうえ
+   `npx @trimix/ai-team baseline record` を実行すると、現在の配置内容を基準として記録できます。</code></pre>
 
-<p>> <strong>この制限は <a href="https://github.com/takufukagawa/trimix-cc-project-template/issues/85">Issue #85</a> で対応予定です。</strong> マーカー方式をハッシュ照合（dpkg の conffile と同じ考え方）へ移行し、マーカーの無い手編集ファイルも「前回配置したテンプレートと異なるかどうか」で自動的に保護する方針が検討されています。それまでは、手編集したファイルに自分で <code># customized: true</code> を付けておくと、<code>upgrade</code> で保護されます（次項の書き方に従ってください）。</p>
+<code>baseline record</code> は、<strong>現在の配置内容を baseline として記録</strong>します。<code>/ai-team-setup</code> の末尾でも自動的に実行されるため、通常は明示的に叩く必要はありません。
 
-<h4><code># customized: true</code> の正しい付け方（ファイル種別に注意）</h4>
+<pre><code class="language-bash"># 現在の配置内容を baseline として記録
+npx @trimix/ai-team baseline record
 
-<p>保護判定は、ファイル<strong>先頭のヘッダ領域（先頭 5 行）</strong>に <code># customized: true</code> という文字列があるかどうかだけを見ます。ファイル全体を検索するわけではありません。したがって、<strong>マーカーは必ずファイル先頭のヘッダ領域に置いてください。</strong></p>
+# 記録内容を確認
+npx @trimix/ai-team baseline show</code></pre>
 
-<p><strong>本文中でマーカー文字列に言及しても保護対象にはなりません。</strong> これは、マーカーの付け方を本文で解説しているファイル（<code>/ai-team-configure</code> や <code>/ai-team-install</code> のスキルなど、本文にマーカー文字列を含むだけのファイル）を「カスタマイズ済み」と誤検出しないための仕様です。以前はファイル全体を検索していたため、こうしたファイルが誤って保護され、未編集でも <code>upgrade</code> で更新されなくなる問題がありました。</p>
+<p>> <strong><code>baseline record</code> は、既に baseline がある場合は <code>--force</code> なしで実行を拒否します。</strong> これは、ユーザーが編集した後の状態を誤って baseline にしてしまい、保護が静かに外れる事故を防ぐためです。<code>baseline record</code> は「まだ何も編集していない」ことが分かっているセットアップ直後にだけ安全に実行できます。以降の baseline の更新は、<code>upgrade</code> が適用後に自動で行います（意図して再確立する場合のみ <code>--force</code>）。</p>
 
-<p>ファイル種別によってマーカーの置き場所が変わります。</p>
+<h3>モデルプロファイル（<code>model</code> / <code>effort</code>）は upgrade をまたいで維持されます</h3>
 
-<p><strong>frontmatter（先頭が <code>---</code> で始まる YAML ヘッダ）を持つファイルでは、<code>---</code> より前にマーカーを置いてはいけません。</strong> <code>agents/*.md</code> は 1 行目が <code>---</code> の frontmatter です。その前に <code># customized: true</code> を置くと 1 行目が <code>---</code> でなくなり、<strong>frontmatter が壊れてエージェント定義として読み込めなくなります</strong>。frontmatter を持つファイルでは、<code>---</code> の<strong>直後の行</strong>（2 行目）に YAML コメントとして置きます。この位置はヘッダ領域（先頭 5 行）に収まるため検出されます。</p>
+<code>upgrade</code> はテンプレートを適用すると frontmatter の <code>model</code> / <code>effort</code> をテンプレート既定（<code>balance</code> / <code>normal</code>）へ戻してしまいます。そこで <strong><code>upgrade</code> は、テンプレート適用後に、あなたが <code>/ai-team-setup</code> で選んだモデルプロファイルを再適用します</strong>。<code>.claude/ai-team-config.yml</code> の <code>runtime</code> / <code>model_performance</code> / <code>effort_depth</code> を読み、<strong>今回書き込んだ</strong>エージェント／スキルの <code>model</code> / <code>effort</code> を選択済みのプロファイルへ復元します。
 
-<ul><li><strong><code>agents/*.md</code> など frontmatter を持つ Markdown</strong>: 開始の <code>---</code> の<strong>直後の行</strong>に置く</li></ul>
+<p>つまり「テンプレートの本文（ロジック）は最新へ更新され、あなたが選んだモデル選択は維持される」という動作になります。手で個別に <code>model</code> を変えたファイルは前項のハッシュ照合で保護されるため、再適用の対象にもなりません（編集済みファイルには触れません）。</p>
+
+<p>> <strong>v0.24.0 での修正（データ損失バグ）</strong>: 以前は、上書き保護が単一ファイル（<code>workflow.yml</code> / <code>review-config.yml</code>）にしか効いておらず、<strong>ワイルドカードで展開されるファイル（<code>agents/*</code> や <code>dod/*</code>）は <code>--force</code> を付けなくても黙って上書きされていました</strong>。v0.24.0 で保護判定を両方の経路に統一しました。</p>
+
+<h3><code># customized: true</code> マーカー（後方互換）</h3>
+
+<p>ハッシュ照合に加えて、ファイル<strong>先頭のヘッダ領域（先頭 5 行）</strong>に <code># customized: true</code> という文字列があるファイルは、<strong>ハッシュに関わらず保護</strong>されます。これは「このファイルは今後も自分で管理する」という宣言として機能する後方互換シグナルです（既にマーカーを付けて運用しているユーザーの意図を無視しないため）。</p>
+
+<p><strong>本文中でマーカー文字列に言及しても保護対象にはなりません。</strong> マーカーの付け方を本文で解説しているファイル（<code>/ai-team-configure</code> や <code>/ai-team-install</code> のスキルなど）を「カスタマイズ済み」と誤検出しないための仕様です（検出はヘッダ領域に限定）。</p>
+
+<p>ファイル種別によってマーカーの置き場所が変わります。<strong>frontmatter（先頭が <code>---</code>）を持つ <code>agents/*.md</code> では、<code>---</code> の直後の行</strong>に置きます（<code>---</code> より前に置くと frontmatter が壊れます）。<code>workflow.yml</code> など frontmatter を持たない YAML では先頭行に置いてよいです。</p>
+
 <pre><code class="language-markdown">---
 # customized: true
 name: tech-lead
 model: opus
 ---</code></pre>
 
-<ul><li><strong><code>workflow.yml</code> など frontmatter を持たない YAML ファイル</strong>: 先頭行に置いてよい</li></ul>
 <pre><code class="language-yaml"># customized: true
 name: backend-workflow</code></pre>
 

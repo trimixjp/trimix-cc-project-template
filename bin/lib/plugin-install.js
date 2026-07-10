@@ -16,6 +16,7 @@ import {
   loadRegistry, findPlugin, loadInstalledPlugins,
   saveInstalledPlugins, findInstalledByTeamId, findInstalledByLabelPrefix
 } from './registry.js';
+import { recordFiles } from './baseline.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '../..');
@@ -203,6 +204,9 @@ export async function installPlugin(idOrTeamId, { cwd, force = false }) {
   // 7. ファイルをコピー展開
   console.log('\n  ファイルを展開中...');
   const installedFiles = [];
+  // baseline に記録するのは「実際に配置した（copyFileSync した）」ファイルのみ。
+  // カスタマイズ済みでスキップしたユーザー編集物は記録しない（#85・経路3）。
+  const placedFiles = [];
   let skippedCustomized = 0;
   for (const [srcPattern, destDir] of Object.entries(plugin.install ?? {})) {
     const parts = srcPattern.split('*');
@@ -225,6 +229,7 @@ export async function installPlugin(idOrTeamId, { cwd, force = false }) {
       }
       copyFileSync(srcFile, destPath);
       installedFiles.push(destRelPath);
+      placedFiles.push(destRelPath);
       console.log(`  ✅ ${destRelPath}`);
     } else {
       // ワイルドカード: パターンの * 前部分をディレクトリとして扱う
@@ -235,11 +240,21 @@ export async function installPlugin(idOrTeamId, { cwd, force = false }) {
       }
       const destFull = join(cwd, destDir);
       mkdirSync(destFull, { recursive: true });
-      const { files: copied, skipped } = copyDirAndTrack(srcDirPath, destFull, destDir, force);
-      installedFiles.push(...copied);
+      const { files: tracked, skipped, copied } = copyDirAndTrack(srcDirPath, destFull, destDir, force);
+      installedFiles.push(...tracked);
+      placedFiles.push(...copied);
       skippedCustomized += skipped;
-      console.log(`  ✅ ${destDir} (${copied.length} ファイル)`);
+      console.log(`  ✅ ${destDir} (${tracked.length} ファイル)`);
     }
+  }
+
+  // 配置したファイル（.claude/ 配下のみ）を baseline へ記録する（#85・経路3）。
+  // .claude/ の外のリポジトリ設定（.github 等）は upgrade の対象外なので記録しない。
+  const claudePlaced = placedFiles.filter((rel) => rel.split(/[\\/]+/)[0] === '.claude');
+  if (claudePlaced.length > 0) {
+    try {
+      recordFiles(cwd, claudePlaced);
+    } catch { /* baseline 記録の失敗はインストールの成否に影響させない */ }
   }
 
   // 8. GitHub ラベルの自動作成
@@ -291,10 +306,15 @@ export async function installPlugin(idOrTeamId, { cwd, force = false }) {
  * ディレクトリを再帰コピーし、コピーしたファイルパス一覧とスキップ件数を返す。
  * force === false かつ退避先がカスタマイズ済み（# customized: true）の場合はコピーをスキップし、
  * 単一ファイル分岐と同一形式のスキップログを出力する。
- * @returns {{ files: string[], skipped: number }}
+ *
+ * `copied` は「実際に copyFileSync で書き込んだ」相対パスのみ（スキップした
+ * カスタマイズ済みファイルは含まない）。baseline へ記録するのは自分が配置した内容だけであり、
+ * ユーザーの編集物（スキップ対象）を基準に取り込まないため（#85）。
+ * @returns {{ files: string[], skipped: number, copied: string[] }}
  */
 export function copyDirAndTrack(src, dest, destPrefix, force = false) {
   const files = [];
+  const copied = [];
   let skipped = 0;
   for (const entry of readdirSync(src)) {
     const srcPath = join(src, entry);
@@ -304,6 +324,7 @@ export function copyDirAndTrack(src, dest, destPrefix, force = false) {
       mkdirSync(destPath, { recursive: true });
       const sub = copyDirAndTrack(srcPath, destPath, relPath, force);
       files.push(...sub.files);
+      copied.push(...sub.copied);
       skipped += sub.skipped;
     } else {
       // カスタマイズ済みファイルの上書き保護（単一ファイル分岐と同じ判定を共通利用）
@@ -315,7 +336,8 @@ export function copyDirAndTrack(src, dest, destPrefix, force = false) {
       }
       copyFileSync(srcPath, destPath);
       files.push(relPath);
+      copied.push(relPath);
     }
   }
-  return { files, skipped };
+  return { files, skipped, copied };
 }

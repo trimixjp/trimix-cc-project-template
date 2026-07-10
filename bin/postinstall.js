@@ -9,6 +9,7 @@ import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { SKILL_FILES } from './lib/skill-files.js';
 import { checkPluginUpdates, printUpdateNotice } from './lib/version-check.js';
+import { recordFiles } from './lib/baseline.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '..');
@@ -44,12 +45,20 @@ try {
   mkdirSync(skillsDest, { recursive: true });
 
   let count = 0;
+  const placedRels = [];
   for (const file of SKILL_FILES) {
     const src = join(skillsSource, file);
     if (!existsSync(src)) continue;
     copyFileSync(src, join(skillsDest, file));
+    placedRels.push(join('.claude', 'commands', file));
     count++;
   }
+
+  // 配置したスキルを baseline（upgrade の保護判定基準）へ記録する（#85・経路1）。
+  // 付随的機能のため、失敗しても postinstall 全体は成功扱いとする。
+  try {
+    recordFiles(projectRoot, placedRels);
+  } catch { /* baseline 記録の失敗は展開の成否に影響させない */ }
 
   console.log(`\n✅ @trimix/ai-team: ${count} 件のSkillファイルを .claude/commands/ に展開しました`);
   console.log('   Claude Code で /ai-team-setup を実行してセットアップを完了してください\n');

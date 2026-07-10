@@ -8,8 +8,9 @@
  */
 
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, copyFileSync, statSync } from 'fs';
-import { join, relative, resolve, dirname, basename } from 'path';
+import { join, relative, resolve, dirname, basename, sep } from 'path';
 import { fileURLToPath } from 'url';
+import { recordFiles } from './baseline.js';
 import {
   PERFORMANCE_PROFILES,
   EFFORT_PROFILES,
@@ -136,41 +137,71 @@ export function collectSkillFiles(root) {
 }
 
 /**
- * 1 ファイルにプロファイルを適用
- * @param {string} filePath
- * @param {{ performanceId: string, effortId: string, kind: 'agent' | 'skill', dry?: boolean }} opts
+ * 内容レベルの純粋変換（#85 差し戻し1）。テキストにモデル・effort プロファイルを適用した
+ * 結果を返す。ファイル I/O を伴わないため、upgrade が「実効テンプレート」＝テンプレートに
+ * プロジェクトのプロファイルを適用したら実際にこうなる内容を算出するのにも使える。
+ *
+ * applyToFile はこの関数を呼ぶ（同じ変換ロジックを二重に持たない）。生テンプレートと現物を
+ * 比較すると非既定プロファイルで永久に不一致になり upgrade の冪等性が壊れるため、比較・書き込み
+ * の基準をこの純粋変換へ一本化する。
+ *
+ * role は frontmatter の name（無ければ opts.name）から解決する。ファイル名からのフォールバックが
+ * 必要な呼び出し側は opts.name で明示的に渡す（applyToFile がそうする）。name も frontmatter も
+ * 無い / プレースホルダの場合は _agent-template（worker 既定）として扱う。
+ *
+ * @param {string} text 元テキスト
+ * @param {{ performanceId: string, effortId: string, runtimeId?: string,
+ *          kind: 'agent' | 'skill', name?: string | null }} opts
+ * @returns {{ content: string, changed: boolean, name: string, role: ModelRole,
+ *            model: string, effort: string }}
  */
-export function applyToFile(filePath, { performanceId, effortId, kind, runtimeId = DEFAULT_RUNTIME, dry = false }) {
-  const original = readFileSync(filePath, 'utf-8');
-  let name = extractFrontmatterName(original);
-
-  // テンプレートプレースホルダ
-  if (!name || name.includes('{{')) {
-    // ファイル名から推定
-    const base = filePath.split(/[/\\]/).pop().replace(/\.md$/, '');
-    name = base.startsWith('_') ? base : base;
+export function applyProfileToContent(
+  text,
+  { performanceId, effortId, runtimeId = DEFAULT_RUNTIME, kind, name = null }
+) {
+  // name 解決: 呼び出し側指定 > frontmatter の name。無い / プレースホルダなら _agent-template。
+  let resolvedName = name ?? extractFrontmatterName(text);
+  if (!resolvedName || resolvedName.includes('{{') || resolvedName === '{{agent_id}}') {
+    resolvedName = '_agent-template';
   }
 
-  // _agent-template は role を worker 既定で埋め、create 時に差し替え可能
-  if (name === '_agent-template' || name === '{{agent_id}}') {
-    name = '_agent-template';
-  }
-
-  const role = name === '_agent-template' ? 'worker' : resolveRole(name, kind);
+  const role = resolvedName === '_agent-template' ? 'worker' : resolveRole(resolvedName, kind);
   const model = resolveModel(performanceId, role, runtimeId);
   const effort = resolveEffort(effortId, runtimeId);
 
-  const { content, changed } = upsertModelEffortFrontmatter(original, {
+  const { content, changed } = upsertModelEffortFrontmatter(text, {
     model,
     effort,
     modelRole: role,
   });
 
-  if (changed && !dry) {
-    writeFileSync(filePath, content, 'utf-8');
+  return { content, changed, name: resolvedName, role, model, effort };
+}
+
+/**
+ * 1 ファイルにプロファイルを適用する（内容変換は applyProfileToContent に委譲する）。
+ * name は frontmatter から取り、プレースホルダ / 無名ならファイル名から推定して渡す。
+ *
+ * @param {string} filePath
+ * @param {{ performanceId: string, effortId: string, kind: 'agent' | 'skill',
+ *          runtimeId?: string, dry?: boolean }} opts
+ */
+export function applyToFile(filePath, { performanceId, effortId, kind, runtimeId = DEFAULT_RUNTIME, dry = false }) {
+  const original = readFileSync(filePath, 'utf-8');
+  let name = extractFrontmatterName(original);
+
+  // テンプレートプレースホルダ / 無名はファイル名から推定して applyProfileToContent へ渡す
+  if (!name || name.includes('{{')) {
+    name = filePath.split(/[/\\]/).pop().replace(/\.md$/, '');
   }
 
-  return { filePath, name, role, model, effort, runtimeId, changed };
+  const res = applyProfileToContent(original, { performanceId, effortId, runtimeId, kind, name });
+
+  if (res.changed && !dry) {
+    writeFileSync(filePath, res.content, 'utf-8');
+  }
+
+  return { filePath, name: res.name, role: res.role, model: res.model, effort: res.effort, runtimeId, changed: res.changed };
 }
 
 /**
@@ -233,6 +264,33 @@ export function mirrorAgentsToGrok(projectRoot, opts = {}) {
 }
 
 /**
+ * frontmatter を書き換えた結果のうち、`.claude/` 配下のファイルを baseline へ記録する（#85・経路4）。
+ *
+ * プロジェクトルート（`.claude` の親）単位でまとめて記録する。`--dir templates` のようにテンプレート
+ * へ適用した場合は `.claude/` パスが現れないため、何も記録しない（開発リポジトリの誤記録を防ぐ）。
+ *
+ * @param {{ filePath: string, changed: boolean }[]} results applyToFile の戻り値の配列
+ */
+function recordChangedToBaseline(results) {
+  const byProject = new Map(); // projectRoot(絶対) -> string[]（cwd 相対・POSIX）
+  for (const r of results) {
+    if (!r.changed) continue;
+    const norm = r.filePath.split(sep).join('/');
+    const idx = norm.indexOf('/.claude/');
+    if (idx === -1) continue; // .claude 配下でない（templates/ 等）は記録しない
+    const projectRoot = r.filePath.slice(0, idx); // '/.claude/' の直前まで（絶対パス）
+    const rel = norm.slice(idx + 1);              // '.claude/...' 部分
+    if (!byProject.has(projectRoot)) byProject.set(projectRoot, []);
+    byProject.get(projectRoot).push(rel);
+  }
+  for (const [projectRoot, rels] of byProject) {
+    try {
+      recordFiles(projectRoot, rels);
+    } catch { /* baseline 記録の失敗はプロファイル適用の成否に影響させない */ }
+  }
+}
+
+/**
  * @param {{
  *   performanceId?: string,
  *   effortId?: string,
@@ -274,6 +332,14 @@ export function applyModelProfile(options) {
     for (const file of collectSkillFiles(root)) {
       results.push(applyToFile(file, { performanceId, effortId, runtimeId, kind: 'skill', dry }));
     }
+  }
+
+  // frontmatter を書き換えたファイルのうち .claude/ 配下のものは、その内容を baseline へ記録する
+  // （#85・経路4）。これをしないと、プロファイル適用直後から全ファイルが「編集済み」に見え、
+  // 次回 upgrade で保護されて更新されなくなる。テンプレート（templates/ 配下）への適用や --dry では
+  // .claude パスが現れないため記録は起きない。
+  if (!dry) {
+    recordChangedToBaseline(results);
   }
 
   let mirror = null;

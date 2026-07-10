@@ -14,7 +14,7 @@
  */
 
 import {
-  existsSync, statSync, readdirSync, readFileSync, mkdirSync, copyFileSync
+  existsSync, statSync, readdirSync, readFileSync, writeFileSync, mkdirSync
 } from 'fs';
 import { resolve, join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -28,9 +28,22 @@ import {
 } from './backup.js';
 import { checkPluginUpdates, printUpdateNotice } from './version-check.js';
 import { firstSymlinkInPath, hardlinkNlink, irregularFileType, fileTypeLabel } from './link-safety.js';
+import {
+  loadBaseline, recordFiles, matchesBaseline, pruneMissing, BASELINE_REL
+} from './baseline.js';
+import { applyProfileToContent } from './apply-model-profile.js';
+import {
+  DEFAULT_RUNTIME, DEFAULT_PERFORMANCE_PROFILE, DEFAULT_EFFORT_PROFILE, normalizeRuntime,
+  PERFORMANCE_PROFILES, EFFORT_PROFILES
+} from './model-profiles.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '../..');
+
+/** OS 依存セパレータのパスを POSIX（/）へ正規化する（baseline キー・分類判定で使う） */
+function toPosixPath(p) {
+  return p.split(/[\\/]+/).filter(Boolean).join('/');
+}
 
 /**
  * 書き込み先 rel（cwd 相対）へ安全に書き込めるかを検査する（R-1）。
@@ -121,6 +134,149 @@ function formatSkip(s) {
 function readPackageVersion() {
   const pkg = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf-8'));
   return pkg.version;
+}
+
+/**
+ * `.claude/ai-team-config.yml` から、setup 時に選択されたモデルプロファイルを読む。
+ * upgrade はテンプレート適用後にこのプロファイルを再適用し、ユーザーのモデル選択が
+ * テンプレート既定（balance / normal）で黙って上書きされるのを防ぐ（Issue #85）。
+ *
+ * 依存を増やさないため、`key: value` 形式の1行だけを正規表現で拾う（値の後ろの `# コメント`
+ * は捨てる）。キーが無ければテンプレート既定にフォールバックする。
+ *
+ * @param {string} cwd
+ * @returns {{ runtime: string, performance: string, effort: string }}
+ */
+function readModelProfileConfig(cwd) {
+  const cfg = {
+    runtime: DEFAULT_RUNTIME,
+    performance: DEFAULT_PERFORMANCE_PROFILE,
+    effort: DEFAULT_EFFORT_PROFILE
+  };
+  const configPath = join(cwd, '.claude', 'ai-team-config.yml');
+  if (!existsSync(configPath)) return cfg;
+  // 通常ファイル以外（FIFO / ディレクトリ / ソケット / デバイス）は読まずに既定プロファイルへ。
+  // FIFO の readFileSync は同期ブロックでハングし、下の try/catch では捕捉できないため事前に弾く
+  // （書き込み側の inspectDest と対称の封じ込め・インシデント #4 教訓15）。
+  const irregular = irregularFileType(configPath);
+  if (irregular) {
+    console.log(`  ⚠️  .claude/ai-team-config.yml が通常ファイルではない（${fileTypeLabel(irregular.fileType)}）ため、既定のモデルプロファイルを使います。`);
+    return cfg;
+  }
+  let text;
+  try {
+    text = readFileSync(configPath, 'utf-8');
+  } catch {
+    return cfg;
+  }
+  const pick = (key) => {
+    const m = text.match(new RegExp(`^${key}:\\s*([^\\s#]+)`, 'm'));
+    return m ? m[1] : null;
+  };
+  const runtime = pick('runtime');
+  const performance = pick('model_performance');
+  const effort = pick('effort_depth');
+  if (runtime) cfg.runtime = runtime;
+  if (performance) cfg.performance = performance;
+  if (effort) cfg.effort = effort;
+  return cfg;
+}
+
+/**
+ * upgrade が使うモデルプロファイル設定を読み、妥当な ID へ正規化する（#85 差し戻し1）。
+ *
+ * readModelProfileConfig の生値（runtime / performance / effort 文字列）を検証し、不正値
+ * （設定ファイルの typo 等）は既定へフォールバックして一度だけ警告する。これにより、以降の
+ * 実効テンプレート算出（applyProfileToContent 経由）がプロファイル起因の例外で upgrade 全体を
+ * 落とすことがなくなる（resolveModel / resolveEffort は不明 ID で throw するため）。
+ *
+ * @param {string} cwd
+ * @returns {{ runtimeId: string, performanceId: string, effortId: string }}
+ */
+function resolveProfileConfig(cwd) {
+  const raw = readModelProfileConfig(cwd);
+  let runtimeId;
+  try {
+    runtimeId = normalizeRuntime(raw.runtime);
+  } catch {
+    console.log(`  ⚠️  不明な runtime "${raw.runtime}" のため既定（${DEFAULT_RUNTIME}）を使います。`);
+    runtimeId = DEFAULT_RUNTIME;
+  }
+  let performanceId = raw.performance;
+  if (!PERFORMANCE_PROFILES[performanceId]) {
+    console.log(`  ⚠️  不明な model_performance "${raw.performance}" のため既定（${DEFAULT_PERFORMANCE_PROFILE}）を使います。`);
+    performanceId = DEFAULT_PERFORMANCE_PROFILE;
+  }
+  let effortId = raw.effort;
+  if (!EFFORT_PROFILES[effortId]) {
+    console.log(`  ⚠️  不明な effort_depth "${raw.effort}" のため既定（${DEFAULT_EFFORT_PROFILE}）を使います。`);
+    effortId = DEFAULT_EFFORT_PROFILE;
+  }
+  return { runtimeId, performanceId, effortId };
+}
+
+/**
+ * dest（POSIX 相対）が model / effort frontmatter を持つプロファイル対象かを判定する。
+ * 対象は agents 配下のエージェント md と スキル（.claude/commands/*.md）のみ。
+ * それ以外（workflow.yml / escalation-rules.yml / dod など）や .md 以外は null。
+ *
+ * @param {string} destPosix
+ * @returns {'agent' | 'skill' | null}
+ */
+function profileKindForDest(destPosix) {
+  if (!destPosix.endsWith('.md')) return null;
+  if (/\/agents\//.test(destPosix)) return 'agent';
+  if (destPosix.startsWith('.claude/commands/')) return 'skill';
+  return null;
+}
+
+/**
+ * 実効テンプレート（#85 差し戻し1）を返す。テンプレート src の生内容に、プロジェクトの
+ * モデルプロファイルを適用した「実際に配置されるべき内容」を Buffer で返す。
+ *
+ * upgrade 内の内容比較・書き込み（same 判定 / .new / 本体書き込み / baseline / --diff /
+ * backup）はすべてこの実効テンプレートを唯一の基準にする。生テンプレートと現物を比べると、
+ * 非既定プロファイルでは frontmatter の model / effort が永久に食い違い、`same` に落ちず
+ * 冪等性を失う（教訓14）。
+ *
+ * プロファイル対象でない dest（profileKindForDest が null）や算出に失敗した場合は、生テンプレート
+ * をそのまま返す（恒等）。既定プロファイル（balance / normal）では全対象で恒等になる。
+ *
+ * @param {string} src テンプレートの絶対パス
+ * @param {string} destPosix cwd 相対の POSIX パス
+ * @param {{ runtimeId: string, performanceId: string, effortId: string }} profileCfg
+ * @returns {Buffer}
+ */
+function effectiveTemplate(src, destPosix, profileCfg) {
+  const raw = readFileSync(src);
+  const kind = profileKindForDest(destPosix);
+  if (!kind) return raw;
+  try {
+    const { content } = applyProfileToContent(raw.toString('utf-8'), {
+      performanceId: profileCfg.performanceId,
+      effortId: profileCfg.effortId,
+      runtimeId: profileCfg.runtimeId,
+      kind,
+    });
+    return Buffer.from(content, 'utf-8');
+  } catch (e) {
+    // resolveProfileConfig の正規化により通常ここには来ないが、万一の算出失敗でも upgrade 全体は
+    // 止めず、生テンプレートで代替する（安全側＝旧 reapply の警告のみ相当）。
+    console.log(`  ⚠️  実効テンプレートの算出に失敗したため生テンプレートを使います: ${destPosix}（${e.message}）`);
+    return raw;
+  }
+}
+
+/**
+ * 差分記述子 d に対応する「書き込むべき内容」（実効テンプレート）を返す。
+ * diffTargets が付与した d.effective（Buffer）を使う。手組みの d（テスト等）で未設定の
+ * 場合のみ生テンプレートへフォールバックする（後方互換の防御）。
+ *
+ * @param {{ src: string, effective?: Buffer }} d
+ * @returns {Buffer}
+ */
+function effectiveOf(d) {
+  return d.effective ?? readFileSync(d.src);
 }
 
 /**
@@ -277,19 +433,38 @@ export function enumerateUpgradeTargets({ teams, pluginRoot = packageRoot }) {
 }
 
 /**
- * 各 { src, dest } を差分カテゴリに分類する。
- *   'blocked'   … dest への書き込みが安全でない（R-1）。封じ込め違反（経路にシンボリック
- *                 リンク）またはハードリンク。辿らずスキップ（--force でも辿らない）。
- *                 block フィールドに skip 記述子を持つ。
- *   'new'       … dest が存在しない（新規作成される）
- *   'update'    … 内容が異なり上書きされる
- *   'protected' … dest がカスタマイズ済み（# customized: true）で --force なし → スキップ
- *   'same'      … 内容が同一（変更なし）
+ * 各 { src, dest } を差分カテゴリに分類する（三方比較・Issue #85）。
  *
- * @param {{ cwd: string, targets: {src,dest}[], force: boolean }} opts
- * @returns {{ src, dest, category, block? }[]}
+ * 判定順序（既存の blocked 判定は変えない）:
+ *   1. 'blocked'   … dest への書き込みが安全でない（R-1）。封じ込め違反（経路にシンボリック
+ *                    リンク）またはハードリンク・通常ファイル以外。辿らずスキップ（--force でも
+ *                    辿らない）。block フィールドに skip 記述子を持つ。
+ *   2. 'new'       … dest が存在しない（新規作成される）
+ *   3. 'same'      … 新テンプレートと内容が同一（変更なし）
+ *   4. 'protected'（reason='marker'） … ヘッダ5行に # customized: true。ハッシュに関わらず
+ *                    保護（後方互換の追加シグナル）。--force で解除。
+ *   5. 'update'    … baseline に記録があり、現物の正規化ハッシュと一致 → ユーザー未編集 → 更新
+ *   6. 'protected'（reason='edited'）     … baseline に記録があるが一致しない → ユーザーが編集した
+ *   7. 'protected'（reason='no-baseline'） … baseline に記録が無い → 判定不能・安全側で保護
+ *
+ * 正規化は baseline.normalizedHash に従い「CRLF→LF」「末尾改行の有無」のみ。空白は削らないため、
+ * 行頭・行末・行中の空白差は「編集」として保護側に倒れる（本物の編集を見逃さない）。
+ *
+ * 実効テンプレート（#85 差し戻し1）: `same` 判定・書き込み・.new・baseline のすべてで、生の
+ * テンプレート（src）ではなく **実効テンプレート**（src にプロジェクトのモデルプロファイルを
+ * 適用した内容）を基準にする。生テンプレートと現物を比べると、非既定プロファイルでは frontmatter
+ * の model / effort が永久に食い違い、`same` に落ちず冪等性を失うため（教訓14）。算出した実効
+ * テンプレートは各差分記述子に `effective`（Buffer）として添付し、後続の全処理で使い回す。
+ *
+ * @param {{ cwd: string, targets: {src,dest}[], force: boolean,
+ *          baseline?: {version:string|null, files:Record<string,string>},
+ *          profileCfg?: {runtimeId:string, performanceId:string, effortId:string} }} opts
+ *        baseline / profileCfg は未指定なら cwd から読む（テスト・外部呼び出しの後方互換）。
+ * @returns {{ src, dest, category, effective?: Buffer, block?, reason? }[]}
  */
-export function diffTargets({ cwd, targets, force }) {
+export function diffTargets({ cwd, targets, force, baseline, profileCfg }) {
+  const bl = baseline ?? loadBaseline(cwd);
+  const cfg = profileCfg ?? resolveProfileConfig(cwd);
   return targets.map(({ src, dest }) => {
     // dest への書き込みが安全か（経路のリンク・ハードリンク）を最初に検査する。
     // copyFileSync / mkdirSync(recursive) は経路上のリンクを辿って .claude/ の外を
@@ -298,13 +473,22 @@ export function diffTargets({ cwd, targets, force }) {
     const block = inspectDest(cwd, dest);
     if (block) return { src, dest, category: 'blocked', block };
     const destAbs = join(cwd, dest);
+    // 実効テンプレート（プロファイル適用後）を算出し、以降の全比較・書き込みの基準にする。
+    const effective = effectiveTemplate(src, toPosixPath(dest), cfg);
     // ここまで来れば経路にリンクは無く、destAbs は実体（または未作成）である。
-    if (!existsSync(destAbs)) return { src, dest, category: 'new' };
+    if (!existsSync(destAbs)) return { src, dest, category: 'new', effective };
     // Buffer 比較で内容の同一性を判定する（テンプレートは小さいため全読みで十分）
-    const same = readFileSync(src).equals(readFileSync(destAbs));
-    if (same) return { src, dest, category: 'same' };
-    if (!force && isCustomized(destAbs)) return { src, dest, category: 'protected' };
-    return { src, dest, category: 'update' };
+    const current = readFileSync(destAbs);
+    if (effective.equals(current)) return { src, dest, category: 'same', effective };
+    // マーカー（後方互換）: ヘッダ5行に # customized: true があればハッシュに関わらず保護
+    if (!force && isCustomized(destAbs)) return { src, dest, category: 'protected', reason: 'marker', effective };
+    // --force はマーカー・ハッシュ判定を無視して上書きする（従来どおり）
+    if (force) return { src, dest, category: 'update', effective };
+    // ハッシュ照合（三方比較）
+    const { recorded, matches } = matchesBaseline(bl, dest, current);
+    if (matches) return { src, dest, category: 'update', effective };       // 未編集 → 更新
+    if (recorded) return { src, dest, category: 'protected', reason: 'edited', effective };      // 編集済み
+    return { src, dest, category: 'protected', reason: 'no-baseline', effective };               // 判定不能
   });
 }
 
@@ -312,21 +496,23 @@ export function diffTargets({ cwd, targets, force }) {
  * protected な差分について、`<dest>.new` を書き出す作業が必要かを判定する（冪等性の要）。
  *
  *   - `.new` が存在しない                          → true（新規に書き出す必要がある）
- *   - `.new` が存在するが最新テンプレートと内容が異なる → true（退避のうえ上書きする必要がある）
- *   - `.new` が存在し最新テンプレートと内容が同一     → false（作業不要。書き出しもバックアップもしない）
+ *   - `.new` が存在するが実効テンプレートと内容が異なる → true（退避のうえ上書きする必要がある）
+ *   - `.new` が存在し実効テンプレートと内容が同一     → false（作業不要。書き出しもバックアップもしない）
  *
  * これにより、保護ファイルが残ったまま `upgrade` を繰り返しても、内容が同じ `.new` を
- * 書き直してバックアップ世代を無限に増やす、という非冪等な挙動を防ぐ。
+ * 書き直してバックアップ世代を無限に増やす、という非冪等な挙動を防ぐ。基準は実効テンプレート
+ * （d.effective・プロファイル適用後）であり、生テンプレートではない。非既定プロファイルで生
+ * テンプレートと比べると `.new` が毎回書き直されてしまう（#85 差し戻し1・教訓14）。
  * 比較は Buffer 単位（テンプレートは小さいため全読みで十分。diffTargets と同じ方式）。
  *
  * @param {string} cwd
- * @param {{ src: string, dest: string }} d
+ * @param {{ src: string, dest: string, effective?: Buffer }} d
  * @returns {boolean}
  */
 export function protectedNewNeedsWrite(cwd, d) {
   const newAbs = join(cwd, `${d.dest}.new`);
   if (!existsSync(newAbs)) return true;
-  return !readFileSync(newAbs).equals(readFileSync(d.src));
+  return !readFileSync(newAbs).equals(effectiveOf(d));
 }
 
 /**
@@ -382,11 +568,13 @@ export function applyUpgrade({ cwd, diffs }) {
         skipped.push({ ...newBlock, slot: 'new' });
         continue;
       }
-      // 本体は維持。最新テンプレートを <dest>.new として書き出す（既に最新なら何もしない）
+      // 本体は維持。実効テンプレート（プロファイル適用後）を <dest>.new として書き出す
+      // （既に最新なら何もしない）。生テンプレートではなく実効テンプレートを書くことで、
+      // ユーザーが diff で見る .new が「適用したら実際にこうなる内容」になる（#85 差し戻し1）。
       if (protectedNewNeedsWrite(cwd, d)) {
         const newAbs = join(cwd, newRel);
         mkdirSync(dirname(newAbs), { recursive: true });
-        copyFileSync(d.src, newAbs);
+        writeFileSync(newAbs, effectiveOf(d));
         writtenNew.push(newRel);
       }
       continue;
@@ -402,7 +590,10 @@ export function applyUpgrade({ cwd, diffs }) {
     }
     const destAbs = join(cwd, d.dest);
     mkdirSync(dirname(destAbs), { recursive: true });
-    copyFileSync(d.src, destAbs);
+    // 実効テンプレート（プロファイル適用後）を書き込む。生テンプレートを書いてから再適用する
+    // 二段構えを廃し、最初から実効内容を書くことで、中断時に既定プロファイルのファイルが残る窓を
+    // 無くし、`same` 判定・書き込み・baseline を同一表現に統一する（#85 差し戻し1・教訓14）。
+    writeFileSync(destAbs, effectiveOf(d));
     applied.push(d.dest);
   }
   return { applied, skippedProtected, unchanged, writtenNew, skipped };
@@ -420,7 +611,7 @@ function printDiff(diffs) {
   console.log('  📊 差分:');
   console.log(`     新規作成: ${news.length} 件`);
   console.log(`     上書き更新: ${updates.length} 件`);
-  console.log(`     保護のためスキップ（カスタマイズ済み）: ${protectedItems.length} 件`);
+  console.log(`     保護のためスキップ（編集済み・カスタマイズ済み）: ${protectedItems.length} 件`);
   console.log(`     変更なし: ${same.length} 件`);
   if (blocked.length > 0) {
     console.log(`     安全に書き込めずスキップ（リンク／通常ファイル以外）: ${blocked.length} 件`);
@@ -441,6 +632,22 @@ function printDiff(diffs) {
     console.log('  🛡️  保護のためスキップ（--force で上書き可能）:');
     for (const d of protectedItems) console.log(`     - ${d.dest}`);
   }
+}
+
+/**
+ * baseline に記録が無いために保護へ倒れたファイルがあれば、自動判定の確立方法を案内する（#85）。
+ * 記録が無いと「ユーザーが編集した」のか「単に未記録」なのか区別できないため、安全側に倒して
+ * 保護している。`baseline record` を実行すれば現在の配置内容を基準として記録でき、以後は
+ * ハッシュ照合による自動判定になる。
+ */
+function printNoBaselineNotice(diffs) {
+  const noBaseline = diffs.filter((d) => d.category === 'protected' && d.reason === 'no-baseline');
+  if (noBaseline.length === 0) return;
+  console.log('');
+  console.log(`  ℹ️  baseline に記録が無いため安全側で保護したファイルが ${noBaseline.length} 件あります:`);
+  for (const d of noBaseline) console.log(`     - ${d.dest}`);
+  console.log('   これらを自動判定の対象にするには、編集していないことを確認のうえ');
+  console.log('   `npx @trimix/ai-team baseline record` を実行すると、現在の配置内容を基準として記録できます。');
 }
 
 /**
@@ -530,7 +737,9 @@ function printUnifiedDiffs({ cwd, diffs }) {
   console.log('  🔎 差分（--diff）: あなたの現在の版（-） → 最新テンプレート（+）');
   for (const d of targets) {
     const current = readFileSync(join(cwd, d.dest), 'utf-8');
-    const template = readFileSync(d.src, 'utf-8');
+    // 実効テンプレート（プロファイル適用後）を表示する。ユーザーが見る差分は「適用したら実際に
+    // こうなる内容」であるべきで、プロファイル差分のノイズを見せない（#85 差し戻し1）。
+    const template = effectiveOf(d).toString('utf-8');
     const label = d.category === 'protected' ? '保護中' : '上書き更新';
     const diff = unifiedDiff(current, template, {
       oldLabel: `${d.dest}（現在）`,
@@ -663,14 +872,22 @@ export async function runUpgrade(args, { cwd, pluginRoot = packageRoot, stdin = 
   printResidualNew(findResidualNew(cwd, targets), { force });
 
   // 2. 差分の提示（読み取りのみ。まだ書き込みはしていない = fail-closed でデータ損失は無い）
+  //    baseline は一度だけ読む（不正 JSON の警告が差分・適用で二重に出るのを避ける）。
+  //    モデルプロファイルも一度だけ読み・正規化し、diffTargets へ渡す（不正値の警告が
+  //    二重に出るのを避ける）。diffs の各対象は実効テンプレート（プロファイル適用後）を
+  //    effective として持ち、以降の same 判定・書き込み・.new・baseline・--diff が
+  //    すべてこの実効テンプレートを基準にする（#85 差し戻し1・教訓14）。
+  //
   //    diffTargets / collectSkips は inspectDest / inspectNew 経由で lstatSync を呼ぶ。
   //    EACCES / ELOOP 等の非 ENOENT 例外は lstatOrNull が握らず再送出する（安全側）。
   //    #84 の try/catch は enumerateUpgradeTargets しか包んでいなかったため、これらの例外は
   //    setup.js まで生スタックトレースとして上がっていた。列挙段階と同じ整形メッセージで
   //    差分検査フェーズも fail-closed に停止させ、一貫させる（Issue #93 副次的な指摘）。
+  const baseline = loadBaseline(cwd);
+  const profileCfg = resolveProfileConfig(cwd);
   let diffs, skips;
   try {
-    diffs = diffTargets({ cwd, targets, force });
+    diffs = diffTargets({ cwd, targets, force, baseline, profileCfg });
     // 書き込み先がリンク（経路のシンボリックリンク／ハードリンク／通常ファイル以外）のものは
     // 辿らずスキップする。差分サマリに明示する（R-1）。
     skips = collectSkips(cwd, diffs);
@@ -681,6 +898,8 @@ export async function runUpgrade(args, { cwd, pluginRoot = packageRoot, stdin = 
     return 1;
   }
   printDiff(diffs);
+  // baseline に記録が無く保護に倒れたファイルがあれば、自動判定の確立方法を案内する（#85）
+  printNoBaselineNotice(diffs);
   printSkips(skips);
   // --diff 指定時は、上書き更新／保護スキップ対象の中身の差分を表示する（--dry --diff でも表示）
   if (showDiff) printUnifiedDiffs({ cwd, diffs });
@@ -767,8 +986,28 @@ export async function runUpgrade(args, { cwd, pluginRoot = packageRoot, stdin = 
   ensureGitignore(cwd);
   printBackupSummary(backup);
 
-  // 6. 適用
+  // 6. 適用。書き込むのは実効テンプレート（プロファイル適用後）なので、旧来の「生テンプレートを
+  //    書いてから再適用する」二段構えは不要になった。frontmatter の model / effort は最初から
+  //    ユーザー選択のプロファイル値で書かれる。保護されたファイル（applied に含まれない）は
+  //    触らないため、ユーザー編集は維持される（#85 差し戻し1）。
   const result = applyUpgrade({ cwd, diffs });
+
+  // 6.5 baseline の記録（#85）。実際に書き込んだファイルのみ、書き込んだ内容（＝実効テンプレート・
+  //     プロファイル適用後）で記録する。これにより次回 upgrade で「ユーザー未編集」と正しく判定できる。
+  //     'same' / 'protected' / 'blocked' は書き込んでいないため記録しない。
+  //     記録に失敗しても適用は完了しており中止しない（安全側＝保護に倒れるだけ・警告のみ）。
+  if (result.applied.length > 0) {
+    const baselineRes = recordFiles(cwd, result.applied);
+    if (!baselineRes.written && baselineRes.reason !== 'noop') {
+      console.log('');
+      console.log('  ⚠️  baseline の記録に失敗しました（適用は完了しています）。');
+      console.log('     次回 upgrade で更新済みファイルが保護扱いになる可能性があります。');
+      console.log('     `npx @trimix/ai-team baseline record --force` を実行して基準を再確立してください。');
+    }
+  }
+
+  // 実効テンプレートに反映したモデルプロファイル対象（agents / skills の md）の件数。
+  const profileApplied = result.applied.filter((dest) => profileKindForDest(toPosixPath(dest)) !== null).length;
 
   // 7. 結果表示
   console.log('');
@@ -776,6 +1015,10 @@ export async function runUpgrade(args, { cwd, pluginRoot = packageRoot, stdin = 
   console.log(`   更新: ${result.applied.length} 件`);
   console.log(`   保護スキップ: ${result.skippedProtected.length} 件`);
   console.log(`   変更なし: ${result.unchanged.length} 件`);
+  if (profileApplied > 0) {
+    // 書き込んだ md にユーザー選択のモデルプロファイル（model / effort）を反映したことを明示する
+    console.log(`   モデルプロファイル適用: ${profileApplied} 件（runtime=${profileCfg.runtimeId} / ${profileCfg.performanceId} / ${profileCfg.effortId}）`);
+  }
   if (result.skipped.length > 0) {
     console.log(`   リンクのためスキップ: ${result.skipped.length} 件`);
   }
@@ -846,4 +1089,83 @@ export async function runUpgrade(args, { cwd, pluginRoot = packageRoot, stdin = 
     console.log('   通常ファイルに置き換えてから再実行してください。');
   }
   return 0;
+}
+
+/**
+ * `baseline` サブコマンドの本体（#85）。process.exit は呼ばず終了コードを返す。
+ *
+ *   npx @trimix/ai-team baseline record [--force]  現在の配置内容を baseline として記録
+ *   npx @trimix/ai-team baseline show               記録内容を表示
+ *
+ * `record` は **既存 baseline があれば --force なしで拒否する**。実行タイミングを誤ると、
+ * ユーザーが編集した後の状態を baseline にしてしまい、保護が静かに外れるため（安全側）。
+ *
+ * @param {string[]} args 'baseline' を除いた引数配列
+ * @param {{ cwd: string, pluginRoot?: string }} ctx
+ * @returns {number} 終了コード
+ */
+export function runBaseline(args, { cwd, pluginRoot = packageRoot }) {
+  const sub = args.find((a) => !a.startsWith('--'));
+  const force = args.includes('--force');
+
+  if (sub === 'show') {
+    const baseline = loadBaseline(cwd);
+    const entries = Object.entries(baseline.files);
+    console.log('');
+    console.log(`📄 baseline（${BASELINE_REL}）`);
+    console.log(`   version: ${baseline.version ?? '(未記録)'}`);
+    console.log(`   記録ファイル数: ${entries.length} 件`);
+    for (const [rel, hash] of entries.sort(([a], [b]) => a.localeCompare(b))) {
+      console.log(`     - ${rel}  ${hash.slice(0, 12)}…`);
+    }
+    return 0;
+  }
+
+  if (sub === 'record') {
+    const exists = existsSync(join(cwd, BASELINE_REL));
+    if (exists && !force) {
+      console.error('');
+      console.error(`❌ baseline（${BASELINE_REL}）は既に存在します。`);
+      console.error('   record を上書き実行すると、ユーザー編集後の状態を基準にしてしまい保護が外れる');
+      console.error('   おそれがあるため、既存 baseline がある場合は拒否します。');
+      console.error('   意図して再確立する場合のみ --force を付けてください:');
+      console.error('     npx @trimix/ai-team baseline record --force');
+      console.error('   （通常、baseline は upgrade が適用後に自動更新します）');
+      return 1;
+    }
+
+    // 現在の配置内容（グローバル + 導入済みチーム）を基準として記録する
+    let targets;
+    try {
+      ({ targets } = enumerateUpgradeTargets({ teams: installedTeams(cwd), pluginRoot }));
+    } catch (e) {
+      console.error('');
+      console.error(`❌ 記録対象の列挙に失敗しました: ${e.message}`);
+      return 1;
+    }
+    const rels = targets.map((t) => t.dest);
+    const res = recordFiles(cwd, rels);
+    const pruneRes = pruneMissing(cwd);
+
+    console.log('');
+    if (res.written || (res.reason === 'noop')) {
+      console.log(`✅ baseline を記録しました（${BASELINE_REL}）`);
+      console.log(`   記録: ${res.recorded ? res.recorded.length : 0} 件`);
+      if (pruneRes.pruned.length > 0) {
+        console.log(`   剪定（実在しない記録を除去）: ${pruneRes.pruned.length} 件`);
+      }
+    } else {
+      console.error('');
+      console.error('❌ baseline の記録に失敗しました（書き込み先がリンク／通常ファイル以外の可能性）。');
+      return 1;
+    }
+    return 0;
+  }
+
+  console.error('');
+  console.error(`❌ 不明な baseline サブコマンド: ${sub ?? '(なし)'}`);
+  console.error('   使い方:');
+  console.error('     npx @trimix/ai-team baseline record [--force]');
+  console.error('     npx @trimix/ai-team baseline show');
+  return 1;
 }

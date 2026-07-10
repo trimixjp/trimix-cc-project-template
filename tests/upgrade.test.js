@@ -17,16 +17,27 @@ import {
 } from 'node:fs';
 import { join, resolve, dirname, sep } from 'node:path';
 import { tmpdir } from 'node:os';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Readable } from 'node:stream';
 import { execFileSync, spawn } from 'node:child_process';
 import { createServer } from 'node:net';
 
 import { runUpgrade, enumerateUpgradeTargets, diffTargets } from '../bin/lib/upgrade.js';
+import { recordFiles, loadBaseline, normalizedHash } from '../bin/lib/baseline.js';
+import { applyProfileToContent } from '../bin/lib/apply-model-profile.js';
 
 /** dest（OS依存セパレータ）を POSIX 形式（/）に正規化する */
 function toPosix(p) {
   return p.split(sep).join('/');
+}
+
+/**
+ * 指定した相対パスの現物内容を baseline として記録する（#85）。
+ * 「このツールが前回この内容を配置した（＝ユーザーは未編集）」状態を再現する。
+ * ハッシュ照合方式では、未編集ファイルが update に分類されるには baseline が必要。
+ */
+function seedBaseline(cwd, rels) {
+  recordFiles(cwd, rels);
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -50,6 +61,9 @@ function makeProject() {
   const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-'));
   // 古い（テンプレートと異なる）内容を配置する。マーカーなし = 非カスタマイズ。
   writeUnder(cwd, '.claude/teams/backend/workflow.yml', '# 古いバージョンのワークフロー\nsteps: []\n');
+  // 「ツールが前回この内容を配置した（ユーザー未編集）」ことを表す baseline を記録する。
+  // これによりハッシュ照合で「未編集 → 更新」と判定される（#85）。
+  seedBaseline(cwd, ['.claude/teams/backend/workflow.yml']);
   return cwd;
 }
 
@@ -572,6 +586,10 @@ test('(#86-7) インシデント#3再発防止: 実在の ai-team-configure.md�
     const configureDest = '.claude/commands/ai-team-configure.md';
     const oldContent = `${realConfigure}\n<!-- 旧バージョン -->\n`;
     writeUnder(cwd, configureDest, oldContent);
+    // ツールが前回この旧版を配置した（ユーザー未編集）状態を baseline に記録する。
+    // 本文にマーカー文字列を含むが、ヘッダ5行には無く、かつ現物 == baseline のため update に
+    // 分類されるべき（本文マーカーの誤検出も no-baseline 誤保護もしない・インシデント #3 / #85）。
+    seedBaseline(cwd, [configureDest]);
 
     const { targets } = enumerateUpgradeTargets({ teams: [] });
     const diffs = diffTargets({ cwd, targets, force: false });
@@ -831,6 +849,7 @@ test('(#86-R1-5) シンボリックリンクをスキップしても、他の通
     // 通常ファイル（escalation-rules.yml）を古い内容で置く（update に分類される）
     const escalationRel = '.claude/escalation-rules.yml';
     writeUnder(cwd, escalationRel, '# 古いエスカレーションルール\n');
+    seedBaseline(cwd, [escalationRel]); // ツールが配置済み（未編集）→ ハッシュ照合で update（#85）
     const expectedEscalation = readTemplate('_shared/escalation-rules.yml');
 
     const out = await captureStdout(async () => {
@@ -1184,6 +1203,7 @@ test('(#86-R2-11) リンクをスキップしても、他の通常ファイル�
     symlinkSync(ext, join(cwd, '.claude', 'teams'));
     // 通常ファイル（グローバル）は古い内容を置く → update に分類される
     writeUnder(cwd, '.claude/escalation-rules.yml', '# 古いエスカレーションルール\n');
+    seedBaseline(cwd, ['.claude/escalation-rules.yml']); // 未編集 → ハッシュ照合で update（#85）
     const expected = readTemplate('_shared/escalation-rules.yml');
 
     const code = await runUpgrade(['backend', '--yes'], { cwd });
@@ -1514,6 +1534,227 @@ test('(#84-4c) dest が FIFO（名前付きパイプ）のとき、書き込み�
   }
 });
 
+// ===========================================================================
+// #85 差し戻し1: 非既定モデルプロファイルでの upgrade 冪等性（実効テンプレート）
+//
+// 既定（balance / normal）は変換が恒等写像になる特異点であり、実効テンプレート化の存在自体を
+// 隠す。ここでは必ず非既定プロファイル（low-cost / high-performance）を1つ以上通す。加えて、
+// 「非既定プロファイルが実際に frontmatter へ反映された（既定 balance へ黙ってフォールバック
+// していない）」ことを対抗的サニティとして毎回確認する（教訓14 の規律3・チケット記載の
+// 設定キー取り違えによる偽陽性を防ぐ）。
+// ===========================================================================
+
+/** frontmatter の model 値を取り出す（先頭の model: 行） */
+function frontmatterModel(text) {
+  const m = text.match(/^model:\s*(.+)$/m);
+  return m ? m[1].trim() : null;
+}
+
+/**
+ * 指定プロファイルで upgrade を2回連続実行し、
+ *  - 1回目: 全対象を新規作成し、非既定プロファイルが frontmatter に反映される（対抗的サニティ）
+ *  - 2回目: 「すべて最新です」に到達し、バックアップ世代が増えない（冪等）
+ * ことを実測で確認する。
+ *
+ * @param {{ perf: string, effort: string, leaderModel: string }} p
+ *        leaderModel はそのプロファイルでの leader（tech-lead）の期待モデル（≠ balance の opus）。
+ */
+async function assertProfileIdempotent({ perf, effort, leaderModel }) {
+  const cwd = mkdtempSync(join(tmpdir(), `ai-team-upgrade-idem-${perf}-`));
+  writeUnder(cwd, '.claude/ai-team-config.yml',
+    `runtime: claude-code\nmodel_performance: ${perf}\neffort_depth: ${effort}\n`);
+  try {
+    // --- run 1: 全対象を新規作成 + プロファイル適用 ---
+    const code1 = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code1, 0, `${perf}: run1 は正常終了すべき`);
+    const gen1 = backupGenCount(cwd);
+    assert.equal(gen1, 1, `${perf}: run1 でバックアップ世代が1になっていない`);
+
+    // サニティ（否定的観測「世代が増えない」の対）: upgrade が早期 return せず実処理した証拠。
+    assert.ok(
+      existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      `${perf}: run1 で ai-team-run.md が作られていない（早期 return の疑い）`
+    );
+    // 対抗的サニティ: 非既定プロファイルが実際に frontmatter へ反映された（既定 balance への
+    // 黙ったフォールバックではない）。これが成り立たないと、以降の冪等性は「恒等特異点を見て
+    // 正常と誤読した」だけになる（教訓14 の規律3）。
+    const techLead1 = readFileSync(join(cwd, '.claude/teams/backend/agents/tech-lead.md'), 'utf-8');
+    assert.notEqual(leaderModel, 'opus',
+      '前提: テスト対象は既定 balance（opus）と異なるプロファイルでなければ意味がない');
+    assert.equal(frontmatterModel(techLead1), leaderModel,
+      `${perf}: run1 で非既定プロファイルが tech-lead に反映されていない（balance へフォールバックの疑い）`);
+
+    // --- run 2: 冪等であるべき ---
+    let code2;
+    const out2 = await captureStdout(async () => {
+      code2 = await runUpgrade(['backend', '--yes'], { cwd });
+    });
+    assert.equal(code2, 0, `${perf}: run2 は正常終了すべき`);
+    assert.ok(
+      out2.includes('すべて最新です'),
+      `${perf}: run2 が「すべて最新です」に到達しない（非冪等）:\n${out2}`
+    );
+    assert.equal(
+      backupGenCount(cwd), gen1,
+      `${perf}: run2 でバックアップ世代が増えた（${gen1} → ${backupGenCount(cwd)}・非冪等）`
+    );
+    // frontmatter のプロファイルも run2 後に維持されている
+    const techLead2 = readFileSync(join(cwd, '.claude/teams/backend/agents/tech-lead.md'), 'utf-8');
+    assert.equal(frontmatterModel(techLead2), leaderModel, `${perf}: run2 後にプロファイルが失われた`);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+}
+
+test('(#85-11) 非既定プロファイル low-cost で upgrade が冪等（2回目で「すべて最新です」・世代が増えない）', async () => {
+  await assertProfileIdempotent({ perf: 'low-cost', effort: 'normal', leaderModel: 'sonnet' });
+});
+
+test('(#85-12) 非既定プロファイル high-performance/deep でも upgrade が冪等', async () => {
+  await assertProfileIdempotent({ perf: 'high-performance', effort: 'deep', leaderModel: 'fable' });
+});
+
+test('(#85-13) 保護された profile 対象の .new は実効テンプレート（プロファイル適用後）である', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-neweff-'));
+  try {
+    writeUnder(cwd, '.claude/ai-team-config.yml',
+      'runtime: claude-code\nmodel_performance: low-cost\neffort_depth: normal\n');
+    const rel = '.claude/teams/backend/agents/tech-lead.md';
+    const newRel = `${rel}.new`;
+    // ヘッダにマーカーを置き「カスタマイズ済み（保護）」にする（本体は上書きされない）。
+    const customized = '# customized: true\n# 手編集した tech-lead\ncustom: true\n';
+    writeUnder(cwd, rel, customized);
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 0);
+
+    // 本体は保護される
+    assert.equal(readFileSync(join(cwd, rel), 'utf-8'), customized, '保護ファイル本体が上書きされた');
+    // .new が書き出される
+    assert.ok(existsSync(join(cwd, newRel)), '.new が書き出されていない');
+    const newContent = readFileSync(join(cwd, newRel), 'utf-8');
+
+    // 実効テンプレート = 生テンプレートに low-cost/normal を適用した内容
+    const rawTemplate = readTemplate('teams/backend/agents/tech-lead.md');
+    const effective = applyProfileToContent(rawTemplate, {
+      performanceId: 'low-cost', effortId: 'normal', runtimeId: 'claude-code', kind: 'agent'
+    }).content;
+
+    // 生テンプレート leader=opus（balance 既定）と実効 low-cost=sonnet が異なることが、
+    // 「.new が生ではなく実効である」ことを検証可能にする（恒等特異点を避ける）。
+    assert.equal(frontmatterModel(rawTemplate), 'opus', '前提: 生テンプレートの leader は opus');
+    assert.equal(frontmatterModel(effective), 'sonnet', '前提: low-cost の leader は sonnet');
+    assert.notEqual(newContent, rawTemplate, '.new が生テンプレートのまま（プロファイル未適用のノイズを見せている）');
+    assert.equal(newContent, effective, '.new が実効テンプレート（プロファイル適用後）と一致しない');
+    assert.equal(frontmatterModel(newContent), 'sonnet', '.new の model が low-cost の sonnet になっていない');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#85-14) 非既定プロファイルでも --dry は無副作用（書き込み・バックアップ・.new なし）', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-dryeff-'));
+  try {
+    writeUnder(cwd, '.claude/ai-team-config.yml',
+      'runtime: claude-code\nmodel_performance: high-performance\neffort_depth: deep\n');
+    const code = await runUpgrade(['backend', '--dry'], { cwd });
+    assert.equal(code, 0, '--dry は正常終了すべき');
+    assert.ok(!existsSync(join(cwd, '.claude/commands/ai-team-run.md')), '--dry で新規スキルが作られた');
+    assert.ok(!existsSync(join(cwd, '.claude/teams/backend/agents/tech-lead.md')), '--dry で agent が作られた');
+    assert.ok(!existsSync(join(cwd, '.ai-team-backups')), '--dry でバックアップが作られた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+// ===========================================================================
+// #85 差し戻し2: 読み込み経路の封じ込め（readModelProfileConfig）
+//
+// upgrade はテンプレート適用後に .claude/ai-team-config.yml のモデルプロファイルを
+// 再適用する（readModelProfileConfig）。この設定ファイルが FIFO のとき readFileSync が
+// プロセスごと同期ブロックしてハングし、try/catch では捕捉できない。書き込み側 inspectDest
+// と対称に、読み込み前へ irregularFileType のガードを入れて弾く。
+//
+// FIFO の同期ハングはインプロセスのタイマでは計測できないため、別プロセス（spawn）+ 親からの
+// SIGKILL で検証する。ガードを外すと子（runUpgrade）がハング → SIGKILL → 本テストが落ちる。
+// ===========================================================================
+
+const UPGRADE_MODULE = pathToFileURL(join(packageRoot, 'bin/lib/upgrade.js')).href;
+
+/**
+ * 別プロセスで runUpgrade を実行し、親のタイムアウトで SIGKILL する。
+ * ガードが機能していれば子は完走する。ガードを外すと config の FIFO 読み込みで同期ブロック
+ * してハングし、タイムアウトで SIGKILL される（hung=true）。
+ *
+ * @param {string} cwd 子プロセスの作業ディレクトリ
+ * @param {number} timeoutMs 親のハング判定タイムアウト
+ * @returns {Promise<{ hung: boolean, code: number|null, out: string }>}
+ */
+function runUpgradeInChild(cwd, timeoutMs = 15000) {
+  const script = `
+    const { runUpgrade } = await import(${JSON.stringify(UPGRADE_MODULE)});
+    const code = await runUpgrade(['backend', '--yes'], { cwd: ${JSON.stringify(cwd)} });
+    process.stdout.write('CHILD_DONE:' + code);
+  `;
+  return new Promise((res) => {
+    const child = spawn(process.execPath, ['--input-type=module', '-e', script], {
+      cwd, stdio: ['ignore', 'pipe', 'pipe']
+    });
+    let out = '';
+    child.stdout.on('data', (d) => { out += d; });
+    child.stderr.on('data', (d) => { out += d; });
+    let hung = false;
+    const timer = setTimeout(() => { hung = true; child.kill('SIGKILL'); }, timeoutMs);
+    child.on('exit', (code) => { clearTimeout(timer); res({ hung, code, out }); });
+  });
+}
+
+test('(#85-18) ai-team-config.yml が FIFO のとき upgrade はハングせず既定プロファイルで続行する（別プロセス+SIGKILL・変異テスト）', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-config-fifo-'));
+  try {
+    const cfgAbs = join(cwd, '.claude', 'ai-team-config.yml');
+    mkdirSync(dirname(cfgAbs), { recursive: true });
+    execFileSync('mkfifo', [cfgAbs]);
+    assert.ok(lstatSync(cfgAbs).isFIFO(), '前提: config は FIFO であるべき');
+
+    // 別プロセスで runUpgrade を実行。ガードがあれば config の read を回避して完走し、
+    // 無ければ readModelProfileConfig の readFileSync(FIFO) で同期ブロックしてハングする。
+    const r = await runUpgradeInChild(cwd);
+
+    assert.ok(!r.hung,
+      'FIFO config で upgrade がハングした（ガードが無い＝変異テストが検出すべき事象）');
+    assert.ok(r.out.includes('CHILD_DONE:0'), `upgrade が正常終了していない:\n${r.out}`);
+    assert.ok(r.out.includes('既定のモデルプロファイルを使います'),
+      `FIFO config のスキップ警告が出ていない:\n${r.out}`);
+    // 実処理が進んだこと（新規スキルの生成）＝安全側で続行したことの裏取り
+    assert.ok(existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      'FIFO config でも upgrade が実処理を続行したはず（コマンド未生成）');
+    // config は FIFO のまま（読み書きで置き換えられていない）
+    assert.ok(lstatSync(cfgAbs).isFIFO(), 'FIFO config が置き換えられた');
+  } finally { rmSync(cwd, { recursive: true, force: true }); }
+});
+
+test('(#85-19) ai-team-config.yml がディレクトリのとき upgrade は生クラッシュせず既定プロファイルで続行する', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-config-dir-'));
+  try {
+    const cfgAbs = join(cwd, '.claude', 'ai-team-config.yml');
+    mkdirSync(cfgAbs, { recursive: true }); // config パスをディレクトリにする
+    assert.ok(lstatSync(cfgAbs).isDirectory(), '前提: config はディレクトリであるべき');
+
+    // ディレクトリは readFileSync が EISDIR を投げ、既存 try/catch が拾って既定になる（ハングは
+    // しない）。ガードがあれば読まずに種別を明示する（この文言が変異テストの識別点）。
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0, 'ディレクトリ config でも upgrade は正常終了すべき');
+    });
+
+    assert.ok(out.includes('ai-team-config.yml が通常ファイルではない'),
+      `ディレクトリ config のガード警告（種別明示）が出ていない:\n${out}`);
+    assert.ok(existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      'ディレクトリ config でも upgrade が実処理を続行したはず（コマンド未生成）');
+  } finally { rmSync(cwd, { recursive: true, force: true }); }
+});
+
 // ---------------------------------------------------------------------------
 // Issue #93: 3つ目の書き込み口である cwd/.gitignore（ensureGitignore）にも、通常ファイル
 //   以外（ディレクトリ / FIFO / ソケット / デバイス）の検査を広げる。#84 は inspectDest /
@@ -1648,6 +1889,10 @@ test('(#93-3) .gitignore が FIFO のとき、別プロセス計測でハング�
   try {
     // makeProject 相当: 古い workflow.yml（update）を置き、ensureGitignore まで到達させる
     writeUnder(cwd, '.claude/teams/backend/workflow.yml', '# 古いバージョンのワークフロー\nsteps: []\n');
+    // ツールが前回配置した内容として baseline に記録する。これが無いと #85 のハッシュ照合で
+    // 「記録なし＝判定不能」となり保護に倒れ、update されない（本テストの関心は .gitignore の
+    // FIFO スキップであって、baseline の保護判定ではない）。
+    seedBaseline(cwd, ['.claude/teams/backend/workflow.yml']);
     // .gitignore を FIFO にする（Node に mkfifoSync は無いため mkfifo(1)・既存 #84 テストと同じ Unix 前提）
     execFileSync('mkfifo', [join(cwd, '.gitignore')]);
     assert.ok(lstatSync(join(cwd, '.gitignore')).isFIFO(), '前提: .gitignore は FIFO であるべき');
