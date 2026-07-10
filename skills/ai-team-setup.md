@@ -94,6 +94,30 @@ node <パッケージルート>/bin/lib/apply-model-profile.js \
 - **CLAUDE.md のみ（推奨）**: タスク受付ルールを CLAUDE.md に記載します。Claude が内容を判断してチケット経由を促します
 - **hooks で強制**: `UserPromptSubmit` フックを設定します（チケット 番号 / ローカル番号の検出。local 時は数字 ID も可）
 
+**質問4c**: AI が作業する「場所」を選択してください（`AskUserQuestion` ツールを使用）
+
+質問の前に、以下の説明をそのままユーザーに提示してください（専門用語だけを並べない）。
+
+> AI がコードを書くとき、あなたが開いているファイルと混ざらないよう、作業する場所を分けます。分け方が2通りあります。
+>
+> - **ブランチ方式** — いまのフォルダの中で、履歴だけを切り替えて作業します。準備が要らず、Git に詳しくなくてもそのまま使えます。ただし AI が作業している間、そのフォルダは AI のものになります（あなたが同時に別の編集をすると混ざります）。
+> - **ワークツリー方式** — プロジェクトの複製フォルダ（`.claude/worktrees/issue-123/` など）を作り、その中だけで作業します。あなたの手元のファイルは一切変わりません。AI が作業している最中でも、あなたは普段どおり自分のコードを触れます。複数のチケットを同時に走らせることもできます。代わりに、複製ぶんのディスクを使います。
+
+- **ブランチ（推奨・デフォルト）**: 迷ったらこちら。ひとりで、チケットを1件ずつ順番に処理する使い方に向いています
+- **ワークツリー**: AI に任せている間に自分も別の作業をしたい人、複数チケットを並行して流したい人に向いています
+
+**おすすめの決め方**（ユーザーが迷った場合はこの基準を伝えて選ばせてください）:
+
+| こういう人 | おすすめ |
+|---|---|
+| Git のブランチ操作に慣れていない | **ブランチ** |
+| AI が作業している間は、自分は手を止めて待つ | **ブランチ** |
+| AI に任せつつ、自分も同じプロジェクトを触りたい | **ワークツリー** |
+| チケットを2件以上、同時に走らせたい | **ワークツリー** |
+| ディスク容量に余裕がない | **ブランチ** |
+
+いずれを選んでも後から変更できます。`/ai-team-setup` を再実行して既定を切り替えられるほか、チケットに `workspace:worktree` / `workspace:branch` ラベルを貼れば、そのチケットだけ方式を上書きできます（ラベルが無いときの既定値を、ここで決めています）。
+
 **質問5**: モデル性能プロファイルを選択してください（`AskUserQuestion` ツールを使用）
 
 各エージェント・スキルの frontmatter（`model`）に、役割（指揮者 / 作業者 / 単純作業）ごとのモデルを一括反映します。
@@ -172,7 +196,7 @@ templates/tickets/closed/.gitkeep        → tickets/closed/.gitkeep
 
 `ticket_backend: local` のときはステップ4（GitHub ラベル作成）をスキップしてよい旨をユーザーに伝えます。
 
-ステップ2で選択した運用モード・モデル設定に応じて、以下の内容で `.claude/ai-team-config.yml` を生成してください：
+ステップ2で選択した運用モード・作業空間の方式（質問4c）・モデル設定に応じて、以下の内容で `.claude/ai-team-config.yml` を生成してください（質問4c で **ワークツリー** を選んだ場合は `workspace.strategy` を `worktree` にする）：
 
 ```yaml
 # @trimix/ai-team 運用設定
@@ -183,6 +207,14 @@ mode: multi-user  # または solo
 # manual: バージョンアップはワークフロー外で人間が管理（チーム開発・独自リリースフロー向け）
 # none:   バージョン管理を使わない（セットアップ時に version-bumper ステップをワークフローから削除）
 version_management: auto  # または manual / none
+
+# AI が作業する場所（質問4c。チケットの workspace:* ラベルで個別に上書き可能）
+# branch:   いまのフォルダで履歴だけ切り替えて作業する。準備不要。作業中はフォルダが AI のものになる
+# worktree: 複製フォルダ（worktree_dir/issue-<番号>）を作り、その中だけで作業する。
+#           手元のファイルは変わらないので、AI の作業中も自分の作業を続けられる。複数チケットの並行も可能
+workspace:
+  strategy: branch          # または worktree
+  worktree_dir: .claude/worktrees
 
 # モデル性能プロファイル（質問5）
 # high-performance: leader=fable, worker=opus, simple=sonnet
@@ -474,6 +506,14 @@ EOF
 > 以降は通常通り `git add` / `git commit` で変更を管理できます。
 > 個人環境でのみ使う設定（`hooks/` など）は引き続き `.gitignore` で除外してください。
 
+### 作業空間が worktree の場合の .gitignore 追記（質問4c で worktree を選択したときのみ）
+
+質問4c で **ワークツリー** を選択した場合は、Implementer が生成する分離ワークツリー（`.claude/worktrees/`）を Git 管理から除外するため、`.gitignore` に追記します。**追記前に `grep` で追記済みかを確認**し、未追記の場合のみ実行してください（冪等。既に存在すれば何もしません）。ブランチ方式を選択した場合はこの追記は不要です。
+
+```bash
+grep -qxF ".claude/worktrees/" .gitignore 2>/dev/null || printf '\n# @trimix/ai-team - worktree 作業ディレクトリ\n.claude/worktrees/\n' >> .gitignore
+```
+
 ## ステップ4: ラベルの作成（ticket_backend: github の場合）
 
 ### 4-1: リポジトリの確認
@@ -536,7 +576,11 @@ gh label create "epic"                --color "7057ff" --description "複数チ�
 gh label create "dispatcher"          --color "7057ff" --description "Dispatcherが自動分解中"           --force
 gh label create "incident"            --color "b60205" --description "インシデント報告"                 --force
 gh label create "ai-team:in-progress" --color "fbca04" --description "AIエージェントが処理中（二重実行防止）" --force
+gh label create "workspace:branch"    --color "006b75" --description "Implementerはブランチ方式で作業（既定の上書き）" --force
+gh label create "workspace:worktree"  --color "006b75" --description "Implementerはワークツリー方式で作業（既定の上書き）" --force
 ```
+
+> `workspace:branch` / `workspace:worktree` は Implementer の作業方式をチケット単位で上書きするためのラベルです（未付与時は `ai-team-config.yml` の `workspace.strategy` に従う）。両方を同時に付与すると矛盾としてエスカレーションされます。
 
 ### バックエンドチーム（選択時）
 
@@ -673,7 +717,8 @@ grep -qF "## AIチーム設定" AGENTS.md 2>/dev/null || cat "$RULES" >> AGENTS.
 完了報告の前に以下を確認してください。
 
 - [ ] 配置したファイルが実在する（`ls .claude/agents/ .claude/teams/<選択チーム>/` で確認）
-- [ ] `.claude/ai-team-config.yml` に選択した `mode` / `version_management` / `model_performance` / `effort_depth` / `runtime` が記録されている
+- [ ] `.claude/ai-team-config.yml` に選択した `mode` / `version_management` / `workspace.strategy` / `model_performance` / `effort_depth` / `runtime` が記録されている
+- [ ] 質問4c で worktree を選んだ場合、`.gitignore` に `.claude/worktrees/` が追記されている（`grep -qxF ".claude/worktrees/" .gitignore`）
 - [ ] モデル・effort プロファイルを配置済み md に反映済み（tech-lead / pr-creator / ai-team-run の frontmatter を spot チェック）
 - [ ] `.claude/model-profiles.yml` が配置されている
 - [ ] プロジェクト指示: `claude-code` なら `.claude/CLAUDE.md`、`grok` なら `AGENTS.md` と `.claude/CLAUDE.md` の両方に AIチーム設定がある

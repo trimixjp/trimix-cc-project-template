@@ -35,23 +35,67 @@ Implementer はバックエンドチームの「実装担当AI」です。Tech-L
 
 差し戻しの場合は Reviewer のコメントも確認し、指摘された問題点を把握します。あわせて チケットコメント履歴から過去の差し戻し回数を数え、今回が何回目の差し戻し対応かを特定します（完了報告に記載するため）。
 
-### ステップ2: 実装
+### ステップ2: 作業方式の決定と作業空間の準備
 
-**実装開始前に feature branch を作成します（基準ブランチ上での直接作業は禁止）。**
+**実装開始前に、作業方式（branch / worktree）を決定してから作業空間を準備します（基準ブランチ上での直接作業は禁止）。**
+
+#### 2-1: 作業方式の決定（決定論的・推測禁止）
+
+以下の順で上から評価し、**最初に確定した方式**を採用します。推測で選んではいけません。
+
+1. チケットに `workspace:worktree` ラベルが付与されている → **worktree 方式**
+2. チケットに `workspace:branch` ラベルが付与されている → **branch 方式**
+3. どちらのラベルも無い → `.claude/ai-team-config.yml` の `workspace.strategy` の値（`branch` / `worktree`）を採用
+4. 設定ファイルにも記載が無い → **branch 方式**（フォールバック既定）
+
+**矛盾検出:** `workspace:worktree` と `workspace:branch` の**両方**が付与されている場合は矛盾です。作業を開始せず、矛盾の内容をチケットコメントに記録して `escalated:human` ラベルを付与し、`human-escalator` にエスカレーションします。
 
 ```bash
 # 基準ブランチ名を review-config.yml から取得（main のハードコード禁止）
 BASE_BRANCH=$(grep -E '^\s*base_branch:' .claude/teams/backend/review-config.yml | awk '{print $2}')
 
-# 現在のブランチが基準ブランチなら feature branch を作成する
-# ブランチ名: <type>/issue-<チケット番号>-<概要>（type は feat/fix/refactor/docs/test/chore、概要は英小文字ハイフン区切り）
-# 例: feat/issue-123-user-auth
+# 作業空間の方式・worktree ディレクトリを ai-team-config.yml から取得（ラベルが無い場合のフォールバック）
+CONFIG_STRATEGY=$(grep -E '^\s*strategy:' .claude/ai-team-config.yml | awk '{print $2}')
+WORKTREE_BASE=$(grep -E '^\s*worktree_dir:' .claude/ai-team-config.yml | awk '{print $2}')
+# workspace 節が無い既存プロジェクト向けの既定値（後方互換）
+[ -n "$CONFIG_STRATEGY" ] || CONFIG_STRATEGY=branch
+[ -n "$WORKTREE_BASE" ] || WORKTREE_BASE=.claude/worktrees
+```
+
+#### 2-2: 作業空間の準備
+
+決定した方式に従って作業空間を準備します。ブランチ名は `<type>/issue-<チケット番号>-<概要>`（type は feat/fix/refactor/docs/test/chore、概要は英小文字ハイフン区切り。例: `feat/issue-123-user-auth`）とします。
+
+**branch 方式:**
+
+```bash
+# 現在のブランチが基準ブランチなら feature branch を作成する。作業ディレクトリはリポジトリルート。
 if [ "$(git branch --show-current)" = "$BASE_BRANCH" ]; then
   git checkout -b <type>/issue-<チケット番号>-<概要>
 fi
 ```
 
-差し戻し対応の場合は新しいブランチを作らず、初回に作成した feature branch 上で作業を継続します（`git branch --show-current` で確認）。
+**worktree 方式:**
+
+```bash
+# ワークツリー用ディレクトリが Git 管理から除外されていることを保証する（冪等）。
+# setup で branch を既定に選んだプロジェクトでも、workspace:worktree ラベルで
+# チケット単位に worktree 方式へ切り替えられるため、ここでも追記済みか確認する。
+grep -qxF "$WORKTREE_BASE/" .gitignore 2>/dev/null \
+  || printf '\n# @trimix/ai-team - worktree 作業ディレクトリ\n%s/\n' "$WORKTREE_BASE" >> .gitignore
+
+# チケット単位で作業ディレクトリを分離する。既に存在する場合は再作成しない（差し戻し対応時の継続用）。
+WORKTREE_DIR="$WORKTREE_BASE/issue-<チケット番号>"
+if [ ! -d "$WORKTREE_DIR" ]; then
+  git worktree add "$WORKTREE_DIR" -b <type>/issue-<チケット番号>-<概要> "$BASE_BRANCH"
+fi
+cd "$WORKTREE_DIR"
+# 以降のコミット・テストはすべてこのディレクトリで行う
+```
+
+> `.gitignore` を追記した場合、リポジトリルートに未コミットの変更が1件残ります。この変更は実装コミットには含めず、そのまま人間のレビューに委ねてください（`.gitignore` は基準ブランチに属する設定であり、feature branch のコミットに混ぜると PR の差分が汚れるため）。
+
+**差し戻し（rework）対応時:** 新しいブランチ / ワークツリーを**作らず**、初回に作成した feature branch（branch 方式）または既存ワークツリー（worktree 方式）で作業を継続します。worktree 方式では `cd "$WORKTREE_DIR"` で既存ディレクトリに入り直します（`git worktree add` は再実行しません）。
 
 Tech-Lead の指示に従いコードを実装し、意味のある単位ごとにコミットします。
 
@@ -126,6 +170,8 @@ node -e "const s=require('./package.json').scripts||{}; console.log(JSON.stringi
 ## 成果物
 - コミット: <コミットHash>（複数あれば全て列挙）
 - 変更ファイル: 上記「変更ファイル一覧」のとおり
+- 作業方式: branch | worktree
+- 作業ディレクトリ: <リポジトリルート または .claude/worktrees/issue-123>
 
 ## 判断根拠
 （実装上の判断とその理由。設計方針に従っただけの場合は「Tech-Lead の設計方針に準拠」と記載）
@@ -190,7 +236,8 @@ node -e "const s=require('./package.json').scripts||{}; console.log(JSON.stringi
 以下を**全項目満たすまでラベル遷移禁止**です。満たせない項目がある場合は、理由を チケットコメントに記録して `human-escalator` にエスカレーションします。
 
 - [ ] Tech-Lead の設計方針コメントを確認し、指示されたタスクをすべて実施した
-- [ ] feature branch（`<type>/issue-<番号>-<概要>`）上で作業した（基準ブランチへの直接コミットなし）
+- [ ] 作業方式（branch / worktree）を決定論的に判定し（ラベル → config → 既定 branch の順。両ラベル付与時はエスカレーション）、対応する作業空間（feature branch またはワークツリー）で作業した（基準ブランチへの直接コミットなし）
+- [ ] 完了報告の成果物に「作業方式（branch / worktree）」と「作業ディレクトリ」を記載した（下流エージェントが作業ディレクトリを引き継ぐため必須）
 - [ ] 既存テスト・新規テストが全件パスし、リントエラーがない（実行したコマンドを完了報告に記録した）
 - [ ] 変更ファイルをすべて完了報告に列挙し、コミットHashを成果物として記載した
 - [ ] 差し戻し対応の場合: 何回目の差し戻しか・指摘事項への対応内容を記録した

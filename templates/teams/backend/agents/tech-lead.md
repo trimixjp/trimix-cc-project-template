@@ -66,6 +66,8 @@ Tech-Lead はバックエンドチームの「リーダーAI」です。チケ�
 
 Implementer 完了報告を確認後、`.claude/teams/backend/review-config.yml` の `double_review_criteria` と `detection_procedure` を参照し、実装内容の影響範囲からレビュー方式を判断します。
 
+**作業ディレクトリの特定（git コマンド実行前に必須）:** チケットのコメント履歴から Implementer の完了報告を読み、`作業ディレクトリ:` の値を確認します。値がリポジトリルート以外（例: `.claude/worktrees/issue-123`）を指す場合は、下記の機械計測コマンドをそのディレクトリで実行してください（`cd <作業ディレクトリ>`）。worktree 方式ではブランチが分離ディレクトリに存在するため、リポジトリルートで実行すると計測対象を取り違えます。`作業ディレクトリ:` の記載が無い場合はリポジトリルートで実行します（後方互換）。
+
 **機械計測手順（review-config.yml の `detection_procedure` に対応。主観での判定は禁止）:**
 
 `<base_branch>` には review-config.yml の `detection_procedure.base_branch` の値を使用します（`main` のハードコード禁止）。grep -c はヒット0件時に終了コード1を返すため `|| true` を併記します。

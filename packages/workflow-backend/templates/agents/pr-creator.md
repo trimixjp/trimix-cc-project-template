@@ -37,6 +37,8 @@ PR-Creator はバックエンドチームの「PR作成専門AI」です。Revie
 
 ### ステップ2: PR の作成
 
+**作業ディレクトリの特定（git・push・gh pr create 実行前に必須）:** `review-config.yml` の `base_branch` はリポジトリルートで参照します（worktree 方式では gitignore 対象の設定ファイルが分離ディレクトリに存在しないため）。そのうえで、Implementer の完了報告の `作業ディレクトリ:` の値を確認し、リポジトリルート以外（例: `.claude/worktrees/issue-123`）を指す場合は、`git branch --show-current` / `git merge-base` / `git push` / `gh pr create` をそのディレクトリで実行します（`cd <作業ディレクトリ>`）。worktree 方式では feature branch が分離ディレクトリにチェックアウトされているため、リポジトリルートで実行すると別ブランチを PR 対象にしてしまいます。記載が無い場合はリポジトリルートで実行します（後方互換）。既存の `git branch --show-current` / `git merge-base` / `gh pr view --json mergeable` のロジックはワークツリー内でもそのまま動作するため、`cd` を先に行うだけでコマンド自体は変更しません。
+
 マージ先・マージ元ブランチを機械的に決定してから PR を作成します（`main` 等のハードコード禁止）。
 
 ```bash
