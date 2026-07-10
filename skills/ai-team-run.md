@@ -204,6 +204,9 @@ workflow.yml の steps[0] = tech-lead-analysis
 **ワークフローの継続:**  
 現在のエージェントの処理が完了したら、`workflow.yml` の `on_complete` に従い次のステップへ進んでください。人間のアクションが必要な場合（`escalated:human`、PR承認等）はそこで停止し、ユーザーに案内してください。
 
+**差し戻し・エスカレーション・再実装の遷移時:**  
+`on_rework`（差し戻し）・`on_escalation`（エスカレーション）の遷移を行うとき、および `on_rework.next` の再実装担当を起動するときは、後述「インシデントの即時記録と再照合（発火点: 差し戻し・エスカレーション・再実装）」の3発火点を必ず実施してください（記録は失敗した時点で、再照合は再実装の担当を起動する前に行います）。
+
 **並列起動（`next` が配列の場合）:**  
 `on_complete.next` または `conditions[].next` が配列（例: `[reviewer-a, reviewer-b]`）の場合、列挙されたすべてのステップのラベルを一度に付与して並列起動します。
 
@@ -330,6 +333,26 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 - カウント **n ≥ 2**（`rework_limit` 以上）→ 差し戻しせず `escalated:human` へ遷移する（human-escalator を起動し、差し戻しが上限に達した旨と争点をエスカレーションコメントに記録する）
 
 同じ指摘での差し戻しが繰り返される場合、要件の曖昧さや設計上の対立などAIだけでは解決できない問題が背景にあることが多いためです。
+
+## インシデントの即時記録と再照合（発火点: 差し戻し・エスカレーション・再実装）
+
+同一クラスの失敗が同一チケット内で繰り返される事故（インシデント #4 / Issue #86）を防ぐため、**失敗が発生したその時点で**インシデントを記録し、**再実装の担当を起動する前に**記録済みの再発防止策を照合します。
+
+この記録・照合は、各チームのリーダーエージェント定義に書くだけでは発火しません。workflow.yml の差し戻し（`on_rework`）・エスカレーション（`on_escalation` / `rework_limit` 超過）の**遷移先にはリーダーが現れない**ためです（例: backend の `on_rework.next` は `implementer`、`on_escalation.next` は `human-escalator`。いずれもリーダー = `tech-lead` を経由しません。frontend の差し戻し先は `developer`、content・sns の差し戻し先は `researcher` 等）。これらの遷移を実際にオーケストレートするのは本スキルであるため、以下の3つの発火点での記録・照合は**本スキルの責務**とします。チーム数・エージェント数に依存せず全チームで発火します。
+
+> **記録の重複回避（全発火点共通）:** 記録の前に `.claude/incidents/index.yml` を読み、当該チケット番号（`issue`）と事象（差し戻し/エスカレーション）に対応するエントリが既にあるか照合します。既にリーダーや human-escalator が記録済みなら新規レポートは作らず、既存エントリの不足（`keywords`・再発防止策等）を補うにとどめます（Contributor のクローズ時検証と同じ dedup 方針）。記録書式は `.claude/agents/contributor.md` の「インシデントレポートフォーマット」、`index.yml` は既存スキーマ（`id` は既存最大+1・`date`・`file`・`title`・`severity`・`teams`・`issue`・`keywords`）に従います。`.claude/incidents/index.yml` が読み込めない場合は記録をスキップした旨を差し戻し/エスカレーションコメントに残し、握りつぶしません。
+
+### 発火点1: 差し戻しコメントを投稿する直前（on_rework）
+
+reviewer（またはクロスレビュー）の判定を受けて差し戻しコメント（先頭行 `❌ <エージェント名>: 差し戻し（差し戻し回数: n/…）`）を投稿する**直前に**、その差し戻しの原因・争点を `.claude/incidents/` に記録し `index.yml` に登録します。Contributor のクローズ処理を待ちません（待つと同一チケット内の次の再実装で教訓が参照されない＝インシデント #4 の副次原因）。記録した参照パスは差し戻しコメントにも併記します。
+
+### 発火点2: on_rework の遷移先エージェントを起動する前（再実装）
+
+差し戻し後、`on_rework.next` のエージェント（backend では `implementer`、frontend では `developer`、sns では `researcher`/`writer` 等）を起動する**前に**、`.claude/incidents/index.yml` を照合します。当該チケットに関連する再発防止策（発火点1 で今記録したものを含む）を、起動する担当への**作業指示に明記して反映してから**起動します。前回の教訓を反映しないまま再実装を指示すると、同一クラスの欠陥を繰り返します（インシデント #4 の根本原因）。着手時の1回きりの照合では発火しないため、**差し戻しのたびに**照合します。
+
+### 発火点3: escalated:human へ遷移する時点（on_escalation / rework_limit 超過）
+
+`on_escalation.next: human-escalator` への遷移時、または `rework_limit` 超過で差し戻しをやめて `escalated:human` へ移す時点で、その原因と経緯を `.claude/incidents/` に記録し `index.yml` に登録します。エスカレーション実務（コメント・ラベル・アサイン）は human-escalator が担い、human-escalator 定義（`.claude/agents/human-escalator.md`）にも同じ記録責務を持たせています。本スキルが先に記録済みなら human-escalator は dedup により検証にとどめます（逆も同様）。
 
 ## ワークフロー停止条件
 
