@@ -61,9 +61,12 @@ npx @trimix/ai-team upgrade backend</code></pre>
 
 <h3>オプション</h3>
 
-<table><thead><tr><th>オプション</th><th>動作</th></tr></thead><tbody><tr><td><code>--dry</code></td><td>差分の提示のみを行い、<strong>書き込みもバックアップも一切行いません</strong>。何が変わるかを事前に確認したいときに使います</td></tr><tr><td><code>--force</code></td><td><code># customized: true</code> を持つカスタマイズ済みファイルも上書きします（既定では保護されます。後述）</td></tr><tr><td><code>--yes</code></td><td>確認プロンプトを省略します。<strong>非対話環境（CI・パイプ実行など）では続行に必須</strong>です（後述）</td></tr></tbody></table>
+<table><thead><tr><th>オプション</th><th>動作</th></tr></thead><tbody><tr><td><code>--dry</code></td><td>差分の提示のみを行い、<strong>書き込みもバックアップも一切行いません</strong>。何が変わるかを事前に確認したいときに使います</td></tr><tr><td><code>--diff</code></td><td>上書き更新・保護対象のファイルについて、<strong>変更の中身（unified diff）を表示</strong>します。<code>--dry --diff</code> を組み合わせると「差分を見るだけ・何も書かない」最も安全な使い方になります（後述）</td></tr><tr><td><code>--force</code></td><td><code># customized: true</code> を持つカスタマイズ済みファイルも上書きします（既定では保護されます。後述）</td></tr><tr><td><code>--yes</code></td><td>確認プロンプトを省略します。<strong>非対話環境（CI・パイプ実行など）では続行に必須</strong>です（後述）</td></tr></tbody></table>
 <pre><code class="language-bash"># まず差分だけ確認する（安全）
 npx @trimix/ai-team upgrade --dry
+
+# 変更の中身まで確認する（何も書き込まない・最も安全）
+npx @trimix/ai-team upgrade --dry --diff
 
 # カスタマイズ済みファイルも含めてすべて最新へ揃える
 npx @trimix/ai-team upgrade --force
@@ -75,7 +78,7 @@ npx @trimix/ai-team upgrade --yes</code></pre>
 
 <code>upgrade</code> は次の順序で処理します。この順序は安全のために固定されており、崩れることはありません。
 
-<ol><li><strong>更新対象の列挙</strong> — 共通設定と、対象チームの <code>plugin.json</code> の <code>install</code> マップから対象ファイルを導き出します</li><li><strong>差分の提示</strong> — 各ファイルを「新規作成 / 上書き更新 / 保護のためスキップ / 変更なし」に分類して表示します</li><li><code>--dry</code> ならここで終了（何も書き込みません）</li><li>適用する差分が無ければ「すべて最新です」で終了</li><li><strong>ユーザーへの確認</strong>（<code>--yes</code> 指定時は省略）</li><li><strong>バックアップの作成</strong>（次章。失敗したら適用せず中止）</li><li><strong>適用</strong> — 差分のあるファイルを書き込みます</li><li><strong>結果表示</strong> — 更新件数・保護スキップ件数・変更なし件数を表示します</li></ol>
+<ol><li><strong>更新対象の列挙</strong> — 共通設定と、対象チームの <code>plugin.json</code> の <code>install</code> マップから対象ファイルを導き出します</li><li><strong>残置 <code>.new</code> の警告</strong> — 前回書き出した <code>.new</code> が残っていれば冒頭で告知します（削除はしません。後述）</li><li><strong>差分の提示</strong> — 各ファイルを「新規作成 / 上書き更新 / 保護のためスキップ / 変更なし」に分類して表示します（<code>--diff</code> 指定時は変更の中身も表示）</li><li><code>--dry</code> ならここで終了（何も書き込みません）</li><li>適用する差分が無ければ「すべて最新です」で終了</li><li><strong>ユーザーへの確認</strong>（<code>--yes</code> 指定時は省略）</li><li><strong>バックアップの作成</strong>（次章。失敗したら適用せず中止）</li><li><strong>適用</strong> — 差分のあるファイルを書き込みます。保護対象は本体を維持し、最新テンプレートを <code>&lt;ファイル名&gt;.new</code> として書き出します</li><li><strong>結果表示</strong> — 更新件数・保護スキップ件数・変更なし件数を表示します</li></ol>
 <hr>
 
 <h2>アップグレード前の自動バックアップ</h2>
@@ -144,6 +147,8 @@ npx @trimix/ai-team upgrade --yes</code></pre>
 <pre><code class="language-">  🛡️  保護のためスキップ（--force で上書き可能）:
      - .claude/teams/backend/workflow.yml</code></pre>
 
+<p>保護されたファイルについては、あなたの版を上書きしない代わりに、<strong>最新テンプレートを隣に <code>&lt;ファイル名&gt;.new</code> として書き出します</strong>（後述の「保護されたファイルへ最新の変更を取り込む」を参照）。本体はそのまま維持されます。</p>
+
 <p>このマーカーが付いたファイルを最新テンプレートへ揃えたい場合は、<strong><code>--force</code> を付けて再実行</strong>します。<code>--force</code> を指定したときだけ、カスタマイズ済みファイルも上書き対象になります。</p>
 
 <p>> <strong>v0.24.0 での修正（データ損失バグ）</strong>: 以前は、この上書き保護が単一ファイル（<code>workflow.yml</code> / <code>review-config.yml</code>）にしか効いておらず、<strong>ワイルドカードで展開されるファイル（<code>agents/*</code> や <code>dod/*</code>）は <code>--force</code> を付けなくても黙って上書きされていました</strong>。v0.24.0 で保護判定を両方の経路に統一し、<code>agents/</code> や <code>dod/</code> のカスタマイズ済みファイルも <code>--force</code> を付けたときだけ上書きされるように修正しました。</p>
@@ -180,23 +185,59 @@ model: opus
 <pre><code class="language-yaml"># customized: true
 name: backend-workflow</code></pre>
 
-<h3>⚠️ 保護されたファイルへ最新の変更を取り込む組み込み手段は無い（現時点の制限）</h3>
+<h3>保護されたファイルへ最新の変更を取り込む（<code>.new</code> と <code>--diff</code>）</h3>
 
-<p><strong>保護されたファイルに、新しいテンプレートの変更を取り込むための組み込みの手段は、現時点ではありません。</strong> これは次の理由によります。</p>
+<p>保護されたファイルは上書きされませんが、あなたの版を保ったまま最新テンプレートの変更を取り込めるよう、<strong>組み込みの手段が 2 つ</strong>あります。どちらも Linux のパッケージ管理（dpkg の <code>.dpkg-dist</code>、RPM の <code>.rpmnew</code>）と同じ考え方です。</p>
 
-<ul><li><code>upgrade</code> は保護対象を<strong>素通りするだけ</strong>で、新しいテンプレートをどこにも書き出しません</li><li>バックアップ（<code>.ai-team-backups/&lt;日時&gt;/</code>）に退避されるのは<strong>あなた自身の現在の版</strong>であり、新テンプレートではありません</li><li>差分の提示は<strong>ファイル名の一覧のみ</strong>で（<code>--dry</code> を含む）、変更の中身は表示されません</li></ul>
-<p>したがって、保護したファイルへ最新テンプレートの変更を取り込みたい場合は、パッケージに同梱された最新テンプレートを直接参照し、差分を手作業で反映する必要があります。テンプレートは導入先プロジェクトの次の場所にあります（<code>npm install</code> で配布物に含まれます）。</p>
+<h4>1. <code>&lt;ファイル名&gt;.new</code>（最新テンプレートを隣に書き出す）</h4>
 
-<pre><code class="language-">node_modules/@trimix/ai-team/packages/workflow-&lt;team&gt;/templates/</code></pre>
+<code>upgrade</code> は、保護したファイルを上書きしない代わりに、<strong>最新テンプレートを <code>&lt;ファイル名&gt;.new</code> として同じ場所に書き出します</strong>。あなたの版はそのまま、最新テンプレートは <code>.new</code> として手元に残るため、両者を見比べて必要な差分を手作業で取り込めます。適用後に次のように案内されます。
 
-<p>たとえば backend チームの <code>workflow.yml</code> について、あなたの版と最新テンプレートの差分は次のように確認できます。</p>
+<pre><code class="language-">  🛡️  保護のためスキップ（あなたの編集を維持しました）:
+     - .claude/teams/backend/workflow.yml
+       最新テンプレートを .claude/teams/backend/workflow.yml.new として保存しました
+       差分の確認: diff .claude/teams/backend/workflow.yml .claude/teams/backend/workflow.yml.new
+       取り込んだら .new は削除してください</code></pre>
 
-<pre><code class="language-bash">diff .claude/teams/backend/workflow.yml \
-  node_modules/@trimix/ai-team/packages/workflow-backend/templates/workflow.yml</code></pre>
+<p><strong>取り込みの手順</strong></p>
 
-<p>差分を確認したうえで、必要な変更を手でカスタマイズ済みファイルへ反映してください。</p>
+<ol><li>あなたの版と <code>.new</code> の差分を確認する</li></ol>
+<p>   <pre><code class="language-bash">   diff .claude/teams/backend/workflow.yml .claude/teams/backend/workflow.yml.new</code></pre></p>
 
-<p>> <strong>この不便は既知の制限です。</strong> <a href="https://github.com/takufukagawa/trimix-cc-project-template/issues/86">Issue #86</a> で、保護されたファイルの隣に最新テンプレートを <code>&lt;ファイル名&gt;.new</code> として自動的に書き出す機能と、差分を表示する <code>--diff</code> オプションを実装予定です。それまでは上記の手作業で差分を取り込んでください。</p>
+<ol><li>必要な変更を、あなたのファイル（<code>workflow.yml</code> 側）へ手で反映する</li><li>取り込みが済んだら <strong><code>.new</code> を手動で削除する</strong></li></ol>
+<p>   <pre><code class="language-bash">   rm .claude/teams/backend/workflow.yml.new</code></pre></p>
+
+<p><strong><code>.new</code> は自動削除されません。</strong> 取り込みが完了したかどうかは、あなたにしか判断できないためです。<code>.new</code> を残したまま次回 <code>upgrade</code> を実行すると、冒頭で残置が警告されます（削除は行われず、告知のみ）。</p>
+
+<pre><code class="language-">  ⚠️  前回の upgrade で書き出された .new が残っています（1 件）:
+     - .claude/teams/backend/workflow.yml.new
+   差分を取り込み済みであれば削除してください。内容が最新テンプレートと異なる .new は
+   退避のうえ上書きされます（同一内容なら書き直さず、バックアップも作りません）。</code></pre>
+
+<p>なお、<code>.new</code> を上書きする前には<strong>必ずバックアップへ退避</strong>されます（前章の fail-closed と同じ扱い）。取り込み前の <code>.new</code> を誤って失うことはありません。</p>
+
+<h4><code>.new</code> の書き出しは冪等です（再実行しても増えません）</h4>
+
+<p><strong><code>.new</code> の書き出しは冪等</strong>です。既に書き出した <code>.new</code> の内容が最新テンプレートと同一であれば、<code>upgrade</code> を何度繰り返しても <code>.new</code> は書き直されず、バックアップ世代（<code>.ai-team-backups/</code>）も新たに作られません。すべてのファイルが最新で、保護ファイルの <code>.new</code> も最新であれば、次のように「すべて最新です」で終了します。</p>
+
+<pre><code class="language-">✅ すべて最新です。適用する差分はありません。
+
+  ℹ️  ただし保護されたファイルが 1 件あります（本体は維持。最新テンプレートは .new に保存済み）:
+     - .claude/teams/backend/workflow.yml → 最新テンプレート: .claude/teams/backend/workflow.yml.new
+   差分を取り込み、済んだら .new を削除してください（取り込みが未了なら未処理として残ります）。</code></pre>
+
+<p>これにより、<code>npm install</code> のたびに <code>upgrade</code> を回す運用でも、<strong>同じ内容の <code>.new</code> でバックアップ世代が無限に増えることはありません</strong>。<code>.new</code> が書き直されるのは、パッケージ更新でテンプレートが実際に変わり、<code>.new</code> の内容が古くなったときだけです（そのときは古い <code>.new</code> を退避してから上書きします）。</p>
+
+<h4>2. <code>--diff</code>（変更の中身を端末で確認する）</h4>
+
+<p><strong><code>--diff</code> を付けると、上書き更新・保護対象のファイルについて変更の中身（unified diff）を端末に表示します。</strong> 「あなたの現在の版（<code>-</code>）→ 最新テンプレート（<code>+</code>）」の差分です。<code>.new</code> を書き出す前に、何が変わるのかをその場で把握できます。</p>
+
+<pre><code class="language-bash"># 変更の中身を見るだけ・何も書き込まない（最も安全）
+npx @trimix/ai-team upgrade --dry --diff</code></pre>
+
+<code>--dry --diff</code> の組み合わせは、<strong>差分を確認するだけで書き込みもバックアップも一切行わない</strong>、最も安全な使い方です。まずこれで変更内容を把握し、問題なければ <code>--diff</code> なしで適用する、という流れを推奨します。
+
+<p>> <strong><code>*.new</code> は <code>.gitignore</code> に追加しないでください（意図的な設計）。</strong> <code>.new</code> は「あなたがまだ取り込んでいない未処理の作業」を表します。<code>.gitignore</code> に入れてしまうと <code>git status</code> に現れず、取り込み忘れ・削除忘れに気づけなくなります。<code>.new</code> があえてバージョン管理の視界に入ることで、「取り込んで消す」という対応を促します（バックアップ <code>.ai-team-backups/</code> が自動的に <code>.gitignore</code> へ追記されるのとは、狙いが逆である点に注意してください）。</p>
 
 <hr>
 
@@ -210,6 +251,50 @@ name: backend-workflow</code></pre>
      - .github/ISSUE_TEMPLATE/（backend, frontend）</code></pre>
 
 <p>チケットテンプレートを最新化したい場合は、<a href="setup.html">/ai-team-setup</a> を再実行して再配置してください。</p>
+
+<hr>
+
+<h2>シンボリックリンク・ハードリンクは辿らずスキップします</h2>
+
+<code>upgrade</code> は、<strong><code>.claude/</code> 配下のみを更新する</strong>という約束を守るため、書き込み先へ至る経路にリンクがある場合は辿らずスキップします。ファイルのコピー（<code>copyFileSync</code>）とディレクトリ作成（<code>mkdirSync</code>）はいずれも経路上のリンクを辿るため、これを検査せずに書き込むと、<code>.claude/</code> の外にあるリンク先を意図せず書き換えてしまいます。
+
+<code>.claude/</code> 丸ごと、あるいは <code>.claude/teams/</code> などをドットファイル管理リポジトリへシンボリックリンクする運用は珍しくありません。こうした場合、<code>.claude/teams/backend/workflow.yml</code> の<strong>最終要素（葉）は実ファイルでも、途中のディレクトリ（<code>.claude</code> や <code>.claude/teams</code>）がリンク</strong>になっていることがあります。
+
+<h3>封じ込め検査（パス要素の走査）</h3>
+
+<p>書き込み先については、<strong>プロジェクトルート（<code>cwd</code>）から書き込み先まで、パスの各要素を1つずつ降りながらシンボリックリンクかどうかを検査</strong>します。葉だけでなく<strong>中間ディレクトリのリンクも検出</strong>し、1つでもリンクがあればその書き込みをスキップします。</p>
+
+<ul><li><strong>存在しない要素はスキップ</strong>します（これから作られるため）。</li><li><strong>壊れたリンク</strong>（リンク先が存在しないリンク）も、リンクであること自体は検出できるため正しく弾きます。</li><li><strong><code>.claude/</code> の内側で完結するリンク</strong>（リンク先も <code>.claude/</code> 配下）も、内外を判別せず<strong>一律でスキップ</strong>します（安全側に倒す判断です）。</li><li>検査対象は<strong>本体ファイルと、保護ファイルの隣に書き出す <code>&lt;ファイル名&gt;.new</code> の両方</strong>です。</li></ul>
+<p>> <strong>なぜ経路の走査なのか</strong>: 「リンクを解決した実パスが <code>.claude/</code> の内側かどうか」で判定する方式（<code>realpath</code>）は、<strong>壊れたリンクを誤って「内側」と判定</strong>してしまいます（存在しないリンク先を安全とみなし、書き込みで実体化させてしまう）。そのため、実パス解決ではなく、経路の各要素を <code>lstat</code> で1つずつ検査する封じ込め方式を採っています。</p>
+
+<h3>ハードリンクも検出します</h3>
+
+<p>書き込み先が<strong>ハードリンク</strong>（同じ実体＝inode を複数の名前が共有している状態）だった場合もスキップします。ハードリンクはシンボリックリンクとしては検出できませんが、<code>copyFileSync</code> / <code>writeFileSync</code> は共有 inode の中身をその場で書き換えるため、<code>.claude/</code> の外にある実体を破壊してしまいます。バックアップも同じ実体を指すため退避の意味を持ちません。そこで、書き込み前に <code>nlink</code>（実体を指す名前の数）が 1 を超えていないか検査します。</p>
+
+<p>ハードリンク検査は、<strong>本体ファイル（<code>dest</code>）・保護ファイルの隣に書き出す <code>&lt;ファイル名&gt;.new</code>・<code>.gitignore</code>（<code>.ai-team-backups/</code> の追記先）のすべて</strong>で行います。シンボリックリンクの封じ込め検査と同じ範囲を、ハードリンクについても漏れなく適用します（<code>.new</code> がハードリンクのときは、完了報告で「ハードリンクのため書き出しをスキップしました」と種別に応じて案内します）。</p>
+
+<h3>スキップの表示</h3>
+
+<p>スキップしたリンクは<strong>黙って落とさず</strong>、差分の提示と完了報告の両方で明示します。<strong>シンボリックリンクとハードリンクの別、およびリンク先パス</strong>を表示します。</p>
+
+<pre><code class="language-">  ⚠️  リンクのためスキップします（.claude/ の外を書き換えず、外部 inode も壊さないため）:
+     - .claude/teams/backend/workflow.yml: シンボリックリンク → /path/to/dotfiles/workflow.yml
+     - .claude/teams/backend/agents/tech-lead.md: 祖先 .claude/teams がシンボリックリンク → /path/to/dotfiles
+     - .claude/model-profiles.yml: ハードリンク（外部 inode を共有・nlink=2）
+   シンボリックリンクは解除するかリンク先を直接編集し、ハードリンクは通常ファイルに置き換えてください。</code></pre>
+
+<ul><li>スキップしたリンクは<strong>バックアップにも退避しません</strong>（触らないため退避も不要です）。</li><li>他のファイルの更新は<strong>そのまま続行</strong>します（リンク 1 つのために全体を中止することはありません）。</li><li><code>--force</code> を付けても、シンボリックリンク・ハードリンクのいずれも辿りません。上書き保護（<code># customized: true</code>）とは別の、常時有効な安全策です。</li></ul>
+<p>リンク先のファイルもテンプレートへ更新したい場合は、シンボリックリンクなら解除して実ファイルに戻すか、リンク先を直接編集してください。ハードリンクなら実体をコピーした通常ファイルに置き換えてください。</p>
+
+<h3><code>.gitignore</code> と <code>.ai-team-backups</code> のリンク</h3>
+
+<code>.claude/</code> 配下以外でも、<code>upgrade</code> が書き込む次の 2 箇所についてリンクを検査します。扱いはそれぞれ異なります。
+
+<table><thead><tr><th>書き込み先</th><th>リンクだった場合の動作</th></tr></thead><tbody><tr><td><code>.gitignore</code>（<code>.ai-team-backups/</code> の追記先）</td><td><strong>シンボリックリンク・ハードリンクのいずれでも追記せず警告</strong>します。リンク先／共有 inode（<code>.claude/</code> の外）を書き換えないためです。必要ならリンク先に手動で追記してください</td></tr><tr><td><code>.ai-team-backups</code>（バックアップの退避先）</td><td><strong>シンボリックリンクなら、バックアップを中止し終了コード 1 で停止</strong>します（fail-closed）。バックアップは最後の防衛線であり、退避先が信頼できない状態で適用に進んではならないためです</td></tr></tbody></table>
+<code>.ai-team-backups</code> がリンクのときの停止メッセージは次のとおりです。
+
+<pre><code class="language-">❌ バックアップに失敗したため、アップグレードを中止します: バックアップ先 .ai-team-backups がシンボリックリンクです（→ /path/to/external）。信頼できない退避先へはバックアップできないため中止します（fail-closed）。
+   （fail-closed: バックアップできない状態での上書きは行いません）</code></pre>
 
 <hr>
 
@@ -238,7 +323,7 @@ name: backend-workflow</code></pre>
 
 <h2>使い方の流れ（推奨）</h2>
 
-<ol><li>パッケージを更新する（<code>npm install --save-dev ./trimix-ai-team-x.x.x.tgz</code>）</li><li>まず <code>npx @trimix/ai-team upgrade --dry</code> で差分を確認する</li><li>問題なければ <code>npx @trimix/ai-team upgrade</code> を実行し、確認して適用する（適用直前にバックアップが作成されます）</li><li>カスタマイズ済みファイルも最新へ揃えたい場合のみ、内容を確認したうえで <code>--force</code> を付けて再実行する</li><li>不要になったバックアップ（<code>.ai-team-backups/</code>）は手動で削除する</li></ol>
+<ol><li>パッケージを更新する（<code>npm install --save-dev ./trimix-ai-team-x.x.x.tgz</code>）</li><li>まず <code>npx @trimix/ai-team upgrade --dry --diff</code> で、変更の中身まで確認する（何も書き込みません）</li><li>問題なければ <code>npx @trimix/ai-team upgrade</code> を実行し、確認して適用する（適用直前にバックアップが作成されます）</li><li>保護されたファイルは隣に <code>&lt;ファイル名&gt;.new</code> が書き出されます。差分を取り込み、済んだら <code>.new</code> を手動で削除する</li><li>カスタマイズ済みファイルを丸ごと最新へ揃えたい場合のみ、内容を確認したうえで <code>--force</code> を付けて再実行する</li><li>不要になったバックアップ（<code>.ai-team-backups/</code>）は手動で削除する</li></ol>
 <hr>
 
 <h2>関連ドキュメント</h2>

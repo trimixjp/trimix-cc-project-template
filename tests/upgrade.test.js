@@ -12,13 +12,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync
+  mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, statSync, existsSync, rmSync,
+  symlinkSync, lstatSync, linkSync
 } from 'node:fs';
 import { join, resolve, dirname, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
-import { runUpgrade, enumerateUpgradeTargets } from '../bin/lib/upgrade.js';
+import { runUpgrade, enumerateUpgradeTargets, diffTargets } from '../bin/lib/upgrade.js';
 
 /** dest（OS依存セパレータ）を POSIX 形式（/）に正規化する */
 function toPosix(p) {
@@ -302,4 +303,991 @@ test('youtube の upgrade 対象に PRODUCTION-GUIDE.md が含まれる（plugin
     dests.includes('.claude/teams/youtube/PRODUCTION-GUIDE.md'),
     `PRODUCTION-GUIDE.md が upgrade 対象に含まれていない: ${dests.join(', ')}`
   );
+});
+
+// ---------------------------------------------------------------------------
+// Issue #86: 保護ファイルの隣に最新テンプレートを <dest>.new として書き出す機能、
+// 及び --diff オプション。dpkg の .dpkg-dist / RPM の .rpmnew と同じ方式。
+// ---------------------------------------------------------------------------
+
+/** カスタマイズ済み（# customized: true 付き・テンプレートと異なる）workflow.yml を配置した一時プロジェクト */
+function makeCustomizedProject() {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-new-'));
+  const customized = '# customized: true\n# 手編集したワークフロー\nsteps: [custom]\n';
+  writeUnder(cwd, '.claude/teams/backend/workflow.yml', customized);
+  return { cwd, customized };
+}
+
+/** runUpgrade 実行中の標準出力（console.log / process.stdout.write 双方）を捕捉する */
+async function captureStdout(fn) {
+  const orig = process.stdout.write.bind(process.stdout);
+  let out = '';
+  process.stdout.write = (chunk, ...rest) => {
+    out += typeof chunk === 'string' ? chunk : chunk.toString();
+    return true;
+  };
+  try {
+    await fn();
+  } finally {
+    process.stdout.write = orig;
+  }
+  return out;
+}
+
+/** .ai-team-backups/ 配下の世代ディレクトリ数を数える */
+function backupGenCount(cwd) {
+  const root = join(cwd, '.ai-team-backups');
+  if (!existsSync(root)) return 0;
+  return readdirSync(root).filter((n) => statSync(join(root, n)).isDirectory()).length;
+}
+
+/** バックアップ世代ディレクトリ配下から相対パス rel の退避ファイル絶対パスを探す */
+function findInBackup(cwd, rel) {
+  const root = join(cwd, '.ai-team-backups');
+  if (!existsSync(root)) return null;
+  for (const gen of readdirSync(root)) {
+    const genDir = join(root, gen);
+    if (!statSync(genDir).isDirectory()) continue;
+    const candidate = join(genDir, rel);
+    if (existsSync(candidate)) return candidate;
+  }
+  return null;
+}
+
+test('(#86-1) 保護ファイルの隣に <dest>.new が書き出され、内容が最新テンプレートと一致する', async () => {
+  const { cwd, customized } = makeCustomizedProject();
+  try {
+    const workflowPath = join(cwd, '.claude/teams/backend/workflow.yml');
+    const newPath = `${workflowPath}.new`;
+    const template = readTemplate('teams/backend/workflow.yml');
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 0);
+
+    // 本体は上書きされず、ユーザーの編集が保持される
+    assert.equal(readFileSync(workflowPath, 'utf-8'), customized, '保護ファイル本体が上書きされた');
+    // .new が書き出され、内容が最新テンプレートそのものと一致する
+    assert.ok(existsSync(newPath), '.new が書き出されていない');
+    assert.equal(readFileSync(newPath, 'utf-8'), template, '.new の内容が最新テンプレートと一致しない');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-2) --dry では .new が書き出されない（副作用ゼロを維持）', async () => {
+  const { cwd } = makeCustomizedProject();
+  try {
+    const newPath = join(cwd, '.claude/teams/backend/workflow.yml.new');
+
+    const code = await runUpgrade(['backend', '--dry'], { cwd });
+    assert.equal(code, 0);
+
+    assert.ok(!existsSync(newPath), '--dry なのに .new が書き出された');
+    assert.ok(!existsSync(join(cwd, '.ai-team-backups')), '--dry なのにバックアップが作られた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-3) --force では .new が書き出されない（保護スキップが発生しないため）', async () => {
+  const { cwd } = makeCustomizedProject();
+  try {
+    const workflowPath = join(cwd, '.claude/teams/backend/workflow.yml');
+    const newPath = `${workflowPath}.new`;
+    const template = readTemplate('teams/backend/workflow.yml');
+
+    const code = await runUpgrade(['backend', '--yes', '--force'], { cwd });
+    assert.equal(code, 0);
+
+    // --force では本体が最新テンプレートで上書きされる
+    assert.equal(readFileSync(workflowPath, 'utf-8'), template, '--force で本体が上書きされていない');
+    // 保護スキップが起きないので .new は作られない
+    assert.ok(!existsSync(newPath), '--force なのに .new が書き出された');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-4) 既存の .new は上書き前にバックアップへ退避される', async () => {
+  const { cwd } = makeCustomizedProject();
+  try {
+    const newRel = '.claude/teams/backend/workflow.yml.new';
+    const newPath = join(cwd, newRel);
+    const template = readTemplate('teams/backend/workflow.yml');
+    // 前回の upgrade で書き出された古い .new を模して、テンプレートとは異なる内容を置く
+    const oldNew = '# 旧世代の .new（前回のテンプレート）\nold_new: true\n';
+    writeUnder(cwd, newRel, oldNew);
+    assert.notEqual(oldNew, template, '前提: 旧 .new は最新テンプレートと異なる');
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 0);
+
+    // 現在の .new は最新テンプレートで上書きされている
+    assert.equal(readFileSync(newPath, 'utf-8'), template, '.new が最新テンプレートに更新されていない');
+    // 上書き前の旧 .new がバックアップに退避されている
+    const backedUp = findInBackup(cwd, newRel);
+    assert.ok(backedUp, '旧 .new がバックアップに退避されていない');
+    assert.equal(readFileSync(backedUp, 'utf-8'), oldNew, '退避された .new の内容が旧内容と一致しない');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-5) バックアップ失敗時は .new も書き出されない（fail-closed）', async () => {
+  const { cwd } = makeCustomizedProject();
+  try {
+    const newPath = join(cwd, '.claude/teams/backend/workflow.yml.new');
+    // .ai-team-backups をファイルとして先に作り、createBackup を失敗させる
+    writeFileSync(join(cwd, '.ai-team-backups'), 'これはディレクトリではなくファイル\n', 'utf-8');
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 1, 'バックアップ失敗時は終了コード1で停止するべき');
+
+    // バックアップできない状態では .new も書き出さない
+    assert.ok(!existsSync(newPath), 'バックアップ失敗時に .new が書き出された');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-6) 書き出した .new は次回の upgrade で更新対象と誤認されない', async () => {
+  const { cwd } = makeCustomizedProject();
+  try {
+    // 1 回目: .new を書き出す
+    await runUpgrade(['backend', '--yes'], { cwd });
+    const newRel = '.claude/teams/backend/workflow.yml.new';
+    assert.ok(existsSync(join(cwd, newRel)), '前提: 1 回目で .new が書き出される');
+
+    // 列挙対象（テンプレート由来）に .new が一切含まれないこと
+    const { targets } = enumerateUpgradeTargets({ teams: ['backend'] });
+    assert.ok(
+      targets.every((t) => !toPosix(t.dest).endsWith('.new')),
+      `.new が upgrade 対象に混入している: ${targets.map((t) => t.dest).join(', ')}`
+    );
+
+    // 2 回目: 分類しても .new は new/update/protected のどれにも現れない
+    const diffs = diffTargets({ cwd, targets, force: false });
+    assert.ok(
+      diffs.every((d) => !toPosix(d.dest).endsWith('.new')),
+      '.new が差分分類の対象になっている'
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-7) インシデント#3再発防止: 実在の ai-team-configure.md（本文にマーカー）は「上書き更新」に分類される', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-incident3-'));
+  try {
+    // 実在の配布物そのものを読み込む（テストデータの自作ではない）
+    const realConfigure = readFileSync(join(packageRoot, 'skills', 'ai-team-configure.md'), 'utf-8');
+    // 前提1: 配布物の本文にはマーカー文字列が含まれる（誤検出の原因になりうる）
+    assert.ok(
+      realConfigure.includes('# customized: true'),
+      '前提: 配布物 ai-team-configure.md の本文にマーカー文字列が含まれるはず'
+    );
+    // 前提2: ただしヘッダ領域（先頭5行）にはマーカーが無い（＝カスタマイズ済みではない）
+    assert.ok(
+      !realConfigure.split('\n').slice(0, 5).join('\n').includes('# customized: true'),
+      '前提: 先頭5行にマーカーが無いはず'
+    );
+
+    // .claude/commands/ に「旧バージョン」として配置する。実在の配布物へ末尾に 1 行だけ
+    // 加え、最新テンプレートと差が出るようにする（本文のマーカーはそのまま維持される）。
+    const configureDest = '.claude/commands/ai-team-configure.md';
+    const oldContent = `${realConfigure}\n<!-- 旧バージョン -->\n`;
+    writeUnder(cwd, configureDest, oldContent);
+
+    const { targets } = enumerateUpgradeTargets({ teams: [] });
+    const diffs = diffTargets({ cwd, targets, force: false });
+    const configureDiff = diffs.find((d) => toPosix(d.dest) === configureDest);
+    assert.ok(configureDiff, 'ai-team-configure.md が upgrade 対象に含まれていない');
+    // 本文のマーカーに惑わされず「上書き更新」に分類される（保護スキップではない）
+    assert.equal(
+      configureDiff.category, 'update',
+      `本文のマーカーを誤検出して category=${configureDiff.category} になった（update であるべき）`
+    );
+
+    // 実際に upgrade を通しても、上書き更新され、.new は作られない
+    const code = await runUpgrade(['--yes'], { cwd });
+    assert.equal(code, 0);
+    assert.equal(
+      readFileSync(join(cwd, configureDest), 'utf-8'), realConfigure,
+      'ai-team-configure.md が最新テンプレートへ上書き更新されていない'
+    );
+    assert.ok(
+      !existsSync(join(cwd, `${configureDest}.new`)),
+      '誤って保護扱いされ .new が書き出された'
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-8) --diff は unified diff を出力し、--dry --diff では何も書き込まない', async () => {
+  const cwd = makeProject(); // 非カスタマイズの古い workflow.yml（→ update に分類）
+  try {
+    const workflowPath = join(cwd, '.claude/teams/backend/workflow.yml');
+    const before = readFileSync(workflowPath, 'utf-8');
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--dry', '--diff'], { cwd });
+      assert.equal(code, 0);
+    });
+
+    // unified diff の体裁（ハンクヘッダと ---/+++ ヘッダ）が出力に含まれる
+    assert.ok(out.includes('@@ '), `unified diff のハンクヘッダが出力されていない:\n${out}`);
+    assert.ok(out.includes('--- ') && out.includes('+++ '), 'unified diff のファイルヘッダが無い');
+    // 実際の変更内容（テンプレート側の行）が + 行として現れる（トートロジー回避）
+    const templateFirstLine = readTemplate('teams/backend/workflow.yml').split('\n')[0];
+    assert.ok(
+      out.includes(`+${templateFirstLine}`),
+      `テンプレートの内容が + 行として出力されていない: "+${templateFirstLine}"`
+    );
+
+    // --dry --diff は何も書き込まない
+    assert.equal(readFileSync(workflowPath, 'utf-8'), before, '--dry --diff で既存ファイルが変更された');
+    assert.ok(!existsSync(join(cwd, '.claude/commands/ai-team-run.md')), '--dry --diff で新規ファイルが作られた');
+    assert.ok(!existsSync(join(cwd, '.ai-team-backups')), '--dry --diff でバックアップが作られた');
+    assert.ok(!existsSync(`${workflowPath}.new`), '--dry --diff で .new が作られた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-9) 冪等性: 同一内容の .new があるとき、upgrade を繰り返してもバックアップ世代が増えない', async () => {
+  const { cwd } = makeCustomizedProject();
+  try {
+    const newPath = join(cwd, '.claude/teams/backend/workflow.yml.new');
+
+    // 1 回目: グローバル対象の新規作成 + .new 書き出しでバックアップ世代 1 が作られる
+    await runUpgrade(['backend', '--yes'], { cwd });
+    assert.ok(existsSync(newPath), '前提: 1 回目で .new が書き出される');
+    assert.equal(backupGenCount(cwd), 1, '1 回目でバックアップ世代は 1 になるべき');
+
+    // 2 回目・3 回目: すべて最新（.new も同一）→ 何も書かず世代も増えない
+    await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(backupGenCount(cwd), 1, '2 回目でバックアップ世代が増えた（非冪等）');
+
+    await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(backupGenCount(cwd), 1, '3 回目でバックアップ世代が増えた（非冪等）');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-10) 冪等性: 同一 .new がある状態で再実行しても .new の内容と mtime が変わらない', async () => {
+  const { cwd } = makeCustomizedProject();
+  try {
+    const newPath = join(cwd, '.claude/teams/backend/workflow.yml.new');
+
+    await runUpgrade(['backend', '--yes'], { cwd });
+    assert.ok(existsSync(newPath), '前提: 1 回目で .new が書き出される');
+    const contentBefore = readFileSync(newPath, 'utf-8');
+    const mtimeBefore = statSync(newPath).mtimeMs;
+
+    // 書き込みの有無を mtime の変化で判定するため、確実に時間差を空けてから再実行する
+    await new Promise((r) => setTimeout(r, 20));
+    await runUpgrade(['backend', '--yes'], { cwd });
+
+    assert.equal(readFileSync(newPath, 'utf-8'), contentBefore, '再実行で .new の内容が変わった');
+    assert.equal(
+      statSync(newPath).mtimeMs, mtimeBefore,
+      '再実行で .new が書き直された（mtime が変化した＝無駄な書き込み）'
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-11) 保護ファイルのみ・.new も最新なら「すべて最新です」で早期終了し、バックアップを作らない', async () => {
+  const { cwd } = makeCustomizedProject();
+  try {
+    // 1 回目でグローバル対象と .new を最新化する
+    await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(backupGenCount(cwd), 1, '前提: 1 回目でバックアップ世代 1');
+
+    // 2 回目: 適用すべき差分が無い（保護ファイルの .new も最新）
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0);
+    });
+
+    // 「すべて最新です」に到達し、かつ保護ファイルが未処理で残っていることが分かる
+    assert.ok(out.includes('すべて最新です'), `早期終了メッセージが無い:\n${out}`);
+    assert.ok(out.includes('保護されたファイルが'), '保護ファイルの残存が案内されていない');
+    assert.ok(
+      out.includes('.claude/teams/backend/workflow.yml.new'),
+      '保護ファイルの .new の在り処が案内されていない'
+    );
+    // 新たなバックアップ世代が作られていないこと
+    assert.equal(backupGenCount(cwd), 1, '差分が無いのにバックアップ世代が増えた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Issue #86 R-1: 退避先がシンボリックリンクのとき、copyFileSync がリンクを辿って
+// .claude/ の外を上書きする脆弱性への対策。dest 本体・保護ファイルの <dest>.new の
+// 両経路でリンクを辿らずスキップし、差分サマリ・完了報告に明示し、バックアップからも
+// 除外することを検証する。
+//
+// 制約: シンボリックリンクは必ず一時ディレクトリ（mkdtempSync で作った cwd）の内側で
+// 完結させる。リンク先の「外部ファイル」victim も cwd 内に置くため、リポジトリや
+// リポジトリ外の実ファイルを指すリンクは一切作らない。
+// ---------------------------------------------------------------------------
+
+/** cwd 内（.claude/ の外）に「外部ファイル」victim を作り、そのパスと中身を返す */
+function makeVictim(cwd, name = 'victim.txt') {
+  const victimPath = join(cwd, name);
+  const content = `外部ファイルの中身（上書きされてはならない）: ${name}\n`;
+  writeFileSync(victimPath, content, 'utf-8');
+  return { victimPath, content };
+}
+
+/** cwd 配下の相対パス rel に、絶対パス absTarget を指すシンボリックリンクを作る */
+function symlinkUnder(cwd, rel, absTarget) {
+  const abs = join(cwd, rel);
+  mkdirSync(dirname(abs), { recursive: true });
+  symlinkSync(absTarget, abs);
+  return abs;
+}
+
+test('(#86-R1-1) <dest>.new がシンボリックリンクのとき、リンク先のファイルが上書きされない', async () => {
+  const { cwd } = makeCustomizedProject(); // workflow.yml はカスタマイズ済み（保護）
+  try {
+    const { victimPath, content } = makeVictim(cwd);
+    const newRel = '.claude/teams/backend/workflow.yml.new';
+    // .new を victim へのシンボリックリンクにする（辿ると victim を書き換えてしまう）
+    const newAbs = symlinkUnder(cwd, newRel, victimPath);
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 0);
+
+    // リンク先の victim が上書きされていないこと（辿らずスキップした証拠）
+    assert.equal(readFileSync(victimPath, 'utf-8'), content, '.new のリンク先（victim）が上書きされた');
+    // .new は依然としてシンボリックリンクのまま（実ファイルへ置き換わっていない）
+    assert.ok(lstatSync(newAbs).isSymbolicLink(), '.new のシンボリックリンクが実ファイルに置き換えられた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R1-2) dest 自体がシンボリックリンクのとき、リンク先のファイルが上書きされない', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-symlink-'));
+  try {
+    const { victimPath, content } = makeVictim(cwd);
+    const destRel = '.claude/teams/backend/workflow.yml';
+    // workflow.yml 本体を victim へのシンボリックリンクにする（既存 update 経路の脆弱性）
+    const destAbs = symlinkUnder(cwd, destRel, victimPath);
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 0);
+
+    assert.equal(readFileSync(victimPath, 'utf-8'), content, 'dest のリンク先（victim）が上書きされた');
+    assert.ok(lstatSync(destAbs).isSymbolicLink(), 'dest のシンボリックリンクが実ファイルに置き換えられた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R1-3) スキップしたシンボリックリンクが差分サマリに表示される', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-symlink-'));
+  try {
+    const { victimPath } = makeVictim(cwd);
+    const destRel = '.claude/teams/backend/workflow.yml';
+    symlinkUnder(cwd, destRel, victimPath);
+
+    // --dry でも差分提示フェーズは走るため、書き込みなしで差分サマリを確認できる
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--dry'], { cwd });
+      assert.equal(code, 0);
+    });
+
+    assert.ok(out.includes('シンボリックリンク'), `差分サマリにシンボリックリンクの案内が無い:\n${out}`);
+    assert.ok(out.includes(destRel), `スキップした dest のパスが表示されていない:\n${out}`);
+    // リンク先（victim の絶対パス）も明示される（silent cap の禁止）
+    assert.ok(out.includes(victimPath), `リンク先（victim）が表示されていない:\n${out}`);
+    // --dry なので victim は当然無傷
+    assert.ok(existsSync(victimPath), 'victim が消えた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R1-4) シンボリックリンクはバックアップ対象に含まれない', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-symlink-'));
+  try {
+    const { victimPath, content } = makeVictim(cwd);
+    // dest 本体をシンボリックリンクにする（→ バックアップ対象から除外されるべき）
+    const destRel = '.claude/teams/backend/workflow.yml';
+    symlinkUnder(cwd, destRel, victimPath);
+
+    // 通常ファイル（escalation-rules.yml）を古い内容で置き、これは update → バックアップされる。
+    // これによりバックアップ自体は作成される（＝除外の検証が意味を持つ）。
+    const escalationRel = '.claude/escalation-rules.yml';
+    writeUnder(cwd, escalationRel, '# 古いエスカレーションルール\n');
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 0);
+
+    // 通常ファイルはバックアップに退避されている（バックアップ自体は動作している）
+    assert.ok(findInBackup(cwd, escalationRel), '通常ファイルがバックアップに退避されていない');
+    // シンボリックリンク（dest 本体）はバックアップに退避されていない
+    assert.equal(
+      findInBackup(cwd, destRel), null,
+      'シンボリックリンクの dest がバックアップに退避された（除外されていない）'
+    );
+    // リンク先の victim も無傷
+    assert.equal(readFileSync(victimPath, 'utf-8'), content, 'victim が上書きされた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R1-5) シンボリックリンクをスキップしても、他の通常ファイルは正しく更新される（完了報告にも明示）', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-symlink-'));
+  try {
+    const { victimPath, content } = makeVictim(cwd);
+    const destRel = '.claude/teams/backend/workflow.yml';
+    symlinkUnder(cwd, destRel, victimPath);
+
+    // 通常ファイル（escalation-rules.yml）を古い内容で置く（update に分類される）
+    const escalationRel = '.claude/escalation-rules.yml';
+    writeUnder(cwd, escalationRel, '# 古いエスカレーションルール\n');
+    const expectedEscalation = readTemplate('_shared/escalation-rules.yml');
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0);
+    });
+
+    // シンボリックリンクをスキップしても、通常ファイルは最新テンプレートへ更新されている
+    assert.equal(
+      readFileSync(join(cwd, escalationRel), 'utf-8'), expectedEscalation,
+      'シンボリックリンクのスキップに巻き込まれ、通常ファイルが更新されなかった'
+    );
+    // リンク先の victim は無傷
+    assert.equal(readFileSync(victimPath, 'utf-8'), content, 'victim が上書きされた');
+    // 完了報告にシンボリックリンクのスキップが明示される
+    assert.ok(
+      out.includes('シンボリックリンクのためスキップしました'),
+      `完了報告にシンボリックリンクのスキップが明示されていない:\n${out}`
+    );
+    assert.ok(out.includes(destRel), `完了報告にスキップした dest のパスが無い:\n${out}`);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R1-6) --force でもシンボリックリンクは辿らない', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-symlink-'));
+  try {
+    const { victimPath, content } = makeVictim(cwd);
+    const destRel = '.claude/teams/backend/workflow.yml';
+    const destAbs = symlinkUnder(cwd, destRel, victimPath);
+
+    // --force はカスタマイズ保護を無効化するが、シンボリックリンク保護には影響しない
+    const code = await runUpgrade(['backend', '--yes', '--force'], { cwd });
+    assert.equal(code, 0);
+
+    assert.equal(readFileSync(victimPath, 'utf-8'), content, '--force でリンク先（victim）が上書きされた');
+    assert.ok(lstatSync(destAbs).isSymbolicLink(), '--force でシンボリックリンクが実ファイルに置き換えられた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Issue #86 R-1（2回目の差し戻し対応）: 封じ込め検査を「パス各要素の走査」に切り替え、
+// 葉（最終要素）だけでなく中間ディレクトリのシンボリックリンク、壊れたリンク、
+// ハードリンクも辿らずスキップすることを検証する。旧実装は葉のみを lstat していたため
+// mkdirSync(recursive) / copyFileSync が中間ディレクトリのリンクを辿り、.claude/ の外へ
+// ファイルを書き出してしまっていた（Tech-Lead が実測で再現）。
+//
+// 制約: リンク（シンボリック・ハード）は必ず一時ディレクトリ（cwd）の内側で完結させる。
+// 「外部ディレクトリ」victim も cwd 内（.claude/ の外）に置き、リポジトリ内外の実ファイルを
+// 指すリンクは一切作らない。
+// ---------------------------------------------------------------------------
+
+/** cwd 内（.claude/ の外）に「外部ディレクトリ」を作り、その絶対パスを返す */
+function makeExternalDir(cwd, name = 'external-dotfiles') {
+  const dir = join(cwd, name);
+  mkdirSync(dir, { recursive: true });
+  return dir;
+}
+
+/** dir 配下のファイル数を再帰的に数える（リンクは辿らず1件として数える） */
+function countFiles(dir) {
+  if (!existsSync(dir)) return 0;
+  let count = 0;
+  for (const name of readdirSync(dir)) {
+    const p = join(dir, name);
+    const st = lstatSync(p);
+    if (st.isDirectory()) count += countFiles(p);
+    else count += 1; // 通常ファイル・リンク等はすべて1件
+  }
+  return count;
+}
+
+test('(#86-R2-1) 葉（dest 最終要素）が外部ファイルへのリンク → 外部ファイルが上書きされない', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+  try {
+    const ext = makeExternalDir(cwd);
+    const victimPath = join(ext, 'workflow.yml');
+    const content = '外部の実ファイル（不変であるべき）\n';
+    writeFileSync(victimPath, content, 'utf-8');
+    const before = countFiles(ext);
+    // dest の葉を victim へのリンクにする
+    symlinkUnder(cwd, '.claude/teams/backend/workflow.yml', victimPath);
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 0);
+
+    assert.equal(readFileSync(victimPath, 'utf-8'), content, '葉リンクのリンク先が上書きされた');
+    assert.equal(countFiles(ext), before, '外部ディレクトリのファイル数が変わった');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-2) .claude 自体が外部へのリンク → 外部に1件も作られず・終了コード0・警告あり', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+  try {
+    const ext = makeExternalDir(cwd);
+    const before = countFiles(ext); // 0
+    // .claude 自体を外部ディレクトリへのリンクにする（すべての対象が経路にこのリンクを含む）
+    symlinkSync(ext, join(cwd, '.claude'));
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0, '.claude がリンクでも終了コード0であるべき');
+    });
+
+    // 外部（.claude のリンク先）に1件もファイルが作られていない
+    assert.equal(countFiles(ext), before, '.claude のリンク先にファイルが作られた');
+    // スキップの警告が明示されている（silent cap の禁止）
+    assert.ok(out.includes('シンボリックリンク'), `シンボリックリンクの警告が無い:\n${out}`);
+    assert.ok(out.includes(ext), `リンク先（外部ディレクトリ）が表示されていない:\n${out}`);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-3) .claude/teams が外部へのリンク → 外部に1件も作られない（Tech-Lead 再現ケース）', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+  try {
+    const ext = makeExternalDir(cwd);
+    const before = countFiles(ext); // 0
+    // .claude は実ディレクトリ、.claude/teams を外部へのリンクにする（中間ディレクトリのリンク）
+    mkdirSync(join(cwd, '.claude'), { recursive: true });
+    symlinkSync(ext, join(cwd, '.claude', 'teams'));
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 0);
+
+    // 外部（.claude/teams のリンク先）に1件もファイルが作られていない（旧実装のバグの核心）
+    assert.equal(countFiles(ext), before, '.claude/teams のリンク先にファイルが作られた');
+    // グローバル対象は実 .claude 配下に作られている（リンクのスキップに巻き込まれていない）
+    assert.ok(
+      existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      'リンクと無関係なグローバル対象が作られていない'
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-4) .claude/agents（保護ファイルの .new の親）が外部へのリンク → .new も本体も外部に書かれない', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+  try {
+    const ext = makeExternalDir(cwd);
+    mkdirSync(join(cwd, '.claude'), { recursive: true });
+    symlinkSync(ext, join(cwd, '.claude', 'agents'));
+
+    // 実在の共有エージェント1件を、外部（.claude/agents のリンク先）にカスタマイズ済みで置く。
+    // リンクが無ければ保護され .new が書き出される状況を作る。
+    const { targets } = enumerateUpgradeTargets({ teams: [] });
+    const agentTarget = targets.find(
+      (t) => toPosix(t.dest).startsWith('.claude/agents/') && toPosix(t.dest).endsWith('.md')
+    );
+    assert.ok(agentTarget, '前提: 共有エージェントの対象が存在する');
+    const base = toPosix(agentTarget.dest).split('/').pop();
+    const customized = '---\n# customized: true\n手編集したエージェント\n---\n';
+    writeFileSync(join(ext, base), customized, 'utf-8');
+    const before = countFiles(ext); // 1
+
+    const code = await runUpgrade(['--yes'], { cwd });
+    assert.equal(code, 0);
+
+    // 外部に .new が書かれておらず、ファイル数も増えていない
+    assert.equal(countFiles(ext), before, '.claude/agents のリンク先にファイルが増えた（.new など）');
+    assert.ok(!existsSync(join(ext, `${base}.new`)), '.new が外部に書き出された');
+    // 外部のエージェント本体も上書きされていない
+    assert.equal(readFileSync(join(ext, base), 'utf-8'), customized, '外部のエージェント本体が上書きされた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-5) .claude/teams/backend が外部へのリンク → 外部が無傷・外部に作られない', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+  try {
+    const ext = makeExternalDir(cwd);
+    const keep = join(ext, 'keep.txt');
+    writeFileSync(keep, '不変\n', 'utf-8');
+    const before = countFiles(ext);
+    mkdirSync(join(cwd, '.claude', 'teams'), { recursive: true });
+    symlinkSync(ext, join(cwd, '.claude', 'teams', 'backend'));
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 0);
+
+    assert.equal(countFiles(ext), before, '.claude/teams/backend のリンク先にファイルが作られた');
+    assert.equal(readFileSync(keep, 'utf-8'), '不変\n', '外部ファイルが上書きされた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-6) 壊れたリンク（葉・祖先の両方）でも辿らず、リンク先にファイルが作られない', async () => {
+  // (6a) 祖先が壊れたリンク（.claude/teams → 存在しないディレクトリ）
+  {
+    const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+    try {
+      const missing = join(cwd, 'missing-target-dir'); // 存在しないディレクトリ
+      mkdirSync(join(cwd, '.claude'), { recursive: true });
+      symlinkSync(missing, join(cwd, '.claude', 'teams'));
+
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0);
+
+      // 壊れた祖先リンクの先が実体化して作られていないこと（realpathSync 方式が誤判定する経路）
+      assert.ok(!existsSync(missing), '壊れた祖先リンクの先にファイル/ディレクトリが作られた');
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  }
+  // (6b) 葉が壊れたリンク（workflow.yml → 存在しないファイル）
+  {
+    const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+    try {
+      const missing = join(cwd, 'missing-workflow.yml'); // 存在しないファイル
+      const destAbs = symlinkUnder(cwd, '.claude/teams/backend/workflow.yml', missing);
+
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0);
+
+      assert.ok(!existsSync(missing), '壊れた葉リンクの先にファイルが作られた');
+      assert.ok(lstatSync(destAbs).isSymbolicLink(), '壊れた葉リンクが実ファイルに置換された');
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  }
+});
+
+test('(#86-R2-7) dest がハードリンク（外部と inode 共有）→ 外部 inode が上書きされない', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+  try {
+    const ext = makeExternalDir(cwd);
+    const victimPath = join(ext, 'shared.yml');
+    const content = '外部ファイル（inode 共有・不変であるべき）\n';
+    writeFileSync(victimPath, content, 'utf-8');
+    // dest を victim へのハードリンクにする（同一 inode）
+    const destAbs = join(cwd, '.claude/teams/backend/workflow.yml');
+    mkdirSync(dirname(destAbs), { recursive: true });
+    linkSync(victimPath, destAbs);
+    assert.ok(lstatSync(destAbs).nlink > 1, '前提: dest はハードリンク（nlink>1）であるべき');
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0);
+    });
+
+    // 外部 inode の内容が上書きされていない（copyFileSync が共有 inode を書き換えていない）
+    assert.equal(readFileSync(victimPath, 'utf-8'), content, 'ハードリンク経由で外部 inode が上書きされた');
+    assert.equal(readFileSync(destAbs, 'utf-8'), content, 'ハードリンク（dest）の内容が変わった＝inode が書き換わった');
+    // ハードリンクのスキップが報告される（symlink とは別種として明示）
+    assert.ok(out.includes('ハードリンク'), `ハードリンクのスキップ報告が無い:\n${out}`);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-8) .gitignore が外部ファイルへのリンク → 追記されず外部が無傷', async () => {
+  const cwd = makeProject(); // 古い workflow.yml（update）→ バックアップ経由で ensureGitignore に到達
+  try {
+    const ext = makeExternalDir(cwd);
+    const extGitignore = join(ext, 'real-gitignore');
+    const original = 'node_modules/\n';
+    writeFileSync(extGitignore, original, 'utf-8');
+    symlinkSync(extGitignore, join(cwd, '.gitignore'));
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0);
+    });
+
+    // 外部の .gitignore 実体が追記・上書きされていない
+    assert.equal(readFileSync(extGitignore, 'utf-8'), original, '.gitignore のリンク先が追記された');
+    assert.ok(
+      !readFileSync(extGitignore, 'utf-8').includes('.ai-team-backups/'),
+      '.ai-team-backups/ が外部 .gitignore に追記された'
+    );
+    // 追記スキップの警告が出ている
+    assert.ok(out.includes('.gitignore がシンボリックリンク'), `.gitignore スキップ警告が無い:\n${out}`);
+    // 通常の適用は行われている（workflow.yml が最新へ更新されている）
+    assert.equal(
+      readFileSync(join(cwd, '.claude/teams/backend/workflow.yml'), 'utf-8'),
+      readTemplate('teams/backend/workflow.yml'),
+      'リンクのスキップに巻き込まれ workflow.yml が更新されなかった'
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-9) .ai-team-backups が外部へのリンク → 終了コード1で停止し、適用が実行されない（fail-closed）', async () => {
+  const cwd = makeProject();
+  try {
+    const ext = makeExternalDir(cwd);
+    const before = countFiles(ext); // 0
+    const workflowPath = join(cwd, '.claude/teams/backend/workflow.yml');
+    const beforeWf = readFileSync(workflowPath, 'utf-8');
+    symlinkSync(ext, join(cwd, '.ai-team-backups'));
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 1, '.ai-team-backups がリンクなら終了コード1で停止するべき');
+
+    // 適用が実行されていない
+    assert.equal(readFileSync(workflowPath, 'utf-8'), beforeWf, 'バックアップ中止なのに workflow.yml が上書きされた');
+    assert.ok(
+      !existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      'バックアップ中止なのにグローバル対象が作られた'
+    );
+    // 外部（リンク先）にバックアップが書き込まれていない
+    assert.equal(countFiles(ext), before, '.ai-team-backups のリンク先にバックアップが書き込まれた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-10) .claude/ 内で完結するリンクも一律スキップされる（内外を判別しない・安全側）', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+  try {
+    // .claude 内の実ファイルを用意し、workflow.yml をそれへのリンクにする（内側で完結）
+    const insideTarget = join(cwd, '.claude/teams/backend/real-workflow.yml');
+    const insideContent = '.claude 内の実ファイル（不変であるべき）\n';
+    writeUnder(cwd, '.claude/teams/backend/real-workflow.yml', insideContent);
+    const destRel = '.claude/teams/backend/workflow.yml';
+    const destAbs = symlinkUnder(cwd, destRel, insideTarget);
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0);
+    });
+
+    // 内側で完結するリンクでも辿らない（リンク先の実ファイルが上書きされない）
+    assert.equal(readFileSync(insideTarget, 'utf-8'), insideContent, '内側リンクのリンク先が上書きされた');
+    assert.ok(lstatSync(destAbs).isSymbolicLink(), '内側リンクが実ファイルに置換された');
+    // スキップとして報告される
+    assert.ok(out.includes('シンボリックリンク'), `内側リンクのスキップ報告が無い:\n${out}`);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-11) リンクをスキップしても、他の通常ファイルは最新へ更新される', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+  try {
+    const ext = makeExternalDir(cwd);
+    const victim = join(ext, 'workflow.yml');
+    writeFileSync(victim, '外部（不変）\n', 'utf-8');
+    // 祖先リンク: .claude/teams → 外部（team 対象を全ブロック）
+    mkdirSync(join(cwd, '.claude'), { recursive: true });
+    symlinkSync(ext, join(cwd, '.claude', 'teams'));
+    // 通常ファイル（グローバル）は古い内容を置く → update に分類される
+    writeUnder(cwd, '.claude/escalation-rules.yml', '# 古いエスカレーションルール\n');
+    const expected = readTemplate('_shared/escalation-rules.yml');
+
+    const code = await runUpgrade(['backend', '--yes'], { cwd });
+    assert.equal(code, 0);
+
+    // グローバルの通常ファイルは最新へ更新されている
+    assert.equal(
+      readFileSync(join(cwd, '.claude/escalation-rules.yml'), 'utf-8'), expected,
+      'リンクのスキップに巻き込まれ通常ファイルが更新されなかった'
+    );
+    // 外部は無傷
+    assert.equal(readFileSync(victim, 'utf-8'), '外部（不変）\n', '外部ファイルが上書きされた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-12) --force でもシンボリックリンク・ハードリンクのいずれも辿らない', async () => {
+  // (12a) 祖先シンボリックリンク
+  {
+    const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+    try {
+      const ext = makeExternalDir(cwd);
+      const before = countFiles(ext);
+      mkdirSync(join(cwd, '.claude'), { recursive: true });
+      symlinkSync(ext, join(cwd, '.claude', 'teams'));
+
+      const code = await runUpgrade(['backend', '--yes', '--force'], { cwd });
+      assert.equal(code, 0);
+      assert.equal(countFiles(ext), before, '--force で祖先シンボリックリンクを辿って外部に書き込んだ');
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  }
+  // (12b) ハードリンク
+  {
+    const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-r2-'));
+    try {
+      const ext = makeExternalDir(cwd);
+      const victim = join(ext, 'shared.yml');
+      const content = '外部（不変）\n';
+      writeFileSync(victim, content, 'utf-8');
+      const destAbs = join(cwd, '.claude/teams/backend/workflow.yml');
+      mkdirSync(dirname(destAbs), { recursive: true });
+      linkSync(victim, destAbs);
+
+      const code = await runUpgrade(['backend', '--yes', '--force'], { cwd });
+      assert.equal(code, 0);
+      assert.equal(readFileSync(victim, 'utf-8'), content, '--force でハードリンク経由で外部 inode を上書きした');
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Issue #86 R-1（Tech-Lead 実測での差し戻し対応）: 保護ファイルの <dest>.new と
+// .gitignore がハードリンクの場合の封じ込め。従来は dest 本体のみハードリンクを検査し、
+// <dest>.new と .gitignore はシンボリックリンクしか検査していなかったため、これらを
+// 外部ファイルへのハードリンクにすると copyFileSync / writeFileSync が共有 inode を
+// その場で書き換え、外部ファイルを破壊した（Tech-Lead / Reviewer-A が実測で再現）。
+// <dest>.new・.gitignore のいずれもハードリンクを辿らずスキップすることを検証する。
+//
+// 制約: ハードリンク（linkSync）は必ず一時ディレクトリ（cwd）の内側で完結させる。
+// 「外部ファイル」victim も cwd 内（.claude/ の外）に置き、リポジトリ内外の実ファイルを
+// 指すリンクは一切作らない。
+// ---------------------------------------------------------------------------
+
+test('(#86-R2-13) <dest>.new がハードリンク（外部と inode 共有）→ 外部 inode が上書きされず、スキップが明示される', async () => {
+  const { cwd, customized } = makeCustomizedProject(); // workflow.yml はカスタマイズ済み（保護）
+  try {
+    const ext = makeExternalDir(cwd);
+    const victimPath = join(ext, 'shared.new');
+    const content = '外部ファイル（inode 共有・不変であるべき）\n';
+    writeFileSync(victimPath, content, 'utf-8');
+    // <dest>.new を victim へのハードリンクにする（同一 inode）
+    const newAbs = join(cwd, '.claude/teams/backend/workflow.yml.new');
+    mkdirSync(dirname(newAbs), { recursive: true });
+    linkSync(victimPath, newAbs);
+    assert.ok(lstatSync(newAbs).nlink > 1, '前提: .new はハードリンク（nlink>1）であるべき');
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0);
+    });
+
+    // 外部 inode の内容が上書きされていない（copyFileSync が共有 inode を書き換えていない）
+    assert.equal(readFileSync(victimPath, 'utf-8'), content, 'ハードリンク経由で .new のリンク先 inode が上書きされた');
+    assert.equal(readFileSync(newAbs, 'utf-8'), content, '.new（ハードリンク）の内容が変わった＝inode が書き換わった');
+    // .new はハードリンクのまま（実ファイルへ置換されていない）
+    assert.ok(lstatSync(newAbs).nlink > 1, '.new のハードリンクが実ファイルに置換された');
+    // 本体はユーザーの編集が保持される（保護スキップ）
+    assert.equal(readFileSync(join(cwd, '.claude/teams/backend/workflow.yml'), 'utf-8'), customized, '保護ファイル本体が上書きされた');
+    // 完了報告に .new のハードリンクスキップが明示される（「シンボリックリンクのため」と誤案内しない）
+    assert.ok(out.includes('ハードリンク'), `ハードリンクのスキップ報告が無い:\n${out}`);
+    assert.ok(
+      !out.includes(`${'.claude/teams/backend/workflow.yml.new'} はシンボリックリンク`),
+      `.new のハードリンクを「シンボリックリンクのため」と誤案内している:\n${out}`
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-14) .gitignore が外部ファイルへのハードリンク → 追記されず外部が無傷・通常の適用は続行される', async () => {
+  const cwd = makeProject(); // 古い workflow.yml（update）→ バックアップ経由で ensureGitignore に到達
+  try {
+    const ext = makeExternalDir(cwd);
+    const extGitignore = join(ext, 'real-gitignore');
+    const original = 'node_modules/\n';
+    writeFileSync(extGitignore, original, 'utf-8');
+    // .gitignore を外部ファイルへのハードリンクにする（同一 inode）
+    const gitignoreAbs = join(cwd, '.gitignore');
+    linkSync(extGitignore, gitignoreAbs);
+    assert.ok(lstatSync(gitignoreAbs).nlink > 1, '前提: .gitignore はハードリンク（nlink>1）であるべき');
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0);
+    });
+
+    // 外部の .gitignore 実体（共有 inode）が追記・上書きされていない
+    assert.equal(readFileSync(extGitignore, 'utf-8'), original, '.gitignore のリンク先（共有 inode）が追記された');
+    assert.ok(
+      !readFileSync(extGitignore, 'utf-8').includes('.ai-team-backups/'),
+      '.ai-team-backups/ が外部 .gitignore に追記された'
+    );
+    // 追記スキップの警告（ハードリンクである旨）が出ている
+    assert.ok(out.includes('.gitignore がハードリンク'), `.gitignore ハードリンクのスキップ警告が無い:\n${out}`);
+    // 通常の適用は続行されている（workflow.yml が最新へ更新されている）
+    assert.equal(
+      readFileSync(join(cwd, '.claude/teams/backend/workflow.yml'), 'utf-8'),
+      readTemplate('teams/backend/workflow.yml'),
+      'リンクのスキップに巻き込まれ workflow.yml が更新されなかった'
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#86-R2-15) --force でも <dest>.new / .gitignore のハードリンクを辿らない', async () => {
+  // (15a) <dest>.new がハードリンク: --force では .new 自体を書き出さないが、外部 inode を触らないことを保証する
+  {
+    const { cwd } = makeCustomizedProject();
+    try {
+      const ext = makeExternalDir(cwd);
+      const victim = join(ext, 'shared.new');
+      const content = '外部（不変）\n';
+      writeFileSync(victim, content, 'utf-8');
+      const newAbs = join(cwd, '.claude/teams/backend/workflow.yml.new');
+      mkdirSync(dirname(newAbs), { recursive: true });
+      linkSync(victim, newAbs);
+
+      const code = await runUpgrade(['backend', '--yes', '--force'], { cwd });
+      assert.equal(code, 0);
+      assert.equal(readFileSync(victim, 'utf-8'), content, '--force で .new のハードリンク先 inode を上書きした');
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  }
+  // (15b) .gitignore がハードリンク: --force でも共有 inode へ追記しない
+  {
+    const cwd = makeProject();
+    try {
+      const ext = makeExternalDir(cwd);
+      const extGitignore = join(ext, 'real-gitignore');
+      const original = 'node_modules/\n';
+      writeFileSync(extGitignore, original, 'utf-8');
+      linkSync(extGitignore, join(cwd, '.gitignore'));
+
+      const code = await runUpgrade(['backend', '--yes', '--force'], { cwd });
+      assert.equal(code, 0);
+      assert.equal(readFileSync(extGitignore, 'utf-8'), original, '--force で .gitignore のハードリンク先 inode を追記した');
+      assert.ok(
+        !readFileSync(extGitignore, 'utf-8').includes('.ai-team-backups/'),
+        '--force で .ai-team-backups/ が外部 .gitignore に追記された'
+      );
+    } finally {
+      rmSync(cwd, { recursive: true, force: true });
+    }
+  }
 });
