@@ -6,17 +6,101 @@
 
 ## 前提条件
 
-セットアップを始める前に以下を確認してください。
+### 必須（どのチケット方式でも）
 
-| 項目 | 必須要件 | 確認コマンド |
-|------|---------|-------------|
-| Node.js | 18.0.0 以上（`package.json` の `engines.node` で定義） | `node --version` |
-| Claude Code CLI | インストール済み・サインイン済み | `claude --version` |
-| GitHub CLI | インストール済み・認証済み（ラベル作成・Issue 操作に使用） | `gh auth status` |
+| 項目 | 要件 | 確認コマンド |
+|------|------|-------------|
+| Node.js | 18.0.0 以上（`package.json` の `engines.node`） | `node --version` |
+| Claude Code または Grok Build | インストール済み・サインイン済み | `claude --version` または `grok --version` |
 | Git リポジトリ | プロジェクトが Git で管理されている | `git status` |
-| GitHub リポジトリ | GitHub にリモートリポジトリが存在する（Issues 有効） | `gh repo view` |
 
-GitHub CLI が未認証の場合は `gh auth login` を実行してください。
+### 任意（ticket_backend: github のときだけ必要）
+
+setup でチケット管理に **GitHub Issues** を選ぶ場合のみ、次が必要です。**ローカル Markdown（`ticket_backend: local`）を選ぶ場合は不要です。**
+
+| 項目 | 要件 | 確認コマンド |
+|------|------|-------------|
+| GitHub CLI | インストール済み・認証済み（ラベル作成・チケット操作） | `gh auth status` |
+| GitHub リポジトリ | リモートが存在し、Issues が有効 | `gh repo view` |
+
+github 運用で未認証の場合は `gh auth login` を実行してください。
+
+### Node.js のインストール（未導入の場合）
+
+本パッケージは **Node.js 18 以上**が必要です（推奨: 公式の **LTS**）。未導入の場合は、OS ごとに次のいずれかの方法で入れてください。
+
+導入後の確認:
+
+```bash
+node --version   # v18.0.0 以上であること
+npm --version
+```
+
+#### macOS
+
+**方法 A: 公式インストーラ（手早く入れる）**
+
+1. [Node.js 公式ダウンロード](https://nodejs.org/ja/download) を開く
+2. **LTS** を選び、macOS 用（Apple Silicon は arm64、Intel は x64）のインストーラ（`.pkg`）を取得する
+3. インストーラを開き、画面の指示に従ってインストールする
+4. ターミナルを開き直し、上記の確認コマンドを実行する
+
+**方法 B: Homebrew**
+
+```bash
+# Homebrew が無い場合のみ
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+brew install node
+node --version
+npm --version
+```
+
+**方法 C: nvm（バージョン切替がしやすい）**
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+# ターミナルを開き直すか、表示された source の指示に従う
+nvm install --lts
+nvm use --lts
+node --version
+```
+
+#### Windows
+
+**方法 A: 公式インストーラ（手早く入れる・推奨）**
+
+1. [Node.js 公式ダウンロード](https://nodejs.org/ja/download) を開く
+2. **LTS** を選び、Windows 用インストーラ（`.msi`、通常は x64）を取得する
+3. インストーラを実行する  
+   - 「**Automatically install the necessary tools**」等が出た場合は、そのまま進めてよい  
+   - インストール先や「Add to PATH」は既定のままで問題ない
+4. **新しい** PowerShell または コマンドプロンプトを開き、確認する:
+
+```powershell
+node --version
+npm --version
+```
+
+**方法 B: winget（Windows パッケージマネージャ）**
+
+```powershell
+winget install OpenJS.NodeJS.LTS
+# インストール後、ターミナルを開き直す
+node --version
+npm --version
+```
+
+**方法 C: Chocolatey**
+
+```powershell
+# 管理者 PowerShell で Chocolatey 導入済みであること
+choco install nodejs-lts -y
+node --version
+npm --version
+```
+
+> **注意（Windows）**: インストール直後に `node` が見つからない場合は、ターミナルを開き直すか、PC を一度サインアウト／再起動して PATH を反映してください。
 
 ---
 
@@ -32,8 +116,8 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 完了すると以下のメッセージが表示されます。
 
 ```
-✅ @trimix/ai-team: 8 件のSkillファイルを .claude/commands/ に展開しました
-   Claude Code で /ai-team-setup を実行してセットアップを完了してください
+✅ @trimix/ai-team: 9 件のSkillファイルを .claude/commands/ に展開しました
+   /ai-team-setup を実行してセットアップを完了してください
 ```
 
 > **この時点ではまだ使えません。** スキルファイルが展開されただけで、チーム・ワークフロー・ラベルはまだ作成されていません。**必ずステップ 2 に進んでください。**
@@ -50,11 +134,17 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 
 ウィザードが対話形式で次の項目を確認します。
 
-1. **導入するチーム**: backend / frontend / content / infra / sns（複数選択可）
-2. **運用モード**: `multi-user`（担当者ごとに `/ai-team-run` 起動）または `solo`（`/ai-team-watch` で自動監視）
-3. **バージョン管理**: `auto`（Reviewer 合格後に自動インクリメント）または `manual`（人間が管理）
-4. **Issue 強制チェック**: `CLAUDE.md のみ`（Claude が判断して Issue 作成を促す）または `hooks で強制`（変更系の指示に Issue がない場合にスクリプトでブロック）
-5. **GitHub ラベルの作成**: 選択したチームに対応するラベルを `gh label create` で一括作成するかどうか
+1. **実行基盤（runtime）**: Claude Code / Grok Build
+2. **導入するチーム**: backend / frontend / content / infra / sns 等（複数選択可）
+3. **運用モード**: `multi-user`（担当者ごとに `/ai-team-run` 起動）または `solo`（`/ai-team-watch` で自動監視）
+4. **バージョン管理**: `auto` / `manual` / `none`
+5. **チケット管理方式**: **GitHub Issues** または **ローカル Markdown**（後者は GitHub 不要）
+6. **チケット強制チェック**: 指示書のみ / hooks で強制
+7. **AI が作業する「場所」**: **ブランチ**（既定・迷ったらこちら）または **ワークツリー**（プロジェクトの複製フォルダで作業し、手元のファイルを触らない）
+8. **モデル性能・effort**: バランス / ハイパフォーマンス / 低コスト など
+9. **ラベルの作成**（**github のときのみ**）: `gh label create` で一括作成するか。local 運用ならスキップ可
+
+> 7 の「作業する場所」は、あとから変更できます。既定を変えるなら `/ai-team-setup` を再実行、そのチケットだけ変えるならチケットに `workspace:worktree` / `workspace:branch` ラベルを貼ってください。詳細は [セットアップガイド](guide/setup.md) を参照してください。
 
 セットアップが完了すると、プロジェクトルートに次のディレクトリが配置されます。
 
@@ -69,8 +159,8 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 ├── incidents/               # インシデントレポート（初期状態は空）
 ├── docs/workflow-guide.md   # ワークフロー運用ガイド
 ├── hooks/                   # UserPromptSubmit フック（hooks を選択した場合のみ）
-│   └── ensure-issue.sh      # ファイル変更系の指示に Issue 番号がなければブロック
-└── commands/                # postinstall で展開された 7 個のスキル
+│   └── ensure-issue.sh      # ファイル変更系の指示に チケット番号がなければブロック
+└── commands/                # postinstall で展開された 9 個のスキル
 ```
 
 詳細は [ai-team-setup スキル](skills/setup.html) を参照してください。
@@ -79,37 +169,82 @@ Claude Code を起動し、以下のスラッシュコマンドを実行しま�
 
 ## ステップ 3: 最初のタスクの実行
 
-### 方法 A: マルチユーザーモード（個別実行）
+ワークフローは **チケット** を起点に動きます。まずチケットを作り、起動ラベルを付けてから `/ai-team-run` します。
 
-GitHub Issue を作成し、適切なリーダーラベル（例: `backend:tech-lead`）を付けます。担当者は Claude Code で以下を実行します。
+### 3-1. チケットを作成する（スキル）
 
-```
-/ai-team-run 42
-```
-
-または Issue の URL を直接渡します。
+セットアップ後は、Claude Code / Grok 上で次を実行します。
 
 ```
-/ai-team-run https://github.com/your-org/your-repo/issues/42
+/ai-team-ticket create
 ```
 
-エージェントは次の順序で動作します（バックエンドチームの例）。
+スキルが対話で次を聞いてきます（**タイトルと本文は必須**）。
+
+1. チケットのタイトルを入力してください  
+2. チケットの本文を入力してください（目的・完了条件など）  
+3. 起動ラベルは？（例: `backend:tech-lead`。不要なら「なし」）
+
+成功すると番号（例: `1`）が返ります。
+
+| 操作 | 呼び出し | 対話で入力するもの |
+|------|----------|-------------------|
+| 作成 | `/ai-team-ticket create` | **タイトル**・**本文**（ラベルは任意） |
+| 一覧 | `/ai-team-ticket list` | （不要） |
+| 詳細 | `/ai-team-ticket view` | **チケット番号** |
+| ラベル | `/ai-team-ticket edit` | **チケット番号**・追加/削除ラベル |
+| コメント | `/ai-team-ticket comment` | **チケット番号**・コメント本文 |
+| クローズ | `/ai-team-ticket close` | **チケット番号**（確認あり） |
+
+> **local のとき**: `tickets/open/` に md が作成されます。Obsidian で `tickets/` を開いても同じファイルを編集できます。  
+> **github のとき**: GitHub Issues 上に作成されます（要 `gh` 認証）。
+チーム別の起動ラベルの例:
+
+| チーム | 先頭ラベル（例） |
+|--------|------------------|
+| バックエンド | `backend:tech-lead` |
+| フロントエンド | `frontend:designer` |
+| コンテンツ | `content:editor-in-chief` |
+| インフラ | `infra:infra-lead` |
+| SNS | `sns:strategist` |
+| YouTube | `youtube:director` |
+| Epic 分解 | `epic` または `dispatcher` |
+
+### 3-2. ワークフローを起動する
+
+#### 方法 A: マルチユーザーモード（個別実行）
+
+作成した番号で起動します。
 
 ```
-tech-lead → implementer → tech-lead（レビュー方式判断）
-        → reviewer（または reviewer-a + reviewer-b → cross-review）
-        → tech-writer → pr-creator → 人間承認 → contributor → close
+/ai-team-run 1
 ```
 
-### 方法 B: ソロモード（自動監視）
+github の場合は URL でも可です。
 
-`/ai-team-setup` でソロモードを選択した場合は、次のコマンドで自動監視を起動します。
+```
+/ai-team-run https://github.com/your-org/your-repo/issues/1
+```
+
+担当チームはチケットのラベル・内容から決まり、そのチームの先頭エージェントから進みます（バックエンドなら Tech-Lead 起点、フロントなら Designer 起点など）。詳細は [チーム概要](teams/overview.html)。
+
+#### 方法 B: ソロモード（自動監視）
+
+`/ai-team-setup` でソロモードを選んだ場合は、監視を起動したうえでチケットを作成します。
 
 ```
 /ai-team-watch
 ```
 
-`.claude/ai-team-config.yml` の `solo.poll_interval_minutes`（デフォルト 5 分）ごとに新規 Issue を検出し、自動でワークフローを起動します。停止するまで監視ループが動作するため、停止には Ctrl+C を使用します。
+その後、別ターミナルなどで **3-1** のとおりチケットを作成し、`solo.target_labels` に含まれるラベルを付けておけば、ポーリングで自動検出されてワークフローが始まります。
+
+```
+/ai-team-ticket create
+```
+
+（対話でタイトル・本文・必要なら `content:editor-in-chief` を入力）
+
+`.claude/ai-team-config.yml` の `solo.poll_interval_minutes`（デフォルト 5 分）ごとに新規チケットを検出します。停止は Ctrl+C です。
 
 詳細は [ai-team-watch スキル](skills/watch.html) を参照してください。
 
@@ -117,7 +252,7 @@ tech-lead → implementer → tech-lead（レビュー方式判断）
 
 ## ステップ 4: 人間の判断が必要になった場合
 
-AI エージェントが法的判断・予算承認・PR マージ・仕様の曖昧さに遭遇すると、`human-escalator` が起動して `escalated:human` ラベルを付与し処理を停止します。Issue には以下のような案内が投稿されます。
+AI エージェントが法的判断・予算承認・PR マージ・仕様の曖昧さに遭遇すると、`human-escalator` が起動して `escalated:human` ラベルを付与し処理を停止します。チケットには以下のような案内が投稿されます。
 
 ```
 🚨 エスカレーション: 人間の判断が必要です
@@ -127,7 +262,7 @@ AI エージェントが法的判断・予算承認・PR マージ・仕様の�
 理由: （具体的に何が判断できないか）
 
 ## 対応完了後の手順
-1. このIssueに判断内容をコメントしてください
+1. このチケットに判断内容をコメントしてください
 2. escalated:human ラベルを外してください
 3. 以下のコマンドでワークフローを再開してください：
    /ai-team-resume
@@ -139,7 +274,7 @@ AI エージェントが法的判断・予算承認・PR マージ・仕様の�
 /ai-team-resume
 ```
 
-引数なしで実行すると、再開対象 Issue を自動検出します。詳細は [ai-team-resume スキル](skills/resume.html) を参照してください。
+引数なしで実行すると、再開対象チケットを自動検出します。詳細は [ai-team-resume スキル](skills/resume.html) を参照してください。
 
 ---
 

@@ -9,6 +9,15 @@
 
 ---
 
+## 前提: Node.js
+
+`npm install` には **Node.js 18 以上**が必要です。未導入の場合は先に入れてください。
+
+- **macOS / Windows の手順**: [クイックスタート — Node.js のインストール](getting-started.html#nodejs-のインストール未導入の場合)
+- 導入確認: `node --version`（v18.0.0 以上）と `npm --version`
+
+---
+
 ## ステップ 1: npm install
 
 配布された `.tgz` ファイルをプロジェクトルートに配置して、開発依存としてインストールします。
@@ -21,8 +30,8 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 完了すると以下のメッセージが表示されます。
 
 ```
-✅ @trimix/ai-team: 8 件のSkillファイルを .claude/commands/ に展開しました
-   Claude Code で /ai-team-setup を実行してセットアップを完了してください
+✅ @trimix/ai-team: 9 件のSkillファイルを .claude/commands/ に展開しました
+   /ai-team-setup を実行してセットアップを完了してください
 ```
 
 この時点では `.claude/commands/` にスキルファイルが置かれただけです。
@@ -42,11 +51,14 @@ Claude Code を起動し、セットアップウィザードを実行します�
 
 | # | 設定項目 | 選択肢 |
 |---|---------|--------|
-| 1 | 導入するチーム | backend / frontend / content / infra / sns（複数選択可） |
+| 0 | 実行基盤（runtime） | Claude Code / Grok Build |
+| 1 | 導入するチーム | backend / frontend / content / infra / sns 等（複数選択可） |
 | 2 | 運用モード | multi-user（手動起動）/ solo（自動監視） |
-| 3 | バージョン管理 | auto（自動インクリメント）/ manual（手動管理） |
-| 4 | Issue 強制チェック | CLAUDE.md のみ / hooks で強制 |
-| 5 | GitHub ラベルの作成 | 今すぐ一括作成 / スキップ |
+| 3 | バージョン管理 | auto / manual / none |
+| 4 | チケット管理方式 | **GitHub Issues** または **ローカル Markdown**（後者は GitHub 不要） |
+| 4b | チケット強制チェック | 指示書のみ / hooks で強制 |
+| 5 | モデル性能・effort | バランス / ハイパフォーマンス / 低コスト など |
+| 6 | ラベルの作成 | 今すぐ一括作成 / スキップ（**ticket_backend: github のとき**。local なら不要） |
 
 セットアップ完了後のメッセージ例：
 
@@ -59,11 +71,12 @@ Claude Code を起動し、セットアップウィザードを実行します�
 - 配置ファイル数: 32件
 
 ## 次のステップ
-1. .claude/CLAUDE.md を確認・カスタマイズしてください
-2. Issue を作成し /ai-team-run <Issue番号> でワークフローを開始します
+1. .claude/CLAUDE.md（または AGENTS.md）を確認・カスタマイズしてください
+2. /ai-team-ticket create でチケット作成（タイトル・本文を対話入力）
+3. /ai-team-run <番号> でワークフロー起動
 ```
 
-詳細は [セットアップガイド](guide/setup.html) を参照してください。
+詳細は [セットアップガイド](guide/setup.html) と [クイックスタート（チケット作成）](getting-started.html#ステップ-3-最初のタスクの実行) を参照してください。
 
 ---
 
@@ -107,7 +120,7 @@ Claude Code を起動し、セットアップウィザードを実行します�
     └── ai-team-configure.md
 ```
 
-`.github/ISSUE_TEMPLATE/` には、選択したチームに応じた Issue テンプレートが配置されます。
+`.github/ISSUE_TEMPLATE/` には、選択したチームに応じた チケットテンプレートが配置されます。
 
 ---
 

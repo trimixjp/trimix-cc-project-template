@@ -1,6 +1,16 @@
 # @trimix/ai-team とは
 
-`@trimix/ai-team` は、Claude Code を使った AI チームをプロジェクトに導入するセットアップパッケージです。GitHub Issues（または Jira・Linear 等）のチケットをトリガーに、バックエンド・フロントエンド・コンテンツ・インフラ・SNS運用・YouTube動画制作の各 AI チームが自律的にタスクを処理します。
+`@trimix/ai-team` は、Claude Code（および Grok Build）を使った AI チームをプロジェクトに導入するセットアップパッケージです。**チケットをトリガー**に、バックエンド・フロントエンド・コンテンツ・インフラ・SNS運用・YouTube動画制作の各 AI チームが自律的にタスクを処理します。
+
+チケットの置き場は setup で選べます。
+
+| 方式 | 説明 | 向いている用途 |
+|------|------|----------------|
+| **GitHub Issues**（既定） | `gh` 経由。協業・PR 連携向き | エンジニア中心・公開/組織リポジトリ |
+| **ローカル Markdown** | リポジトリ内 `tickets/*.md`。CLI で操作 | **非公開 GitHub が使えない・オフライン・非エンジニア** |
+| Jira・Linear 等 | URL/本文の貼り付けで起動は可能 | ラベル更新などは手動になる場合あり |
+
+**ローカル Markdown は本テンプレートの特徴のひとつです。** プライベートリポジトリの課金を避けつつ、同じワークフロー（ラベル遷移・コメント履歴）をファイルだけで回せます。人間向け UI としては **Obsidian で `tickets/` を vault として開く**運用を推奨しています（エージェントは Obsidian API に依存せず、md + `npx @trimix/ai-team ticket` を使います）。設定は [設定ファイル](reference/config.html) の `ticket_backend`、手順は [セットアップ](guide/setup.html) とプロジェクト内 `.claude/docs/local-tickets.md` を参照してください。
 
 `package.json` の `description` には次のように定義されています。
 
@@ -8,7 +18,7 @@
 AIチームをプロジェクトにセットアップするウィザード
 ```
 
-このパッケージは 6 つの専門チームと Claude Code スキル（スラッシュコマンド）から構成されており、プロジェクト固有のワークフローを `.claude/teams/<team_id>/workflow.yml` で柔軟に定義できます。各チームは専用のエージェント群を持ちます（例: YouTube動画制作チームは 9 体）。
+このパッケージは 6 つの専門チームとスキル（スラッシュコマンド）から構成されており、プロジェクト固有のワークフローを `.claude/teams/<team_id>/workflow.yml` で柔軟に定義できます。各チームは専用のエージェント群を持ちます（例: YouTube動画制作チームは 18 体）。チーム別エージェント 46 体に、全チーム共通の Dispatcher / Contributor / Human-Escalator の 3 体を加えた 49 体が同梱されます。
 
 ---
 
@@ -16,27 +26,32 @@ AIチームをプロジェクトにセットアップするウィザード
 
 ### 1. 自律的なワークフロー実行
 
-担当者が `/ai-team-run <Issue番号>` を実行するだけで、Tech-Lead → Implementer → Reviewer → Tech-Writer → PR-Creator の順にエージェントが自動で引き継ぎながらタスクを進めます。各エージェントは Issue コメントに作業内容と判断根拠を記録するため、後から作業履歴を追跡できます。
+担当者が `/ai-team-run <チケット番号>` を実行すると、チケットの**ラベル・タイトル・内容**から担当チームとワークフローが決まり、そのチームの先頭エージェントから順に処理が進みます（例: バックエンドなら Tech-Lead 起点、フロントエンドなら Designer 起点、コンテンツなら Editor-in-Chief 起点。Epic なら Dispatcher が サブチケットに分解）。各エージェントはチケットコメント（github なら Issue コメント、local なら md の Comments 節）に作業内容と判断根拠を記録し、`workflow.yml` の定義に従って次の担当へラベルで引き継ぎます。チームごとの流れは [チーム概要](teams/overview.html) を参照してください。
 
-### 2. ソロモード（自動監視）
+### 2. チケットバックエンドの選択（GitHub / ローカル md）
 
-`/ai-team-watch` を実行すると、GitHub Issues を定期的に監視して新しいタスクを自動検出します。1 人で運用する場合や、新規 Issue を取りこぼしたくない場合に有効です。監視間隔・対象ラベル・スキップラベルは `.claude/ai-team-config.yml` で設定できます。
+`ticket_backend: github | local` で進捗管理の置き場を切り替えます。操作はスキル **`/ai-team-ticket`**（内部で共通 CLI）に統一されており、エージェント定義は backend を意識しにくくなっています。local 時は `tickets/open/`・`tickets/closed/` に md が並び、Obsidian でもそのまま閲覧できます。
 
-### 3. 動的なレビュー方式（バックエンド・フロントエンド）
+### 3. ソロモード（自動監視）
+
+`/ai-team-watch` を実行すると、チケット（GitHub Issues またはローカル open 一覧）を定期的に監視して新しいタスクを自動検出します。1 人で運用する場合や、新規チケットを取りこぼしたくない場合に有効です。監視間隔・対象ラベル・スキップラベルは `.claude/ai-team-config.yml` で設定できます。
+### 4. 動的なレビュー方式（バックエンド・フロントエンド）
 
 実装内容の影響範囲に応じて、Tech-Lead（または Frontend-Lead）が自動的にシングルレビューとダブルレビューを使い分けます。判定基準は `.claude/teams/<team_id>/review-config.yml` で定義されており、認証・決済・公開 API 等の機密領域は自動的にダブルレビューに切り替わります。
 
-### 4. エスカレーション機構
+### 5. エスカレーション機構
 
 法的判断・予算承認・PR マージ・仕様の曖昧さなど、AI が判断すべきでない事項に遭遇した場合、エージェントは自動的に `human-escalator` を呼び出して人間にエスカレーションします。人間が対応を完了した後は `/ai-team-resume` で続きから再開できます。
 
-### 5. インシデント記録と再発防止
+### 6. インシデント記録と再発防止
 
-Contributor エージェントは Issue クローズ時にインシデントとして記録すべき情報がないか調査し、`.claude/incidents/` 配下にインシデントレポートを作成します。次回以降の作業開始時には、各リーダーエージェントが過去のインシデントを参照して「やってはいけないこと」を Issue に追記します。
+Contributor エージェントはチケットクローズ時にインシデントとして記録すべき情報がないか調査し、`.claude/incidents/` 配下にインシデントレポートを作成します。次回以降の作業開始時には、各リーダーエージェントが過去のインシデントを参照して「やってはいけないこと」をチケットに追記します。
 
-### 6. ドキュメント自動更新（Tech-Writer）
-
+### 7. ドキュメント自動更新（Tech-Writer）
 バックエンドチームでは、PR 作成前に Tech-Writer エージェントが起動し、コードの変更差分を `docs-src/` 配下の Markdown に反映してから `node docs-src/build.js` で `ai-team-manual/docs/` に HTML をビルドします。コードとドキュメントが乖離しない仕組みです。
+
+### 8. AI が作業する「場所」の選択（branch / worktree）
+Implementer の作業空間を **ブランチ**（いまのフォルダで履歴だけ切り替える。既定）と **ワークツリー**（`git worktree` で複製フォルダを作り、手元のファイルを触らない）から選べます。既定は `.claude/ai-team-config.yml` の `workspace.strategy`、チケット単位の上書きは `workspace:worktree` / `workspace:branch` ラベルです。詳細は [セットアップガイド](guide/setup.md) を参照してください。
 
 ---
 
@@ -55,16 +70,16 @@ Contributor エージェントは Issue クローズ時にインシデントと�
 
 ### v0.23.x シリーズの主な変更点
 
-- v0.23.0: **全エージェント定義・全スキルのモデル非依存ブラッシュアップ**。高推論モデルの暗黙的な補完に頼らず、Opus / Sonnet などどのモデルで実行しても同等品質で動作するよう、8 本のスキルと 47 体のエージェント定義＋ワークフローを「決定論的な手順」へ書き直しました。主な変更:
+- v0.23.0: **全エージェント定義・全スキルのモデル非依存ブラッシュアップ**。高推論モデルの暗黙的な補完に頼らず、Opus / Sonnet などどのモデルで実行しても同等品質で動作するよう、9 本のスキルと 49 体のエージェント定義＋ワークフローを「決定論的な手順」へ書き直しました。主な変更:
   - **エージェント記述標準の新設（agent-writing-guide §9-5〜9-8）**: 「失敗時挙動」セクションの必須化・機械的検証の原則・モデル非依存の原則・設定値のハードコード禁止を、エージェント定義の記述標準として明文化しました。全エージェントに「失敗時挙動」を水平展開し、曖昧な自然文の判断を決定表・転記式チェックに統一しています
   - **SNS 運用チームの品質ゲート追加**: `strategist-review` ステップに `on_rework`（調査レポートが不十分な場合の Researcher への差し戻し）を追加し、差し戻し上限超過時は human-escalator へ遷移するようにしました
   - **Tech-Writer の差分範囲判定を多段フォールバック化**: Version-Bumper と同一の 4 段フォールバック（git タグ → 版バンプコミット → package.json 変更 → HEAD 全件）を Tech-Writer にも水平展開し、ドキュメント更新対象の誤範囲を防ぎます
-  - **フロントエンドチームの起動ラベルを `frontend:designer` に統一**: ワークフローの最初のステップが `designer-analysis` であるため、Issue 起動ラベル（キーワード判定表・ソロモードの `target_labels`）を `frontend:frontend-lead` から `frontend:designer` に統一しました
+  - **フロントエンドチームの起動ラベルを `frontend:designer` に統一**: ワークフローの最初のステップが `designer-analysis` であるため、チケット起動ラベル（キーワード判定表・ソロモードの `target_labels`）を `frontend:frontend-lead` から `frontend:designer` に統一しました
   - **YouTube チームのステップ判定を決定論化**: director のマルチモード判定（`director-planning` / `director-channel-review`）を、直前の引き継ぎコメント（`⏭️` 行）の機械抽出＋決定表照合に変更し、失敗時挙動を追加しました
   - **バージョン管理の選択肢に「使わない（none）」を追加**: `/ai-team-setup` のバージョン管理の質問に `none` を追加。選択すると version-bumper ステップ自体をワークフローから削除し、Reviewer 合格後は直接 Tech-Writer に引き継がれます（バージョン概念のないリポジトリ向け）
   - **テンプレート同梱チーム（sns / youtube）の install ガードと gallery 区別表示**: `distribution: "template"` のチームはプラグインパッケージ非配布であることを明示し、`/ai-team-install` では案内メッセージを表示、`/ai-team-gallery` では「テンプレート同梱（/ai-team-setup で追加）」として区別表示するようにしました
   - **postinstall の配布欠落修正**: `ai-team-create.md` が `.claude/commands/` に展開されない欠落を修正し、配布スキル一覧を `bin/lib/skill-files.js` に単一情報源化しました（展開されるスキルは 8 件）
-  - **ensure-issue.sh の修正**: ハイフン区切りの `/ai-team-*` コマンド（正準表記）が Issue 強制チェックにブロックされる問題を修正しました
+  - **ensure-issue.sh の修正**: ハイフン区切りの `/ai-team-*` コマンド（正準表記）が チケット強制チェックにブロックされる問題を修正しました
   - 詳細は [v0.23.0 の変更点](changelog.html) を参照
 
 ### v0.22.x シリーズの主な変更点
@@ -85,9 +100,9 @@ Contributor エージェントは Issue クローズ時にインシデントと�
 ### v0.15.x シリーズの主な変更点
 
 - v0.15.0: **Contributor のインシデント判定基準を改善**。運用中に判明した過検出（本来インシデントではない正常なフローまでインシデント化する問題）を解消しました。主な変更:
-  - **PR 承認・マージ待ちをインシデント対象外に**: PR の承認・main マージは設計上すべての PR で必ず発生する正規ゲート（`human-merge-approval` ステップ）です。`escalated:human` の有無だけで判定すると正常に完了したほぼ全 Issue がインシデント記録されてしまうため、エスカレーションコメントの構造化フィールド「エスカレーション種別」を読み、`merge_approval` 種別を除外しました。`legal` / `budget` / `ambiguous_spec` の真のエスカレーションのみインシデント候補とします
+  - **PR 承認・マージ待ちをインシデント対象外に**: PR の承認・main マージは設計上すべての PR で必ず発生する正規ゲート（`human-merge-approval` ステップ）です。`escalated:human` の有無だけで判定すると正常に完了したほぼ全チケットがインシデント記録されてしまうため、エスカレーションコメントの構造化フィールド「エスカレーション種別」を読み、`merge_approval` 種別を除外しました。`legal` / `budget` / `ambiguous_spec` の真のエスカレーションのみインシデント候補とします
   - **本文キーワードの部分一致による誤検出を廃止**: バグ修正の判定で本文に「fix」等が含まれるかを部分一致で確認していたため、`fix:` 等のコミットプレフィックスに誤ヒットしていました。`incident` ラベルまたは適用 DOD（`bugfix.md` 判定）で判定する方式に変更し、補助キーワードを使う場合もタイトル限定・完全一致に制限しました
-  - **DOD カバレッジ 80% に計測手段なし時の除外を明記**: バックエンド feature DOD のカバレッジ項目に「カバレッジ計測手段がないプロジェクトは対象外（根拠を Issue コメントに記録）」を追記し、計測手段のないプロジェクトでの過剰な差し戻しを防ぎます
+  - **DOD カバレッジ 80% に計測手段なし時の除外を明記**: バックエンド feature DOD のカバレッジ項目に「カバレッジ計測手段がないプロジェクトは対象外（根拠を チケットコメントに記録）」を追記し、計測手段のないプロジェクトでの過剰な差し戻しを防ぎます
   - 詳細は [Contributor](agents/contributor.html) の「インシデント判定基準」、[DOD テンプレート](reference/dod.html)、[エスカレーションルール](reference/escalation.html) を参照
 
 ### v0.13.x シリーズの主な変更点
@@ -119,7 +134,7 @@ Contributor エージェントは Issue クローズ時にインシデントと�
 
 - v0.11.0: **Opus 最適化と再現性強化**。全エージェントが Claude Opus で動作する前提に最適化（モデルはエイリアス指定。助言役の `architect` のみ frontmatter に `model: opus` を明示）。主な変更:
   - **レビュー方式の機械判定化**: `review-config.yml` の `sensitive_areas` に正規表現 `pattern` を追加し、`detection_procedure`（base_branch 検証 → `git diff` 計測 → パス照合=該当確定 / 本文照合=参考値）で機械的に判定
-  - **差し戻し上限 `rework_limit: 2`**: 同一 Issue で 3 回目の不合格は implementer へ差し戻さず `escalated:human` へ。コメント先頭行照合による決定論的カウント（全 5 チーム）
+  - **差し戻し上限 `rework_limit: 2`**: 同一チケットで 3 回目の不合格は implementer へ差し戻さず `escalated:human` へ。コメント先頭行照合による決定論的カウント（全 5 チーム）
   - **AND 待機のアトミック遷移**: `requires_all_of` 合流時のレースコンディションを防ぐ手順（待機パス再確認・冪等なラベル付与・誤発動ガード付きリカバリ）を全エージェントに導入
   - **`return_to_previous` の構造化**: human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、`/ai-team-resume` が機械的に復帰先を決定
   - **人間無応答時のリマインド方針**: 最終エスカレーションコメントから 48 時間経過後に 1 回のみリマインド
@@ -137,7 +152,7 @@ Contributor エージェントは Issue クローズ時にインシデントと�
 
 ### v0.8.x シリーズの主な変更点
 
-- v0.8.0: ワークフロー設計の汎用化・業務ドメイン別拡張設計ドキュメントを追加。全チームの `workflow.yml` の整合性修正（`on_complete.conditions` 形式統一・`requires_all_of` 統一・`on_escalation` の網羅性向上）。月次ワークフロー見直しの仕組み（Issueテンプレート・GitHub Actions）を追加。
+- v0.8.0: ワークフロー設計の汎用化・業務ドメイン別拡張設計ドキュメントを追加。全チームの `workflow.yml` の整合性修正（`on_complete.conditions` 形式統一・`requires_all_of` 統一・`on_escalation` の網羅性向上）。月次ワークフロー見直しの仕組み（チケットテンプレート・GitHub Actions）を追加。
 
 ### v0.7.x シリーズの主な変更点
 
@@ -153,13 +168,14 @@ Contributor エージェントは Issue クローズ時にインシデントと�
 - v0.5.1: postinstall で全スキルファイルが展開されない問題を修正
 - v0.5.2: Mermaid.js によるフローチャート描画対応・マニュアル全体の構造を再編成
 
-`bin/setup.js` で展開される 8 つのスキルファイルは以下のとおりです。
+`bin/setup.js` で展開される 9 つのスキルファイルは以下のとおりです。
 
 ```
 ai-team-setup.md
 ai-team-run.md
 ai-team-watch.md
 ai-team-resume.md
+ai-team-ticket.md
 ai-team-gallery.md
 ai-team-install.md
 ai-team-configure.md

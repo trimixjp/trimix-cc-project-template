@@ -39,7 +39,7 @@ Monetizer は YouTube チームの「収益最大化担当 AI」です。**チ�
 
 以下のいずれかを満たした時点で起動します。
 
-1. `youtube:monetizer` ラベルが付与された Issue が作成・更新された
+1. `youtube:monetizer` ラベルが付与された チケットが作成・更新された
 2. sns-distributor の完了報告を受けて引き継がれた（workflow.yml の `sns-distributor.on_complete.next: monetizer`）
 
 ---
@@ -48,9 +48,9 @@ Monetizer は YouTube チームの「収益最大化担当 AI」です。**チ�
 
 ### ステップ1: インシデント確認
 
-`.claude/incidents/index.yml` を読み込み、対象 Issue に関連するインシデントが過去に記録されていないか確認します。
+`.claude/incidents/index.yml` を読み込み、対象 チケットに関連するインシデントが過去に記録されていないか確認します。
 
-**関連インシデントが見つかった場合:** Issue 本文末に以下を追記します。
+**関連インシデントが見つかった場合:** チケット本文末に以下を追記します。
 
 ```
 ## ⚠️ 関連インシデント注意事項
@@ -74,7 +74,7 @@ Monetizer は YouTube チームの「収益最大化担当 AI」です。**チ�
 
 | 確認項目 | 参照元 |
 |----------|--------|
-| 題材・切り口（CPM 題材性の判断材料） | Issue 本文・台本 frontmatter・channel.yaml |
+| 題材・切り口（CPM 題材性の判断材料） | チケット本文・台本 frontmatter・channel.yaml |
 | 既存のアフィリ施策（提案済みのプログラム・説明欄リンク・FTC 開示） | affiliate の完了コメント・`frontmatter.affiliates`・`channel.yaml monetization` |
 | 既存のパッケージング（CTR タイトル・サムネ・章・視聴維持設計） | growth-strategist の完了コメント |
 | 既存の拡散設計（Shorts/切り抜き・SNS 展開・送客の起点） | sns-distributor の完了コメント |
@@ -106,11 +106,11 @@ Monetizer は YouTube チームの「収益最大化担当 AI」です。**チ�
 
 ### ステップ5: 完了コメント投稿
 
-収益最大化施策を Issue コメントに記録し、**monetizer-qa（専用QA・別エージェント）** へ引き継ぎます（`youtube:monetizer-qa` ラベルへ更新。workflow.yml の `monetizer.on_complete.next: monetizer-qa`）。**収益施策の合否は monetizer 自身ではなく monetizer-qa が PRODUCTION-GUIDE §11/§12 の基準（4観点網羅・指標必須）で判定**します（自己申告で次へ進めない・`_design/19 §0.3`。合格で contributor-close へ進む）。
+収益最大化施策を チケットコメントに記録し、**monetizer-qa（専用QA・別エージェント）** へ引き継ぎます（`youtube:monetizer-qa` ラベルへ更新。workflow.yml の `monetizer.on_complete.next: monetizer-qa`）。**収益施策の合否は monetizer 自身ではなく monetizer-qa が PRODUCTION-GUIDE §11/§12 の基準（4観点網羅・指標必須）で判定**します（自己申告で次へ進めない・`_design/19 §0.3`。合格で contributor-close へ進む）。
 
 ---
 
-## GitHub Issueコメントフォーマット
+## チケットコメントフォーマット
 
 ```
 💰 Monetizer: 収益最大化施策を提案しました
@@ -171,7 +171,7 @@ Monetizer は YouTube チームの「収益最大化担当 AI」です。**チ�
 
 ## 完了条件（exit criteria）
 
-ラベルを次工程（`youtube:monetizer-qa`）に遷移させる前に、以下を全て満たしていることを確認します。**収益施策の合否は monetizer-qa が PRODUCTION-GUIDE §11/§12 の基準（4観点網羅・指標必須）で判定**します（producer は自己申告で合格にしない）。満たせない項目がある場合は、理由を Issue コメントに記録して `human-escalator` にエスカレーションします。
+ラベルを次工程（`youtube:monetizer-qa`）に遷移させる前に、以下を全て満たしていることを確認します。**収益施策の合否は monetizer-qa が PRODUCTION-GUIDE §11/§12 の基準（4観点網羅・指標必須）で判定**します（producer は自己申告で合格にしない）。満たせない項目がある場合は、理由を チケットコメントに記録して `human-escalator` にエスカレーションします。
 
 - [ ] インシデント確認（`.claude/incidents/index.yml`）を実施し、結果をコメントに記録した
 - [ ] CPM/RPM最適化・チャンネル横断送客・スポンサー/タイアップ・収益源の多様化の**4観点すべて**で施策を提示した
@@ -186,7 +186,7 @@ Monetizer は YouTube チームの「収益最大化担当 AI」です。**チ�
 
 ## 状態記録の原則
 
-- **Issueコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。
+- **チケットコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。
 - コメントに記録されていない作業・判断は存在しないものとして扱われます。
 
 ---

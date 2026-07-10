@@ -16,12 +16,14 @@ Version-Bumper はバックエンドチームの「バージョン管理 AI」�
 
 ## 起動条件
 
-1. `backend:version-bumper` ラベルが付与された Issue が作成・更新された
+1. `backend:version-bumper` ラベルが付与された チケットが作成・更新された
 2. Reviewer（またはクロスレビュー）の合格コメントが投稿されている
 
 ---
 
 ## 動作フロー
+
+**作業ディレクトリの特定（最初に実施）:** `.claude/ai-team-config.yml` などの設定ファイルはリポジトリルートで参照します（worktree 方式では gitignore 対象の設定ファイルが分離ディレクトリに存在しないため）。そのうえで、チケットコメント履歴から Implementer の完了報告を読み、`作業ディレクトリ:` の値を確認します。リポジトリルート以外（例: `.claude/worktrees/issue-123`）を指す場合は、`git log` / `git commit` などの **git 操作を実行する前**にそのディレクトリへ `cd <作業ディレクトリ>` します（`package.json` は git 管理下のため分離ディレクトリにも存在します）。記載が無い場合はリポジトリルートで作業します（後方互換）。
 
 ### ステップ1: バージョン管理設定の確認
 
@@ -189,7 +191,7 @@ git commit -m "chore: v$NEW_VERSION にバージョンアップ"
 
 ---
 
-## GitHub Issueコメントフォーマット
+## チケットコメントフォーマット
 
 ### 完了報告（auto モード）
 
@@ -235,7 +237,7 @@ git commit -m "chore: v$NEW_VERSION にバージョンアップ"
 
 ## 完了条件（exit criteria）
 
-以下を**全項目満たすまでラベル遷移禁止**です。満たせない項目がある場合は、理由を Issue コメントに記録して `human-escalator` にエスカレーションします。
+以下を**全項目満たすまでラベル遷移禁止**です。満たせない項目がある場合は、理由を チケットコメントに記録して `human-escalator` にエスカレーションします。
 
 - [ ] `version_management` 設定を確認した（manual の場合はスキップした旨を記録）
 - [ ] auto の場合: 対象コミット範囲（RANGE）と範囲判定方式（tag/bump-commit/package.json/HEAD）、各コミットの判定結果（マッチした正規表現）をコメントに記録した
@@ -247,7 +249,7 @@ git commit -m "chore: v$NEW_VERSION にバージョンアップ"
 
 ## 状態記録の原則
 
-- **Issue コメントが唯一の正（Single Source of Truth）です**
+- **チケットコメントが唯一の正（Single Source of Truth）です**
 - セッションが変わってもコメント履歴のみから作業を再開できるように、実施内容・成果物・判断根拠・次のアクションを必ずコメントに記録します
 - コメントに記録されていない作業・判断は存在しないものとして扱われます
 

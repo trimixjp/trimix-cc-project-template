@@ -4,9 +4,9 @@
 
 | ファイル | 用途 |
 |---------|------|
-| `.claude/ai-team-config.yml` | 運用モード（multi-user / solo）・バージョン管理・model/effort プロファイル |
+| `.claude/ai-team-config.yml` | 運用モード・バージョン管理・**runtime**・model/effort プロファイル・チケット方式 |
 | `.claude/escalation-rules.yml` | エスカレーション条件の定義 |
-| `.claude/model-profiles.yml` | モデル・effort プロファイルの説明（人間可読。実装 SSOT は `bin/lib/model-profiles.js`） |
+| `.claude/model-profiles.yml` | モデル・effort・runtime マップの説明（人間可読。実装 SSOT は `bin/lib/model-profiles.js`） |
 | `docs-src/config.json` | ドキュメントサイトのナビゲーションとバージョン情報 |
 | `.claude/teams/<team_id>/review-config.yml` | レビュー方式の自動判断基準（backend / frontend のみ） |
 
@@ -25,17 +25,37 @@ mode: multi-user  # または solo
 # バージョン管理（auto / manual / none）
 version_management: auto
 
+# 作業空間の方式（setup 質問4c で選択。チケットの workspace:* ラベルで個別に上書き可能）
+# branch:   基準ブランチから feature branch を切って、リポジトリ本体で作業する（既定）
+# worktree: git worktree で作業ディレクトリを分離する（並列作業・作業汚染の回避に有効）
+workspace:
+  strategy: branch          # または worktree
+  worktree_dir: .claude/worktrees
+
+# 実行基盤（setup で選択。再 setup で切替可）
+# claude-code | grok
+runtime: claude-code
+
 # モデル性能プロファイル（setup で選択）
 # high-performance | balance | low-cost
+# 実際の model 割当は runtime ごとに異なる（下記参照）
 model_performance: balance
 
 # effort 深度（setup で選択）
-# deep（xhigh）| normal（high）| light（medium）
+# deep | normal | light
+# Claude: deep=xhigh / normal=high / light=medium
+# Grok:   deep=high  / normal=high / light=medium
 effort_depth: normal
+
+# チケット管理（github | local）
+ticket_backend: github
+local_tickets:
+  dir: tickets
+  id_prefix: ""
 
 # solo モードの設定（mode: solo の場合のみ有効）
 solo:
-  poll_interval_minutes: 5      # Issue 監視の間隔（分）
+  poll_interval_minutes: 5      # チケット監視の間隔（分）
   target_labels:                # 処理対象ラベル（OR 条件）
     - dispatcher
     - backend:tech-lead
@@ -54,31 +74,41 @@ solo:
 |-----------|---|------|------|
 | `mode` | string | ○ | `multi-user` または `solo` |
 | `version_management` | string | ○ | `auto` / `manual` / `none` |
-| `model_performance` | string | ○ | `high-performance` / `balance` / `low-cost`。エージェント・スキルの `model` 一括設定の元 |
-| `effort_depth` | string | ○ | `deep` / `normal` / `light`。エージェント・スキルの `effort` 一括設定の元 |
+| `workspace.strategy` | string | △ | `branch`（既定）または `worktree`。Implementer の作業空間の方式。未指定時は `branch` 扱い（後方互換）。チケットの `workspace:branch` / `workspace:worktree` ラベルが優先される |
+| `workspace.worktree_dir` | string | △ | `strategy: worktree` の場合の worktree 配置先（既定 `.claude/worktrees`）。Implementer は `<worktree_dir>/issue-<番号>` に作業ディレクトリを作成する |
+| `runtime` | string | ○ | `claude-code`（既定）または `grok`。model/effort エイリアスとミラー先を決める |
+| `model_performance` | string | ○ | `high-performance` / `balance` / `low-cost`。役割別 model の元 |
+| `effort_depth` | string | ○ | `deep` / `normal` / `light`。effort 一括設定の元 |
+| `ticket_backend` | string | ○ | `github` または `local` |
+| `local_tickets.dir` | string | △ | local 時のチケットディレクトリ（既定 `tickets`） |
 | `solo.poll_interval_minutes` | integer | △ | `mode: solo` の場合に必須。監視間隔（分） |
 | `solo.target_labels` | array | △ | `mode: solo` の場合に必須。処理対象とするラベル（OR 条件） |
 | `solo.skip_labels` | array | △ | `mode: solo` の場合に必須。スキップ条件 |
 
-### モデル・effort の反映
+### モデル・effort の反映とカスタマイズ
 
-`model_performance` / `effort_depth` の値は setup 時に各 md の frontmatter へ書き込まれます。後から変える場合:
+`runtime` / `model_performance` / `effort_depth` は setup 時に各エージェント・スキル md の frontmatter（`model` / `effort`）へ書き込まれます。
+
+**一括再適用（runtime 切替を含む）:**
 
 ```bash
 node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime <claude-code|grok> \
   --profile <balance|high-performance|low-cost> \
   --effort <normal|deep|light> \
   --dir .claude
 ```
 
-**細かい設定は各エージェント / スキル md の `model` / `effort` を直接編集してください。** 再 apply すると上書きされます。
+`runtime=grok` のときは `.grok/agents` と `.grok/commands` へのミラーも行われます。
 
+**細かい設定は各 md の `model` / `effort` を直接編集してください。** 再 apply すると上書きされます。  
+役割表・エイリアス一覧は [エージェントのカスタマイズ](../guide/agents.md) と `.claude/model-profiles.yml` を参照。
 ### 運用モードの違い
 
 | 観点 | multi-user | solo |
 |------|-----------|------|
 | 起動方法 | 担当者が `/ai-team-run` 実行 | `/ai-team-watch` で監視ループ |
-| 新規 Issue の検出 | 手動 | ポーリングで自動 |
+| 新規チケットの検出 | 手動 | ポーリングで自動 |
 | 二重実行防止 | 担当者の運用に依存 | `ai-team:in-progress` ラベル |
 | solo セクション | 不要 | 必須 |
 

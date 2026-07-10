@@ -24,10 +24,10 @@
 ```
 ? 運用モードを選択してください
 ❯ マルチユーザーモード
-    担当者が /ai-team-run <Issue> を実行して処理を開始します
+    担当者が /ai-team-run <チケット> を実行して処理を開始します
     複数人チームに適しています
   ソロモード
-    /ai-team-watch を起動すると新しいIssueを自動検出して処理します
+    /ai-team-watch を起動すると新しいチケットを自動検出して処理します
     1人での運用に適しています
 ```
 
@@ -54,19 +54,19 @@
 
 設定は `.claude/ai-team-config.yml` の `version_management` で変更できます。
 
-### ステップ4: Issue 強制チェックの設定
+### ステップ4: チケット強制チェックの設定
 
-ファイル変更を伴う指示は GitHub Issue を起点にすることで、インシデント記録・ラベル管理・作業履歴が正しく機能します。チェック方法を選択します。
+ファイル変更を伴う指示は チケットを起点にすることで、インシデント記録・ラベル管理・作業履歴が正しく機能します。チェック方法を選択します。
 
 ```
-? Issue 強制チェックの方法を選択してください
+? チケット強制チェックの方法を選択してください
 ❯ CLAUDE.md のみ（推奨）
     タスク受付ルールを CLAUDE.md に記載します
-    Claude が内容を判断して Issue 経由を促します
+    Claude が内容を判断して チケット経由を促します
     設定変更なしで導入できます
   hooks で強制
     UserPromptSubmit フックを設定します
-    変更系キーワードを含む指示に Issue 番号がない場合、スクリプトが自動でブロックします
+    変更系キーワードを含む指示に チケット番号がない場合、スクリプトが自動でブロックします
     より確実に強制できますが、誤検知でブロックされる場合もあります
 ```
 
@@ -92,7 +92,7 @@
 | プロジェクト指示 | `.claude/CLAUDE.md` | **`AGENTS.md`（正規）** + `.claude/CLAUDE.md`（互換） |
 | エージェント | `.claude/teams/*/agents/` 等 | 左記 + `.grok/agents/` ミラー |
 | スキル | `.claude/commands/` | 左記 + `.grok/commands/` ミラー |
-| Issue 強制フック本体 | `.claude/hooks/ensure-issue.sh` | 同じスクリプトを共有 |
+| チケット強制フック本体 | `.claude/hooks/ensure-issue.sh` | 同じスクリプトを共有 |
 | フック登録 | `.claude/settings.json` | 左記 + `.grok/hooks/ensure-issue.json` |
 
 Grok は Claude 互換で `.claude/` も読みますが、**指示の正規は `AGENTS.md`、フックの明示配置は `.grok/hooks/`** です。hooks 選択時は両方に登録します。
@@ -140,11 +140,39 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 
 | 条件 | 動作 |
 |------|------|
-| Issue 番号（`#123`）または GitHub URL を含む | スルー |
+| チケット番号（`#123`）または GitHub URL を含む | スルー |
 | `/ai-team ` スキルを使用している | スルー |
 | 「確認・調査・教えて」等の調査系で始まる | スルー |
-| 「修正・実装・追加・fix・create」等の変更系キーワードを含む | **ブロック** → Issue 作成を案内 |
+| 「修正・実装・追加・fix・create」等の変更系キーワードを含む | **ブロック** → チケット作成を案内 |
 | それ以外 | スルー |
+
+### ステップ4c: AI が作業する「場所」
+
+AI がコードを書くとき、あなたが開いているファイルと混ざらないよう、作業する場所を分けます。分け方は2通りです。
+
+| 方式 | どういうことか | 向いている人 |
+|---|---|---|
+| **ブランチ**（既定） | いまのフォルダの中で、履歴だけを切り替えて作業する。準備が要らない | Git のブランチ操作に慣れていない人／AI の作業中は手を止めて待つ人／ディスク容量に余裕がない人 |
+| **ワークツリー** | プロジェクトの複製フォルダ（`.claude/worktrees/issue-123/` など）を作り、その中だけで作業する。手元のファイルは変わらない | AI に任せつつ自分も同じプロジェクトを触りたい人／チケットを2件以上、同時に走らせたい人 |
+
+**迷ったら「ブランチ」で構いません。**ひとりでチケットを1件ずつ順番に処理する使い方なら、これで十分です。
+
+選んだ内容は `.claude/ai-team-config.yml` の `workspace.strategy` に保存されます。
+
+```yaml
+workspace:
+  strategy: branch          # または worktree
+  worktree_dir: .claude/worktrees
+```
+
+いずれを選んでも後から変更できます。
+
+- **既定を変える**: `/ai-team-setup` を再実行する
+- **このチケットだけ変える**: チケットに `workspace:worktree` または `workspace:branch` ラベルを貼る（ラベルが設定より優先されます）
+
+ワークツリーを選んだ場合、setup は `.gitignore` に `.claude/worktrees/` を追記します（冪等）。ブランチ既定のままチケット単位でワークツリーに切り替えたときは、Implementer が同じ追記を行います。
+
+どちらの方式で作業したかは、Implementer が完了報告に `作業方式:` と `作業ディレクトリ:` として必ず記録するため、後から追えます。
 
 ### ステップ5: GitHub ラベルの作成
 
@@ -159,7 +187,7 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 ```
 .claude/
 ├── CLAUDE.md                       # タスク受付ルールを含む AIチーム設定
-├── ai-team-config.yml              # 運用モード・バージョン管理・model/effort 設定
+├── ai-team-config.yml              # 運用モード・バージョン管理・作業空間の方式・model/effort 設定
 ├── escalation-rules.yml            # エスカレーション条件
 ├── model-profiles.yml              # モデル・effort プロファイルの説明（人間可読）
 ├── agents/

@@ -1,6 +1,6 @@
 # /ai-team-run — ワークフロー起動
 
-担当チケット（GitHub Issue・Jira・Linear 等）を読み込み、適切なチームのワークフローを起動します。
+担当チケット（チケット・Jira・Linear 等）を読み込み、適切なチームのワークフローを起動します。
 
 > **スキル定義**: `skills/ai-team-run.md`
 
@@ -17,11 +17,11 @@
 ### 実行例
 
 ```
-# Issue番号で指定
+# チケット番号で指定
 /ai-team-run 42
 
-# GitHub Issue URL で指定
-/ai-team-run https://github.com/your-org/your-repo/issues/42
+# チケット URL で指定
+/ai-team-run https://github.com/.*/issues/42
 
 # Jira URL で指定
 /ai-team-run https://your-org.atlassian.net/browse/PROJ-123
@@ -39,7 +39,7 @@
 | チケットの形式 | 取得方法 |
 |---------------|---------|
 | 番号のみ（例: `42`） | `gh issue view 42 --json title,body,labels,assignees,comments` |
-| GitHub Issue URL | `gh issue view <番号>` で取得 |
+| チケット URL | `gh issue view <番号>` で取得 |
 | Jira URL | URL から番号抽出後、ユーザーに内容貼り付けを依頼 |
 | その他の URL | ユーザーにチケット内容の貼り付けを依頼 |
 
@@ -86,7 +86,7 @@
 
 ## ステップ 4: インシデント確認
 
-担当チームのワークフロー起動前に `.claude/incidents/index.yml` を読み込み、チケット内容と `keywords` を照合します。関連インシデントが見つかった場合、注意事項を Issue 本文末尾またはコメントとして投稿します。
+担当チームのワークフロー起動前に `.claude/incidents/index.yml` を読み込み、チケット内容と `keywords` を照合します。関連インシデントが見つかった場合、注意事項を チケット本文末尾またはコメントとして投稿します。
 
 ```
 ## ⚠️ 関連インシデント注意事項
@@ -108,7 +108,7 @@
 
 `.claude/agents/dispatcher.md` を読み込み、Dispatcher エージェントとして動作します。
 
-1. チケット内容を分析して Sub Issue（またはサブタスク）に分解
+1. チケット内容を分析して サブチケット（またはサブタスク）に分解
 2. 各チームのワークフローを並列または順次で起動
 
 ### 通常チケットの場合
@@ -135,7 +135,7 @@ workflow.yml の steps[0] = tech-lead-analysis
 
 ### チケットへの記録
 
-各エージェントの作業結果は Issue コメントとして記録されます。
+各エージェントの作業結果は チケットコメントとして記録されます。
 
 ```bash
 # GitHub Issues
@@ -169,7 +169,7 @@ gh issue edit <番号> --add-label "backend:reviewer" --remove-label "backend:im
 | PR の承認・マージが必要 | 人間が承認・マージ → ワークフロー継続 |
 | 重大セキュリティリスク発見 | 人間の判断・対応 → 修正後に再開 |
 | `escalation-rules.yml` の `escalation_triggers` に該当 | 人間の判断 → `/ai-team-resume` |
-| Issue がクローズされた | Contributor が完了処理済み → 停止 |
+| チケットがクローズされた | Contributor が完了処理済み → 停止 |
 
 ---
 
@@ -214,7 +214,7 @@ gh issue edit <番号> --add-label "backend:reviewer" --remove-label "backend:im
        ▼
 [人間がマージ後]
   → /ai-team-resume または solo 自動再開
-  → contributor が DOD 確認・Issue クローズ
+  → contributor が DOD 確認・チケットクローズ
 ```
 
 ---

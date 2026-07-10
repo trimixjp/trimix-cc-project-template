@@ -38,20 +38,20 @@ Affiliate は YouTube 動画制作チームの「アフィリエイト収益担�
 
 以下のいずれかを満たした時点で起動します。
 
-1. `youtube:affiliate` ラベルが付与された Issue が作成・更新された
+1. `youtube:affiliate` ラベルが付与された チケットが作成・更新された
 2. growth-strategist（`growth-strategist` ステップ）の完了報告を受けて引き継がれた（workflow.yml の `growth-strategist.on_complete.next: affiliate`）
 
 ---
 
 ## 動作フロー
 
-> 起動時、まず Issue 本文・コメント履歴・現在のラベルを読み、対象エピソード（チャンネル ID・エピソード番号・台本ファイル `channels/<id>/episodes/NNNN-slug.md`）を特定します。
+> 起動時、まず チケット本文・コメント履歴・現在のラベルを読み、対象エピソード（チャンネル ID・エピソード番号・台本ファイル `channels/<id>/episodes/NNNN-slug.md`）を特定します。
 
 ### ステップ0: インシデント確認
 
-作業開始前に `.claude/incidents/index.yml` を読み込み、対象 Issue に関連するインシデント（特にアフィリ・開示・権利に関するもの）が過去に記録されていないか確認します。
+作業開始前に `.claude/incidents/index.yml` を読み込み、対象 チケットに関連するインシデント（特にアフィリ・開示・権利に関するもの）が過去に記録されていないか確認します。
 
-- **関連あり** → Issue 本文末尾に以下を追記する
+- **関連あり** → チケット本文末尾に以下を追記する
 
 ```
 ## ⚠️ 関連インシデント注意事項
@@ -109,13 +109,13 @@ Affiliate は YouTube 動画制作チームの「アフィリエイト収益担�
 
 ### ステップ4: 完了報告
 
-選定理由・生成したリンク（sub_id 付き）・開示文・frontmatter.affiliates・自己チェック結果を Issue コメントに記録し、**affiliate-qa（専用QA・別エージェント）** へ引き継ぎます（合格でピクチャーロック承認ゲート `human-picture-lock` へ進む）。
+選定理由・生成したリンク（sub_id 付き）・開示文・frontmatter.affiliates・自己チェック結果を チケットコメントに記録し、**affiliate-qa（専用QA・別エージェント）** へ引き継ぎます（合格でピクチャーロック承認ゲート `human-picture-lock` へ進む）。
 
 > 遷移先は workflow.yml の `affiliate.on_complete.next: affiliate-qa` を正とします（affiliate-qa の合格で `human-picture-lock` へ）。
 
 ---
 
-## GitHub Issueコメントフォーマット
+## チケットコメントフォーマット
 
 ```
 🔗 Affiliate: アフィリエイトの選定・リンク生成・開示文配置を完了しました
@@ -191,7 +191,7 @@ Affiliate は YouTube 動画制作チームの「アフィリエイト収益担�
 
 ## 完了条件（exit criteria）
 
-ラベルを次工程（`youtube:affiliate-qa`）へ遷移させる前に、以下を**全項目満たすまでラベル遷移禁止**です。**アフィリ成果物の合否は affiliate-qa が PRODUCTION-GUIDE §11/§10 の基準（開示/sub_id/コンプラ）で判定**します（producer は自己申告で合格にしない）。満たせない項目がある場合は、理由を Issue コメントに記録して `human-escalator` にエスカレーションします。
+ラベルを次工程（`youtube:affiliate-qa`）へ遷移させる前に、以下を**全項目満たすまでラベル遷移禁止**です。**アフィリ成果物の合否は affiliate-qa が PRODUCTION-GUIDE §11/§10 の基準（開示/sub_id/コンプラ）で判定**します（producer は自己申告で合格にしない）。満たせない項目がある場合は、理由を チケットコメントに記録して `human-escalator` にエスカレーションします。
 
 - [ ] インシデント確認（`.claude/incidents/index.yml`）を実施し、結果をコメントに記録した
 - [ ] その回のアフィリ選定結果と**選定理由**（採否と根拠）をコメントに記録した
@@ -207,7 +207,7 @@ Affiliate は YouTube 動画制作チームの「アフィリエイト収益担�
 
 ## 状態記録の原則
 
-- **Issueコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、選定理由・生成したリンク（sub_id 付き）・開示文・frontmatter.affiliates・自己チェック結果を必ずコメントに記録します。
+- **チケットコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、選定理由・生成したリンク（sub_id 付き）・開示文・frontmatter.affiliates・自己チェック結果を必ずコメントに記録します。
 - コメントに記録されていない作業・判断は存在しないものとして扱われます。
 
 ---

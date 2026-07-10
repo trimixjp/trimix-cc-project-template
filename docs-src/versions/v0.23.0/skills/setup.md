@@ -25,13 +25,23 @@ AIチームをプロジェクトに導入するための対話型ウィザード
 2. `.claude/` ディレクトリの有無
 3. 既存の `.claude/teams/` がある場合、セットアップ済みのチーム
 
-既にセットアップ済みの場合、追加導入・ラベル再作成のために再実行することも可能です。
+既にセットアップ済みの場合、再実行で次を選べます。
+
+- **フルセットアップ** … チーム選択からやり直し
+- **設定の切替のみ** … `runtime` / モデル性能 / effort のみ再適用（エージェント定義の再配置は最小）
 
 ---
 
-## ステップ 2: 導入チーム・運用モード・バージョン管理の選択
+## ステップ 2: 導入チーム・運用モード・runtime・モデルの選択
 
 `AskUserQuestion` ツールで以下の質問が行われます。
+
+### 質問 0: 実行基盤（runtime）
+
+| 選択肢 | 説明 |
+|--------|------|
+| Claude Code（既定） | `model` は fable/opus/sonnet/haiku。effort に xhigh 可 |
+| Grok Build | `model` は grok-4.5 / grok-composer-2.5-fast。`.grok/agents`・`.grok/commands` にミラー。指示は `AGENTS.md` + `.claude/CLAUDE.md` |
 
 ### 質問 1: 導入するチーム（複数選択可）
 
@@ -54,8 +64,8 @@ AIチームをプロジェクトに導入するための対話型ウィザード
 
 | モード | 説明 | 適性 |
 |--------|------|------|
-| `multi-user` | 担当者が `/ai-team-run <Issue>` を実行して処理を開始 | 複数人チーム |
-| `solo` | `/ai-team-watch` で新規 Issue を自動検出して処理 | 1人運用 |
+| `multi-user` | 担当者が `/ai-team-run <チケット>` を実行して処理を開始 | 複数人チーム |
+| `solo` | `/ai-team-watch` で新規チケットを自動検出して処理 | 1人運用 |
 
 選択した運用モードは `.claude/ai-team-config.yml` に記録されます。
 
@@ -67,12 +77,57 @@ AIチームをプロジェクトに導入するための対話型ウィザード
 | 手動管理（`manual`） | バージョンアップはワークフロー外で人間が管理。Version-Bumper ステップは残り、スキップ報告のみ行う | チーム開発・独自リリースフロー・monorepo |
 | 使わない（`none`）※v0.23.0 で追加 | バージョン管理をワークフローから完全に外す。version-bumper ステップ自体を削除し、Reviewer 合格後は直接 Tech-Writer へ | バージョン概念のないリポジトリ（アプリ運用・ドキュメント等） |
 
-### 質問 4: Issue 強制チェックの方法
+### 質問 4: チケット管理方式
 
-ファイル変更を伴う指示を GitHub Issue 起点に強制する方法を選択します。
+| 選択肢 | 説明 |
+|--------|------|
+| GitHub Issues（既定） | 従来どおり `gh` 経由 |
+| ローカル Markdown（Obsidian 推奨） | `tickets/*.md` で完結。`ticket_backend: local` |
 
-- **CLAUDE.md のみ（推奨）**: タスク受付ルールを CLAUDE.md に記載し、Claude が内容を判断して Issue 経由を促す
-- **hooks で強制**: `UserPromptSubmit` フックで、変更系キーワードを含む指示に Issue 番号がない場合に自動ブロックして案内する
+### 質問 4b: チケット / チケット強制チェック
+
+- **CLAUDE.md / AGENTS.md のみ（推奨）**: タスク受付ルールを指示書に記載（claude-code は `.claude/CLAUDE.md`、grok は `AGENTS.md` + CLAUDE.md）
+- **hooks で強制**: 変更系プロンプトをフックで案内（claude: `.claude/settings.json`、grok: 加えて `.grok/hooks/ensure-issue.json`）
+
+### 質問 4c: AI が作業する「場所」
+
+AI がコードを書くとき、あなたが開いているファイルと混ざらないよう、作業する場所を分けます。分け方は2通りです。
+
+| 方式 | どういうことか | 向いている人 |
+|---|---|---|
+| **ブランチ**（推奨・既定） | いまのフォルダの中で、履歴だけを切り替えて作業する。準備が要らない | Git のブランチ操作に慣れていない／AI の作業中は手を止めて待つ／ディスク容量に余裕がない |
+| **ワークツリー** | プロジェクトの複製フォルダ（`.claude/worktrees/issue-123/` など）を作り、その中だけで作業する。手元のファイルは変わらない | AI に任せつつ自分も同じプロジェクトを触りたい／チケットを2件以上、同時に走らせたい |
+
+**迷ったら「ブランチ」で構いません。** ひとりでチケットを1件ずつ順番に処理する使い方なら、これで十分です。
+
+選択結果は `.claude/ai-team-config.yml` の `workspace.strategy` に保存されます。ワークツリーを選んだ場合、setup は `.gitignore` に `.claude/worktrees/` を冪等に追記します。
+
+あとから変更できます。既定を変えるなら `/ai-team-setup` を再実行、そのチケットだけ変えるならチケットに `workspace:worktree` / `workspace:branch` ラベルを貼ります（**ラベルが設定より優先**）。詳細は [セットアップガイド](../guide/setup.md) と [バックエンドチーム](../teams/backend.md) を参照してください。
+
+### 質問 5: モデル性能プロファイル
+
+| プロファイル | 概要（Claude の例） |
+|-------------|---------------------|
+| バランス（既定） | leader=opus, worker=sonnet, simple=haiku |
+| ハイパフォーマンス | leader=fable, worker=opus, simple=sonnet |
+| 低コスト | 全体を sonnet / haiku 寄り |
+
+Grok では balance 時 leader/worker=`grok-4.5`、simple=`grok-composer-2.5-fast` など runtime 別マップを使います。詳細は [エージェントのカスタマイズ](../guide/agents.md)。
+
+### 質問 6: effort 深度
+
+| 深度 | Claude | Grok |
+|------|--------|------|
+| 深く | xhigh | high |
+| 普通（既定） | high | high |
+| 軽く | medium | medium |
+
+**細かい設定は各エージェント / スキル md の `model` / `effort` を直接編集できます。** 一括再適用:
+
+```bash
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code --profile balance --effort normal --dir .claude
+```
 
 ---
 
@@ -104,7 +159,7 @@ templates/docs/workflow-guide.md            → .claude/docs/workflow-guide.md
 mode: solo
 
 solo:
-  poll_interval_minutes: 5      # Issue監視の間隔（分）
+  poll_interval_minutes: 5      # チケット監視の間隔（分）
   target_labels:                # 処理対象とするラベル
     - dispatcher
     - backend:tech-lead
@@ -128,7 +183,7 @@ solo:
 | content | `agents/*.md` / `workflow.yml` / `dod/*.md` / `compliance-rules/*.md` |
 | infra | `agents/*.md` / `workflow.yml` / `dod/*.md` |
 
-### GitHub Issue テンプレート
+### チケット テンプレート
 
 `templates/.github/ISSUE_TEMPLATE/*.yml` が `.github/ISSUE_TEMPLATE/` にコピーされます。バックエンドなら `backend-feature.yml` / `backend-bugfix.yml` などが対象です。
 
@@ -214,7 +269,7 @@ gh label create "backend:pr-creator"  --color "1d76db" --force
 - インフラチーム: クラウド構成・ネットワーク・セキュリティ
 
 ### ワークフローの起動
-チケットを担当したら `/ai-team-run <IssueのURL または Issue番号>` を実行してください。
+チケットを担当したら `/ai-team-run <チケットのURL または チケット番号>` を実行してください。
 
 ### 参照ドキュメント
 - ワークフローガイド: `.claude/docs/workflow-guide.md`
@@ -237,7 +292,7 @@ gh label create "backend:pr-creator"  --color "1d76db" --force
 ## 次のステップ
 1. `.claude/CLAUDE.md` を確認・カスタマイズしてください
 2. チームメンバーに npm install --save-dev ./trimix-ai-team-x.x.x.tgz を実行してもらいます
-3. Issueを作成し、担当者をアサインしたら /ai-team-run <IssueのURL> でワークフローを開始します
+3. チケットを作成し、担当者をアサインしたら /ai-team-run <チケットのURL> でワークフローを開始します
 ```
 
 ---

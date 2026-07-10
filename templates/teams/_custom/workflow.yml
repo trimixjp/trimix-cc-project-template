@@ -33,6 +33,6 @@ steps:
   - id: contributor-close
     agent: contributor
     label: "contributor:ready"
-    description: DOD確認・コメント品質チェック・Issueクローズ・インシデント調査
+    description: DOD確認・コメント品質チェック・チケットクローズ・インシデント調査
     on_complete:
       action: close_issue

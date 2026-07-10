@@ -201,6 +201,7 @@ export const SKILL_ROLES = {
   'ai-team-configure': 'worker',
   'ai-team-install': 'simple',
   'ai-team-gallery': 'simple',
+  'ai-team-ticket': 'simple',
 };
 
 /** Claude Code 向けモデルエイリアス */

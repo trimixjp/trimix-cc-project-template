@@ -1,6 +1,6 @@
 # チーム概要
 
-`@trimix/ai-team` は 6 つの専門チームを提供します。各チームは独自のワークフロー定義（`workflow.yml`）とエージェント群を持ち、担当する Issue の種類に応じて自律的に処理を進めます。
+`@trimix/ai-team` は 6 つの専門チームを提供します。各チームは独自のワークフロー定義（`workflow.yml`）とエージェント群を持ち、担当する チケットの種類に応じて自律的に処理を進めます。
 
 ---
 
@@ -11,7 +11,7 @@
 | **team_id** | `backend` | `frontend` | `infra` | `content` | `sns` | `youtube` |
 | **ラベル色** | 青（`1d76db`） | 黄（`f9a825`） | 緑（`0e8a16`） | 薄黄（`e4e669`） | ピンク（`e91e63`） | 未確認（テンプレートに色定義なし） |
 | **対象** | API・サーバーコード・テスト | UI・コンポーネント・アクセシビリティ | クラウド・ネットワーク・セキュリティ | 記事・ドキュメント・コンテンツ | X・Instagram の投稿運用 | YouTube 動画の企画・台本・生成・公開・収益化 |
-| **エージェント数** | 7 | 7 | 5 | 4 | 4 | 9 |
+| **エージェント数** | 8 | 7 | 5 | 4 | 4 | 18 |
 | **リーダー** | tech-lead | frontend-lead | infra-lead | editor-in-chief | strategist | director |
 | **実装担当** | implementer | developer | network-engineer / infra-specialist | writer | writer | scriptwriter / editor |
 | **レビュー方式** | シングル / ダブル（自動判断） | シングル / ダブル（自動判断） | security-engineer による単独レビュー | compliance による単独レビュー | operator によるガイドライン確認 | editor による台本品質ゲート＋プレビュー承認（人間ゲート） |
@@ -90,9 +90,9 @@
 
 | エージェント | 役割 |
 |------------|------|
-| `dispatcher` | Epic Issue を Sub Issue に分解 |
+| `dispatcher` | Epic チケットを サブチケットに分解 |
 | `human-escalator` | 判断不能事項を人間にエスカレーション |
-| `contributor` | 全体管理・DOD 確認・Issue クローズ・インシデント記録 |
+| `contributor` | 全体管理・DOD 確認・チケットクローズ・インシデント記録 |
 
 ### 共通ラベル
 
@@ -156,4 +156,4 @@ youtube:editor            youtube:growth-strategist youtube:affiliate
 youtube:publisher         youtube:sns-distributor   youtube:monetizer
 ```
 
-Issue にこれらのラベルを付与すると、対応するエージェントが処理を開始します。
+チケットにこれらのラベルを付与すると、対応するエージェントが処理を開始します。

@@ -12,7 +12,7 @@
 name: <ワークフロー名>
 description: <説明>
 
-# 同一Issueでの差し戻し上限（v0.11.0 で追加。全チーム共通で 2）
+# 同一チケットでの差し戻し上限（v0.11.0 で追加。全チーム共通で 2）
 rework_limit: 2
 
 labels:
@@ -43,7 +43,7 @@ steps:
 |-----------|---|------|------|
 | `name` | string | ○ | ワークフローの識別名（例: `backend-workflow`） |
 | `description` | string | ○ | ワークフローの説明 |
-| `rework_limit` | integer | △ | 同一 Issue での差し戻し上限（v0.11.0 で追加）。超過時（3 回目の不合格）は差し戻さず `escalated:human` へ |
+| `rework_limit` | integer | △ | 同一チケットでの差し戻し上限（v0.11.0 で追加）。超過時（3 回目の不合格）は差し戻さず `escalated:human` へ |
 | `labels.prefix` | string | ○ | ラベルのプレフィックス（例: `backend`） |
 | `labels.examples` | array | △ | 参考用のラベル例 |
 | `steps` | array | ○ | ステップ定義の配列 |
@@ -56,7 +56,7 @@ steps:
 |-----------|---|------|------|
 | `id` | string | ○ | ステップの識別子（一意） |
 | `agent` | string | ○ | 動作するエージェント名（`.claude/teams/<team_id>/agents/<agent>.md` または `.claude/agents/<agent>.md`） |
-| `label` | string | △ | このステップ中に Issue に付与されるラベル |
+| `label` | string | △ | このステップ中に チケットに付与されるラベル |
 | `description` | string | △ | ステップの説明 |
 | `on_complete` | object | △ | 正常完了時の次ステップ定義 |
 | `on_rework` | object | △ | 差し戻し時の動作 |
@@ -87,7 +87,7 @@ on_complete:
 
 `condition` はラベル更新の判定に使われる文字列です。
 
-### パターン 3: Issue クローズ（終端ステップ）
+### パターン 3: チケットクローズ（終端ステップ）
 
 ```yaml
 on_complete:
@@ -127,7 +127,7 @@ on_rework:
 on_rework:
   condition: 不合格
   next: implementer
-  # rework_limit（2回）超過時 = 同一Issueで3回目の不合格は差し戻さず human-escalator へ
+  # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は差し戻さず human-escalator へ
   limit_exceeded_next: human-escalator
 ```
 
@@ -249,7 +249,7 @@ conditions:
 3. **待機パス側の再確認（競合解消）**: 相手の完了を待つと判断して自分のラベルのみ除去した側も、除去後にもう一度ラベルを再取得し、「`requires_all_of` の全ラベルが除去済み かつ 次のステップのラベルが未付与」なら次のステップのラベルを付与する（ラベル付与は冪等であり、両者が重複して付与しても無害）
 4. 遷移後にもう一度ラベルを取得し、期待した状態になっているか検証する
 
-**不整合検知時のリカバリ**: 並列ステップのラベルがすべて除去済みなのに次のステップのラベルが付与されていない場合（遷移の中断）、エージェントは次のステップのラベルを付与してリカバリした旨をコメントします。ただし**誤発動ガード**として、ワークフロー上の後続ステップのラベルがいずれも付与されていないことを確認してから実行します（すでに先へ進んでいる Issue に過去のステップのラベルを再付与してはいけません）。
+**不整合検知時のリカバリ**: 並列ステップのラベルがすべて除去済みなのに次のステップのラベルが付与されていない場合（遷移の中断）、エージェントは次のステップのラベルを付与してリカバリした旨をコメントします。ただし**誤発動ガード**として、ワークフロー上の後続ステップのラベルがいずれも付与されていないことを確認してから実行します（すでに先へ進んでいる チケットに過去のステップのラベルを再付与してはいけません）。
 
 ---
 
@@ -259,7 +259,7 @@ conditions:
 |---------|------|
 | `human-escalator` | エスカレーション処理ステップ。全チームに 1 個ずつ存在 |
 | `human-merge-approval` | PR マージを人間に依頼するステップ（backend / frontend） |
-| `contributor-close` | DOD 確認・Issue クローズの終端ステップ |
+| `contributor-close` | DOD 確認・チケットクローズの終端ステップ |
 | `return_to_previous` | エスカレーション解除後、元のステップに戻る指示（`on_complete.next` の特殊値）。v0.11.0 から human-escalator がエスカレーションコメントに記録する「エスカレーション元ステップ」フィールド（workflow.yml のステップ ID）を `/ai-team-resume` が機械的に読み取って復帰先を決定する |
 
 ---
@@ -270,7 +270,7 @@ conditions:
 name: backend-workflow
 description: コード実装・API・テスト等バックエンドリングタスクのワークフロー
 
-# 同一Issueでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
+# 同一チケットでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
 rework_limit: 2
 
 labels:

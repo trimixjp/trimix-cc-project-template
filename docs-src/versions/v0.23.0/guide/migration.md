@@ -4,23 +4,30 @@
 
 ---
 
-## モデル・effort プロファイル導入後の移行
+## モデル・effort プロファイル / runtime 導入後の移行
 
-エージェント定義とスキルに `model` / `effort` / `model_role` が入りました。既存プロジェクトを更新する場合:
+エージェント定義とスキルに `model` / `effort` / `model_role` が入り、実行基盤 `runtime`（`claude-code` | `grok`）を選べるようになりました。既存プロジェクトを更新する場合:
 
 1. パッケージを更新し、`templates/_shared/model-profiles.yml` を `.claude/model-profiles.yml` に配置する
-2. `.claude/ai-team-config.yml` に `model_performance` と `effort_depth` を追加する（推奨: `balance` / `normal`）
+2. `.claude/ai-team-config.yml` に次を追加する（推奨既定）:
+   - `runtime: claude-code`
+   - `model_performance: balance`
+   - `effort_depth: normal`
 3. 一括反映する:
 
 ```bash
 node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code \
   --profile balance --effort normal --dir .claude
 node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code \
   --profile balance --effort normal --dir .claude/commands --skills-only
 ```
 
-**細かい設定は md ファイルの変更で可能です。** 既に個別で `model` を書いている場合は、apply 前にバックアップするか、apply 後に再編集してください。
+Grok に切り替える場合は `--runtime grok` を使い、`AGENTS.md` と（hooks 利用時）`.grok/hooks/ensure-issue.json` を setup 手順どおり配置してください。
 
+**細かい設定は md ファイルの変更で可能です。** 既に個別で `model` を書いている場合は、apply 前にバックアップするか、apply 後に再編集してください。  
+カスタマイズの詳細は [エージェントのカスタマイズ](agents.md) を参照。
 ---
 
 ## v0.21.x から v0.22.0 への移行
@@ -147,7 +154,7 @@ npm install --save-dev ./trimix-ai-team-0.11.0.tgz
 
 ### v0.10.x からの破壊的変更
 
-ワークフローの構造に**破壊的変更はありません**。ただし旧形式のエスカレーションコメント（「エスカレーション元ステップ」フィールドなし）が残っている Issue では、`/ai-team-resume` が復帰先を機械的に決定できないため、コメント履歴から文脈で判断するフォールバック動作になります。
+ワークフローの構造に**破壊的変更はありません**。ただし旧形式のエスカレーションコメント（「エスカレーション元ステップ」フィールドなし）が残っている チケットでは、`/ai-team-resume` が復帰先を機械的に決定できないため、コメント履歴から文脈で判断するフォールバック動作になります。
 
 ---
 
@@ -158,7 +165,7 @@ npm install --save-dev ./trimix-ai-team-0.11.0.tgz
 | 変更内容 | 詳細 |
 |---------|------|
 | SNS運用チームの追加 | Strategist / Researcher / Writer / Operator の 4 エージェント構成のテンプレートが新規追加 |
-| Issue 強制チェック（hooks）オプション | セットアップ時に `UserPromptSubmit` フックで変更系指示をブロックする設定を選択可能に |
+| チケット強制チェック（hooks）オプション | セットアップ時に `UserPromptSubmit` フックで変更系指示をブロックする設定を選択可能に |
 | `.gitignore` の自動更新 | セットアップ時に `.claude/` 配下の個人設定ファイルを `.gitignore` から除外するパターンを追記 |
 
 ---
@@ -173,13 +180,13 @@ npm install --save-dev ./trimix-ai-team-0.11.0.tgz
 npm install --save-dev ./trimix-ai-team-0.7.0.tgz
 ```
 
-インストール完了メッセージで 8 件のスキルファイルが展開されたことを確認してください。
+インストール完了メッセージでスキルファイルが展開されたことを確認してください（現行は 9 件。`/ai-team-ticket` を含む）。
 
 ---
 
 #### ステップ 2: セットアップウィザードを再実行（オプション）
 
-SNS チームを追加したい場合や、hooks による Issue 強制チェックを有効にしたい場合は、`/ai-team-setup` を再実行してください。
+SNS チームを追加したい場合や、hooks による チケット強制チェックを有効にしたい場合は、`/ai-team-setup` を再実行してください。
 
 ```
 /ai-team-setup
@@ -250,7 +257,7 @@ version_management: manual  # または auto
 | v0.10.0 | `/ai-team-create` スキル追加（カスタムチーム作成ウィザード） |
 | v0.9.0 | `/ai-team-gallery` の実行環境判定バグ修正・`npm run sync` 追加 |
 | v0.8.0 | ワークフロー設計の汎用化・全チーム workflow.yml の整合性修正・月次見直しの仕組み追加 |
-| v0.7.0 | SNS運用チーム追加・hooks による Issue 強制チェック・`.gitignore` 自動更新 |
+| v0.7.0 | SNS運用チーム追加・hooks による チケット強制チェック・`.gitignore` 自動更新 |
 | v0.6.0 | Version-Bumper ステップ追加・バージョン管理設定サポート |
 | v0.5.2 | Mermaid.js 対応・マニュアル全体の構造再編成 |
 | v0.5.1 | postinstall でスキルファイルが展開されない問題を修正 |

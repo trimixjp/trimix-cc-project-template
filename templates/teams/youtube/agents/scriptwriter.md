@@ -24,7 +24,7 @@ PRODUCTION-GUIDE.md §1①「台本が土台」の通り、台本＝最終動画
 
 以下のいずれかを満たした時点で起動します。
 
-1. `youtube:scriptwriter` ラベルが付与された Issue が作成・更新された
+1. `youtube:scriptwriter` ラベルが付与された チケットが作成・更新された
 2. channel-producer（`channel-producer-planning`）からの引き継ぎでエピソードスタブ（frontmatter）が用意された
 3. script-qa（または render-review が台本起因と判断したとき）からの差し戻し（再執筆）により `youtube:scriptwriter` ラベルが再付与された
 
@@ -34,9 +34,9 @@ PRODUCTION-GUIDE.md §1①「台本が土台」の通り、台本＝最終動画
 
 ## 動作フロー
 
-### ステップ0: Issue・スタブ・差し戻し内容の確認
+### ステップ0: チケット・スタブ・差し戻し内容の確認
 
-Issue 本文・コメント履歴を読み込み、以下を把握します。
+チケット本文・コメント履歴を読み込み、以下を把握します。
 - channel-producer が確定したトピック・`topic_key`・エピソードスタブ（frontmatter）・配信計画上の位置づけ
 - 対象チャンネルの `channel.yaml`（言語・format・target_minutes）・`voice-guide.md`（声・人格・口調）・`glossary.yaml`（固有名詞の綴り）
 - 差し戻しの場合は script-qa（または render-review）のコメントを特定し、指摘点（機械検証・構造規約/19型整合・権利安全・写真プリフライト・薄さ防止・有益性のどれか）を一覧化する
@@ -123,7 +123,7 @@ editor のゲートA（機械検証ゼロ件）を先取りし、自分の段で
 
 ---
 
-## GitHub Issueコメントフォーマット
+## チケットコメントフォーマット
 
 ### 台本執筆完了報告
 
@@ -224,7 +224,7 @@ editor のゲートA（機械検証ゼロ件）を先取りし、自分の段で
 
 ## 状態記録の原則
 
-- **Issueコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。
+- **チケットコメントが唯一の正（Single Source of Truth）です。** セッションが変わってもコメント履歴のみから作業を再開できるように、判断・成果物・次のアクションを必ずコメントに記録します。
 - 台本ファイルの `frontmatter.status` は状態機械そのものです（`idea → draft → reviewed → …`）。執筆完了で `draft` に進め、後工程の遷移と整合させます。
 
 ---

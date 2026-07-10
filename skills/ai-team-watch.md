@@ -21,7 +21,7 @@ model_role: leader
    ```
    ℹ️  現在の運用モードは multi-user です。
    /ai-team-watch はソロモード専用コマンドです。
-   タスクを処理するには: /ai-team-run <IssueのURL>
+   タスクを処理するには: /ai-team-run <チケットのURL>
    ```
 3. `npx @trimix/ai-team ticket backend` で `ticket_backend` を確認  
    - **github** のとき: `gh auth status` で認証確認。未認証なら `gh auth login` を案内して終了  
@@ -41,11 +41,11 @@ model_role: leader
 
 ### ループ1回の処理
 
-**ステップ1: 処理対象Issueの検索**
+**ステップ1: 処理対象チケットの検索**
 
-**A) 新規Issue（通常処理）**
+**A) 新規チケット（通常処理）**
 
-`.claude/ai-team-config.yml` の `solo.target_labels` に定義されたラベルのいずれかが付いており、かつ `solo.skip_labels` のラベルが付いていないIssueを検索：
+`.claude/ai-team-config.yml` の `solo.target_labels` に定義されたラベルのいずれかが付いており、かつ `solo.skip_labels` のラベルが付いていないチケットを検索：
 
 ```bash
 npx @trimix/ai-team ticket list --state open --label "<target_label>"
@@ -53,9 +53,9 @@ npx @trimix/ai-team ticket list --state open --label "<target_label>"
 
 target_labels を1つずつ検索し、結果をまとめて重複を除去してください。
 
-**B) エスカレーション解除Issue（再開処理）**
+**B) エスカレーション解除チケット（再開処理）**
 
-`escalated:human` ラベルが**付いていない**、かつ直近のコメントに `🚨 エスカレーション` が含まれており、その後に人間のコメントが存在するIssueを検索：
+`escalated:human` ラベルが**付いていない**、かつ直近のコメントに `🚨 エスカレーション` が含まれており、その後に人間のコメントが存在するチケットを検索：
 
 ```bash
 npx @trimix/ai-team ticket list --state open
@@ -63,7 +63,7 @@ npx @trimix/ai-team ticket list --state open
 npx @trimix/ai-team ticket view <番号>
 ```
 
-取得したIssueのうち以下の条件を満たすものを再開対象として抽出：
+取得したチケットのうち以下の条件を満たすものを再開対象として抽出：
 - `escalated:human` ラベルがない
 - コメント履歴に `🚨 エスカレーション` を含むコメントがある
 - そのコメントより後に、AIエージェント以外のコメント（人間の返答）がある
@@ -79,16 +79,16 @@ npx @trimix/ai-team ticket view <番号>
 
 これらは `/ai-team-run` の再開モードで処理します。
 
-**ステップ2: 処理済み・処理中Issueのスキップ判定**
+**ステップ2: 処理済み・処理中チケットのスキップ判定**
 
-取得したIssueのうち、以下をスキップ：
-- `ai-team:in-progress` ラベルが付いているIssue（別プロセスが処理中のため二重実行防止）
-- `solo.skip_labels` のいずれかのラベルが付いているIssue
+取得したチケットのうち、以下をスキップ：
+- `ai-team:in-progress` ラベルが付いているチケット（別プロセスが処理中のため二重実行防止）
+- `solo.skip_labels` のいずれかのラベルが付いているチケット
 
-**ステップ3: 未処理Issueの処理**
+**ステップ3: 未処理チケットの処理**
 
-処理対象のIssueが1件以上ある場合：
-- 各Issueに対して以下の順で処理する（1件ずつ順番に、並列実行しない）：
+処理対象のチケットが1件以上ある場合：
+- 各チケットに対して以下の順で処理する（1件ずつ順番に、並列実行しない）：
 
   1. **処理開始のロック**: チケットに `ai-team:in-progress` ラベルを付与してから処理を開始
      ```bash
@@ -96,7 +96,7 @@ npx @trimix/ai-team ticket view <番号>
      ```
   2. **コンソールへ出力**：
      ```
-     🤖 [HH:MM] Issue #<番号> を処理中: <タイトル>
+     🤖 [HH:MM] チケット #<番号> を処理中: <タイトル>
      ```
   3. `/ai-team-run <番号またはURL>` に相当する処理を実行
   4. **処理完了のアンロック**: 処理が完了（またはエラー終了）したら `ai-team:in-progress` ラベルを除去
@@ -104,9 +104,9 @@ npx @trimix/ai-team ticket view <番号>
      npx @trimix/ai-team ticket edit <番号> --remove-label "ai-team:in-progress"
      ```
 
-処理対象Issueが0件の場合：
+処理対象チケットが0件の場合：
 ```
-💤 [HH:MM] 処理待ちのIssueはありません
+💤 [HH:MM] 処理待ちのチケットはありません
 ```
 
 **ステップ4: 次回まで待機**
@@ -124,7 +124,7 @@ npx @trimix/ai-team ticket view <番号>
 ## エラーハンドリング
 
 - `gh` コマンドが失敗した場合は**1回だけリトライ**し、それでも失敗したらエラーを表示して次のループサイクルで再試行（失敗を無視して黙って先に進まない）
-- Issue処理中にエラーが発生した場合：
-  - 該当Issueの `ai-team:in-progress` ラベルを必ず除去してからスキップする（ラベルが残るとそのIssueが永久にロックされるため）
-  - ログにErrorを記録し、次のIssueへ進む
-- 連続3回エラーが発生した場合はループを停止し、`ai-team:in-progress` が残っているIssueの一覧を表示して人間に確認を求める
+- チケット処理中にエラーが発生した場合：
+  - 該当チケットの `ai-team:in-progress` ラベルを必ず除去してからスキップする（ラベルが残るとそのチケットが永久にロックされるため）
+  - ログにErrorを記録し、次のチケットへ進む
+- 連続3回エラーが発生した場合はループを停止し、`ai-team:in-progress` が残っているチケットの一覧を表示して人間に確認を求める

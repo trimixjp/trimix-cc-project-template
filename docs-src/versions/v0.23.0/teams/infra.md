@@ -82,7 +82,7 @@ Architect は「依頼を受けた時のみ起動」する助言役です。Opus
 ### 起動条件
 
 - Infra-Lead が `infra:architect` ラベルを付与
-- 人間が「Architect に確認してください」と Issue にコメント
+- 人間が「Architect に確認してください」と チケットにコメント
 
 ### Architect が助言する領域
 
@@ -140,7 +140,7 @@ Architect は実装を行わず、**助言・方向性の提示のみ**を担当
 |---------|------|---------------|
 | `dod/infrastructure-change.md` | Terraform・K8s・CI/CD 変更 | 公式ドキュメント参照・IaC 更新・Security-Engineer 合格・ステージング検証・ロールバック手順 |
 | `dod/network-change.md` | VPC・DNS・LB・FW 変更 | ネットワーク影響分析・疎通確認・最小公開原則 |
-| `dod/security-review.md` | セキュリティ監査・脆弱性対応 | 5 カテゴリレビュー実施・重大度別整理・対応または別 Issue 化 |
+| `dod/security-review.md` | セキュリティ監査・脆弱性対応 | 5 カテゴリレビュー実施・重大度別整理・対応または別 チケット 化 |
 
 ---
 

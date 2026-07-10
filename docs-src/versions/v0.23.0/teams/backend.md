@@ -46,8 +46,40 @@ flowchart TD
     VB --> J["tech-writer\ndocs-src/ 更新\nbuild.js 実行"]
     J --> K["pr-creator\ngh pr create\nescalated:human"]
     K --> L["⏸️ human-merge-approval\n人間がマージ"]
-    L --> M["contributor-close\nDOD 確認\nインシデント記録\nIssue クローズ"]
+    L --> M["contributor-close\nDOD 確認\nインシデント記録\nチケットクローズ"]
 ```
+
+---
+
+## 作業空間の方式（branch / worktree）とチケット単位の上書き
+
+Implementer が実装作業を行う作業空間には 2 つの方式があります。既定は `.claude/ai-team-config.yml` の `workspace.strategy` で決まり、チケットのラベルでチケット単位に上書きできます。
+
+| 方式 | 内容 | 向いているケース |
+|------|------|----------------|
+| `branch`（既定） | 基準ブランチから feature branch を切って、リポジトリ本体で作業する | 単一の作業を順番に進める通常運用 |
+| `worktree` | `git worktree` で作業ディレクトリ（`<worktree_dir>/issue-<番号>`）を分離する | 複数チケットの並行作業・作業汚染の回避 |
+
+### 方式の決定順序（決定論的）
+
+Implementer は以下の順で上から評価し、**最初に確定した方式**を採用します（推測は禁止）。
+
+1. チケットに `workspace:worktree` ラベル → worktree 方式
+2. チケットに `workspace:branch` ラベル → branch 方式
+3. どちらのラベルも無い → `ai-team-config.yml` の `workspace.strategy`
+4. 設定にも記載が無い → branch 方式（フォールバック既定）
+
+`workspace:worktree` と `workspace:branch` が**両方**付与されている場合は矛盾として `escalated:human` にエスカレーションされます。
+
+### 作業ディレクトリの引き継ぎ
+
+worktree 方式では実装が分離ディレクトリ（例: `.claude/worktrees/issue-123`）で行われます。そのため Implementer は完了報告に「作業方式」と「作業ディレクトリ」を必ず記録します。下流エージェント（Tech-Lead のレビュー方式判断・Reviewer・Version-Bumper・Tech-Writer・PR-Creator）は完了報告の `作業ディレクトリ:` を読み、その値へ `cd` してから `git` コマンドを実行します。記載が無い場合はリポジトリルートで動作します（後方互換）。
+
+チケットクローズ時、Contributor は `作業方式:` が `worktree` の場合のみ `git worktree remove` で分離ワークツリーを撤去します（未コミット変更があれば撤去せず人間に委ねる）。branch 方式ではブランチ削除はマージ後に人間 / GitHub 側が行います。
+
+### 有効化とラベル
+
+setup（`/ai-team-setup` の質問4c）で既定方式を選択します。worktree を選ぶと `.gitignore` に `.claude/worktrees/` が追記されます。チケット単位の上書き用ラベル `workspace:branch` / `workspace:worktree` も setup のラベル作成で作られます。設定の詳細は[設定ファイル](../reference/config.html)を参照してください。
 
 ---
 
@@ -146,7 +178,7 @@ reviewer-a と reviewer-b が並列起動
 
 ### 差し戻し上限と決定論的カウント（v0.11.0）
 
-`workflow.yml` の `rework_limit: 2` により、同一 Issue での差し戻しは 2 回までです。3 回目の不合格は implementer へ差し戻さず `escalated:human` へエスカレーションします。
+`workflow.yml` の `rework_limit: 2` により、同一チケットでの差し戻しは 2 回までです。3 回目の不合格は implementer へ差し戻さず `escalated:human` へエスカレーションします。
 
 カウントは決定論的です。差し戻しコメントの**先頭行**を `❌ <エージェント名>: 差し戻し（差し戻し回数: n/2）` 形式に固定し、レビュー役エージェントが `gh api` でコメント先頭行のみを正規表現照合して数えます。本文中の引用による偽陽性はありません。独立レビューの暫定結果コメントは先頭行に「差し戻し」という語を使わないルールになっています（誤検出防止）。
 
@@ -229,7 +261,7 @@ gh pr create \
 
 PR 本文には次が含まれます：
 
-- 概要・関連 Issue（`Closes #<番号>`）
+- 概要・関連チケット（`Closes #<番号>`）
 - 変更内容（Implementer の完了報告から転記）
 - 設計方針（Tech-Lead の方針から要約）
 - テスト結果
@@ -252,7 +284,7 @@ PR 作成後は `escalated:human` ラベルが付与され、人間のマージ�
 | `dod/review.md` | コードレビュー | スコープ・重大度別整理・レビュー方式判断・全件対応 |
 | `dod/documentation.md` | ドキュメント更新（Tech-Writer 用） | 全変更箇所反映・バージョン管理・ビルド成功・コミット形式 |
 
-`contributor` エージェントが Issue クローズ前に該当 DOD の全項目チェックを実施します。
+`contributor` エージェントが チケットクローズ前に該当 DOD の全項目チェックを実施します。
 
 ---
 
@@ -274,7 +306,7 @@ PR 作成後は `escalated:human` ラベルが付与され、人間のマージ�
 | `pr-creator` | pr-creator | `backend:pr-creator` | PR 作成・人間に承認依頼 |
 | `human-merge-approval` | human-escalator | `escalated:human` | 人間がマージ |
 | `human-escalator` | human-escalator | `escalated:human` | 判断不能事項を人間にエスカレーション |
-| `contributor-close` | contributor | `contributor:ready` | DOD 確認・Issue クローズ（`action: close_issue`） |
+| `contributor-close` | contributor | `contributor:ready` | DOD 確認・チケットクローズ（`action: close_issue`） |
 
 ---
 

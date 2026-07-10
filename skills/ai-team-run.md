@@ -1,6 +1,6 @@
 ---
 name: ai-team-run
-description: チケット（GitHub Issue・Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。
+description: チケット（GitHub / ローカル md / Jira等）を読み込み、AIチームのワークフローを起動します。引数にチケットのURLまたはIDを指定してください。チケット操作は /ai-team-ticket を使う。
 model: opus
 effort: high
 model_role: leader
@@ -10,43 +10,21 @@ model_role: leader
 
 あなたはAIチームのオーケストレーターです。担当チケットを読み込み、適切なワークフローを起動してください。
 
-## チケット操作の共通 CLI（必須）
+## チケット操作（必須）
 
-`.claude/ai-team-config.yml` の `ticket_backend`（`github` | `local`）に応じて、**必ず**次の CLI 経由でチケットを操作してください（github 時は内部で `gh` を呼びます）。
+チケットの作成・一覧・詳細・コメント・ラベル・クローズは **`/ai-team-ticket`** スキル経由で行います（内部で共通 CLI を実行。github / local 両対応）。
 
-```bash
-# バックエンド確認
-npx @trimix/ai-team ticket backend
-# または: node <パッケージルート>/bin/ticket-cli.js backend
+| 操作 | スキル呼び出し例 |
+|------|------------------|
+| 作成 | `/ai-team-ticket create --title "題名" --body "本文" --label backend:tech-lead` |
+| 一覧 | `/ai-team-ticket list` |
+| 詳細 | `/ai-team-ticket view 1` |
+| コメント | `/ai-team-ticket comment 1 --body "メモ"` |
+| ラベル | `/ai-team-ticket edit 1 --add-label L1 --remove-label L2` |
+| クローズ | `/ai-team-ticket close 1` |
+| 設定確認 | `/ai-team-ticket backend` |
 
-# 詳細（JSON: title, body, labels, assignees, comments, state, url）
-npx @trimix/ai-team ticket view <番号>
-
-# 一覧
-npx @trimix/ai-team ticket list [--state open|closed|all] [--label <ラベル>]
-
-# 作成
-npx @trimix/ai-team ticket create --title "..." --body "..."
-
-# コメント
-npx @trimix/ai-team ticket comment <番号> --body "..."
-
-# ラベル更新（複数可）
-npx @trimix/ai-team ticket edit <番号> --add-label "L1" --remove-label "L2"
-
-# クローズ
-npx @trimix/ai-team ticket close <番号>
-```
-
-| 旧（gh 直叩き） | 新（統一 CLI） |
-|----------------|----------------|
-| `gh issue view N --json ...` | `npx @trimix/ai-team ticket view N` |
-| `gh issue list ...` | `npx @trimix/ai-team ticket list` |
-| `gh issue comment N --body` | `npx @trimix/ai-team ticket comment N --body` |
-| `gh issue edit N --add-label` | `npx @trimix/ai-team ticket edit N --add-label` |
-| `gh issue create` | `npx @trimix/ai-team ticket create` |
-| `gh issue close N` | `npx @trimix/ai-team ticket close N` |
-
+エージェント自身がツールで実行する場合も、同等の CLI（`npx @trimix/ai-team ticket ...`）を使ってください。`gh issue` の直叩きは禁止です（github 時は CLI が内部で `gh` を呼びます）。
 `ticket_backend: local` のときチケットは `tickets/open/*.md`（設定の `local_tickets.dir`）に置かれます。人間向け UI は **Obsidian で `tickets/` を vault として開く**運用を推奨（エージェントはファイルのみ参照）。詳細は `.claude/docs/local-tickets.md`。
 
 ## 引数
@@ -68,7 +46,7 @@ npx @trimix/ai-team ticket view <番号>
 ```
 
 URLのパターンから自動判別：
-- `github.com/*/issues/*` → 番号を抽出して `ticket view`（`ticket_backend: github` 前提）
+- `github.com/.*/issues/*` → 番号を抽出して `ticket view`（`ticket_backend: github` 前提）
 - `local://tickets/<id>` → 番号を抽出して `ticket view`（local）
 - `*.atlassian.net/browse/*` → Jira（URLの内容をユーザーに貼り付けてもらう）
 
@@ -94,21 +72,21 @@ npx @trimix/ai-team ticket list --state open
 一覧をユーザーに提示し、どれかに該当するか確認してください：
 
 ```
-以下の既存 Issue が見つかりました：
+以下の既存 チケットが見つかりました：
 - #12: [タイトル] ([ラベル])
 - #15: [タイトル] ([ラベル])
 
-この Issue を使いますか？それとも新規 Issue を作成しますか？
+この チケットを使いますか？それとも新規チケットを作成しますか？
 ```
 
-- 既存 Issue を使う → その Issue 番号でステップ2へ
+- 既存 チケットを使う → その チケット番号でステップ2へ
 - 新規作成 → B-2へ
 
 **候補が見つからなかった場合:** B-2へ
 
-#### B-2: 新規 Issue の作成
+#### B-2: 新規チケットの作成
 
-入力テキストから以下を判断して Issue を作成してください：
+入力テキストから以下を判断して チケットを作成してください：
 
 1. **タイトル**: 入力内容を要約した短いタイトル（50文字以内）
 2. **本文**: 入力テキストをそのまま含め、背景・現象・対応方針を構造化
@@ -133,7 +111,7 @@ npx @trimix/ai-team ticket create \
   --label "<推定ラベル>"
 ```
 
-作成した Issue の番号を取得し、ステップ2へ進んでください。
+作成した チケットの番号を取得し、ステップ2へ進んでください。
 
 ### パターンC: 引数なし
 
@@ -193,7 +171,7 @@ gh api "repos/<owner>/<repo>/issues/<番号>/events" --paginate \
 ### Epic / Dispatcher の場合
 
 `.claude/agents/dispatcher.md` を読み込み、Dispatcher エージェントとして動作してください：
-- チケット内容を分析してSub Issue（またはサブタスク）に分解
+- チケット内容を分析してサブチケット（またはサブタスク）に分解
 - 各チームのワークフローを並列または順次で起動
 
 ### 通常チケットの場合
@@ -216,7 +194,7 @@ workflow.yml の steps[0] = tech-lead-analysis
 読み込んだエージェント定義に従い、チケットを処理してください。
 
 **チケットへの記録:**  
-各エージェントの作業結果はチケット（Issue）のコメントとして記録します：
+各エージェントの作業結果はチケット（チケット）のコメントとして記録します：
 - `npx @trimix/ai-team ticket comment <番号> --body "..."` を実行（github/local 両対応）
 
 **ラベルの更新:**  
@@ -273,7 +251,7 @@ else:  # 待機パス（相手が未完了）
 3条件を満たす場合のリカバリ手順:
 
 1. `npx @trimix/ai-team ticket edit <番号> --add-label "<次のステップのラベル>"`
-2. リカバリした旨を Issue にコメントする  
+2. リカバリした旨を チケットにコメントする  
    （例: `⚠️ ラベル遷移の不整合を検知したため、<次のステップのラベル> を付与してリカバリしました`）
 
 ## チケット CLI 失敗時のフォールバック
@@ -307,7 +285,7 @@ npx @trimix/ai-team ticket edit 42 --remove-label "backend:reviewer-a" --add-lab
 
 ## 状態記録要件（コメント必須5フィールド）
 
-各エージェントは、自分のステップが完了するたびに以下の**必須5フィールド**を含むコメントを Issue に投稿してください。
+各エージェントは、自分のステップが完了するたびに以下の**必須5フィールド**を含むコメントを チケットに投稿してください。
 
 | フィールド | 内容 |
 |-----------|------|
@@ -329,7 +307,7 @@ npx @trimix/ai-team ticket edit 42 --remove-label "backend:reviewer-a" --add-lab
 
 ## 差し戻し上限（rework_limit）
 
-workflow.yml に `rework_limit` が設定されている場合、同一 Issue での差し戻し（不合格による戻し）回数に上限が課されます。**上限値は workflow.yml の `rework_limit` が正**です（以下は `rework_limit: 2` の場合の説明）。
+workflow.yml に `rework_limit` が設定されている場合、同一チケットでの差し戻し（不合格による戻し）回数に上限が課されます。**上限値は workflow.yml の `rework_limit` が正**です（以下は `rework_limit: 2` の場合の説明）。
 
 ### 差し戻しコメントの先頭行規約
 
@@ -362,23 +340,23 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 - PR の承認・マージが必要になった
 - セキュリティレビューで重大リスクが発見された
 - エスカレーション条件（`.claude/escalation-rules.yml`）に該当した
-- Issue がクローズされた（Contributor が完了処理済み）
+- チケットがクローズされた（Contributor が完了処理済み）
 
 ## 実行例
 
 ```
-/ai-team-run https://github.com/org/repo/issues/42
-# → Issue を直接読み込んでワークフロー起動
+/ai-team-run https://github.com/.*/issues/42
+# → チケットを直接読み込んでワークフロー起動
 ```
 
 ```
 /ai-team-run 42
-# → Issue #42 を読み込んでワークフロー起動
+# → チケット #42 を読み込んでワークフロー起動
 ```
 
 ```
 /ai-team-run ログインAPIが500エラーを返している
-# → 既存Issueを検索 → なければ新規作成 → Issueベースでワークフロー起動
+# → 既存チケットを検索 → なければ新規作成 → チケットベースでワークフロー起動
 ```
 
 ```

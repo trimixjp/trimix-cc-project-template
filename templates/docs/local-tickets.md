@@ -54,7 +54,21 @@ cp node_modules/@trimix/ai-team/templates/tickets/_templates/ticket.md tickets/_
 
 ---
 
-## CLI 一覧
+## スキル（推奨）
+
+Claude Code / Grok からは次のスキルで操作します。足りない項目は対話で入力します。
+
+```
+/ai-team-ticket create    # タイトル・本文を入力
+/ai-team-ticket list
+/ai-team-ticket view      # チケット番号を入力
+/ai-team-ticket comment   # 番号・コメント本文
+/ai-team-ticket edit      # 番号・ラベル
+/ai-team-ticket close     # 番号（確認あり）
+/ai-team-ticket backend
+```
+
+## CLI（シェルから直接）
 
 ```bash
 npx @trimix/ai-team ticket backend
@@ -66,8 +80,7 @@ npx @trimix/ai-team ticket edit <id> --add-label L --remove-label L
 npx @trimix/ai-team ticket close <id>
 ```
 
-出力は JSON です。エージェント skills は `gh issue ...` の代わりにこの CLI を使います（`ticket_backend: github` のときは内部で `gh` を呼び出します）。
-
+出力は JSON です。スキルは内部でこの CLI を実行します（`ticket_backend: github` のときは CLI が `gh` を呼び出します）。
 ---
 
 ## ワークフロー起動
@@ -76,7 +89,7 @@ npx @trimix/ai-team ticket close <id>
 /ai-team-run 1
 ```
 
-ローカル時は Issue 番号 = `tickets/open/` 内 frontmatter の `id` です。
+ローカル時は チケット番号 = `tickets/open/` 内 frontmatter の `id` です。
 
 ---
 

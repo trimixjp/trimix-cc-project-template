@@ -17,7 +17,7 @@ YouTube動画制作チームは 18 体のエージェントで構成されます
 
 | エージェント | 役割の一言定義 | ラベル |
 |------------|-------------|--------|
-| `director` | 統括リーダー。Issue を分析しタスク種別を 3 分岐判定し、各エージェントへ委譲する | `youtube:director` |
+| `director` | 統括リーダー。チケットを分析しタスク種別を 3 分岐判定し、各エージェントへ委譲する | `youtube:director` |
 | `market-analyst` | 市場・ジャンル戦略担当。需要×競合の薄さ×CPM×ターゲット視聴国を横断スコアリングし「何を作るか」を上流でデータから提案する（最終決定は人間ゲート） | `youtube:market-analyst` |
 | `channel-producer` | チャンネルの「箱」（趣旨・言語・字幕・配色・配信計画）と「編成」（トピック選定・重複防止・月次プラン）を担う | `youtube:channel-producer` |
 | `scriptwriter` | 台本ライター。リサーチと執筆を担い、台本を最終動画のタイムラインとして仕上げる | `youtube:scriptwriter` |
@@ -49,11 +49,11 @@ YouTube動画制作チームは 18 体のエージェントで構成されます
 
 ## ワークフロー全体フロー
 
-`director` が Issue を分析し、タスク種別を「チャンネル立ち上げ」「エピソード制作」「グロース単発」の 3 つに分岐させます。チャンネル立ち上げ（ジャンル/方向性を新規に決める場合）では、まず `market-analyst` が上流で「何を作るか（ジャンル・ターゲット視聴国）」をデータから提案してから `channel-producer-setup` に進みます。エピソード制作では、台本の品質ゲート（`editor-review`）、プレビュー承認（`human-picture-lock`）、レンダ（`editor-render`）、公開（`publisher`）、拡散（`sns-distributor`）、収益最適化（`monetizer`）の順に進みます。
+`director` が チケットを分析し、タスク種別を「チャンネル立ち上げ」「エピソード制作」「グロース単発」の 3 つに分岐させます。チャンネル立ち上げ（ジャンル/方向性を新規に決める場合）では、まず `market-analyst` が上流で「何を作るか（ジャンル・ターゲット視聴国）」をデータから提案してから `channel-producer-setup` に進みます。エピソード制作では、台本の品質ゲート（`editor-review`）、プレビュー承認（`human-picture-lock`）、レンダ（`editor-render`）、公開（`publisher`）、拡散（`sns-distributor`）、収益最適化（`monetizer`）の順に進みます。
 
 | step id | agent | label | 概要 |
 |---------|-------|-------|------|
-| `director-planning` | director | `youtube:director` | Issue 分析・インシデント確認・タスク種別の 3 分岐判定 |
+| `director-planning` | director | `youtube:director` | チケット 分析・インシデント確認・タスク種別の 3 分岐判定 |
 | `market-analyst` | market-analyst | `youtube:market-analyst` | 市場・ジャンル戦略（ジャンル候補列挙・7 指標の重み付き合成スコアリング・実測ゲート併用・推奨3案を出典/確信度付きで提案）。`channel-producer-setup` の上流 |
 | `channel-producer-setup` | channel-producer | `youtube:channel-producer` | チャンネル作成（channel.yaml・glossary・配色・配信計画・初期トピックバックログ）。market-analyst の推奨ジャンルを前提に |
 | `director-channel-review` | director | `youtube:director` | チャンネル設定の完成確認・人間の残作業（Studio 手動設定・OAuth・声）の整理 |
@@ -70,9 +70,9 @@ YouTube動画制作チームは 18 体のエージェントで構成されます
 | `monetizer` | monetizer | `youtube:monetizer` | 収益最適化レビュー（CPM・横断送客・スポンサー・次アクション提案） |
 | `growth-standalone` | growth-strategist | `youtube:growth-strategist` | 既存動画の改善・拡散・収益化を提案するグロース単発タスク |
 | `human-escalator` | human-escalator | `escalated:human` | 判断できない事項を人間にエスカレーション |
-| `contributor-close` | contributor | `contributor:ready` | DOD 確認・コメント品質チェック・Issue クローズ・インシデント調査 |
+| `contributor-close` | contributor | `contributor:ready` | DOD 確認・コメント品質チェック・チケットクローズ・インシデント調査 |
 
-同一 Issue でレビューが繰り返し差し戻されることを防ぐため、`rework_limit: 2`（3 回目の不合格は人間にエスカレーション）が設定されています。`editor-review`・`editor-render` の双方が差し戻し上限を超えると `human-escalator` へ遷移します。
+同一チケットでレビューが繰り返し差し戻されることを防ぐため、`rework_limit: 2`（3 回目の不合格は人間にエスカレーション）が設定されています。`editor-review`・`editor-render` の双方が差し戻し上限を超えると `human-escalator` へ遷移します。
 
 ### director のステップ判定（決定論）
 
@@ -376,8 +376,8 @@ QA 層は制作エージェントの「自己検証」を置き換えるもの�
 
 複数のチャンネルを 1 つのリポジトリで運用できるよう、作業対象チャンネルを決定論的に特定する **3 段階のフォールバック方式**を追加しました（`PRODUCTION-GUIDE.md` §0「対象チャンネルの確定」を単一情報源とし、`director`・`channel-producer` の各定義から参照）。`director`（`director-planning` の対象チャンネル確定ステップ）と `channel-producer`（モード判定＋対象チャンネル確定ステップ）が、次の順序で対象チャンネルを確定します。
 
-1. **① エピソード参照（自己確定）**: Issue 本文・引数・コメント内に `channels/<id>/episodes/...` のパス、または対象 `.md` の frontmatter に `channel:` フィールドがある場合、その `<id>` を対象チャンネルに確定します。この段階で確定したら ②③ はスキップします。
-2. **② `channel:` ラベル**: ① で確定できない場合、Issue に付与された `channel:<id>` ラベルから確定します。`gh issue view <番号> --json labels` で `channel:` プレフィックスのラベルを機械抽出し、プレフィックスを除いた値 `<id>` を対象チャンネルとします（決定論的・複数付与で一意化できない場合は ③ へ）。
+1. **① エピソード参照（自己確定）**: チケット本文・引数・コメント内に `channels/<id>/episodes/...` のパス、または対象 `.md` の frontmatter に `channel:` フィールドがある場合、その `<id>` を対象チャンネルに確定します。この段階で確定したら ②③ はスキップします。
+2. **② `channel:` ラベル**: ① で確定できない場合、チケットに付与された `channel:<id>` ラベルから確定します。`gh issue view <番号> --json labels` で `channel:` プレフィックスのラベルを機械抽出し、プレフィックスを除いた値 `<id>` を対象チャンネルとします（決定論的・複数付与で一意化できない場合は ③ へ）。
 3. **③ `missing_channel` エスカレーション**: ①② のいずれでも確定できない場合、`missing_channel` で人間に「どのチャンネルで作業するか」を問います（`human-escalator` へ遷移・`escalated:human` ラベルへ更新）。
 
 `missing_channel` は **YouTube チーム内に閉じたエスカレーション種別**で、共有の `escalation-rules.yml`（`_shared`）には定義しません（backend／sns 等の他チームへ伝播させないため）。チャンネルスコープは `channel:<id>` ラベル（値は `channels/<id>/` のディレクトリ名）で表され、特定のチャンネル名やチャンネル ID をテンプレートにハードコードしません。

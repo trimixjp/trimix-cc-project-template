@@ -34,7 +34,7 @@ flowchart TD
     F -->|ルール違反| F
     F --> G["operator\nガイドライン確認\nスケジュール策定\n人間への公開指示"]
     G -->|差し戻し| F
-    G -->|合格| H["contributor-close\nDOD確認\nIssueクローズ"]
+    G -->|合格| H["contributor-close\nDOD確認\nチケットクローズ"]
     G -->|炎上リスク| I["⏸️ human-escalator\n人間が判断"]
     I --> J[return_to_previous]
 ```
@@ -145,8 +145,8 @@ Operator は実際の投稿操作を行いません。人間が投稿操作を�
 | `writer` | writer | `sns:writer` | X・Instagram 向け投稿文執筆 |
 | `operator-review` | operator | `sns:operator` | ガイドライン確認・スケジュール策定・公開指示作成 |
 | `human-escalator` | human-escalator | `escalated:human` | 炎上リスク・判断不能事項を人間にエスカレーション |
-| `contributor-close` | contributor | `contributor:ready` | DOD 確認・Issue クローズ |
+| `contributor-close` | contributor | `contributor:ready` | DOD 確認・チケットクローズ |
 
 ### 調査結果の品質ゲート（strategist-review の差し戻し）
 
-`strategist-review` には `on_rework` が定義されており、Strategist が調査レポートを不十分（再調査が必要）と判定した場合は Researcher へ差し戻して再調査させます。差し戻し上限（`rework_limit: 2`）を超えた場合、すなわち同一 Issue で 3 回目の不合格となった場合は、Researcher へ差し戻さず `human-escalator` にエスカレーションします。不十分な調査結果のまま Writer の執筆工程へ進むことを防ぐための品質ゲートです。
+`strategist-review` には `on_rework` が定義されており、Strategist が調査レポートを不十分（再調査が必要）と判定した場合は Researcher へ差し戻して再調査させます。差し戻し上限（`rework_limit: 2`）を超えた場合、すなわち同一チケットで 3 回目の不合格となった場合は、Researcher へ差し戻さず `human-escalator` にエスカレーションします。不十分な調査結果のまま Writer の執筆工程へ進むことを防ぐための品質ゲートです。

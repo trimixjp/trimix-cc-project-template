@@ -1,6 +1,6 @@
 # DOD テンプレート 選択ガイド
 
-Contributor は Issue のタスクタイプに応じて以下のDODテンプレートを適用してください。
+Contributor は チケットのタスクタイプに応じて以下のDODテンプレートを適用してください。
 
 ---
 
@@ -8,14 +8,14 @@ Contributor は Issue のタスクタイプに応じて以下のDODテンプレ�
 
 ### Step 1: ラベルから担当チームを特定
 
-| Issue のラベル | DOD ディレクトリ |
+| チケットのラベル | DOD ディレクトリ |
 |--------------|----------------|
 | `backend:*` | `.claude/teams/backend/dod/` |
 | `frontend:*` | `.claude/teams/frontend/dod/` |
 | `content:*` | `.claude/teams/content/dod/` |
 | `infra:*` | `.claude/teams/infra/dod/` |
 | `incident` | `.claude/dod/incident.md`（共通・直接参照） |
-| `epic` | 全 Sub Issue のラベルから各チームを特定して全 DOD を確認 |
+| `epic` | 全 サブチケット のラベルから各チームを特定して全 DOD を確認 |
 
 ### Step 2: タイトル・本文からDODファイルを特定
 
@@ -67,7 +67,7 @@ Contributor は Issue のタスクタイプに応じて以下のDODテンプレ�
 
 ## 適用ルール
 
-1. **Issue 作成時** に担当チームのリーダーAIが適切なテンプレートを Issue 本文に貼り付けます
+1. **チケット作成時** に担当チームのリーダーAIが適切なテンプレートを チケット本文に貼り付けます
 2. **Contributor がクローズ前に** 全チェックリストが ✅ であることを確認します
 3. **未完了の項目がある場合** は Contributor が該当エージェントに差し戻します
 4. **複数タイプにまたがる場合**（例: バグ修正 + セキュリティ対応）は両方のテンプレートを適用します

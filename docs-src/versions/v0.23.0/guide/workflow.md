@@ -95,7 +95,7 @@ B2B SaaS・ECサイト・コンテンツメディア・受託開発など、業�
 
 ## 月次ワークフロー見直し（v0.8.0 新機能）
 
-`.github/ISSUE_TEMPLATE/workflow-review.yml` を使って月次の見直しIssueを起票できます。また `.github/workflows/monthly-workflow-review.yml` を設置することで、毎月1日に自動的にIssueが作成されます。
+`.github/ISSUE_TEMPLATE/workflow-review.yml` を使って月次の見直しチケットを起票できます。また `.github/workflows/monthly-workflow-review.yml` を設置することで、毎月1日に自動的にチケットが作成されます。
 
 見直しでは以下を確認します。
 
