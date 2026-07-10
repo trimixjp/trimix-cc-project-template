@@ -27,7 +27,7 @@ import {
   createBackup, ensureGitignore, printBackupIntro, printBackupSummary
 } from './backup.js';
 import { checkPluginUpdates, printUpdateNotice } from './version-check.js';
-import { firstSymlinkInPath, hardlinkNlink, irregularFileType } from './link-safety.js';
+import { firstSymlinkInPath, hardlinkNlink, irregularFileType, fileTypeLabel } from './link-safety.js';
 import {
   loadBaseline, recordFiles, matchesBaseline, pruneMissing, BASELINE_REL
 } from './baseline.js';
@@ -106,18 +106,6 @@ function inspectDest(cwd, rel) {
  */
 function inspectNew(cwd, newRel) {
   return inspectDest(cwd, newRel);
-}
-
-/** 通常ファイル以外の種別（irregularFileType の fileType）を日本語ラベルに変換する */
-function fileTypeLabel(fileType) {
-  switch (fileType) {
-    case 'directory': return 'ディレクトリ';
-    case 'fifo': return 'FIFO（名前付きパイプ）';
-    case 'socket': return 'ソケット';
-    case 'blockDevice': return 'ブロックデバイス';
-    case 'charDevice': return 'キャラクタデバイス';
-    default: return '通常ファイル以外の実体';
-  }
 }
 
 /**
@@ -883,21 +871,35 @@ export async function runUpgrade(args, { cwd, pluginRoot = packageRoot, stdin = 
   // 冒頭で、前回書き出した .new が残っていれば警告する（自動削除はしない）
   printResidualNew(findResidualNew(cwd, targets), { force });
 
-  // 2. 差分の提示
+  // 2. 差分の提示（読み取りのみ。まだ書き込みはしていない = fail-closed でデータ損失は無い）
   //    baseline は一度だけ読む（不正 JSON の警告が差分・適用で二重に出るのを避ける）。
   //    モデルプロファイルも一度だけ読み・正規化し、diffTargets へ渡す（不正値の警告が
   //    二重に出るのを避ける）。diffs の各対象は実効テンプレート（プロファイル適用後）を
   //    effective として持ち、以降の same 判定・書き込み・.new・baseline・--diff が
   //    すべてこの実効テンプレートを基準にする（#85 差し戻し1・教訓14）。
+  //
+  //    diffTargets / collectSkips は inspectDest / inspectNew 経由で lstatSync を呼ぶ。
+  //    EACCES / ELOOP 等の非 ENOENT 例外は lstatOrNull が握らず再送出する（安全側）。
+  //    #84 の try/catch は enumerateUpgradeTargets しか包んでいなかったため、これらの例外は
+  //    setup.js まで生スタックトレースとして上がっていた。列挙段階と同じ整形メッセージで
+  //    差分検査フェーズも fail-closed に停止させ、一貫させる（Issue #93 副次的な指摘）。
   const baseline = loadBaseline(cwd);
   const profileCfg = resolveProfileConfig(cwd);
-  const diffs = diffTargets({ cwd, targets, force, baseline, profileCfg });
+  let diffs, skips;
+  try {
+    diffs = diffTargets({ cwd, targets, force, baseline, profileCfg });
+    // 書き込み先がリンク（経路のシンボリックリンク／ハードリンク／通常ファイル以外）のものは
+    // 辿らずスキップする。差分サマリに明示する（R-1）。
+    skips = collectSkips(cwd, diffs);
+  } catch (e) {
+    console.error('');
+    console.error(`❌ 差分の検査に失敗しました: ${e.message}`);
+    console.error('   （書き込み前に停止したため、ファイルは一切変更していません）');
+    return 1;
+  }
   printDiff(diffs);
   // baseline に記録が無く保護に倒れたファイルがあれば、自動判定の確立方法を案内する（#85）
   printNoBaselineNotice(diffs);
-  // 書き込み先がリンク（経路のシンボリックリンク／ハードリンク）のものは辿らずスキップする。
-  // 差分サマリに明示する（R-1）。
-  const skips = collectSkips(cwd, diffs);
   printSkips(skips);
   // --diff 指定時は、上書き更新／保護スキップ対象の中身の差分を表示する（--dry --diff でも表示）
   if (showDiff) printUnifiedDiffs({ cwd, diffs });

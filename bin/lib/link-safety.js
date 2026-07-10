@@ -139,3 +139,25 @@ export function irregularFileType(absPath) {
   else if (st.isCharacterDevice()) fileType = 'charDevice';
   return { fileType };
 }
+
+/**
+ * irregularFileType が返す種別文字列を、利用者向けの日本語ラベルに変換する。
+ *
+ * irregularFileType（種別の判定）と同じ場所に置くことで、判定と表示を1つの正源
+ * （single source of truth）に保つ。バックアップ（backup.js の ensureGitignore）と
+ * アップグレード（upgrade.js の formatSkip）の双方が同じラベルを流用するため、
+ * ここから export して両者が import する（DRY: 文言のコピーを増やさない）。
+ *
+ * @param {'directory'|'fifo'|'socket'|'blockDevice'|'charDevice'|'unknown'} fileType
+ * @returns {string}
+ */
+export function fileTypeLabel(fileType) {
+  switch (fileType) {
+    case 'directory': return 'ディレクトリ';
+    case 'fifo': return 'FIFO（名前付きパイプ）';
+    case 'socket': return 'ソケット';
+    case 'blockDevice': return 'ブロックデバイス';
+    case 'charDevice': return 'キャラクタデバイス';
+    default: return '通常ファイル以外の実体';
+  }
+}
