@@ -88,10 +88,21 @@
 <h3>質問 4b: チケット / チケット強制チェック</h3>
 
 <ul><li><strong>CLAUDE.md / AGENTS.md のみ（推奨）</strong>: タスク受付ルールを指示書に記載（claude-code は <code>.claude/CLAUDE.md</code>、grok は <code>AGENTS.md</code> + CLAUDE.md）</li><li><strong>hooks で強制</strong>: 変更系プロンプトをフックで案内（claude: <code>.claude/settings.json</code>、grok: 加えて <code>.grok/hooks/ensure-issue.json</code>）</li></ul>
+<h3>質問 4c: AI が作業する「場所」</h3>
+
+<p>AI がコードを書くとき、あなたが開いているファイルと混ざらないよう、作業する場所を分けます。分け方は2通りです。</p>
+
+<table><thead><tr><th>方式</th><th>どういうことか</th><th>向いている人</th></tr></thead><tbody><tr><td><strong>ブランチ</strong>（推奨・既定）</td><td>いまのフォルダの中で、履歴だけを切り替えて作業する。準備が要らない</td><td>Git のブランチ操作に慣れていない／AI の作業中は手を止めて待つ／ディスク容量に余裕がない</td></tr><tr><td><strong>ワークツリー</strong></td><td>プロジェクトの複製フォルダ（<code>.claude/worktrees/issue-123/</code> など）を作り、その中だけで作業する。手元のファイルは変わらない</td><td>AI に任せつつ自分も同じプロジェクトを触りたい／チケットを2件以上、同時に走らせたい</td></tr></tbody></table>
+<p><strong>迷ったら「ブランチ」で構いません。</strong> ひとりでチケットを1件ずつ順番に処理する使い方なら、これで十分です。</p>
+
+<p>選択結果は <code>.claude/ai-team-config.yml</code> の <code>workspace.strategy</code> に保存されます。ワークツリーを選んだ場合、setup は <code>.gitignore</code> に <code>.claude/worktrees/</code> を冪等に追記します。</p>
+
+<p>あとから変更できます。既定を変えるなら <code>/ai-team-setup</code> を再実行、そのチケットだけ変えるならチケットに <code>workspace:worktree</code> / <code>workspace:branch</code> ラベルを貼ります（<strong>ラベルが設定より優先</strong>）。詳細は <a href="../guide/setup.html">セットアップガイド</a> と <a href="../teams/backend.html">バックエンドチーム</a> を参照してください。</p>
+
 <h3>質問 5: モデル性能プロファイル</h3>
 
 <table><thead><tr><th>プロファイル</th><th>概要（Claude の例）</th></tr></thead><tbody><tr><td>バランス（既定）</td><td>leader=opus, worker=sonnet, simple=haiku</td></tr><tr><td>ハイパフォーマンス</td><td>leader=fable, worker=opus, simple=sonnet</td></tr><tr><td>低コスト</td><td>全体を sonnet / haiku 寄り</td></tr></tbody></table>
-<p>Grok では balance 時 leader/worker=<code>grok-4.5</code>、simple=<code>grok-composer-2.5-fast</code> など runtime 別マップを使います。詳細は <a href="../guide/agents.md">エージェントのカスタマイズ</a>。</p>
+<p>Grok では balance 時 leader/worker=<code>grok-4.5</code>、simple=<code>grok-composer-2.5-fast</code> など runtime 別マップを使います。詳細は <a href="../guide/agents.html">エージェントのカスタマイズ</a>。</p>
 
 <h3>質問 6: effort 深度</h3>
 

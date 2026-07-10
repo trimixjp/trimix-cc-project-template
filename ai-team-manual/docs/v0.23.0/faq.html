@@ -79,6 +79,28 @@ npx @trimix/ai-team ticket list
 
 <hr>
 
+<h2>作業空間（branch / worktree）</h2>
+
+<h3>Q: ワークツリー方式にすると、依存関係を取り直す必要がありますか？</h3>
+
+<p><strong>原則はひとつだけです。「Git が追跡していないものは、ワークツリーには来ない」。</strong></p>
+
+<code>git worktree add</code> はコミット済みのファイルをチェックアウトします。したがって <code>.gitignore</code> に入っているものは複製されません。依存パッケージの実体をリポジトリ内に置く言語では取り直しが必要で、リポジトリ外のキャッシュに置く言語では不要です。
+
+<table><thead><tr><th>言語・ツール</th><th>ワークツリー作成後にやること</th><th>理由</th></tr></thead><tbody><tr><td><strong>Go</strong>（モジュール）</td><td><strong>不要</strong>。そのまま <code>go test ./...</code> が通る</td><td>依存は <code>GOMODCACHE</code>（既定 <code>$GOPATH/pkg/mod</code>）、ビルド結果は <code>GOCACHE</code> にあり、いずれもリポジトリ外でマシン共有</td></tr><tr><td><strong>Go</strong>（<code>vendor/</code> をコミット）</td><td><strong>不要</strong></td><td><code>vendor/</code> は追跡対象なのでワークツリーにも複製される。<code>go.mod</code> の <code>go</code> が 1.14 以上で <code>vendor/modules.txt</code> があれば自動的に <code>-mod=vendor</code> として動作する</td></tr><tr><td><strong>Go</strong>（<code>vendor/</code> を gitignore）</td><td><code>go mod vendor</code> を1回</td><td>ワークツリーに <code>vendor/</code> が無いため自動 vendor モードに入らない。<code>-mod=readonly</code> としてモジュールキャッシュから解決されるので、<code>-mod=vendor</code> を明示している Makefile / CI だけが失敗する</td></tr><tr><td><strong>Node.js</strong></td><td><code>npm ci</code>（または <code>pnpm install</code>）</td><td><code>node_modules/</code> はリポジトリ内かつ gitignore されているのが通常</td></tr><tr><td><strong>Python</strong></td><td>仮想環境の作成（<code>.venv</code> がリポジトリ内の場合）</td><td><code>.venv/</code> は gitignore されているのが通常。仮想環境をリポジトリ外に置いているなら不要</td></tr><tr><td><strong>Rust</strong></td><td><strong>不要</strong>（初回ビルドは走る）</td><td>依存は <code>~/.cargo/registry</code> で共有。<code>target/</code> は gitignore されているため再ビルドになる</td></tr></tbody></table>
+<h3>Q: Go プロジェクトで、ワークツリーを <code>.claude/worktrees/</code> に置いて問題ありませんか？</h3>
+
+<p><strong>問題ありません。</strong> go ツールは名前が <code>.</code> または <code>_</code> で始まるディレクトリを無視します。親リポジトリで <code>go build ./...</code> や <code>go test ./...</code> を実行しても、ワークツリー内の複製モジュールを拾いません（「同じパッケージが 2 つ見つかった」というエラーは起きません）。</p>
+
+<p>ただし <code>find</code> や <code>grep</code> で自作したスクリプトは、隠しディレクトリを自動では除外しません。全ファイルを走査する自作ツールがある場合は <code>.claude/</code> を除外してください。</p>
+
+<h3>Q: ワークツリー方式で気をつけることは？</h3>
+
+<p>言語を問わず、<strong>gitignore されている生成物・設定</strong>が落ちます。よくあるのは次の3つです。</p>
+
+<ul><li><strong><code>go.work</code> / <code>go.work.sum</code></strong> — gitignore されがち。マルチモジュール構成でローカルの <code>replace</code> が効かなくなります</li><li><strong>生成コード</strong>（<code>*.pb.go</code>、モックなど）をコミットしていない場合 — <code>go generate ./...</code> を1回走らせてください</li><li><strong><code>.env</code> などのローカル設定</strong> — テストがこれらを読む場合は手動でコピーします</li></ul>
+<hr>
+
 <h2>ワークフロー・エージェント</h2>
 
 <h3>Q: エージェントが間違った実装をした場合どうすればいいですか？</h3>

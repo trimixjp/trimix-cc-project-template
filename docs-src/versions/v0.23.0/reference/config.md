@@ -25,6 +25,13 @@ mode: multi-user  # または solo
 # バージョン管理（auto / manual / none）
 version_management: auto
 
+# 作業空間の方式（setup 質問4c で選択。チケットの workspace:* ラベルで個別に上書き可能）
+# branch:   基準ブランチから feature branch を切って、リポジトリ本体で作業する（既定）
+# worktree: git worktree で作業ディレクトリを分離する（並列作業・作業汚染の回避に有効）
+workspace:
+  strategy: branch          # または worktree
+  worktree_dir: .claude/worktrees
+
 # 実行基盤（setup で選択。再 setup で切替可）
 # claude-code | grok
 runtime: claude-code
@@ -67,6 +74,8 @@ solo:
 |-----------|---|------|------|
 | `mode` | string | ○ | `multi-user` または `solo` |
 | `version_management` | string | ○ | `auto` / `manual` / `none` |
+| `workspace.strategy` | string | △ | `branch`（既定）または `worktree`。Implementer の作業空間の方式。未指定時は `branch` 扱い（後方互換）。チケットの `workspace:branch` / `workspace:worktree` ラベルが優先される |
+| `workspace.worktree_dir` | string | △ | `strategy: worktree` の場合の worktree 配置先（既定 `.claude/worktrees`）。Implementer は `<worktree_dir>/issue-<番号>` に作業ディレクトリを作成する |
 | `runtime` | string | ○ | `claude-code`（既定）または `grok`。model/effort エイリアスとミラー先を決める |
 | `model_performance` | string | ○ | `high-performance` / `balance` / `low-cost`。役割別 model の元 |
 | `effort_depth` | string | ○ | `deep` / `normal` / `light`。effort 一括設定の元 |

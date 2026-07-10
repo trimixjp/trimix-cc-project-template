@@ -131,7 +131,9 @@ npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
 
 <p>ウィザードが対話形式で次の項目を確認します。</p>
 
-<ol><li><strong>実行基盤（runtime）</strong>: Claude Code / Grok Build</li><li><strong>導入するチーム</strong>: backend / frontend / content / infra / sns 等（複数選択可）</li><li><strong>運用モード</strong>: <code>multi-user</code>（担当者ごとに <code>/ai-team-run</code> 起動）または <code>solo</code>（<code>/ai-team-watch</code> で自動監視）</li><li><strong>バージョン管理</strong>: <code>auto</code> / <code>manual</code> / <code>none</code></li><li><strong>チケット管理方式</strong>: <strong>GitHub Issues</strong> または <strong>ローカル Markdown</strong>（後者は GitHub 不要）</li><li><strong>チケット強制チェック</strong>: 指示書のみ / hooks で強制</li><li><strong>モデル性能・effort</strong>: バランス / ハイパフォーマンス / 低コスト など</li><li><strong>ラベルの作成</strong>（<strong>github のときのみ</strong>）: <code>gh label create</code> で一括作成するか。local 運用ならスキップ可</li></ol>
+<ol><li><strong>実行基盤（runtime）</strong>: Claude Code / Grok Build</li><li><strong>導入するチーム</strong>: backend / frontend / content / infra / sns 等（複数選択可）</li><li><strong>運用モード</strong>: <code>multi-user</code>（担当者ごとに <code>/ai-team-run</code> 起動）または <code>solo</code>（<code>/ai-team-watch</code> で自動監視）</li><li><strong>バージョン管理</strong>: <code>auto</code> / <code>manual</code> / <code>none</code></li><li><strong>チケット管理方式</strong>: <strong>GitHub Issues</strong> または <strong>ローカル Markdown</strong>（後者は GitHub 不要）</li><li><strong>チケット強制チェック</strong>: 指示書のみ / hooks で強制</li><li><strong>AI が作業する「場所」</strong>: <strong>ブランチ</strong>（既定・迷ったらこちら）または <strong>ワークツリー</strong>（プロジェクトの複製フォルダで作業し、手元のファイルを触らない）</li><li><strong>モデル性能・effort</strong>: バランス / ハイパフォーマンス / 低コスト など</li><li><strong>ラベルの作成</strong>（<strong>github のときのみ</strong>）: <code>gh label create</code> で一括作成するか。local 運用ならスキップ可</li></ol>
+<p>> 7 の「作業する場所」は、あとから変更できます。既定を変えるなら <code>/ai-team-setup</code> を再実行、そのチケットだけ変えるならチケットに <code>workspace:worktree</code> / <code>workspace:branch</code> ラベルを貼ってください。詳細は <a href="guide/setup.html">セットアップガイド</a> を参照してください。</p>
+
 <p>セットアップが完了すると、プロジェクトルートに次のディレクトリが配置されます。</p>
 
 <pre><code class="language-">.claude/

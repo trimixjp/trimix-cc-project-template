@@ -71,6 +71,30 @@
 
 <hr>
 
+<h2>作業空間の方式（branch / worktree）とチケット単位の上書き</h2>
+
+<p>Implementer が実装作業を行う作業空間には 2 つの方式があります。既定は <code>.claude/ai-team-config.yml</code> の <code>workspace.strategy</code> で決まり、チケットのラベルでチケット単位に上書きできます。</p>
+
+<table><thead><tr><th>方式</th><th>内容</th><th>向いているケース</th></tr></thead><tbody><tr><td><code>branch</code>（既定）</td><td>基準ブランチから feature branch を切って、リポジトリ本体で作業する</td><td>単一の作業を順番に進める通常運用</td></tr><tr><td><code>worktree</code></td><td><code>git worktree</code> で作業ディレクトリ（<code>&lt;worktree_dir&gt;/issue-&lt;番号&gt;</code>）を分離する</td><td>複数チケットの並行作業・作業汚染の回避</td></tr></tbody></table>
+<h3>方式の決定順序（決定論的）</h3>
+
+<p>Implementer は以下の順で上から評価し、<strong>最初に確定した方式</strong>を採用します（推測は禁止）。</p>
+
+<ol><li>チケットに <code>workspace:worktree</code> ラベル → worktree 方式</li><li>チケットに <code>workspace:branch</code> ラベル → branch 方式</li><li>どちらのラベルも無い → <code>ai-team-config.yml</code> の <code>workspace.strategy</code></li><li>設定にも記載が無い → branch 方式（フォールバック既定）</li></ol>
+<code>workspace:worktree</code> と <code>workspace:branch</code> が<strong>両方</strong>付与されている場合は矛盾として <code>escalated:human</code> にエスカレーションされます。
+
+<h3>作業ディレクトリの引き継ぎ</h3>
+
+<p>worktree 方式では実装が分離ディレクトリ（例: <code>.claude/worktrees/issue-123</code>）で行われます。そのため Implementer は完了報告に「作業方式」と「作業ディレクトリ」を必ず記録します。下流エージェント（Tech-Lead のレビュー方式判断・Reviewer・Version-Bumper・Tech-Writer・PR-Creator）は完了報告の <code>作業ディレクトリ:</code> を読み、その値へ <code>cd</code> してから <code>git</code> コマンドを実行します。記載が無い場合はリポジトリルートで動作します（後方互換）。</p>
+
+<p>チケットクローズ時、Contributor は <code>作業方式:</code> が <code>worktree</code> の場合のみ <code>git worktree remove</code> で分離ワークツリーを撤去します（未コミット変更があれば撤去せず人間に委ねる）。branch 方式ではブランチ削除はマージ後に人間 / GitHub 側が行います。</p>
+
+<h3>有効化とラベル</h3>
+
+<p>setup（<code>/ai-team-setup</code> の質問4c）で既定方式を選択します。worktree を選ぶと <code>.gitignore</code> に <code>.claude/worktrees/</code> が追記されます。チケット単位の上書き用ラベル <code>workspace:branch</code> / <code>workspace:worktree</code> も setup のラベル作成で作られます。設定の詳細は<a href="../reference/config.html">設定ファイル</a>を参照してください。</p>
+
+<hr>
+
 <h2>レビュー方式の自動判断</h2>
 
 <p>Tech-Lead が Implementer の完了報告を確認した後、<code>.claude/teams/backend/review-config.yml</code> の <code>double_review_criteria</code> に基づいてレビュー方式を判断します。</p>

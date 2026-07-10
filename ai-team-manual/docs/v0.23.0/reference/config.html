@@ -49,6 +49,13 @@ mode: multi-user  # または solo
 # バージョン管理（auto / manual / none）
 version_management: auto
 
+# 作業空間の方式（setup 質問4c で選択。チケットの workspace:* ラベルで個別に上書き可能）
+# branch:   基準ブランチから feature branch を切って、リポジトリ本体で作業する（既定）
+# worktree: git worktree で作業ディレクトリを分離する（並列作業・作業汚染の回避に有効）
+workspace:
+  strategy: branch          # または worktree
+  worktree_dir: .claude/worktrees
+
 # 実行基盤（setup で選択。再 setup で切替可）
 # claude-code | grok
 runtime: claude-code
@@ -86,7 +93,7 @@ solo:
 
 <h3>フィールド詳細</h3>
 
-<table><thead><tr><th>フィールド</th><th>型</th><th>必須</th><th>説明</th></tr></thead><tbody><tr><td><code>mode</code></td><td>string</td><td>○</td><td><code>multi-user</code> または <code>solo</code></td></tr><tr><td><code>version_management</code></td><td>string</td><td>○</td><td><code>auto</code> / <code>manual</code> / <code>none</code></td></tr><tr><td><code>runtime</code></td><td>string</td><td>○</td><td><code>claude-code</code>（既定）または <code>grok</code>。model/effort エイリアスとミラー先を決める</td></tr><tr><td><code>model_performance</code></td><td>string</td><td>○</td><td><code>high-performance</code> / <code>balance</code> / <code>low-cost</code>。役割別 model の元</td></tr><tr><td><code>effort_depth</code></td><td>string</td><td>○</td><td><code>deep</code> / <code>normal</code> / <code>light</code>。effort 一括設定の元</td></tr><tr><td><code>ticket_backend</code></td><td>string</td><td>○</td><td><code>github</code> または <code>local</code></td></tr><tr><td><code>local_tickets.dir</code></td><td>string</td><td>△</td><td>local 時のチケットディレクトリ（既定 <code>tickets</code>）</td></tr><tr><td><code>solo.poll_interval_minutes</code></td><td>integer</td><td>△</td><td><code>mode: solo</code> の場合に必須。監視間隔（分）</td></tr><tr><td><code>solo.target_labels</code></td><td>array</td><td>△</td><td><code>mode: solo</code> の場合に必須。処理対象とするラベル（OR 条件）</td></tr><tr><td><code>solo.skip_labels</code></td><td>array</td><td>△</td><td><code>mode: solo</code> の場合に必須。スキップ条件</td></tr></tbody></table>
+<table><thead><tr><th>フィールド</th><th>型</th><th>必須</th><th>説明</th></tr></thead><tbody><tr><td><code>mode</code></td><td>string</td><td>○</td><td><code>multi-user</code> または <code>solo</code></td></tr><tr><td><code>version_management</code></td><td>string</td><td>○</td><td><code>auto</code> / <code>manual</code> / <code>none</code></td></tr><tr><td><code>workspace.strategy</code></td><td>string</td><td>△</td><td><code>branch</code>（既定）または <code>worktree</code>。Implementer の作業空間の方式。未指定時は <code>branch</code> 扱い（後方互換）。チケットの <code>workspace:branch</code> / <code>workspace:worktree</code> ラベルが優先される</td></tr><tr><td><code>workspace.worktree_dir</code></td><td>string</td><td>△</td><td><code>strategy: worktree</code> の場合の worktree 配置先（既定 <code>.claude/worktrees</code>）。Implementer は <code>&lt;worktree_dir&gt;/issue-&lt;番号&gt;</code> に作業ディレクトリを作成する</td></tr><tr><td><code>runtime</code></td><td>string</td><td>○</td><td><code>claude-code</code>（既定）または <code>grok</code>。model/effort エイリアスとミラー先を決める</td></tr><tr><td><code>model_performance</code></td><td>string</td><td>○</td><td><code>high-performance</code> / <code>balance</code> / <code>low-cost</code>。役割別 model の元</td></tr><tr><td><code>effort_depth</code></td><td>string</td><td>○</td><td><code>deep</code> / <code>normal</code> / <code>light</code>。effort 一括設定の元</td></tr><tr><td><code>ticket_backend</code></td><td>string</td><td>○</td><td><code>github</code> または <code>local</code></td></tr><tr><td><code>local_tickets.dir</code></td><td>string</td><td>△</td><td>local 時のチケットディレクトリ（既定 <code>tickets</code>）</td></tr><tr><td><code>solo.poll_interval_minutes</code></td><td>integer</td><td>△</td><td><code>mode: solo</code> の場合に必須。監視間隔（分）</td></tr><tr><td><code>solo.target_labels</code></td><td>array</td><td>△</td><td><code>mode: solo</code> の場合に必須。処理対象とするラベル（OR 条件）</td></tr><tr><td><code>solo.skip_labels</code></td><td>array</td><td>△</td><td><code>mode: solo</code> の場合に必須。スキップ条件</td></tr></tbody></table>
 <h3>モデル・effort の反映とカスタマイズ</h3>
 
 <code>runtime</code> / <code>model_performance</code> / <code>effort_depth</code> は setup 時に各エージェント・スキル md の frontmatter（<code>model</code> / <code>effort</code>）へ書き込まれます。
@@ -102,7 +109,7 @@ solo:
 <code>runtime=grok</code> のときは <code>.grok/agents</code> と <code>.grok/commands</code> へのミラーも行われます。
 
 <p><strong>細かい設定は各 md の <code>model</code> / <code>effort</code> を直接編集してください。</strong> 再 apply すると上書きされます。  </p>
-<p>役割表・エイリアス一覧は <a href="../guide/agents.md">エージェントのカスタマイズ</a> と <code>.claude/model-profiles.yml</code> を参照。</p>
+<p>役割表・エイリアス一覧は <a href="../guide/agents.html">エージェントのカスタマイズ</a> と <code>.claude/model-profiles.yml</code> を参照。</p>
 <h3>運用モードの違い</h3>
 
 <table><thead><tr><th>観点</th><th>multi-user</th><th>solo</th></tr></thead><tbody><tr><td>起動方法</td><td>担当者が <code>/ai-team-run</code> 実行</td><td><code>/ai-team-watch</code> で監視ループ</td></tr><tr><td>新規チケットの検出</td><td>手動</td><td>ポーリングで自動</td></tr><tr><td>二重実行防止</td><td>担当者の運用に依存</td><td><code>ai-team:in-progress</code> ラベル</td></tr><tr><td>solo セクション</td><td>不要</td><td>必須</td></tr></tbody></table>

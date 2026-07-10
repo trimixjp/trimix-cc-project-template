@@ -11,7 +11,7 @@
 | **team_id** | `backend` | `frontend` | `infra` | `content` | `sns` | `youtube` |
 | **ラベル色** | 青（`1d76db`） | 黄（`f9a825`） | 緑（`0e8a16`） | 薄黄（`e4e669`） | ピンク（`e91e63`） | 未確認（テンプレートに色定義なし） |
 | **対象** | API・サーバーコード・テスト | UI・コンポーネント・アクセシビリティ | クラウド・ネットワーク・セキュリティ | 記事・ドキュメント・コンテンツ | X・Instagram の投稿運用 | YouTube 動画の企画・台本・生成・公開・収益化 |
-| **エージェント数** | 7 | 7 | 5 | 4 | 4 | 9 |
+| **エージェント数** | 8 | 7 | 5 | 4 | 4 | 18 |
 | **リーダー** | tech-lead | frontend-lead | infra-lead | editor-in-chief | strategist | director |
 | **実装担当** | implementer | developer | network-engineer / infra-specialist | writer | writer | scriptwriter / editor |
 | **レビュー方式** | シングル / ダブル（自動判断） | シングル / ダブル（自動判断） | security-engineer による単独レビュー | compliance による単独レビュー | operator によるガイドライン確認 | editor による台本品質ゲート＋プレビュー承認（人間ゲート） |

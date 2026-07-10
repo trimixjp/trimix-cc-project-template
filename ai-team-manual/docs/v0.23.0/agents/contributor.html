@@ -96,6 +96,15 @@
 
 <hr>
 
+<h2>作業空間の後片付け</h2>
+
+<p>クローズの直前に、Implementer の完了報告に記載された <code>作業方式:</code> を確認します。</p>
+
+<table><thead><tr><th>作業方式</th><th>Contributor の動作</th></tr></thead><tbody><tr><td><code>worktree</code></td><td><code>git worktree remove &lt;作業ディレクトリ&gt;</code> で複製フォルダを撤去します</td></tr><tr><td><code>branch</code> / 記載なし（後方互換）</td><td>何もしません（ブランチの削除はマージ後に人間 / GitHub 側が行います）</td></tr></tbody></table>
+<p>未コミットの変更が残っていて <code>git worktree remove</code> が失敗した場合は、<code>--force</code> を使いません。撤去できなかった旨と残存パスをチケットコメントに記録し、後片付けを人間に委ねます。</p>
+
+<hr>
+
 <h2>チケットクローズ時のコメント</h2>
 
 <p>全確認が完了すると、次のコメントを投稿してから チケットをクローズします。</p>

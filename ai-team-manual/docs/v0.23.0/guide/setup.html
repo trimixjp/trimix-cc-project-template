@@ -141,6 +141,26 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 <h4>hooks の判定ロジック</h4>
 
 <table><thead><tr><th>条件</th><th>動作</th></tr></thead><tbody><tr><td>チケット番号（<code>#123</code>）または GitHub URL を含む</td><td>スルー</td></tr><tr><td><code>/ai-team </code> スキルを使用している</td><td>スルー</td></tr><tr><td>「確認・調査・教えて」等の調査系で始まる</td><td>スルー</td></tr><tr><td>「修正・実装・追加・fix・create」等の変更系キーワードを含む</td><td><strong>ブロック</strong> → チケット作成を案内</td></tr><tr><td>それ以外</td><td>スルー</td></tr></tbody></table>
+<h3>ステップ4c: AI が作業する「場所」</h3>
+
+<p>AI がコードを書くとき、あなたが開いているファイルと混ざらないよう、作業する場所を分けます。分け方は2通りです。</p>
+
+<table><thead><tr><th>方式</th><th>どういうことか</th><th>向いている人</th></tr></thead><tbody><tr><td><strong>ブランチ</strong>（既定）</td><td>いまのフォルダの中で、履歴だけを切り替えて作業する。準備が要らない</td><td>Git のブランチ操作に慣れていない人／AI の作業中は手を止めて待つ人／ディスク容量に余裕がない人</td></tr><tr><td><strong>ワークツリー</strong></td><td>プロジェクトの複製フォルダ（<code>.claude/worktrees/issue-123/</code> など）を作り、その中だけで作業する。手元のファイルは変わらない</td><td>AI に任せつつ自分も同じプロジェクトを触りたい人／チケットを2件以上、同時に走らせたい人</td></tr></tbody></table>
+<p><strong>迷ったら「ブランチ」で構いません。</strong>ひとりでチケットを1件ずつ順番に処理する使い方なら、これで十分です。</p>
+
+<p>選んだ内容は <code>.claude/ai-team-config.yml</code> の <code>workspace.strategy</code> に保存されます。</p>
+
+<pre><code class="language-yaml">workspace:
+  strategy: branch          # または worktree
+  worktree_dir: .claude/worktrees</code></pre>
+
+<p>いずれを選んでも後から変更できます。</p>
+
+<ul><li><strong>既定を変える</strong>: <code>/ai-team-setup</code> を再実行する</li><li><strong>このチケットだけ変える</strong>: チケットに <code>workspace:worktree</code> または <code>workspace:branch</code> ラベルを貼る（ラベルが設定より優先されます）</li></ul>
+<p>ワークツリーを選んだ場合、setup は <code>.gitignore</code> に <code>.claude/worktrees/</code> を追記します（冪等）。ブランチ既定のままチケット単位でワークツリーに切り替えたときは、Implementer が同じ追記を行います。</p>
+
+<p>どちらの方式で作業したかは、Implementer が完了報告に <code>作業方式:</code> と <code>作業ディレクトリ:</code> として必ず記録するため、後から追えます。</p>
+
 <h3>ステップ5: GitHub ラベルの作成</h3>
 
 <p>選択したチームに対応するラベルを <code>gh label create</code> で一括作成するかどうか確認します。既存ラベルは <code>--force</code> オプションで上書き更新されます。</p>
@@ -153,7 +173,7 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 
 <pre><code class="language-">.claude/
 ├── CLAUDE.md                       # タスク受付ルールを含む AIチーム設定
-├── ai-team-config.yml              # 運用モード・バージョン管理・model/effort 設定
+├── ai-team-config.yml              # 運用モード・バージョン管理・作業空間の方式・model/effort 設定
 ├── escalation-rules.yml            # エスカレーション条件
 ├── model-profiles.yml              # モデル・effort プロファイルの説明（人間可読）
 ├── agents/

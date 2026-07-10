@@ -146,6 +146,34 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 | 「修正・実装・追加・fix・create」等の変更系キーワードを含む | **ブロック** → チケット作成を案内 |
 | それ以外 | スルー |
 
+### ステップ4c: AI が作業する「場所」
+
+AI がコードを書くとき、あなたが開いているファイルと混ざらないよう、作業する場所を分けます。分け方は2通りです。
+
+| 方式 | どういうことか | 向いている人 |
+|---|---|---|
+| **ブランチ**（既定） | いまのフォルダの中で、履歴だけを切り替えて作業する。準備が要らない | Git のブランチ操作に慣れていない人／AI の作業中は手を止めて待つ人／ディスク容量に余裕がない人 |
+| **ワークツリー** | プロジェクトの複製フォルダ（`.claude/worktrees/issue-123/` など）を作り、その中だけで作業する。手元のファイルは変わらない | AI に任せつつ自分も同じプロジェクトを触りたい人／チケットを2件以上、同時に走らせたい人 |
+
+**迷ったら「ブランチ」で構いません。**ひとりでチケットを1件ずつ順番に処理する使い方なら、これで十分です。
+
+選んだ内容は `.claude/ai-team-config.yml` の `workspace.strategy` に保存されます。
+
+```yaml
+workspace:
+  strategy: branch          # または worktree
+  worktree_dir: .claude/worktrees
+```
+
+いずれを選んでも後から変更できます。
+
+- **既定を変える**: `/ai-team-setup` を再実行する
+- **このチケットだけ変える**: チケットに `workspace:worktree` または `workspace:branch` ラベルを貼る（ラベルが設定より優先されます）
+
+ワークツリーを選んだ場合、setup は `.gitignore` に `.claude/worktrees/` を追記します（冪等）。ブランチ既定のままチケット単位でワークツリーに切り替えたときは、Implementer が同じ追記を行います。
+
+どちらの方式で作業したかは、Implementer が完了報告に `作業方式:` と `作業ディレクトリ:` として必ず記録するため、後から追えます。
+
 ### ステップ5: GitHub ラベルの作成
 
 選択したチームに対応するラベルを `gh label create` で一括作成するかどうか確認します。既存ラベルは `--force` オプションで上書き更新されます。
@@ -159,7 +187,7 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 ```
 .claude/
 ├── CLAUDE.md                       # タスク受付ルールを含む AIチーム設定
-├── ai-team-config.yml              # 運用モード・バージョン管理・model/effort 設定
+├── ai-team-config.yml              # 運用モード・バージョン管理・作業空間の方式・model/effort 設定
 ├── escalation-rules.yml            # エスカレーション条件
 ├── model-profiles.yml              # モデル・effort プロファイルの説明（人間可読）
 ├── agents/

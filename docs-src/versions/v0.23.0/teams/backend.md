@@ -51,6 +51,38 @@ flowchart TD
 
 ---
 
+## 作業空間の方式（branch / worktree）とチケット単位の上書き
+
+Implementer が実装作業を行う作業空間には 2 つの方式があります。既定は `.claude/ai-team-config.yml` の `workspace.strategy` で決まり、チケットのラベルでチケット単位に上書きできます。
+
+| 方式 | 内容 | 向いているケース |
+|------|------|----------------|
+| `branch`（既定） | 基準ブランチから feature branch を切って、リポジトリ本体で作業する | 単一の作業を順番に進める通常運用 |
+| `worktree` | `git worktree` で作業ディレクトリ（`<worktree_dir>/issue-<番号>`）を分離する | 複数チケットの並行作業・作業汚染の回避 |
+
+### 方式の決定順序（決定論的）
+
+Implementer は以下の順で上から評価し、**最初に確定した方式**を採用します（推測は禁止）。
+
+1. チケットに `workspace:worktree` ラベル → worktree 方式
+2. チケットに `workspace:branch` ラベル → branch 方式
+3. どちらのラベルも無い → `ai-team-config.yml` の `workspace.strategy`
+4. 設定にも記載が無い → branch 方式（フォールバック既定）
+
+`workspace:worktree` と `workspace:branch` が**両方**付与されている場合は矛盾として `escalated:human` にエスカレーションされます。
+
+### 作業ディレクトリの引き継ぎ
+
+worktree 方式では実装が分離ディレクトリ（例: `.claude/worktrees/issue-123`）で行われます。そのため Implementer は完了報告に「作業方式」と「作業ディレクトリ」を必ず記録します。下流エージェント（Tech-Lead のレビュー方式判断・Reviewer・Version-Bumper・Tech-Writer・PR-Creator）は完了報告の `作業ディレクトリ:` を読み、その値へ `cd` してから `git` コマンドを実行します。記載が無い場合はリポジトリルートで動作します（後方互換）。
+
+チケットクローズ時、Contributor は `作業方式:` が `worktree` の場合のみ `git worktree remove` で分離ワークツリーを撤去します（未コミット変更があれば撤去せず人間に委ねる）。branch 方式ではブランチ削除はマージ後に人間 / GitHub 側が行います。
+
+### 有効化とラベル
+
+setup（`/ai-team-setup` の質問4c）で既定方式を選択します。worktree を選ぶと `.gitignore` に `.claude/worktrees/` が追記されます。チケット単位の上書き用ラベル `workspace:branch` / `workspace:worktree` も setup のラベル作成で作られます。設定の詳細は[設定ファイル](../reference/config.html)を参照してください。
+
+---
+
 ## レビュー方式の自動判断
 
 Tech-Lead が Implementer の完了報告を確認した後、`.claude/teams/backend/review-config.yml` の `double_review_criteria` に基づいてレビュー方式を判断します。

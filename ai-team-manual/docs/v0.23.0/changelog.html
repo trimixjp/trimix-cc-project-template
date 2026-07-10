@@ -42,9 +42,11 @@
 
 <p>これまでのエージェント定義は、高い推論能力を持つモデルが行間を補完してくれることを暗黙の前提とした記述（「適切に判断する」「状況に応じて対応する」等）を含んでいました。その結果、実行するモデルによって判断のブレや品質差が生じる余地がありました。</p>
 
-<p>v0.23.0 では、8 本のスキルと 47 体のエージェント定義＋ワークフローを見直し、曖昧な自然文の判断を<strong>決定表・転記式チェック・機械的検証</strong>へ置き換えました。Opus / Sonnet などどのモデルで実行しても、高推論モデルと同等品質で動作することを目指した変更です。</p>
+<p>v0.23.0 では、9 本のスキルと 49 体のエージェント定義＋ワークフローを見直し、曖昧な自然文の判断を<strong>決定表・転記式チェック・機械的検証</strong>へ置き換えました。Opus / Sonnet などどのモデルで実行しても、高推論モデルと同等品質で動作することを目指した変更です。</p>
 
-<p>あわせて、v0.22.1 リリース後にマージ済みだった未リリース分の機能改善（バージョン管理の <code>none</code> 選択肢・テンプレート同梱チームの install ガード等）も本バージョンに含まれます。</p>
+<p>あわせて、<strong>AI が作業する場所を選べる機能</strong>（ブランチ方式 / ワークツリー方式）を追加しました。既定は <code>.claude/ai-team-config.yml</code> の <code>workspace.strategy</code> で決まり、チケットに <code>workspace:worktree</code> / <code>workspace:branch</code> ラベルを貼ればチケット単位で上書きできます。ワークツリー方式では Implementer が <code>.claude/worktrees/issue-&lt;番号&gt;/</code> に複製フォルダを作って作業するため、AI の作業中もあなたの手元のファイルは変わりません。下流のエージェントは Implementer の完了報告に記録された <code>作業ディレクトリ:</code> を読んで作業場所を引き継ぎ、Contributor がクローズ時に複製フォルダを撤去します。既存プロジェクト（<code>workspace</code> 節が無い設定）はブランチ方式で従来どおり動作します。</p>
+
+<p>さらに、v0.22.1 リリース後にマージ済みだった未リリース分の機能改善（バージョン管理の <code>none</code> 選択肢・テンプレート同梱チームの install ガード等）も本バージョンに含まれます。</p>
 
 <hr>
 
@@ -59,7 +61,7 @@
 
 <h3>全スキルへの決定表・失敗時フォールバック・報告前チェックの追加（Issue #71）</h3>
 
-<p>8 本のスキル（<code>/ai-team-setup</code> / <code>/ai-team-run</code> / <code>/ai-team-watch</code> / <code>/ai-team-resume</code> / <code>/ai-team-configure</code> / <code>/ai-team-install</code> / <code>/ai-team-gallery</code> / <code>/ai-team-create</code>）に、分岐判定の決定表・コマンド失敗時のフォールバック手順・ユーザーへの報告前チェックリストを追加しました。スキル実行時の判断も、エージェントと同じくモデルに依存しない決定論的な手順になります。</p>
+<p>9 本のスキル（<code>/ai-team-setup</code> / <code>/ai-team-run</code> / <code>/ai-team-ticket</code> / <code>/ai-team-watch</code> / <code>/ai-team-resume</code> / <code>/ai-team-configure</code> / <code>/ai-team-install</code> / <code>/ai-team-gallery</code> / <code>/ai-team-create</code>）に、分岐判定の決定表・コマンド失敗時のフォールバック手順・ユーザーへの報告前チェックリストを追加しました。スキル実行時の判断も、エージェントと同じくモデルに依存しない決定論的な手順になります。</p>
 
 <h3>SNS 運用チームに品質ゲート（差し戻し）を追加（Issue #71）</h3>
 

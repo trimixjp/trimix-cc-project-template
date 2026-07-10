@@ -43,7 +43,7 @@
 
 <pre><code class="language-">AIチームをプロジェクトにセットアップするウィザード</code></pre>
 
-<p>このパッケージは 6 つの専門チームとスキル（スラッシュコマンド）から構成されており、プロジェクト固有のワークフローを <code>.claude/teams/&lt;team_id&gt;/workflow.yml</code> で柔軟に定義できます。各チームは専用のエージェント群を持ちます（例: YouTube動画制作チームは 9 体）。</p>
+<p>このパッケージは 6 つの専門チームとスキル（スラッシュコマンド）から構成されており、プロジェクト固有のワークフローを <code>.claude/teams/&lt;team_id&gt;/workflow.yml</code> で柔軟に定義できます。各チームは専用のエージェント群を持ちます（例: YouTube動画制作チームは 18 体）。チーム別エージェント 46 体に、全チーム共通の Dispatcher / Contributor / Human-Escalator の 3 体を加えた 49 体が同梱されます。</p>
 
 <hr>
 
@@ -75,6 +75,9 @@
 <h3>7. ドキュメント自動更新（Tech-Writer）</h3>
 <p>バックエンドチームでは、PR 作成前に Tech-Writer エージェントが起動し、コードの変更差分を <code>docs-src/</code> 配下の Markdown に反映してから <code>node docs-src/build.js</code> で <code>ai-team-manual/docs/</code> に HTML をビルドします。コードとドキュメントが乖離しない仕組みです。</p>
 
+<h3>8. AI が作業する「場所」の選択（branch / worktree）</h3>
+<p>Implementer の作業空間を <strong>ブランチ</strong>（いまのフォルダで履歴だけ切り替える。既定）と <strong>ワークツリー</strong>（<code>git worktree</code> で複製フォルダを作り、手元のファイルを触らない）から選べます。既定は <code>.claude/ai-team-config.yml</code> の <code>workspace.strategy</code>、チケット単位の上書きは <code>workspace:worktree</code> / <code>workspace:branch</code> ラベルです。詳細は <a href="guide/setup.html">セットアップガイド</a> を参照してください。</p>
+
 <hr>
 
 <h2>対応チーム</h2>
@@ -88,7 +91,7 @@
 <ul><li><strong>現行バージョン</strong>: v0.23.0</li><li><strong>必要な Node.js</strong>: 18.0.0 以上（<code>engines.node</code> で定義）</li><li><strong>配布形式</strong>: npm パッケージ（<code>.tgz</code>）</li><li><strong>ライセンス</strong>: MIT</li></ul>
 <h3>v0.23.x シリーズの主な変更点</h3>
 
-<ul><li>v0.23.0: <strong>全エージェント定義・全スキルのモデル非依存ブラッシュアップ</strong>。高推論モデルの暗黙的な補完に頼らず、Opus / Sonnet などどのモデルで実行しても同等品質で動作するよう、8 本のスキルと 47 体のエージェント定義＋ワークフローを「決定論的な手順」へ書き直しました。主な変更:</li></ul>  - <strong>エージェント記述標準の新設（agent-writing-guide §9-5〜9-8）</strong>: 「失敗時挙動」セクションの必須化・機械的検証の原則・モデル非依存の原則・設定値のハードコード禁止を、エージェント定義の記述標準として明文化しました。全エージェントに「失敗時挙動」を水平展開し、曖昧な自然文の判断を決定表・転記式チェックに統一しています
+<ul><li>v0.23.0: <strong>全エージェント定義・全スキルのモデル非依存ブラッシュアップ</strong>。高推論モデルの暗黙的な補完に頼らず、Opus / Sonnet などどのモデルで実行しても同等品質で動作するよう、9 本のスキルと 49 体のエージェント定義＋ワークフローを「決定論的な手順」へ書き直しました。主な変更:</li></ul>  - <strong>エージェント記述標準の新設（agent-writing-guide §9-5〜9-8）</strong>: 「失敗時挙動」セクションの必須化・機械的検証の原則・モデル非依存の原則・設定値のハードコード禁止を、エージェント定義の記述標準として明文化しました。全エージェントに「失敗時挙動」を水平展開し、曖昧な自然文の判断を決定表・転記式チェックに統一しています
 <p>  - <strong>SNS 運用チームの品質ゲート追加</strong>: <code>strategist-review</code> ステップに <code>on_rework</code>（調査レポートが不十分な場合の Researcher への差し戻し）を追加し、差し戻し上限超過時は human-escalator へ遷移するようにしました</p>
 <p>  - <strong>Tech-Writer の差分範囲判定を多段フォールバック化</strong>: Version-Bumper と同一の 4 段フォールバック（git タグ → 版バンプコミット → package.json 変更 → HEAD 全件）を Tech-Writer にも水平展開し、ドキュメント更新対象の誤範囲を防ぎます</p>
 <p>  - <strong>フロントエンドチームの起動ラベルを <code>frontend:designer</code> に統一</strong>: ワークフローの最初のステップが <code>designer-analysis</code> であるため、チケット起動ラベル（キーワード判定表・ソロモードの <code>target_labels</code>）を <code>frontend:frontend-lead</code> から <code>frontend:designer</code> に統一しました</p>
