@@ -20,6 +20,8 @@ import {
 import { join, dirname } from 'path';
 import { createHash } from 'crypto';
 
+import { firstSymlinkInPath, hardlinkNlink } from './link-safety.js';
+
 /** バックアップ格納ルートのディレクトリ名（.gitignore に登録する対象） */
 export const BACKUP_ROOT_DIRNAME = '.ai-team-backups';
 
@@ -51,6 +53,18 @@ function formatTimestamp(date = new Date()) {
  */
 function createBackupDir(cwd) {
   const root = join(cwd, BACKUP_ROOT_DIRNAME);
+  // 退避先がシンボリックリンクなら、mkdirSync(recursive) は既存リンクを黙って再利用し、
+  // 以降の copyFileSync がリンクを辿って .claude/ の外へバックアップを書き込んでしまう。
+  // バックアップは最後の防衛線であり、退避先が信頼できないなら適用に進んではならない。
+  // 例外を投げて呼び出し側（upgrade）に fail-closed で中止させる（R-1）。
+  // existsSync はリンクを辿るため壊れたリンクを見落とす。lstat ベースで検査する。
+  const link = firstSymlinkInPath(cwd, BACKUP_ROOT_DIRNAME);
+  if (link) {
+    throw new Error(
+      `バックアップ先 ${BACKUP_ROOT_DIRNAME} がシンボリックリンクです（→ ${link.target}）。` +
+      '信頼できない退避先へはバックアップできないため中止します（fail-closed）。'
+    );
+  }
   // 親（バックアップルート）は再帰作成でよい。ここが既存の「ファイル」であれば
   // mkdirSync が EEXIST を投げ、fail-closed で呼び出し側がアップグレードを中止する。
   mkdirSync(root, { recursive: true });
@@ -140,6 +154,29 @@ export function createBackup({ cwd, targets, packageVersion, copyFile = copyFile
 export function ensureGitignore(cwd) {
   const gitignorePath = join(cwd, '.gitignore');
   const entry = `${BACKUP_ROOT_DIRNAME}/`;
+
+  // .gitignore がシンボリックリンクなら、writeFileSync がリンクを辿って .claude/ の外の
+  // ファイルへ追記してしまう。追記せず警告にとどめる（R-1）。existsSync はリンクを辿るため
+  // 壊れたリンクを見落とす。lstat ベースの firstSymlinkInPath で先に検査する。
+  const link = firstSymlinkInPath(cwd, '.gitignore');
+  if (link) {
+    console.log('');
+    console.log(`  ⚠️  .gitignore がシンボリックリンク（→ ${link.target}）のため、${entry} の追記をスキップします。`);
+    console.log('   .claude/ の外を書き換えないためです。必要ならリンク先に手動で追記してください。');
+    return { added: false, path: gitignorePath, skippedSymlink: true };
+  }
+
+  // .gitignore がハードリンク（外部の実体＝inode を共有）なら、writeFileSync は共有 inode を
+  // その場で truncate して書き換えるため、外部ファイルの内容を破壊してしまう（シンボリック
+  // リンクと同じく .claude/ の外を書き換える）。ハードリンクはシンボリックリンク検査では
+  // 検出できないため、nlink を別途検査して追記せず警告にとどめる（R-1）。
+  const nlink = hardlinkNlink(gitignorePath);
+  if (nlink) {
+    console.log('');
+    console.log(`  ⚠️  .gitignore がハードリンク（外部の実体を共有・nlink=${nlink}）のため、${entry} の追記をスキップします。`);
+    console.log('   外部ファイルの実体（共有 inode）を書き換えないためです。通常ファイルに置き換えると次回から追記できます。');
+    return { added: false, path: gitignorePath, skippedHardlink: true };
+  }
 
   if (!existsSync(gitignorePath)) {
     writeFileSync(gitignorePath, `${entry}\n`, 'utf-8');

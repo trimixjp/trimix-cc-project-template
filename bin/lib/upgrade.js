@@ -22,13 +22,83 @@ import { createInterface } from 'readline';
 
 import { SKILL_FILES } from './skill-files.js';
 import { isCustomized } from './plugin-install.js';
+import { unifiedDiff } from './diff.js';
 import {
   createBackup, ensureGitignore, printBackupIntro, printBackupSummary
 } from './backup.js';
 import { checkPluginUpdates, printUpdateNotice } from './version-check.js';
+import { firstSymlinkInPath, hardlinkNlink } from './link-safety.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '../..');
+
+/**
+ * 書き込み先 rel（cwd 相対）へ安全に書き込めるかを検査する（R-1）。
+ *
+ * 2 段階で検査する:
+ *  1. 封じ込め: cwd から rel まで各パス要素を1つずつ降り、途中にシンボリックリンクが
+ *     1つでもあれば不許可。葉（最終要素）だけでなく中間ディレクトリのリンクも辿られる
+ *     （mkdirSync(recursive) / copyFileSync が辿る）ため、必ずパス全体を走査する。
+ *     壊れたリンクも lstatSync で検出できる。.claude/ の内側で完結するリンクも一律で
+ *     不許可とする（安全側に倒し、内外の判別は試みない）。
+ *  2. ハードリンク: rel 自体が nlink > 1 の通常ファイルなら不許可（copyFileSync が共有
+ *     inode を上書きして外部ファイルを破壊するため）。
+ *
+ * 違反があれば skip 記述子を返す。安全に書ける場合は null。
+ *
+ * @param {string} cwd
+ * @param {string} rel cwd からの相対パス
+ * @returns {{ rel: string, kind: 'symlink', linkRel: string, target: string }
+ *          | { rel: string, kind: 'hardlink', nlink: number }
+ *          | null}
+ */
+function inspectDest(cwd, rel) {
+  const link = firstSymlinkInPath(cwd, rel);
+  if (link) {
+    return { rel, kind: 'symlink', linkRel: link.rel, target: link.target };
+  }
+  const nlink = hardlinkNlink(join(cwd, rel));
+  if (nlink) {
+    return { rel, kind: 'hardlink', nlink };
+  }
+  return null;
+}
+
+/**
+ * 保護ファイルの隣に書き出す <dest>.new（cwd 相対）へ安全に書き込めるかを検査する（R-1）。
+ * <dest>.new も本体（dest）と同様に copyFileSync で書き出すため、検査内容は inspectDest と
+ * 同一である。すなわち封じ込め（経路のシンボリックリンク）に加えて、ハードリンク（nlink>1）も
+ * 検査する。経路上のリンクを辿れば .claude/ の外を、ハードリンクなら共有 inode（外部の実体）を
+ * copyFileSync が破壊しうるため、いずれの場合も辿らずスキップする。
+ * 違反があれば skip 記述子、無ければ null。
+ *
+ * @param {string} cwd
+ * @param {string} newRel `${dest}.new`
+ * @returns {{ rel: string, kind: 'symlink', linkRel: string, target: string }
+ *          | { rel: string, kind: 'hardlink', nlink: number }
+ *          | null}
+ */
+function inspectNew(cwd, newRel) {
+  return inspectDest(cwd, newRel);
+}
+
+/**
+ * skip 記述子を1行の説明文に整形する。シンボリックリンクとハードリンクを区別し、
+ * リンク先パス（symlink）または nlink（hardlink）を明示する（silent cap の禁止）。
+ * 葉ではなく祖先ディレクトリがリンクの場合は、どの要素がリンクなのかも示す。
+ *
+ * @param {{rel, kind, linkRel?, target?, nlink?}} s
+ * @returns {string}
+ */
+function formatSkip(s) {
+  if (s.kind === 'hardlink') {
+    return `${s.rel}: ハードリンク（外部 inode を共有・nlink=${s.nlink}）`;
+  }
+  if (s.linkRel && s.linkRel !== s.rel) {
+    return `${s.rel}: 祖先 ${s.linkRel} がシンボリックリンク → ${s.target}`;
+  }
+  return `${s.rel}: シンボリックリンク → ${s.target}`;
+}
 
 /** @trimix/ai-team のバージョンを package.json から読む */
 function readPackageVersion() {
@@ -184,17 +254,27 @@ export function enumerateUpgradeTargets({ teams }) {
 
 /**
  * 各 { src, dest } を差分カテゴリに分類する。
+ *   'blocked'   … dest への書き込みが安全でない（R-1）。封じ込め違反（経路にシンボリック
+ *                 リンク）またはハードリンク。辿らずスキップ（--force でも辿らない）。
+ *                 block フィールドに skip 記述子を持つ。
  *   'new'       … dest が存在しない（新規作成される）
  *   'update'    … 内容が異なり上書きされる
  *   'protected' … dest がカスタマイズ済み（# customized: true）で --force なし → スキップ
  *   'same'      … 内容が同一（変更なし）
  *
  * @param {{ cwd: string, targets: {src,dest}[], force: boolean }} opts
- * @returns {{ src, dest, category }[]}
+ * @returns {{ src, dest, category, block? }[]}
  */
 export function diffTargets({ cwd, targets, force }) {
   return targets.map(({ src, dest }) => {
+    // dest への書き込みが安全か（経路のリンク・ハードリンク）を最初に検査する。
+    // copyFileSync / mkdirSync(recursive) は経路上のリンクを辿って .claude/ の外を
+    // 書き換えてしまうため、分類段階で 'blocked' として隔離し、以降の読み書きから外す。
+    // isCustomized による --force 判定より前に置くことで、--force でも辿らない（R-1）。
+    const block = inspectDest(cwd, dest);
+    if (block) return { src, dest, category: 'blocked', block };
     const destAbs = join(cwd, dest);
+    // ここまで来れば経路にリンクは無く、destAbs は実体（または未作成）である。
     if (!existsSync(destAbs)) return { src, dest, category: 'new' };
     // Buffer 比較で内容の同一性を判定する（テンプレートは小さいため全読みで十分）
     const same = readFileSync(src).equals(readFileSync(destAbs));
@@ -205,23 +285,95 @@ export function diffTargets({ cwd, targets, force }) {
 }
 
 /**
- * 差分に基づいてテンプレートを適用する。'protected' と 'same' はスキップする。
- * @param {{ cwd: string, diffs: {src,dest,category}[] }} opts
- * @returns {{ applied: string[], skippedProtected: string[], unchanged: string[] }}
+ * protected な差分について、`<dest>.new` を書き出す作業が必要かを判定する（冪等性の要）。
+ *
+ *   - `.new` が存在しない                          → true（新規に書き出す必要がある）
+ *   - `.new` が存在するが最新テンプレートと内容が異なる → true（退避のうえ上書きする必要がある）
+ *   - `.new` が存在し最新テンプレートと内容が同一     → false（作業不要。書き出しもバックアップもしない）
+ *
+ * これにより、保護ファイルが残ったまま `upgrade` を繰り返しても、内容が同じ `.new` を
+ * 書き直してバックアップ世代を無限に増やす、という非冪等な挙動を防ぐ。
+ * 比較は Buffer 単位（テンプレートは小さいため全読みで十分。diffTargets と同じ方式）。
+ *
+ * @param {string} cwd
+ * @param {{ src: string, dest: string }} d
+ * @returns {boolean}
+ */
+export function protectedNewNeedsWrite(cwd, d) {
+  const newAbs = join(cwd, `${d.dest}.new`);
+  if (!existsSync(newAbs)) return true;
+  return !readFileSync(newAbs).equals(readFileSync(d.src));
+}
+
+/**
+ * 差分に基づいてテンプレートを適用する。'same' はスキップする。
+ *
+ * 'protected'（カスタマイズ済み）は本体を上書きしない代わりに、最新テンプレートを
+ * `<dest>.new` として隣に書き出す（dpkg の .dpkg-dist / RPM の .rpmnew と同じ方式）。
+ * これにより、ユーザーは自分の編集を保ったまま新テンプレートの中身を確認し、
+ * 必要な差分を手作業で取り込めるようになる。`.new` は自動削除しない（取り込みの
+ * 完了はユーザーにしか判断できないため）。
+ *
+ * 冪等性: 既に同一内容の `.new` があるときは書き出さない（protectedNewNeedsWrite）。
+ * 同じ `.new` を書き直してバックアップ世代を無駄に増やすのを避ける。
+ *
+ * リンク保護（R-1）: 書き込み先（dest 本体・保護ファイルの <dest>.new）が封じ込め違反
+ * （経路上のシンボリックリンク）またはハードリンクの場合は、辿って .claude/ の外を
+ * 書き換える／外部 inode を破壊するのを避けるため、書き込まずスキップする。当該ファイル
+ * のみスキップし、他のファイルの更新は続ける。
+ *
+ * TOCTOU（R-1 / #4）: diffTargets の分類（'blocked'）を鵜呑みにせず、書き込み直前に
+ * inspectDest / inspectNew を再実行する。分類から書き込みまでの間にリンクが差し込まれても、
+ * 書き込む瞬間の状態で判定する（完全な排除は求めないが、直前再検査で窓を最小化する）。
+ *
+ * @param {{ cwd: string, diffs: {src,dest,category,block?}[] }} opts
+ * @returns {{ applied: string[], skippedProtected: string[], unchanged: string[], writtenNew: string[], skipped: object[] }}
+ *   writtenNew は「実際に」書き出した `.new` の相対パス一覧（既に最新なら含まれない）。
+ *   skipped はリンクのため書き込みを見送った書き込み先の skip 記述子。slot は 'dest'（本体）
+ *   または 'new'（保護ファイルの .new）。
  */
 export function applyUpgrade({ cwd, diffs }) {
   const applied = [];
   const skippedProtected = [];
   const unchanged = [];
+  const writtenNew = [];
+  const skipped = [];
   for (const d of diffs) {
-    if (d.category === 'protected') { skippedProtected.push(d.dest); continue; }
     if (d.category === 'same') { unchanged.push(d.dest); continue; }
+
+    if (d.category === 'protected') {
+      skippedProtected.push(d.dest);
+      const newRel = `${d.dest}.new`;
+      // TOCTOU: <dest>.new の封じ込めを書き込み直前に再検査する。リンクなら辿らずスキップ（R-1）
+      const newBlock = inspectNew(cwd, newRel);
+      if (newBlock) {
+        skipped.push({ ...newBlock, slot: 'new' });
+        continue;
+      }
+      // 本体は維持。最新テンプレートを <dest>.new として書き出す（既に最新なら何もしない）
+      if (protectedNewNeedsWrite(cwd, d)) {
+        const newAbs = join(cwd, newRel);
+        mkdirSync(dirname(newAbs), { recursive: true });
+        copyFileSync(d.src, newAbs);
+        writtenNew.push(newRel);
+      }
+      continue;
+    }
+
+    // 'new' / 'update'（および分類時に 'blocked' だったもの）は、書き込み直前に
+    // inspectDest を再実行してから書き込む。'blocked' はここで確実にスキップされ、
+    // 'new' / 'update' も TOCTOU の窓で差し込まれたリンクを弾ける（R-1 / #4）。
+    const block = inspectDest(cwd, d.dest);
+    if (block) {
+      skipped.push({ ...block, slot: 'dest' });
+      continue;
+    }
     const destAbs = join(cwd, d.dest);
     mkdirSync(dirname(destAbs), { recursive: true });
     copyFileSync(d.src, destAbs);
     applied.push(d.dest);
   }
-  return { applied, skippedProtected, unchanged };
+  return { applied, skippedProtected, unchanged, writtenNew, skipped };
 }
 
 /** 差分の内訳を表示する */
@@ -230,6 +382,7 @@ function printDiff(diffs) {
   const updates = diffs.filter((d) => d.category === 'update');
   const protectedItems = diffs.filter((d) => d.category === 'protected');
   const same = diffs.filter((d) => d.category === 'same');
+  const blocked = diffs.filter((d) => d.category === 'blocked');
 
   console.log('');
   console.log('  📊 差分:');
@@ -237,6 +390,9 @@ function printDiff(diffs) {
   console.log(`     上書き更新: ${updates.length} 件`);
   console.log(`     保護のためスキップ（カスタマイズ済み）: ${protectedItems.length} 件`);
   console.log(`     変更なし: ${same.length} 件`);
+  if (blocked.length > 0) {
+    console.log(`     リンクのためスキップ（シンボリックリンク／ハードリンク）: ${blocked.length} 件`);
+  }
 
   if (updates.length > 0) {
     console.log('');
@@ -252,6 +408,105 @@ function printDiff(diffs) {
     console.log('');
     console.log('  🛡️  保護のためスキップ（--force で上書き可能）:');
     for (const d of protectedItems) console.log(`     - ${d.dest}`);
+  }
+}
+
+/**
+ * リンクのため書き込みをスキップする書き込み先を洗い出す（R-1）。
+ *
+ * 2 つの経路を検査する:
+ *   - dest 本体（category 'blocked'）… diffTargets で分類済み（block 記述子を持つ）
+ *   - 保護ファイルの <dest>.new     … 分類には現れないため、ここで実地に検査する
+ *
+ * @param {string} cwd
+ * @param {{src,dest,category,block?}[]} diffs
+ * @returns {object[]} slot 付きの skip 記述子一覧
+ */
+function collectSkips(cwd, diffs) {
+  const skips = [];
+  for (const d of diffs) {
+    if (d.category === 'blocked') {
+      skips.push({ ...d.block, slot: 'dest' });
+    } else if (d.category === 'protected') {
+      const newBlock = inspectNew(cwd, `${d.dest}.new`);
+      if (newBlock) skips.push({ ...newBlock, slot: 'new' });
+    }
+  }
+  return skips;
+}
+
+/**
+ * リンクのためスキップする書き込み先を差分サマリに明示する（R-1）。
+ * 黙って落とす（silent cap）ことは禁止（RULES.md / Professional Honesty）。
+ * シンボリックリンクとハードリンクを区別し、リンク先パス／nlink を表示する。
+ * --dry でも差分提示フェーズで呼ばれるため、書き込み前に何がスキップされるか分かる。
+ */
+function printSkips(skips) {
+  if (skips.length === 0) return;
+  console.log('');
+  console.log('  ⚠️  リンクのためスキップします（.claude/ の外を書き換えず、外部 inode も壊さないため）:');
+  for (const s of skips) console.log(`     - ${formatSkip(s)}`);
+  console.log('   シンボリックリンクは解除するかリンク先を直接編集し、ハードリンクは通常ファイルに置き換えてください。');
+}
+
+/**
+ * 対象ファイルに対応する `.new`（前回の upgrade で書き出され、まだ取り込まれていない
+ * 可能性のあるもの）のうち、実在するものの相対パス一覧を返す。
+ * cwd を走査するのではなく targets から導出するため、`.new` が upgrade 対象と誤認される
+ * ことはない（enumerateUpgradeTargets はテンプレート由来で `.new` を含まない）。
+ */
+function findResidualNew(cwd, targets) {
+  return targets
+    .map((t) => `${t.dest}.new`)
+    .filter((rel) => existsSync(join(cwd, rel)));
+}
+
+/**
+ * 残置している `.new` を処理の冒頭で警告する（自動削除はしない）。
+ *
+ * `.new` は「ユーザーがまだ取り込んでいない未処理の作業」を表す。取り込みが完了したか
+ * どうかはユーザーにしか判断できないため、こちらでは決して削除せず、存在を知らせるに
+ * とどめる。--force 時は保護スキップが起きず `.new` を書き出さないため、これらは触られ
+ * ないことを明示する。
+ */
+function printResidualNew(residual, { force }) {
+  if (residual.length === 0) return;
+  console.log('');
+  console.log(`  ⚠️  前回の upgrade で書き出された .new が残っています（${residual.length} 件）:`);
+  for (const rel of residual) console.log(`     - ${rel}`);
+  if (force) {
+    // --force では保護スキップが発生しない＝ .new を新たに書き出さないため、既存は不変
+    console.log('   --force では保護スキップが発生しないため、これらの .new は上書きも削除もされません。');
+    console.log('   差分を取り込み済みであれば手動で削除してください。');
+  } else {
+    // 冪等: 内容が最新テンプレートと同一の .new は再実行しても書き直さない（世代も増えない）
+    console.log('   差分を取り込み済みであれば削除してください。内容が最新テンプレートと異なる .new は');
+    console.log('   退避のうえ上書きされます（同一内容なら書き直さず、バックアップも作りません）。');
+  }
+}
+
+/**
+ * --diff 指定時に、上書き更新／保護スキップの対象について
+ * 「あなたの現在の版 → 最新テンプレート」の unified diff を表示する。
+ * 適用前（差分提示フェーズ）に呼ぶため、--dry --diff でも中身を確認できる。
+ */
+function printUnifiedDiffs({ cwd, diffs }) {
+  const targets = diffs.filter((d) => d.category === 'update' || d.category === 'protected');
+  if (targets.length === 0) return;
+  console.log('');
+  console.log('  🔎 差分（--diff）: あなたの現在の版（-） → 最新テンプレート（+）');
+  for (const d of targets) {
+    const current = readFileSync(join(cwd, d.dest), 'utf-8');
+    const template = readFileSync(d.src, 'utf-8');
+    const label = d.category === 'protected' ? '保護中' : '上書き更新';
+    const diff = unifiedDiff(current, template, {
+      oldLabel: `${d.dest}（現在）`,
+      newLabel: `${d.dest}（最新テンプレート）`
+    });
+    console.log('');
+    console.log(`  ── ${d.dest}（${label}） ──`);
+    // diff 本文は各行が改行付き。末尾改行を保証して素通しで出力する。
+    process.stdout.write(diff.endsWith('\n') ? diff : `${diff}\n`);
   }
 }
 
@@ -318,6 +573,7 @@ export async function runUpgrade(args, { cwd }) {
   const isDry = args.includes('--dry');
   const force = args.includes('--force');
   const yes = args.includes('--yes');
+  const showDiff = args.includes('--diff');
   const teamArg = args.find((a) => !a.startsWith('--')); // 最初の非フラグ引数を team_id とみなす
 
   // 対象チームの決定
@@ -333,6 +589,7 @@ export async function runUpgrade(args, { cwd }) {
   console.log(`   対象チーム: ${teams.length > 0 ? teams.join(', ') : '(なし)'}`);
   if (isDry) console.log('   モード: --dry（差分の提示のみ。書き込み・バックアップは行いません）');
   if (force) console.log('   モード: --force（カスタマイズ済みファイルも上書きします）');
+  if (showDiff) console.log('   モード: --diff（適用前に差分を表示します）');
 
   // 導入済みプラグインと registry のバージョン差を通知する（更新の気づきを与える）
   printUpdateNotice(checkPluginUpdates(cwd));
@@ -346,9 +603,18 @@ export async function runUpgrade(args, { cwd }) {
     return 0;
   }
 
+  // 冒頭で、前回書き出した .new が残っていれば警告する（自動削除はしない）
+  printResidualNew(findResidualNew(cwd, targets), { force });
+
   // 2. 差分の提示
   const diffs = diffTargets({ cwd, targets, force });
   printDiff(diffs);
+  // 書き込み先がリンク（経路のシンボリックリンク／ハードリンク）のものは辿らずスキップする。
+  // 差分サマリに明示する（R-1）。
+  const skips = collectSkips(cwd, diffs);
+  printSkips(skips);
+  // --diff 指定時は、上書き更新／保護スキップ対象の中身の差分を表示する（--dry --diff でも表示）
+  if (showDiff) printUnifiedDiffs({ cwd, diffs });
 
   // 3. --dry ならここで終了（書き込みもバックアップも行わない）
   if (isDry) {
@@ -357,11 +623,35 @@ export async function runUpgrade(args, { cwd }) {
     return 0;
   }
 
-  // 適用する差分（new/update）が無ければ、バックアップも確認も不要で終了
-  const writes = diffs.filter((d) => d.category === 'new' || d.category === 'update');
+  // 適用する差分が無ければ、バックアップも確認も不要で終了。
+  // 'protected' は「最新テンプレートを .new として書き出す」実作業を持つが、既に同一内容の
+  // .new があるなら作業不要（冪等）。書き出しが必要な protected だけを writes に含める。
+  // これにより、保護ファイルが残っていても .new が最新なら「すべて最新です」へ到達でき、
+  // 再実行のたびにバックアップ世代が無駄に増える非冪等な挙動を防ぐ。
+  const writes = diffs.filter((d) => {
+    if (d.category === 'new' || d.category === 'update') return true;
+    if (d.category === 'protected') {
+      // <dest>.new がリンクなら書き出さない（辿らない）ため、書き込み作業に数えない（R-1）
+      if (inspectNew(cwd, `${d.dest}.new`)) return false;
+      return protectedNewNeedsWrite(cwd, d);
+    }
+    // 'same' / 'blocked' は書き込み無し
+    return false;
+  });
   if (writes.length === 0) {
     console.log('');
     console.log('✅ すべて最新です。適用する差分はありません。');
+    // 「何もすることがない」のか「保護ファイルが未処理で残っている」のかを区別できるよう、
+    // 保護ファイルとその .new の在り処を明示する（この時点で .new は最新＝取り込み待ち）。
+    const protectedDiffs = diffs.filter((d) => d.category === 'protected');
+    if (protectedDiffs.length > 0) {
+      console.log('');
+      console.log(`  ℹ️  ただし保護されたファイルが ${protectedDiffs.length} 件あります（本体は維持。最新テンプレートは .new に保存済み）:`);
+      for (const d of protectedDiffs) {
+        console.log(`     - ${d.dest} → 最新テンプレート: ${d.dest}.new`);
+      }
+      console.log('   差分を取り込み、済んだら .new を削除してください（取り込みが未了なら未処理として残ります）。');
+    }
     return 0;
   }
 
@@ -374,12 +664,27 @@ export async function runUpgrade(args, { cwd }) {
   }
 
   // 5. バックアップ（fail-closed）。差分の有無で絞らず、書き込む可能性のある全対象を退避する。
+  //    これから「書き出す」.new のうち既に存在するものも退避対象に加える。既存の .new を
+  //    上書きする前に必ず退避するため（fail-closed の維持）。既に最新の .new は書き出さない
+  //    ので退避対象からも外す（冪等: 無駄なバックアップ世代を作らない）。createBackup は
+  //    存在しないパスを除外するので、書き出し予定の .new 候補をそのまま渡してよい。
+  // リンクの書き込み先は触らない（辿らない）ため、バックアップ対象からも除外する（R-1）。
+  //  - dest 本体がリンク（category 'blocked'）は退避しない
+  //  - 保護ファイルの <dest>.new がリンクのものも退避しない
+  const backupDests = diffs
+    .filter((d) => d.category !== 'blocked')
+    .map((d) => d.dest);
+  const protectedNewTargets = diffs
+    .filter((d) => d.category === 'protected'
+      && !inspectNew(cwd, `${d.dest}.new`)
+      && protectedNewNeedsWrite(cwd, d))
+    .map((d) => `${d.dest}.new`);
   printBackupIntro();
   let backup;
   try {
     backup = createBackup({
       cwd,
-      targets: targets.map((t) => t.dest),
+      targets: [...backupDests, ...protectedNewTargets],
       packageVersion: readPackageVersion()
     });
   } catch (e) {
@@ -402,10 +707,60 @@ export async function runUpgrade(args, { cwd }) {
   console.log(`   更新: ${result.applied.length} 件`);
   console.log(`   保護スキップ: ${result.skippedProtected.length} 件`);
   console.log(`   変更なし: ${result.unchanged.length} 件`);
+  if (result.skipped.length > 0) {
+    console.log(`   リンクのためスキップ: ${result.skipped.length} 件`);
+  }
   if (result.skippedProtected.length > 0) {
+    // 本体は維持しつつ、最新テンプレートを .new として隣に残したことを案内する。
+    // .new は自動削除しない（取り込みの完了はユーザーにしか判断できないため）。
+    // 今回書き出した .new と、既に最新だった .new を区別して表示する（冪等性の可視化）。
     console.log('');
-    console.log('  ℹ️  カスタマイズ済みのため保護したファイルがあります。上書きするには --force を付けて再実行してください:');
-    for (const dest of result.skippedProtected) console.log(`     - ${dest}`);
+    console.log('  🛡️  保護のためスキップ（あなたの編集を維持しました）:');
+    for (const dest of result.skippedProtected) {
+      const newRel = `${dest}.new`;
+      console.log(`     - ${dest}`);
+      // <dest>.new がリンク（経路のシンボリックリンク／ハードリンク）だった場合は書き出しを
+      // スキップしている（R-1）。「保存しました」と誤って案内しないよう、スキップした旨を明示する。
+      // シンボリックリンクとハードリンクは扱い（解除方法）が異なるため、種別に応じて案内文を変える。
+      const newSkip = result.skipped.find((s) => s.slot === 'new' && s.rel === newRel);
+      if (newSkip) {
+        const kindLabel = newSkip.kind === 'hardlink' ? 'ハードリンク' : 'シンボリックリンク';
+        console.log(`       ⚠️  ${newRel} は${kindLabel}のため書き出しをスキップしました（${formatSkip(newSkip)}）`);
+        if (newSkip.kind === 'hardlink') {
+          console.log('       外部の実体（共有 inode）を破壊しないためです。通常ファイルに置き換えると次回から .new を書き出せます。');
+        } else {
+          console.log('       .claude/ の外を書き換えないためです。リンクを解除すると次回から .new を書き出せます。');
+        }
+        continue;
+      }
+      if (result.writtenNew.includes(newRel)) {
+        console.log(`       最新テンプレートを ${newRel} として保存しました`);
+      } else {
+        console.log(`       最新テンプレートは既に ${newRel} にあります（変更なし）`);
+      }
+      console.log(`       差分の確認: diff ${dest} ${newRel}`);
+      console.log('       取り込んだら .new は削除してください');
+    }
+    console.log('');
+    console.log('  ℹ️  カスタマイズ済みファイルを最新テンプレートで直接上書きするには --force を付けて再実行してください。');
+  }
+  // dest 本体がリンクだったものを完了報告に明示する（R-1）。silent cap の禁止。
+  // .new のスキップは上の保護スキップ欄でファイルごとに示すため、ここでは本体のみ。
+  // シンボリックリンクとハードリンクは扱いも案内文も異なるため、別の見出しで示す。
+  const destSkips = result.skipped.filter((s) => s.slot === 'dest');
+  const destSymlinks = destSkips.filter((s) => s.kind === 'symlink');
+  const destHardlinks = destSkips.filter((s) => s.kind === 'hardlink');
+  if (destSymlinks.length > 0) {
+    console.log('');
+    console.log('  ⚠️  シンボリックリンクのためスキップしました（.claude/ の外を書き換えないため）:');
+    for (const s of destSymlinks) console.log(`     - ${formatSkip(s)}`);
+    console.log('   リンクを解除するか、リンク先を直接編集してください。');
+  }
+  if (destHardlinks.length > 0) {
+    console.log('');
+    console.log('  ⚠️  ハードリンクのためスキップしました（外部 inode の破壊を防ぐため）:');
+    for (const s of destHardlinks) console.log(`     - ${formatSkip(s)}`);
+    console.log('   通常ファイル（実体のコピー）に置き換えてから再実行してください。');
   }
   return 0;
 }

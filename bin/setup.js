@@ -43,6 +43,8 @@ function printHelp() {
   console.log('');
   console.log('upgrade オプション:');
   console.log('  --dry     差分の提示のみ（書き込み・バックアップは行いません）');
+  console.log('  --diff    上書き更新・保護対象の中身の差分（unified diff）を表示する');
+  console.log('            （--dry --diff で「差分を見るだけ・何も書かない」最も安全な使い方）');
   console.log('  --force   カスタマイズ済みファイルも上書きする');
   console.log('  --yes     確認プロンプトを省略（非対話環境で明示的に続行する場合）');
   console.log('');
