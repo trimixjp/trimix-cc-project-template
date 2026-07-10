@@ -24,12 +24,36 @@ const packageRoot = resolve(__dirname, '../..');
 const CUSTOMIZED_MARKER = '# customized: true';
 
 /**
+ * カスタマイズ保護マーカーを検出する対象範囲（ファイル先頭からの行数）。
+ *
+ * マーカーはファイル先頭の「ヘッダ領域」に置く運用とし、検出もそこに限定する。
+ * ファイル全体を検索すると、マーカーの付け方を本文で解説しているだけのファイル
+ * （skills/ai-team-configure.md・skills/ai-team-install.md など）まで
+ * 「カスタマイズ済み」と誤検出してしまい、ユーザーが未編集の配布物が upgrade で
+ * 二度と更新されなくなるため（Issue #82）。
+ *
+ * 5 行にする根拠:
+ *  - frontmatter を持たない YAML（workflow.yml）はマーカーを 1 行目に置く。
+ *  - frontmatter を持つ Markdown（agents/*.md）は 1 行目が `---` のため、
+ *    frontmatter を壊さないようマーカーを `---` の直後（= 2 行目）に YAML コメント
+ *    として置く。
+ *  この 2 種を確実に含めつつ、本文の解説（configure スキルでは 260 行目付近）は
+ *  拾わないよう、少し余裕をもたせて先頭 5 行を対象とする。
+ */
+const CUSTOMIZED_MARKER_HEADER_LINES = 5;
+
+/**
  * ファイルがカスタマイズ保護マーカー（# customized: true）を含むか判定する。
  * 単一ファイル分岐・ワイルドカード分岐の双方から共通利用する（DRY）。
+ *
+ * 検出はファイル先頭のヘッダ領域（先頭 CUSTOMIZED_MARKER_HEADER_LINES 行）に限定する。
+ * 本文中にマーカー文字列を解説として含むだけのファイルを誤検出しないため。
  */
 export function isCustomized(filePath) {
   if (!existsSync(filePath)) return false;
-  return readFileSync(filePath, 'utf-8').includes(CUSTOMIZED_MARKER);
+  // 第 2 引数で先頭 N 要素に切り詰める（N+1 行目以降は読み捨てる）
+  const headerLines = readFileSync(filePath, 'utf-8').split('\n', CUSTOMIZED_MARKER_HEADER_LINES);
+  return headerLines.some((line) => line.includes(CUSTOMIZED_MARKER));
 }
 
 /** ai-team-config.yml の solo.target_labels にラベルを追加する */
