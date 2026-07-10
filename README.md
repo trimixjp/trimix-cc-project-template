@@ -84,11 +84,51 @@ Infra-Lead → Network-Engineer / Infra-Specialist → Security-Engineer
 
 ## パッケージの更新
 
-新しいバージョンの `.tgz` を受け取ったら、再度 `npm install` を実行してください：
+更新は 2 段階です。**`npm install` だけではエージェント定義は更新されません。**
+
+### 1. パッケージ本体を入れ替える
 
 ```bash
 npm install --save-dev ./trimix-ai-team-<version>.tgz
 ```
+
+これで更新されるのは `.claude/commands/`（スキル）と `ai-team-manual/`（マニュアル）だけです。
+
+### 2. テンプレートを更新する
+
+`.claude/agents/`・`.claude/teams/`・`.claude/dod/`・`escalation-rules.yml`・`model-profiles.yml` は、次のコマンドで更新します。
+
+```bash
+# まず差分を確認する（何も書き込みません）
+npx @trimix/ai-team upgrade --dry --diff
+
+# 問題なければ適用する
+npx @trimix/ai-team upgrade
+```
+
+適用前に、上書き対象のファイルが `.ai-team-backups/<日時>/` へ自動退避されます。バックアップに失敗した場合、アップグレードは中止されます。
+
+### カスタマイズしたファイルは上書きされません
+
+`upgrade` は、ツールが最後に配置した内容のハッシュを `.claude/.template-baseline.json` に記録しています。**あなたが編集したファイルは検出され、保護されます。**
+
+| ファイルの状態 | 動作 |
+|---|---|
+| 未編集 | 最新テンプレートへ更新 |
+| 編集済み | **本体を維持**し、最新テンプレートを `<ファイル名>.new` として隣に書き出す |
+| 判定不能（baseline に記録が無い） | 安全側に倒して保護 |
+
+`.new` が置かれたら、`diff` で差分を確認して手で取り込んでください。取り込みが済んだら `.new` を削除します。
+
+```bash
+diff .claude/teams/backend/workflow.yml{,.new}
+```
+
+意図的に上書きしたい場合は `--force` を使います。ただし**あなたの編集は失われます**（バックアップからは復元できます）。
+
+`/ai-team-setup` で選んだモデルプロファイル（`model` / `effort`）は、upgrade 後も維持されます。
+
+今後も自分で管理したいファイルには、先頭 5 行以内に `# customized: true` を書いておくと、ハッシュに関わらず常に保護されます。
 
 ---
 
