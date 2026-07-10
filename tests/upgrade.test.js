@@ -22,10 +22,20 @@ import { Readable } from 'node:stream';
 import { execFileSync } from 'node:child_process';
 
 import { runUpgrade, enumerateUpgradeTargets, diffTargets } from '../bin/lib/upgrade.js';
+import { recordFiles, loadBaseline, normalizedHash } from '../bin/lib/baseline.js';
 
 /** dest（OS依存セパレータ）を POSIX 形式（/）に正規化する */
 function toPosix(p) {
   return p.split(sep).join('/');
+}
+
+/**
+ * 指定した相対パスの現物内容を baseline として記録する（#85）。
+ * 「このツールが前回この内容を配置した（＝ユーザーは未編集）」状態を再現する。
+ * ハッシュ照合方式では、未編集ファイルが update に分類されるには baseline が必要。
+ */
+function seedBaseline(cwd, rels) {
+  recordFiles(cwd, rels);
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -49,6 +59,9 @@ function makeProject() {
   const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-'));
   // 古い（テンプレートと異なる）内容を配置する。マーカーなし = 非カスタマイズ。
   writeUnder(cwd, '.claude/teams/backend/workflow.yml', '# 古いバージョンのワークフロー\nsteps: []\n');
+  // 「ツールが前回この内容を配置した（ユーザー未編集）」ことを表す baseline を記録する。
+  // これによりハッシュ照合で「未編集 → 更新」と判定される（#85）。
+  seedBaseline(cwd, ['.claude/teams/backend/workflow.yml']);
   return cwd;
 }
 
@@ -529,6 +542,10 @@ test('(#86-7) インシデント#3再発防止: 実在の ai-team-configure.md�
     const configureDest = '.claude/commands/ai-team-configure.md';
     const oldContent = `${realConfigure}\n<!-- 旧バージョン -->\n`;
     writeUnder(cwd, configureDest, oldContent);
+    // ツールが前回この旧版を配置した（ユーザー未編集）状態を baseline に記録する。
+    // 本文にマーカー文字列を含むが、ヘッダ5行には無く、かつ現物 == baseline のため update に
+    // 分類されるべき（本文マーカーの誤検出も no-baseline 誤保護もしない・インシデント #3 / #85）。
+    seedBaseline(cwd, [configureDest]);
 
     const { targets } = enumerateUpgradeTargets({ teams: [] });
     const diffs = diffTargets({ cwd, targets, force: false });
@@ -788,6 +805,7 @@ test('(#86-R1-5) シンボリックリンクをスキップしても、他の通
     // 通常ファイル（escalation-rules.yml）を古い内容で置く（update に分類される）
     const escalationRel = '.claude/escalation-rules.yml';
     writeUnder(cwd, escalationRel, '# 古いエスカレーションルール\n');
+    seedBaseline(cwd, [escalationRel]); // ツールが配置済み（未編集）→ ハッシュ照合で update（#85）
     const expectedEscalation = readTemplate('_shared/escalation-rules.yml');
 
     const out = await captureStdout(async () => {
@@ -1141,6 +1159,7 @@ test('(#86-R2-11) リンクをスキップしても、他の通常ファイル�
     symlinkSync(ext, join(cwd, '.claude', 'teams'));
     // 通常ファイル（グローバル）は古い内容を置く → update に分類される
     writeUnder(cwd, '.claude/escalation-rules.yml', '# 古いエスカレーションルール\n');
+    seedBaseline(cwd, ['.claude/escalation-rules.yml']); // 未編集 → ハッシュ照合で update（#85）
     const expected = readTemplate('_shared/escalation-rules.yml');
 
     const code = await runUpgrade(['backend', '--yes'], { cwd });

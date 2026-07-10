@@ -9,6 +9,7 @@ import { readFileSync, mkdirSync, copyFileSync, existsSync } from 'fs';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { SKILL_FILES } from './lib/skill-files.js';
+import { recordFiles } from './lib/baseline.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '..');
@@ -29,6 +30,7 @@ function printHelp() {
   console.log('  npx @trimix/ai-team install              Skillファイルを .claude/commands/ に展開');
   console.log('  npx @trimix/ai-team install <team_id>    ワークフロープラグインをインストール');
   console.log('  npx @trimix/ai-team upgrade [team_id]    導入済みチームを最新テンプレートへ更新（バックアップ付き）');
+  console.log('  npx @trimix/ai-team baseline <cmd>       upgrade の保護判定用ハッシュ台帳を操作（record / show）');
   console.log('  npx @trimix/ai-team gallery              利用可能なプラグイン一覧を表示');
   console.log('  npx @trimix/ai-team list                 インストール済みプラグインを表示');
   console.log('  npx @trimix/ai-team uninstall <team_id>  プラグインをアンインストール');
@@ -62,6 +64,7 @@ function installSkills() {
   mkdirSync(skillsDest, { recursive: true });
 
   let installed = 0;
+  const placedRels = [];
   for (const file of SKILL_FILES) {
     const src = join(skillsSource, file);
     const dest = join(skillsDest, file);
@@ -74,8 +77,15 @@ function installSkills() {
     const alreadyExists = existsSync(dest);
     copyFileSync(src, dest);
     console.log(`  ${alreadyExists ? '🔄 更新' : '✅ 追加'}: .claude/commands/${file}`);
+    placedRels.push(join('.claude', 'commands', file));
     installed++;
   }
+
+  // 配置したスキルを baseline（upgrade の保護判定基準）へ記録する（#85・経路2）。
+  // 記録に失敗しても skills の展開自体は成功扱いにする（付随的機能）。
+  try {
+    recordFiles(cwd, placedRels);
+  } catch { /* baseline 記録は付随的機能。失敗しても展開は成功とみなす */ }
 
   console.log('');
   console.log(`✅ ${installed} 件のSkillファイルを展開しました`);
@@ -99,6 +109,11 @@ async function main() {
     // 導入済みチーム定義・共通設定・skills を最新テンプレートへ更新
     const { runUpgrade } = await import('./lib/upgrade.js');
     const code = await runUpgrade(args.slice(1), { cwd });
+    process.exit(code);
+  } else if (command === 'baseline') {
+    // upgrade の保護判定に使うハッシュ台帳（.claude/.template-baseline.json）を操作
+    const { runBaseline } = await import('./lib/upgrade.js');
+    const code = runBaseline(args.slice(1), { cwd });
     process.exit(code);
   } else if (command === 'gallery') {
     const { showGallery } = await import('./lib/gallery.js');

@@ -39,6 +39,17 @@ v0.24.0 では **`upgrade` コマンド**を新設し、`.claude/` 配下のテ�
 - 世代ディレクトリは同一秒に複数回実行しても連番（`-2`, `-3` …）で衝突を回避し、先行世代を上書きしません
 - バックアップ作成時に `.gitignore` へ `.ai-team-backups/` を冪等に追記します
 
+### 手編集ファイルの保護をハッシュ照合へ移行（Issue #85）
+
+上書き保護の判定を、`# customized: true` マーカーの有無から **ハッシュ照合（dpkg の conffile と同じ考え方）** へ移行しました。マーカーを付けなくても、あなたが手編集したファイルが自動的に保護されます。
+
+- `install` / `/ai-team-setup` / `upgrade` などテンプレートを配置する全経路が、配置内容の SHA-256 を baseline（`.claude/.template-baseline.json`）に記録します
+- `upgrade` は baseline と現物を三方比較し、**未編集（baseline 一致）→ 更新**／**編集済み（baseline 不一致）→ 保護し `.new` を書き出す**／**記録なし → 安全側で保護**と判定します
+- ハッシュの正規化は **CRLF→LF と末尾改行のみ**で、行頭・行末・行中の空白は削りません（本物の編集を見逃さないため。誤判定するなら保護側に倒します）
+- **`upgrade` はモデルプロファイルを維持します。** テンプレート適用で `model` / `effort` がテンプレート既定へ戻るのを防ぐため、`ai-team-config.yml` の選択済みプロファイルを、今回書き込んだファイルへ再適用します
+- `npx @trimix/ai-team baseline record` / `baseline show` を追加しました。`record` は既存 baseline がある場合、保護が静かに外れる事故を防ぐため `--force` なしでは拒否します
+- `# customized: true` マーカーは、ハッシュに関わらず保護する後方互換シグナルとして残します
+
 ---
 
 ## バグ修正
@@ -79,7 +90,7 @@ SNS 運用チームと YouTube 動画制作チームのミラーパッケージ�
 
 ## 既知の制限
 
-- **マーカーの無い手編集ファイルは `upgrade` で上書きされます。** 上書き保護は `# customized: true` マーカーの有無だけで判定するため、マーカーの付かない手編集ファイル（例: `agents/*.md` の `model` / `effort` を直接編集したもの）は上書き対象になります。ただし適用前に必ずバックアップへ退避されるため、復元は可能です。この制限は保護判定をハッシュ照合へ移行する [Issue #85](https://github.com/takufukagawa/trimix-cc-project-template/issues/85) で対応予定です
+- マーカーの無い手編集ファイルの上書き問題は、本バージョンでハッシュ照合へ移行して解消しました（[Issue #85](https://github.com/takufukagawa/trimix-cc-project-template/issues/85)）。手編集ファイルは baseline との照合で自動的に保護されます
 - `upgrade` / バックアップのテスト堅牢性の改善（実時計依存・対話端末でのハング・壊れた `plugin.json` の未捕捉例外）は [Issue #84](https://github.com/takufukagawa/trimix-cc-project-template/issues/84) で追跡しています
 
 ---
@@ -88,6 +99,6 @@ SNS 運用チームと YouTube 動画制作チームのミラーパッケージ�
 
 - Issue #82: `upgrade` コマンドの新設とカスタマイズ上書き保護の修正
 - Issue #80: テンプレートのアップグレード機構が存在しない（親 Epic）
-- Issue #85: upgrade の保護判定をマーカー方式からハッシュ照合へ移行（フォローアップ）
+- Issue #85: upgrade の保護判定をマーカー方式からハッシュ照合へ移行（本バージョンで対応）
 - Issue #84: upgrade / backup のテスト堅牢性の改善（フォローアップ）
 - Issue #27: postinstall のスキルリスト漏れ（`SKILL_FILES` の動的走査化で解消）

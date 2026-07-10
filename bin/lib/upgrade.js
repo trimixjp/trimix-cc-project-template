@@ -28,9 +28,21 @@ import {
 } from './backup.js';
 import { checkPluginUpdates, printUpdateNotice } from './version-check.js';
 import { firstSymlinkInPath, hardlinkNlink, irregularFileType } from './link-safety.js';
+import {
+  loadBaseline, recordFiles, matchesBaseline, pruneMissing, BASELINE_REL
+} from './baseline.js';
+import { applyToFile } from './apply-model-profile.js';
+import {
+  DEFAULT_RUNTIME, DEFAULT_PERFORMANCE_PROFILE, DEFAULT_EFFORT_PROFILE, normalizeRuntime
+} from './model-profiles.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '../..');
+
+/** OS 依存セパレータのパスを POSIX（/）へ正規化する（baseline キー・分類判定で使う） */
+function toPosixPath(p) {
+  return p.split(/[\\/]+/).filter(Boolean).join('/');
+}
 
 /**
  * 書き込み先 rel（cwd 相対）へ安全に書き込めるかを検査する（R-1）。
@@ -133,6 +145,94 @@ function formatSkip(s) {
 function readPackageVersion() {
   const pkg = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf-8'));
   return pkg.version;
+}
+
+/**
+ * `.claude/ai-team-config.yml` から、setup 時に選択されたモデルプロファイルを読む。
+ * upgrade はテンプレート適用後にこのプロファイルを再適用し、ユーザーのモデル選択が
+ * テンプレート既定（balance / normal）で黙って上書きされるのを防ぐ（Issue #85）。
+ *
+ * 依存を増やさないため、`key: value` 形式の1行だけを正規表現で拾う（値の後ろの `# コメント`
+ * は捨てる）。キーが無ければテンプレート既定にフォールバックする。
+ *
+ * @param {string} cwd
+ * @returns {{ runtime: string, performance: string, effort: string }}
+ */
+function readModelProfileConfig(cwd) {
+  const cfg = {
+    runtime: DEFAULT_RUNTIME,
+    performance: DEFAULT_PERFORMANCE_PROFILE,
+    effort: DEFAULT_EFFORT_PROFILE
+  };
+  const configPath = join(cwd, '.claude', 'ai-team-config.yml');
+  if (!existsSync(configPath)) return cfg;
+  let text;
+  try {
+    text = readFileSync(configPath, 'utf-8');
+  } catch {
+    return cfg;
+  }
+  const pick = (key) => {
+    const m = text.match(new RegExp(`^${key}:\\s*([^\\s#]+)`, 'm'));
+    return m ? m[1] : null;
+  };
+  const runtime = pick('runtime');
+  const performance = pick('model_performance');
+  const effort = pick('effort_depth');
+  if (runtime) cfg.runtime = runtime;
+  if (performance) cfg.performance = performance;
+  if (effort) cfg.effort = effort;
+  return cfg;
+}
+
+/**
+ * テンプレート適用で書き込んだファイルのうち、model / effort frontmatter を持つもの
+ * （agents/*.md とスキル .claude/commands/*.md）へ、選択済みモデルプロファイルを再適用する。
+ *
+ * これをしないと、テンプレート既定（balance / normal）でユーザーのモデル選択が失われる。
+ * 保護されたファイル（ユーザー編集・マーカー）は applied に含まれないため触らない。
+ * --dry では呼ばれない（呼び出し側が適用後にのみ実行する）。
+ *
+ * 失敗しても upgrade 全体は止めない（適用は既に完了しており戻らないため。安全側で警告のみ）。
+ *
+ * @param {string} cwd
+ * @param {string[]} appliedDests 実際に書き込んだ cwd 相対パス（result.applied）
+ * @param {{runtime:string, performance:string, effort:string}} cfg
+ * @returns {string[]} 再適用で内容が変わった dest 一覧
+ */
+function reapplyModelProfile(cwd, appliedDests, cfg) {
+  const changed = [];
+  let runtimeId;
+  try {
+    runtimeId = normalizeRuntime(cfg.runtime);
+  } catch {
+    runtimeId = DEFAULT_RUNTIME; // 不明な runtime は既定へフォールバック
+  }
+  for (const dest of appliedDests) {
+    const posix = toPosixPath(dest);
+    if (!posix.endsWith('.md')) continue;
+    // model / effort を持つのは agents 配下のエージェント md とスキル（.claude/commands）のみ
+    let kind = null;
+    if (/\/agents\//.test(posix)) kind = 'agent';
+    else if (posix.startsWith('.claude/commands/')) kind = 'skill';
+    if (!kind) continue;
+    // 書き込み直前に安全性を再検査（リンク・通常ファイル以外は触らない・R-1 / TOCTOU）
+    if (inspectDest(cwd, dest)) continue;
+    try {
+      const res = applyToFile(join(cwd, dest), {
+        performanceId: cfg.performance,
+        effortId: cfg.effort,
+        runtimeId,
+        kind,
+        dry: false
+      });
+      if (res.changed) changed.push(dest);
+    } catch (e) {
+      // 不明なプロファイル ID 等でも適用は完了済みなので中止しない（警告のみ）
+      console.log(`  ⚠️  モデルプロファイルの再適用をスキップしました: ${dest}（${e.message}）`);
+    }
+  }
+  return changed;
 }
 
 /**
@@ -289,19 +389,30 @@ export function enumerateUpgradeTargets({ teams, pluginRoot = packageRoot }) {
 }
 
 /**
- * 各 { src, dest } を差分カテゴリに分類する。
- *   'blocked'   … dest への書き込みが安全でない（R-1）。封じ込め違反（経路にシンボリック
- *                 リンク）またはハードリンク。辿らずスキップ（--force でも辿らない）。
- *                 block フィールドに skip 記述子を持つ。
- *   'new'       … dest が存在しない（新規作成される）
- *   'update'    … 内容が異なり上書きされる
- *   'protected' … dest がカスタマイズ済み（# customized: true）で --force なし → スキップ
- *   'same'      … 内容が同一（変更なし）
+ * 各 { src, dest } を差分カテゴリに分類する（三方比較・Issue #85）。
  *
- * @param {{ cwd: string, targets: {src,dest}[], force: boolean }} opts
- * @returns {{ src, dest, category, block? }[]}
+ * 判定順序（既存の blocked 判定は変えない）:
+ *   1. 'blocked'   … dest への書き込みが安全でない（R-1）。封じ込め違反（経路にシンボリック
+ *                    リンク）またはハードリンク・通常ファイル以外。辿らずスキップ（--force でも
+ *                    辿らない）。block フィールドに skip 記述子を持つ。
+ *   2. 'new'       … dest が存在しない（新規作成される）
+ *   3. 'same'      … 新テンプレートと内容が同一（変更なし）
+ *   4. 'protected'（reason='marker'） … ヘッダ5行に # customized: true。ハッシュに関わらず
+ *                    保護（後方互換の追加シグナル）。--force で解除。
+ *   5. 'update'    … baseline に記録があり、現物の正規化ハッシュと一致 → ユーザー未編集 → 更新
+ *   6. 'protected'（reason='edited'）     … baseline に記録があるが一致しない → ユーザーが編集した
+ *   7. 'protected'（reason='no-baseline'） … baseline に記録が無い → 判定不能・安全側で保護
+ *
+ * 正規化は baseline.normalizedHash に従い「CRLF→LF」「末尾改行の有無」のみ。空白は削らないため、
+ * 行頭・行末・行中の空白差は「編集」として保護側に倒れる（本物の編集を見逃さない）。
+ *
+ * @param {{ cwd: string, targets: {src,dest}[], force: boolean,
+ *          baseline?: {version:string|null, files:Record<string,string>} }} opts
+ *        baseline は未指定なら cwd から読む（テスト・外部呼び出しの後方互換）。
+ * @returns {{ src, dest, category, block?, reason? }[]}
  */
-export function diffTargets({ cwd, targets, force }) {
+export function diffTargets({ cwd, targets, force, baseline }) {
+  const bl = baseline ?? loadBaseline(cwd);
   return targets.map(({ src, dest }) => {
     // dest への書き込みが安全か（経路のリンク・ハードリンク）を最初に検査する。
     // copyFileSync / mkdirSync(recursive) は経路上のリンクを辿って .claude/ の外を
@@ -313,10 +424,17 @@ export function diffTargets({ cwd, targets, force }) {
     // ここまで来れば経路にリンクは無く、destAbs は実体（または未作成）である。
     if (!existsSync(destAbs)) return { src, dest, category: 'new' };
     // Buffer 比較で内容の同一性を判定する（テンプレートは小さいため全読みで十分）
-    const same = readFileSync(src).equals(readFileSync(destAbs));
-    if (same) return { src, dest, category: 'same' };
-    if (!force && isCustomized(destAbs)) return { src, dest, category: 'protected' };
-    return { src, dest, category: 'update' };
+    const current = readFileSync(destAbs);
+    if (readFileSync(src).equals(current)) return { src, dest, category: 'same' };
+    // マーカー（後方互換）: ヘッダ5行に # customized: true があればハッシュに関わらず保護
+    if (!force && isCustomized(destAbs)) return { src, dest, category: 'protected', reason: 'marker' };
+    // --force はマーカー・ハッシュ判定を無視して上書きする（従来どおり）
+    if (force) return { src, dest, category: 'update' };
+    // ハッシュ照合（三方比較）
+    const { recorded, matches } = matchesBaseline(bl, dest, current);
+    if (matches) return { src, dest, category: 'update' };       // 未編集 → 更新
+    if (recorded) return { src, dest, category: 'protected', reason: 'edited' };      // 編集済み
+    return { src, dest, category: 'protected', reason: 'no-baseline' };               // 判定不能
   });
 }
 
@@ -432,7 +550,7 @@ function printDiff(diffs) {
   console.log('  📊 差分:');
   console.log(`     新規作成: ${news.length} 件`);
   console.log(`     上書き更新: ${updates.length} 件`);
-  console.log(`     保護のためスキップ（カスタマイズ済み）: ${protectedItems.length} 件`);
+  console.log(`     保護のためスキップ（編集済み・カスタマイズ済み）: ${protectedItems.length} 件`);
   console.log(`     変更なし: ${same.length} 件`);
   if (blocked.length > 0) {
     console.log(`     安全に書き込めずスキップ（リンク／通常ファイル以外）: ${blocked.length} 件`);
@@ -453,6 +571,22 @@ function printDiff(diffs) {
     console.log('  🛡️  保護のためスキップ（--force で上書き可能）:');
     for (const d of protectedItems) console.log(`     - ${d.dest}`);
   }
+}
+
+/**
+ * baseline に記録が無いために保護へ倒れたファイルがあれば、自動判定の確立方法を案内する（#85）。
+ * 記録が無いと「ユーザーが編集した」のか「単に未記録」なのか区別できないため、安全側に倒して
+ * 保護している。`baseline record` を実行すれば現在の配置内容を基準として記録でき、以後は
+ * ハッシュ照合による自動判定になる。
+ */
+function printNoBaselineNotice(diffs) {
+  const noBaseline = diffs.filter((d) => d.category === 'protected' && d.reason === 'no-baseline');
+  if (noBaseline.length === 0) return;
+  console.log('');
+  console.log(`  ℹ️  baseline に記録が無いため安全側で保護したファイルが ${noBaseline.length} 件あります:`);
+  for (const d of noBaseline) console.log(`     - ${d.dest}`);
+  console.log('   これらを自動判定の対象にするには、編集していないことを確認のうえ');
+  console.log('   `npx @trimix/ai-team baseline record` を実行すると、現在の配置内容を基準として記録できます。');
 }
 
 /**
@@ -675,8 +809,12 @@ export async function runUpgrade(args, { cwd, pluginRoot = packageRoot, stdin = 
   printResidualNew(findResidualNew(cwd, targets), { force });
 
   // 2. 差分の提示
-  const diffs = diffTargets({ cwd, targets, force });
+  //    baseline は一度だけ読む（不正 JSON の警告が差分・適用で二重に出るのを避ける）。
+  const baseline = loadBaseline(cwd);
+  const diffs = diffTargets({ cwd, targets, force, baseline });
   printDiff(diffs);
+  // baseline に記録が無く保護に倒れたファイルがあれば、自動判定の確立方法を案内する（#85）
+  printNoBaselineNotice(diffs);
   // 書き込み先がリンク（経路のシンボリックリンク／ハードリンク）のものは辿らずスキップする。
   // 差分サマリに明示する（R-1）。
   const skips = collectSkips(cwd, diffs);
@@ -769,12 +907,38 @@ export async function runUpgrade(args, { cwd, pluginRoot = packageRoot, stdin = 
   // 6. 適用
   const result = applyUpgrade({ cwd, diffs });
 
+  // 6.5 モデルプロファイルの再適用（#85）。
+  //     テンプレート適用は frontmatter の model / effort をテンプレート既定（balance / normal）へ
+  //     戻してしまうため、ユーザーが setup で選んだプロファイルが失われる。これを防ぐため、
+  //     .claude/ai-team-config.yml のプロファイルを、今回書き込んだファイルにだけ再適用する。
+  //     保護されたファイル（applied に含まれない）は触らないので、ユーザー編集は維持される。
+  const profileCfg = readModelProfileConfig(cwd);
+  const reapplied = reapplyModelProfile(cwd, result.applied, profileCfg);
+
+  // 6.6 baseline の記録（#85）。実際に書き込んだファイルのみ、プロファイル再適用**後**の
+  //     内容で記録する。これにより次回 upgrade で「ユーザー未編集」と正しく判定できる。
+  //     'same' / 'protected' / 'blocked' は書き込んでいないため記録しない。
+  //     記録に失敗しても適用は完了しており中止しない（安全側＝保護に倒れるだけ・警告のみ）。
+  if (result.applied.length > 0) {
+    const baselineRes = recordFiles(cwd, result.applied);
+    if (!baselineRes.written && baselineRes.reason !== 'noop') {
+      console.log('');
+      console.log('  ⚠️  baseline の記録に失敗しました（適用は完了しています）。');
+      console.log('     次回 upgrade で更新済みファイルが保護扱いになる可能性があります。');
+      console.log('     `npx @trimix/ai-team baseline record --force` を実行して基準を再確立してください。');
+    }
+  }
+
   // 7. 結果表示
   console.log('');
   console.log('✅ アップグレードが完了しました。');
   console.log(`   更新: ${result.applied.length} 件`);
   console.log(`   保護スキップ: ${result.skippedProtected.length} 件`);
   console.log(`   変更なし: ${result.unchanged.length} 件`);
+  if (reapplied.length > 0) {
+    // テンプレート既定に戻った model / effort を、選択済みプロファイルへ復元したことを明示する
+    console.log(`   モデルプロファイル再適用: ${reapplied.length} 件（runtime=${profileCfg.runtime} / ${profileCfg.performance} / ${profileCfg.effort}）`);
+  }
   if (result.skipped.length > 0) {
     console.log(`   リンクのためスキップ: ${result.skipped.length} 件`);
   }
@@ -845,4 +1009,83 @@ export async function runUpgrade(args, { cwd, pluginRoot = packageRoot, stdin = 
     console.log('   通常ファイルに置き換えてから再実行してください。');
   }
   return 0;
+}
+
+/**
+ * `baseline` サブコマンドの本体（#85）。process.exit は呼ばず終了コードを返す。
+ *
+ *   npx @trimix/ai-team baseline record [--force]  現在の配置内容を baseline として記録
+ *   npx @trimix/ai-team baseline show               記録内容を表示
+ *
+ * `record` は **既存 baseline があれば --force なしで拒否する**。実行タイミングを誤ると、
+ * ユーザーが編集した後の状態を baseline にしてしまい、保護が静かに外れるため（安全側）。
+ *
+ * @param {string[]} args 'baseline' を除いた引数配列
+ * @param {{ cwd: string, pluginRoot?: string }} ctx
+ * @returns {number} 終了コード
+ */
+export function runBaseline(args, { cwd, pluginRoot = packageRoot }) {
+  const sub = args.find((a) => !a.startsWith('--'));
+  const force = args.includes('--force');
+
+  if (sub === 'show') {
+    const baseline = loadBaseline(cwd);
+    const entries = Object.entries(baseline.files);
+    console.log('');
+    console.log(`📄 baseline（${BASELINE_REL}）`);
+    console.log(`   version: ${baseline.version ?? '(未記録)'}`);
+    console.log(`   記録ファイル数: ${entries.length} 件`);
+    for (const [rel, hash] of entries.sort(([a], [b]) => a.localeCompare(b))) {
+      console.log(`     - ${rel}  ${hash.slice(0, 12)}…`);
+    }
+    return 0;
+  }
+
+  if (sub === 'record') {
+    const exists = existsSync(join(cwd, BASELINE_REL));
+    if (exists && !force) {
+      console.error('');
+      console.error(`❌ baseline（${BASELINE_REL}）は既に存在します。`);
+      console.error('   record を上書き実行すると、ユーザー編集後の状態を基準にしてしまい保護が外れる');
+      console.error('   おそれがあるため、既存 baseline がある場合は拒否します。');
+      console.error('   意図して再確立する場合のみ --force を付けてください:');
+      console.error('     npx @trimix/ai-team baseline record --force');
+      console.error('   （通常、baseline は upgrade が適用後に自動更新します）');
+      return 1;
+    }
+
+    // 現在の配置内容（グローバル + 導入済みチーム）を基準として記録する
+    let targets;
+    try {
+      ({ targets } = enumerateUpgradeTargets({ teams: installedTeams(cwd), pluginRoot }));
+    } catch (e) {
+      console.error('');
+      console.error(`❌ 記録対象の列挙に失敗しました: ${e.message}`);
+      return 1;
+    }
+    const rels = targets.map((t) => t.dest);
+    const res = recordFiles(cwd, rels);
+    const pruneRes = pruneMissing(cwd);
+
+    console.log('');
+    if (res.written || (res.reason === 'noop')) {
+      console.log(`✅ baseline を記録しました（${BASELINE_REL}）`);
+      console.log(`   記録: ${res.recorded ? res.recorded.length : 0} 件`);
+      if (pruneRes.pruned.length > 0) {
+        console.log(`   剪定（実在しない記録を除去）: ${pruneRes.pruned.length} 件`);
+      }
+    } else {
+      console.error('');
+      console.error('❌ baseline の記録に失敗しました（書き込み先がリンク／通常ファイル以外の可能性）。');
+      return 1;
+    }
+    return 0;
+  }
+
+  console.error('');
+  console.error(`❌ 不明な baseline サブコマンド: ${sub ?? '(なし)'}`);
+  console.error('   使い方:');
+  console.error('     npx @trimix/ai-team baseline record [--force]');
+  console.error('     npx @trimix/ai-team baseline show');
+  return 1;
 }

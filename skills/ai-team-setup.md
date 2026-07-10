@@ -705,6 +705,20 @@ grep -qF "## AIチーム設定" AGENTS.md 2>/dev/null || cat "$RULES" >> AGENTS.
 | チケット強制フック本体 | `.claude/hooks/ensure-issue.sh` | 同じ（共有） |
 | フック登録 | `.claude/settings.json` | 左記 + `.grok/hooks/ensure-issue.json` |
 | 運用設定 | `.claude/ai-team-config.yml`（`runtime` キー） | 同じ |
+
+## ステップ5.5: baseline の記録（すべての配置・プロファイル適用の後に必ず実行）
+
+`upgrade` は「前回このツールが配置した内容（baseline）」と現物のハッシュを照合して、ユーザーが手編集したファイルを保護します。セットアップの最後に、**配置済みの全ファイルを baseline として記録**してください。これをしないと、`upgrade` が「記録が無い＝判定不能」として全ファイルを安全側で保護し、更新できなくなります。
+
+**必ず、ファイル配置（ステップ3）とモデル・effort の反映が完了した後に**、次を実行します。
+
+```bash
+# <パッケージルート> は npm なら node_modules/@trimix/ai-team、ソースならリポジトリルート
+node <パッケージルート>/bin/setup.js baseline record --force
+```
+
+`--force` を付けるのは、プロファイル適用（`apply-model-profile.js`）が変更ファイル分の baseline を先に作っている場合があり、それを完全な内容で確実に再確立するためです（セットアップ直後＝ユーザー編集前のこの時点でのみ安全に上書きできます）。以後、ユーザーが手編集したファイルは `upgrade` で自動的に保護されます。
+
 ## コマンド失敗時のフォールバック
 
 `gh` コマンドやファイル操作（`cp` / `mkdir` 等）が失敗した場合は、失敗を無視して先に進んではいけません。
@@ -725,6 +739,7 @@ grep -qF "## AIチーム設定" AGENTS.md 2>/dev/null || cat "$RULES" >> AGENTS.
 - [ ] `runtime=grok` なら `.grok/agents/` にエージェントがミラーされている
 - [ ] hooks 選択時: `.claude/hooks/ensure-issue.sh` があり、`grok` なら `.grok/hooks/ensure-issue.json` もある
 - [ ] `.gitignore` に追記済みである（`grep -F "@trimix/ai-team" .gitignore`）
+- [ ] baseline を記録済みである（`.claude/.template-baseline.json` が存在する。無ければ `node <パッケージルート>/bin/setup.js baseline record --force` を実行）
 - [ ] ラベルを作成した場合、実行した `gh label create` がすべて成功した
 - [ ] 質問3で none を選択した場合、`grep -c "version-bumper" .claude/teams/backend/workflow.yml` の出力が `0` である
 

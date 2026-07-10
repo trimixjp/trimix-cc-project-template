@@ -60,6 +60,11 @@
 <code>upgrade</code> は、ファイルを上書きする前に、対象ファイルを <strong><code>.ai-team-backups/&lt;YYYYMMDD-HHMMSS&gt;/</code></strong> へ元の相対パスを保ったまま退避します。
 
 <ul><li>退避後に <strong>SHA-256 を再計算して退避元と一致することを検証</strong>し、<code>manifest.json</code> に作成日時・パッケージバージョン・各ファイルのハッシュを記録します</li><li><strong>バックアップが 1 ファイルでも失敗したら、アップグレードを実行せず終了コード 1 で停止します（fail-closed）</strong>。退避できない状態での上書きは決して行いません</li><li>復元は <code>cp -R .ai-team-backups/&lt;日時&gt;/.claude ./</code> の 1 行で完了します。開始前にバックアップの趣旨、完了後に保存先・復元方法・自動削除されないことを表示します</li><li>世代ディレクトリは同一秒に複数回実行しても連番（<code>-2</code>, <code>-3</code> …）で衝突を回避し、先行世代を上書きしません</li><li>バックアップ作成時に <code>.gitignore</code> へ <code>.ai-team-backups/</code> を冪等に追記します</li></ul>
+<h3>手編集ファイルの保護をハッシュ照合へ移行（Issue #85）</h3>
+
+<p>上書き保護の判定を、<code># customized: true</code> マーカーの有無から <strong>ハッシュ照合（dpkg の conffile と同じ考え方）</strong> へ移行しました。マーカーを付けなくても、あなたが手編集したファイルが自動的に保護されます。</p>
+
+<ul><li><code>install</code> / <code>/ai-team-setup</code> / <code>upgrade</code> などテンプレートを配置する全経路が、配置内容の SHA-256 を baseline（<code>.claude/.template-baseline.json</code>）に記録します</li><li><code>upgrade</code> は baseline と現物を三方比較し、<strong>未編集（baseline 一致）→ 更新</strong>／<strong>編集済み（baseline 不一致）→ 保護し <code>.new</code> を書き出す</strong>／<strong>記録なし → 安全側で保護</strong>と判定します</li><li>ハッシュの正規化は <strong>CRLF→LF と末尾改行のみ</strong>で、行頭・行末・行中の空白は削りません（本物の編集を見逃さないため。誤判定するなら保護側に倒します）</li><li><strong><code>upgrade</code> はモデルプロファイルを維持します。</strong> テンプレート適用で <code>model</code> / <code>effort</code> がテンプレート既定へ戻るのを防ぐため、<code>ai-team-config.yml</code> の選択済みプロファイルを、今回書き込んだファイルへ再適用します</li><li><code>npx @trimix/ai-team baseline record</code> / <code>baseline show</code> を追加しました。<code>record</code> は既存 baseline がある場合、保護が静かに外れる事故を防ぐため <code>--force</code> なしでは拒否します</li><li><code># customized: true</code> マーカーは、ハッシュに関わらず保護する後方互換シグナルとして残します</li></ul>
 <hr>
 
 <h2>バグ修正</h2>
@@ -100,12 +105,12 @@
 
 <h2>既知の制限</h2>
 
-<ul><li><strong>マーカーの無い手編集ファイルは <code>upgrade</code> で上書きされます。</strong> 上書き保護は <code># customized: true</code> マーカーの有無だけで判定するため、マーカーの付かない手編集ファイル（例: <code>agents/*.md</code> の <code>model</code> / <code>effort</code> を直接編集したもの）は上書き対象になります。ただし適用前に必ずバックアップへ退避されるため、復元は可能です。この制限は保護判定をハッシュ照合へ移行する <a href="https://github.com/takufukagawa/trimix-cc-project-template/issues/85">Issue #85</a> で対応予定です</li><li><code>upgrade</code> / バックアップのテスト堅牢性の改善（実時計依存・対話端末でのハング・壊れた <code>plugin.json</code> の未捕捉例外）は <a href="https://github.com/takufukagawa/trimix-cc-project-template/issues/84">Issue #84</a> で追跡しています</li></ul>
+<ul><li>マーカーの無い手編集ファイルの上書き問題は、本バージョンでハッシュ照合へ移行して解消しました（<a href="https://github.com/takufukagawa/trimix-cc-project-template/issues/85">Issue #85</a>）。手編集ファイルは baseline との照合で自動的に保護されます</li><li><code>upgrade</code> / バックアップのテスト堅牢性の改善（実時計依存・対話端末でのハング・壊れた <code>plugin.json</code> の未捕捉例外）は <a href="https://github.com/takufukagawa/trimix-cc-project-template/issues/84">Issue #84</a> で追跡しています</li></ul>
 <hr>
 
 <h2>関連 Issue</h2>
 
-<ul><li>Issue #82: <code>upgrade</code> コマンドの新設とカスタマイズ上書き保護の修正</li><li>Issue #80: テンプレートのアップグレード機構が存在しない（親 Epic）</li><li>Issue #85: upgrade の保護判定をマーカー方式からハッシュ照合へ移行（フォローアップ）</li><li>Issue #84: upgrade / backup のテスト堅牢性の改善（フォローアップ）</li><li>Issue #27: postinstall のスキルリスト漏れ（<code>SKILL_FILES</code> の動的走査化で解消）</li></ul>
+<ul><li>Issue #82: <code>upgrade</code> コマンドの新設とカスタマイズ上書き保護の修正</li><li>Issue #80: テンプレートのアップグレード機構が存在しない（親 Epic）</li><li>Issue #85: upgrade の保護判定をマーカー方式からハッシュ照合へ移行（本バージョンで対応）</li><li>Issue #84: upgrade / backup のテスト堅牢性の改善（フォローアップ）</li><li>Issue #27: postinstall のスキルリスト漏れ（<code>SKILL_FILES</code> の動的走査化で解消）</li></ul>
       </article>
     </div>
   </div>
