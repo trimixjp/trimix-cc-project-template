@@ -8,6 +8,7 @@ import { mkdirSync, copyFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { SKILL_FILES } from './lib/skill-files.js';
+import { checkPluginUpdates, printUpdateNotice } from './lib/version-check.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '..');
@@ -69,4 +70,12 @@ try {
   }
 } catch (err) {
   console.warn('\n⚠️  @trimix/ai-team: ドキュメントの展開に失敗しました\n');
+}
+
+try {
+  // 導入済みプラグインの版番号（ai-team-plugins.json）と registry.json の最新版を比較し、
+  // 差があれば「更新があります」と通知する。通知のみで書き込みは行わない。
+  printUpdateNotice(checkPluginUpdates(projectRoot));
+} catch (err) {
+  // 通知は付随的機能。失敗しても postinstall 全体は成功扱いとする。
 }

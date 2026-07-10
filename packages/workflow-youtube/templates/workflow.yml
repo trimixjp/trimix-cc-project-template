@@ -1,0 +1,644 @@
+# YouTube動画制作チーム ワークフロー定義
+# Director がチケットを分析し、タスク種別を3分岐で判定します
+# （チャンネル立ち上げ / エピソード制作 / グロース単発）
+#
+# 2ゲート自律生産（チケット #37・2026-06-20 ユーザー確定）:
+#   エピソード制作の人間ゲートは2点だけ。
+#     ゲート1 = 台本チェック（human-picture-lock = preview承認）
+#     ゲート2 = 動画チェック（human-video-review = レンダ後・公開前に限定公開動画を人間が承認）
+#   それ以外の internal ステップ（scriptwriter / script-qa / editor-render / render-review 等）は
+#   自動の検証ゲート（人間ゲートにしない）。各 producer 成果物の QA は専用QA（producer とは
+#   別エージェント）が自動で判定する（人間ゲートではない）。**QAステップは人間ゲートにしない。**
+#
+# 成果物検証の大原則 — producer ⇔ 専用QA の 1:1（チケット #38/#39・設計19 §0.3・2026-06-20 ユーザー確定）:
+#   各 producer ステップ（作る役）の成果物は、必ず「producer とは別の専用QAエージェント」が
+#   QA（品質チェック）して合否を出す（AI は自分の成果物に過信するため・自己申告で次へ進めない）。
+#   ワークフローは `producer →（バトン）→ 専用QA →（合格）→ 次の producer ／（不合格）→ 元の producer へ
+#   差し戻し`（rework_limit 内・超過のみ human-escalator）。**QA合格基準の正は対応スキルの
+#   「成果物のQA合格基準」**（yt-script / yt-render / yt-publish / yt-plan-month / yt-new-channel 等）で、
+#   QAは独自基準を作らずスキルの成果物条件で判定する。
+#   producer ⇔ 専用QA の対応（1:1・#39 でハイブリッド相乗りQAから移行）:
+#     channel-producer-planning（企画 producer）→ channel-producer-qa（yt-plan-month 基準）
+#     channel-producer-setup（新設 producer）   → director-channel-review（設定一式の完成確認）
+#                                                   ※新設成果物の QA 基準は yt-new-channel
+#     scriptwriter（台本 producer）             → script-qa（yt-script 基準。旧 editor-review を独立化。
+#                                                   channel-producer の重複判定/スタブ妥当性も追認）
+#     editor-render（レンダ producer）          → render-review（render-reviewer。yt-render 基準。
+#                                                   still 全数/写真事実照合/無音・ラウドネス/同期を判定）
+#                                                   ＋ human-video-review（ゲート2）の二段で検証
+#     growth-strategist（パッケージング producer）→ growth-qa（CTR/サムネ/章/視聴維持）
+#     affiliate（アフィリ producer）            → affiliate-qa（開示/sub_id/コンプラ）
+#     publisher（公開 producer）                → publish-qa（yt-publish 基準。API 事実で検証）
+#     sns-distributor（拡散 producer）          → sns-qa（釣り/権利/文字数/冪等/人間ゲート）
+#     monetizer（収益 producer）                → monetizer-qa（4観点/指標必須）
+#   終端 contributor-close（別エージェント contributor）が DoD（設計19 §1）で全体を最終確認する。
+#   差し戻しカウントは各QA定義の「差し戻しカウント手順」で共有（先頭行規約
+#   `❌ <QA名>: 差し戻し（差し戻し回数: n/2）` を全QAで統一）。
+#   オーケストレータ（director / yt-episode 統括）は実装せず、委託＋成果物検証に徹する（§0.3 #5）。
+
+name: youtube-workflow
+description: YouTube動画の企画・台本・生成・公開・収益最大化を一貫して行うワークフロー
+
+# 同一チケットでの差し戻し上限。3回目の不合格（差し戻し）は escalated:human へ
+# （カウント手順は各レビュー役エージェント定義の「差し戻しカウント手順」を参照）
+rework_limit: 2
+
+# ラベル命名規則
+labels:
+  prefix: "youtube"
+  examples:
+    - "youtube:director"
+    - "youtube:market-analyst"
+    - "youtube:channel-producer"
+    - "youtube:channel-producer-qa"
+    - "youtube:scriptwriter"
+    - "youtube:script-qa"
+    - "youtube:editor"
+    - "youtube:render-reviewer"
+    - "youtube:growth-strategist"
+    - "youtube:growth-qa"
+    - "youtube:affiliate"
+    - "youtube:affiliate-qa"
+    - "youtube:publisher"
+    - "youtube:publish-qa"
+    - "youtube:sns-distributor"
+    - "youtube:sns-qa"
+    - "youtube:monetizer"
+    - "youtube:monetizer-qa"
+    - "contributor:ready"
+    - "escalated:human"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ラベル→エージェント ディスパッチ索引（#A / チケット #44・ai-team-watch 自動前進用）
+# ─────────────────────────────────────────────────────────────────────────────
+# ai-team-watch がポーリングで検出した `youtube:<step>` ラベルから、起動すべき
+# エージェントと現在 step を引くための索引。**状態機械の正は上の steps: 定義**であり、
+# この索引はそれを watch から参照しやすく写したもの（steps: と矛盾させないこと）。
+#
+# 重要（曖昧ラベルの解決）: 1つのラベルが複数 step に対応する箇所がある
+#   （youtube:director / youtube:channel-producer / youtube:growth-strategist /
+#    escalated:human）。watch はラベルだけで step を一意化できないため、
+#   **直近コメントの状態記録（`⏭️ 次のアクション:` 行・`❌ …: 差し戻し` 先頭行）を
+#   併読して step を確定する**（ai-team-run の状態記録要件・resume と同じ復元ロジック）。
+#
+# 2系統ラベルのブリッジ（label_bridge）: `youtube:<step>`（実行ポインタ）と
+#   `status:<lifecycle>`（状態マーカー）の接続は人間ゲート通過と終端のみで status を進め、
+#   工程内の自動前進は status を触らない（駆動源を youtube:<step> 単一に保つ）。
+label_dispatch:
+  # watch が「次工程を自動起動する」対象ラベル（処理中ポインタ）
+  process_labels:
+    - label: "youtube:director"
+      steps: [director-planning, director-channel-review]   # コメントで確定
+      agent: director
+    - label: "youtube:market-analyst"
+      steps: [market-analyst]
+      agent: market-analyst
+    - label: "youtube:channel-producer"
+      steps: [channel-producer-setup, channel-producer-planning]  # コメントで確定
+      agent: channel-producer
+    - label: "youtube:channel-producer-qa"
+      steps: [channel-producer-qa]
+      agent: channel-producer-qa
+    - label: "youtube:scriptwriter"
+      steps: [scriptwriter]
+      agent: scriptwriter
+    - label: "youtube:script-qa"
+      steps: [script-qa]
+      agent: script-qa
+    - label: "youtube:growth-strategist"
+      steps: [growth-strategist, growth-standalone]   # コメントで確定
+      agent: growth-strategist
+    - label: "youtube:growth-qa"
+      steps: [growth-qa]
+      agent: growth-qa
+    - label: "youtube:affiliate"
+      steps: [affiliate]
+      agent: affiliate
+    - label: "youtube:affiliate-qa"
+      steps: [affiliate-qa]
+      agent: affiliate-qa
+    - label: "youtube:editor"
+      steps: [editor-render]
+      agent: editor
+    - label: "youtube:render-reviewer"
+      steps: [render-review]
+      agent: render-reviewer
+    - label: "youtube:publisher"
+      steps: [publisher]
+      agent: publisher
+    - label: "youtube:publish-qa"
+      steps: [publish-qa]
+      agent: publish-qa
+    - label: "youtube:sns-distributor"
+      steps: [sns-distributor]
+      agent: sns-distributor
+    - label: "youtube:sns-qa"
+      steps: [sns-qa]
+      agent: sns-qa
+    - label: "youtube:monetizer"
+      steps: [monetizer]
+      agent: monetizer
+    - label: "youtube:monetizer-qa"
+      steps: [monetizer-qa]
+      agent: monetizer-qa
+
+  # watch が「自動起動せず人間/終端を待つ」ラベル（自動前進を止める）
+  stop_labels:
+    - label: "escalated:human"     # 人間ゲート(G1/G2)・エスカレーション・新設手動作業
+      reason: human-gate-or-escalation
+      steps: [human-picture-lock, human-video-review, human-channel-setup, human-escalator]
+    - label: "contributor:ready"   # 終端（contributor がクローズ処理中）
+      reason: terminal
+      steps: [contributor-close]
+    - label: "ai-team:in-progress" # 別プロセス処理中（冪等ロック）
+      reason: in-progress-lock
+
+  # 2系統ラベルのブリッジ規則（人間ゲート通過・終端のみ status を進める）
+  # trigger=イベント / status=lifecycle 遷移 / youtube=実行ポインタ遷移 / driver=実行主体
+  label_bridge:
+    - trigger: scriptwriter-start
+      status: ["": "status:draft"]
+      youtube: keep-youtube:scriptwriter
+      driver: scriptwriter
+    - trigger: G1-enter                       # affiliate-qa 合格 → ゲート1へ（G2の render-review-pass と対称）
+      status: keep-status:draft               # draft のまま（G1承認で reviewed に進む）
+      youtube: ["youtube:affiliate-qa": "escalated:human"]
+      driver: affiliate-qa
+    - trigger: G1-script-approved            # human-picture-lock 承認（ゲート1）
+      status: ["status:draft": "status:reviewed"]
+      youtube: ["escalated:human": "youtube:editor"]   # 人間がゲートを開ける→editor へ
+      driver: human-then-watch
+    - trigger: render-review-pass
+      status: ["": "status:rendered"]
+      youtube: ["youtube:render-reviewer": "escalated:human"]  # ゲート2へ
+      driver: render-reviewer
+    - trigger: G2-video-approved             # human-video-review 承認（ゲート2）
+      status: ["status:rendered": "status:video-approved"]
+      youtube: ["escalated:human": "youtube:publisher"]  # 人間がゲートを開ける→publisher へ
+      driver: human-then-watch
+    - trigger: publisher-queued
+      status: ["": "status:upload-queued"]   # publish-queue(#42) が消費。watch は status で起動しない
+      youtube: keep-youtube:publisher
+      driver: publisher
+    - trigger: publisher-uploaded
+      status: ["": "status:uploaded"]
+      youtube: forward-to-youtube:publish-qa
+      driver: publisher
+    - trigger: publish_at-public             # #D 時刻トリガが発火
+      status: ["": "status:published"]
+      youtube: none
+      driver: scheduler-#D
+  # ブリッジの肝: status:* 単独では工程を起動しない（publish-queue #42 が status:upload-queued/
+  # status:uploaded を自前消費するため、watch が二重駆動しないよう status を起動トリガにしない）。
+  # 人間ゲートでは watch は status を進めず、人間がラベルを外した後の youtube:<next> 付与を
+  # 検出して自動前進を再開する（人間がゲートを開ける＝次工程ラベルを付ける、を引き金にする）。
+  # 注: growth-standalone（既存動画の改善・拡散単発・動画制作パイプライン非経由）は
+  #   エピソードの status ライフサイクルを持たない（status:* は付与しない）。意図的な仕様。
+
+steps:
+
+  - id: director-planning
+    agent: director
+    label: "youtube:director"
+    description: チケット分析・インシデント確認・タスク種別の判定（3分岐）
+    on_complete:
+      conditions:
+        - id: channel-creation
+          description: 新規チャンネルの立ち上げ・チャンネル設定変更が主の場合
+          criteria:
+            - 新規チャンネルを作る
+            - チャンネルの趣旨/言語/字幕/配信計画を新規に決める
+          # ジャンル/チャンネルの方向性を新規に決める文脈では market-analyst を上流に通す
+          # （channel-producer の手前で「何を作るか」をデータで決める）。
+          # 既存ジャンルの設定変更のみで方向性を決め直さない場合は director が
+          # 引き継ぎコメントで channel-producer-setup へ直行を指示する分岐も可。
+          next: market-analyst
+
+        - id: episode-production
+          description: 1本以上の動画を企画から公開まで制作する場合
+          criteria:
+            - 新規エピソードの台本作成・動画生成・公開を行う
+          next: channel-producer-planning
+
+        - id: growth-only
+          description: 既存動画の改善・拡散・収益化のみで新規制作を伴わない場合
+          criteria:
+            - 既存動画のCTR/サムネ/タグ改善
+            - 切り抜き・SNS拡散
+            - アフィリ/収益最適化
+          next: growth-standalone
+    on_escalation:
+      next: human-escalator
+
+  # channel-producer の上流。新規チャンネル/ジャンル企画時に「何を作るか」をデータで決める。
+  # 需要×競合の薄さ×CPM×ターゲット視聴国(geo_mix最優先)を横断スコアリングし、
+  # ブルーオーシャンなジャンル候補をスコア付きで提案する（最終ジャンル決定は人間ゲート）。
+  - id: market-analyst
+    agent: market-analyst
+    label: "youtube:market-analyst"
+    description: |
+      市場・ジャンル戦略: ジャンル候補列挙(15〜30)・7指標(demand/competition/cpm/geo_mix/jp_edge/
+      faceless_fit/authenticity_risk)の重み付き合成スコアリング・競合度の実測ゲート併用(CTR>4%・視聴維持率>50%)・
+      authenticity_risk(inauthentic content ポリシー)の減点組込・推奨3案を出典/確信度付きで提案
+    on_complete:
+      next: channel-producer-setup
+    on_escalation:
+      next: human-escalator
+
+  - id: channel-producer-setup
+    agent: channel-producer
+    label: "youtube:channel-producer"
+    description: |
+      チャンネル作成: 趣旨・言語・字幕言語・テンプレ(配色)・配信スケジュール・glossary・
+      voice-guide・brand・roadmap・YouTube設定ドキュメント・初期トピックバックログ・月次配信プランを作成
+      （market-analyst が提案した推奨ジャンルを前提に・最終ジャンル決定は人間ゲート）
+    on_complete:
+      next: director-channel-review
+    on_escalation:
+      next: human-escalator
+
+  - id: director-channel-review
+    agent: director
+    label: "youtube:director"
+    description: |
+      チャンネル設定一式の完成を確認し、人間しかできない残作業
+      （YouTube Studio手動設定・OAuth・声の用意）を整理して人間へ引き継ぐ
+    on_complete:
+      next: human-channel-setup
+    on_escalation:
+      next: human-escalator
+
+  - id: human-channel-setup
+    agent: human-escalator
+    label: "escalated:human"
+    description: YouTube Studioの手動設定・OAuthトークン・声の用意など人間しかできない作業を依頼
+    on_complete:
+      condition: 人間が設定完了
+      next: contributor-close
+    on_escalation:
+      next: human-escalator
+
+  - id: channel-producer-planning
+    agent: channel-producer
+    label: "youtube:channel-producer"
+    description: |
+      【producer 工程】トピック選定・重複防止(topic_key正規化＋embedding類似0.85)・
+      月次配信プランへの組み込み・エピソードスタブ(frontmatter)作成。
+      ※成果物検証(§0.3): この工程の成果物（トピック選定・重複判定・スタブ）の合否は、次工程の
+      専用QA channel-producer-qa（別エージェント）が yt-plan-month の「成果物のQA合格基準」で判定する。
+      channel-producer 自身は合否を確定しない（自己申告で次へ進めない）。
+    on_complete:
+      next: channel-producer-qa
+    on_escalation:
+      next: human-escalator
+    on_rework:
+      # channel-producer-qa からの差し戻し時
+      condition: "差し戻し"
+      next: channel-producer-planning
+
+  - id: channel-producer-qa
+    agent: channel-producer-qa
+    label: "youtube:channel-producer-qa"
+    description: |
+      【専用QAゲート・人間ゲートではない / 成果物検証 §0.3】企画 producer(channel-producer-planning)とは
+      別エージェント(channel-producer-qa)が企画/編成成果物を yt-plan-month の「成果物のQA合格基準」で
+      照合し合否判定する: リサーチ駆動の証跡・重複防止の二段照合(topic_key正規化＋embedding類似0.85)・
+      カデンス遵守・季節偏り回避・先行制作配分・台本リンク規約・md/html 同期・スタブ frontmatter 妥当性。
+      不合格は人間を呼ばず channel-producer（producer）へ自動差し戻し → 合格まで反復（rework_limit
+      超過時のみ human へ）。作った本人の自己申告では合格にしない。
+    on_complete:
+      condition: 合格
+      next: scriptwriter
+    on_rework:
+      condition: 不合格
+      next: channel-producer-planning
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
+    on_escalation:
+      next: human-escalator
+
+  - id: scriptwriter
+    agent: scriptwriter
+    label: "youtube:scriptwriter"
+    description: |
+      【producer 工程】リサーチ（事実/数字/出典/重複）＋台本執筆
+      （13構造規約・在住者一人称・visual/cues/sources）。労力5割。
+      ※成果物検証(§0.3): 台本の合否は scriptwriter 自身ではなく、次の専用QA script-qa
+      （別エージェント・旧 editor-review を独立化）が yt-script の「成果物のQA合格基準」で判定する。
+      合格まで自動差し戻しで反復してから次工程へ。
+    on_complete:
+      next: script-qa
+    on_escalation:
+      next: human-escalator
+    on_rework:
+      # script-qa からの差し戻し時
+      condition: "差し戻し"
+      next: scriptwriter
+
+  - id: script-qa
+    agent: script-qa
+    label: "youtube:script-qa"
+    description: |
+      【専用QAゲート・人間ゲートではない / 成果物検証 §0.3】台本 producer(scriptwriter)とは
+      別エージェント(script-qa。旧 editor-review を独立化・#39)が台本成果物を yt-script の
+      「成果物のQA合格基準」で照合し合否判定する: 機械検証ゼロ件・13構造規約・型3連続回避・
+      画面テキスト本質(§0.1)・薄さ防止5観点・有益性・写真プリフライト事実照合・視覚対応表 1:1・
+      frontmatter 完備・英語タイトル3本・配信スケジュール反映(md/html)・preview.html 生成。
+      あわせて channel-producer-planning 成果物の重複判定/スタブを追認QAする(topic_key 正規化＋
+      embedding 類似 0.85 の結果が妥当か・スタブ frontmatter の必須項目妥当性)。
+      不合格は人間を呼ばず scriptwriter（producer。重複/スタブ起因なら channel-producer）へ
+      自動差し戻し → 合格まで反復（rework_limit 超過時のみ human へ）。作った本人の自己申告では合格にしない。
+    on_complete:
+      condition: 合格
+      next: growth-strategist
+    on_rework:
+      condition: 不合格（台本起因は scriptwriter／重複・スタブ起因は channel-producer）
+      next: scriptwriter
+      next_if_planning_root_cause: channel-producer-planning
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
+    on_escalation:
+      next: human-escalator
+
+  - id: growth-strategist
+    agent: growth-strategist
+    label: "youtube:growth-strategist"
+    description: |
+      【producer 工程】CTRタイトル3案・サムネ指示・タグ・章(Chapters)設計・視聴維持/パッケージング。
+      ※成果物検証(§0.3): 合否は次の専用QA growth-qa（別エージェント）が判定する。自己申告で次へ進めない。
+    on_complete:
+      next: growth-qa
+    on_escalation:
+      next: human-escalator
+    on_rework:
+      # growth-qa からの差し戻し時
+      condition: "差し戻し"
+      next: growth-strategist
+
+  - id: growth-qa
+    agent: growth-qa
+    label: "youtube:growth-qa"
+    description: |
+      【専用QAゲート・人間ゲートではない / 成果物検証 §0.3】パッケージング producer(growth-strategist)とは
+      別エージェント(growth-qa)が成果物を照合し合否判定する: CTRタイトル(60字/知識ギャップ型/釣りすぎない)・
+      サムネ指示(3〜5語/単一被写体/好奇心ギャップ/スライド流用なし)・タグ衝突なし・章設計(0:00先頭/3章以上)・
+      視聴維持設計。基準は PRODUCTION-GUIDE §11/§16 と growth-strategist の完了条件。
+      不合格は人間を呼ばず growth-strategist へ自動差し戻し → 合格まで反復（rework_limit 超過時のみ human へ）。
+    on_complete:
+      condition: 合格
+      next: affiliate
+    on_rework:
+      condition: 不合格
+      next: growth-strategist
+      limit_exceeded_next: human-escalator
+    on_escalation:
+      next: human-escalator
+
+  - id: affiliate
+    agent: affiliate
+    label: "youtube:affiliate"
+    description: |
+      【producer 工程】アフィリ各社選定・説明欄リンク(sub_id付与)・FTC開示文・frontmatterのaffiliates設定。
+      ※成果物検証(§0.3): 合否は次の専用QA affiliate-qa（別エージェント）が判定する。自己申告で次へ進めない。
+    on_complete:
+      next: affiliate-qa
+    on_escalation:
+      next: human-escalator
+    on_rework:
+      # affiliate-qa からの差し戻し時
+      condition: "差し戻し"
+      next: affiliate
+
+  - id: affiliate-qa
+    agent: affiliate-qa
+    label: "youtube:affiliate-qa"
+    description: |
+      【専用QAゲート・人間ゲートではない / 成果物検証 §0.3】アフィリ producer(affiliate)とは
+      別エージェント(affiliate-qa)が成果物を照合し合否判定する: sub_id 付与(全リンク・正規化)・
+      FTC/景表法開示文のリンク直上配置(掲載0件は開示も無し)・url 空の除外(決定論)・題材適合・
+      誇大表現なし・法規制商材の扱い・frontmatter.affiliates。基準は PRODUCTION-GUIDE §11/§10 と
+      affiliate の完了条件＋コンプラ自己チェック。
+      不合格は人間を呼ばず affiliate へ自動差し戻し → 合格まで反復（rework_limit 超過時のみ human へ）。
+    on_complete:
+      condition: 合格
+      next: human-picture-lock
+    on_rework:
+      condition: 不合格
+      next: affiliate
+      limit_exceeded_next: human-escalator
+    on_escalation:
+      next: human-escalator
+
+  - id: human-picture-lock
+    agent: human-escalator
+    label: "escalated:human"
+    description: |
+      【ゲート1: 台本チェック（人間ゲート・2点のうち1点目）】preview.htmlをユーザーが承認（=最終動画を確定）。
+      承認でstatus:reviewedへ。yt-episode統括フローでは、この承認なしにレンダ(editor-render)へ進ませない。
+      台本＋画面テキスト＋写真＋出典を人間が確認する唯一のゲート（A〜Fの工程は全自動＋自己検証）
+    on_complete:
+      condition: ユーザーが承認
+      next: editor-render
+    on_escalation:
+      next: human-escalator
+
+  - id: editor-render
+    agent: editor
+    label: "youtube:editor"
+    description: |
+      【producer 工程 / 成果物検証 §0.3】動画生成(yt-render)実行（producer）。
+      セクション単位レンダ(60秒チャンク・章境界で自動分割・章ごと検証/差分再レンダ・章数はsections配列長で
+      自動判定)・縦Shorts無効。editor-render は producer として生成と一次確認（生成が完走したか・
+      明らかな破綻が無いか）までを担い、最終合否は判定しない。
+      ※レンダ成果物の QA は次ステップの render-review（レンダした本人とは別エージェント）が判定する
+      （自己申告で合格にしない・§0.3）。editor-render 自身は「自分で検証して合格にする」ことをしない。
+    on_complete:
+      next: render-review
+    on_rework:
+      condition: render-review から差し戻された場合（該当チャンク差分再レンダで自己修復）
+      next: editor-render
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は editor-render へ差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
+    on_escalation:
+      next: human-escalator
+
+  - id: render-review
+    agent: render-reviewer
+    label: "youtube:render-reviewer"
+    description: |
+      【別エージェントQAゲート・人間ゲートではない / 成果物検証 §0.3】レンダ producer(editor-render)とは
+      別エージェント(render-reviewer)がレンダ成果物を機械検証＋目視QAで合否判定する。
+      sections/NN-*.mp4 の代表 still と該当ナレを突き合わせ、still 全数(文字切れ/重なり/「…」/「?」ゼロ)・
+      写真の事実照合 全数(alt 非依存・画像本体目視・不一致ゼロ)・無音/ラウドネス計測・同期スポットチェック
+      (seriesSequencePlans 基準)を判定する。検証項目は editor.md B-2〜B-6・設計19 §1 DoD に準拠。
+      不合格は人間を呼ばず自動差し戻し: 該当チャンク差分再レンダで直る範囲は editor-render（producer）へ、
+      写真不一致/同期ズレが台本起因なら scriptwriter へ → 合格まで反復（rework_limit 超過時のみ human へ）。
+      合格でのみ human-video-review（ゲート2）へ進む。作った本人の自己申告では合格にしない。
+    on_complete:
+      condition: 合格
+      next: human-video-review
+    on_rework:
+      condition: 不合格（差分再レンダで直るなら editor-render／台本起因なら scriptwriter）
+      next: editor-render
+      next_if_script_root_cause: scriptwriter
+      # rework_limit（2回）超過時 = 同一チケットで3回目の不合格は差し戻さず human-escalator へ
+      limit_exceeded_next: human-escalator
+    on_escalation:
+      next: human-escalator
+
+  - id: human-video-review
+    agent: human-escalator
+    label: "escalated:human"
+    description: |
+      【ゲート2: 動画チェック（人間ゲート・2点のうち2点目）】レンダ済みの限定公開(privacy:private)動画を
+      ユーザーが視聴して承認（=公開可を確定）。承認なしに publisher（公開・予約）へ進ませない。
+      公開方針(privacy/予約時刻)もここで確認する。レンダ後・公開前に人間が完成動画を確認する唯一のゲート
+    on_complete:
+      condition: ユーザーが承認（公開GO）
+      next: publisher
+    on_escalation:
+      next: human-escalator
+
+  - id: publisher
+    agent: publisher
+    label: "youtube:publisher"
+    description: |
+      【producer 工程】ゲート2(動画チェック)承認後の公開。限定公開(privacy:private)でアップロード(ゲート2で
+      先行アップロード済みなら冪等にスキップ)＋予約公開(publish_at)＋多言語字幕(8言語)登録＋
+      多言語メタ(localizations冪等投入)＋縦Shorts自動UP(upload.shorts_upload有効時・本編成功後に冪等)＋
+      update-meta reschedule(private限定・冪等)＋APIで検証＋配信カレンダー更新(uploaded/published・
+      動画リンク・設計19 §3.6)。
+      ※成果物検証(§0.3): 公開結果の合否は次の専用QA publish-qa（別エージェント）が yt-publish の
+      「成果物のQA合格基準」で API 事実検証する。publisher 自身の自己申告では次へ進めない。
+    on_complete:
+      next: publish-qa
+    on_escalation:
+      next: human-escalator
+    on_rework:
+      # publish-qa からの差し戻し時
+      condition: "差し戻し"
+      next: publisher
+
+  - id: publish-qa
+    agent: publish-qa
+    label: "youtube:publish-qa"
+    description: |
+      【専用QAゲート・人間ゲートではない / 成果物検証 §0.3】公開 producer(publisher)とは
+      別エージェント(publish-qa)が公開成果物を yt-publish の「成果物のQA合格基準」で API 事実検証し
+      合否判定する: 公開ゲート通過(DoD)・videos.list/captions.list で privacy/予約/字幕CC/localizations・
+      カスタムサムネ適用・Shorts・frontmatter 更新・配信カレンダー md/html 同期・SNS は下書きまで。
+      不合格は人間を呼ばず publisher へ自動差し戻し → 合格まで反復（rework_limit 超過時のみ human へ）。
+      ※既に外部公開(public)された不可逆な不備は自動差し戻しでなく即時 human-escalator(legal)へ。
+    on_complete:
+      condition: 合格
+      next: sns-distributor
+    on_rework:
+      condition: 不合格
+      next: publisher
+      limit_exceeded_next: human-escalator
+    on_escalation:
+      next: human-escalator
+
+  - id: sns-distributor
+    agent: sns-distributor
+    label: "youtube:sns-distributor"
+    description: |
+      【producer 工程】公開後の拡散: Shorts/切り抜き案・各SNS展開・バイラルフック・シェア設計。
+      X/TikTokは決定論で下書き生成(social-manifest)＋share-x --send/share-tiktok --sendで下書き/inboxへ送るが、
+      最終公開は人間ゲート(TikTokはアプリで人間公開の二重ゲート)。social.enabled/social.tiktok.enabledで有効化。
+      ※成果物検証(§0.3): 合否は次の専用QA sns-qa（別エージェント）が判定する。自己申告で次へ進めない。
+    on_complete:
+      next: sns-qa
+    on_escalation:
+      next: human-escalator
+    on_rework:
+      # sns-qa からの差し戻し時
+      condition: "差し戻し"
+      next: sns-distributor
+
+  - id: sns-qa
+    agent: sns-qa
+    label: "youtube:sns-qa"
+    description: |
+      【専用QAゲート・人間ゲートではない / 成果物検証 §0.3】拡散 producer(sns-distributor)とは
+      別エージェント(sns-qa)が成果物を照合し合否判定する: 釣りでない(約束との整合)・権利安全(本編同様)・
+      縦動画案(1080x1920)・X 280字厳守・人間ゲート遵守(--send まで・TikTok 二重ゲート)・冪等性・
+      config-driven(未設定なら何もしない)・送客導線。基準は PRODUCTION-GUIDE §11/§10/§6/§1 と
+      sns-distributor の完了条件。
+      不合格は人間を呼ばず sns-distributor へ自動差し戻し → 合格まで反復（rework_limit 超過時のみ human へ）。
+      ※人間ゲートを破った外部公開の不可逆な不備は自動差し戻しでなく即時 human-escalator(legal)へ。
+    on_complete:
+      condition: 合格
+      next: monetizer
+    on_rework:
+      condition: 不合格
+      next: sns-distributor
+      limit_exceeded_next: human-escalator
+    on_escalation:
+      next: human-escalator
+
+  - id: monetizer
+    agent: monetizer
+    label: "youtube:monetizer"
+    description: |
+      【producer 工程】収益最適化レビュー: CPM・チャンネル横断送客・スポンサー機会・収益指標の評価と次アクション。
+      ※成果物検証(§0.3): 合否は次の専用QA monetizer-qa（別エージェント）が判定する。自己申告で次へ進めない。
+    on_complete:
+      next: monetizer-qa
+    on_escalation:
+      next: human-escalator
+    on_rework:
+      # monetizer-qa からの差し戻し時
+      condition: "差し戻し"
+      next: monetizer
+
+  - id: monetizer-qa
+    agent: monetizer-qa
+    label: "youtube:monetizer-qa"
+    description: |
+      【専用QAゲート・人間ゲートではない / 成果物検証 §0.3】収益 producer(monetizer)とは
+      別エージェント(monetizer-qa)が成果物を照合し合否判定する: 4観点すべてで施策提示
+      (CPM/RPM最適化・チャンネル横断送客・スポンサー/タイアップ・収益源の多様化)・各施策に計測指標必須・
+      優先順位の根拠・既存施策の束ね直し(上書きでない)・視聴体験/信頼を損なわない・越権なし。
+      基準は PRODUCTION-GUIDE §11/§12 と monetizer の完了条件。
+      不合格は人間を呼ばず monetizer へ自動差し戻し → 合格まで反復（rework_limit 超過時のみ human へ）。
+    on_complete:
+      condition: 合格
+      next: contributor-close
+    on_rework:
+      condition: 不合格
+      next: monetizer
+      limit_exceeded_next: human-escalator
+    on_escalation:
+      next: human-escalator
+
+  # グロース単発タスク専用ステップ。動画制作パイプラインを通らないため
+  # monetizer / sns-distributor を経由せず、grow-strategist が拡散・収益の方針提示まで行い
+  # contributor-close へ直行する（収益施策の表現が monetizer と一部重なるのは意図的）
+  - id: growth-standalone
+    agent: growth-strategist
+    label: "youtube:growth-strategist"
+    description: |
+      グロース単発タスク（既存動画の改善・拡散・収益化）をグロースリードとして担当し、施策を提案する
+    on_complete:
+      next: contributor-close
+    on_escalation:
+      next: human-escalator
+
+  - id: human-escalator
+    agent: human-escalator
+    label: "escalated:human"
+    description: 判断できない事項を人間にエスカレーション
+    on_complete:
+      condition: 人間が判断・返答
+      next: return_to_previous  # エスカレーション元のステップに戻る
+
+  - id: contributor-close
+    agent: contributor
+    label: "contributor:ready"
+    description: |
+      【終端の別エージェントQA / 成果物検証 §0.3】producer 群とは別エージェント(contributor)が
+      DoD(設計19 §1)確認・コメント品質チェック・チケットクローズ・インシデント調査を行う。
+      未達があれば該当工程へ差し戻す（合格までクローズしない）。
+    on_complete:
+      action: close_issue

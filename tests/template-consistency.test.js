@@ -15,11 +15,13 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, '..');
 
-// ミラー一致の対象チーム（packages/workflow-<team> としてプラグイン配布されるチーム）
-const TEAMS = ['backend', 'content', 'frontend', 'infra'];
+// ミラー一致の対象チーム（packages/workflow-<team>/templates として SHA-256 ミラーを持つ全チーム）。
+// sns・youtube はテンプレート同梱配布（distribution: template）だが、ミラーパッケージを
+// 持つため SHA-256 一致検証の対象に含める。
+const TEAMS = ['backend', 'content', 'frontend', 'infra', 'sns', 'youtube'];
 
-// ラベル整合の対象チーム（プラグイン配布されない sns・youtube もラベル整合の検査対象に含める）
-const LABEL_TEAMS = [...TEAMS, 'sns', 'youtube'];
+// ラベル整合の対象チーム（全チーム）
+const LABEL_TEAMS = [...TEAMS];
 
 /**
  * ディレクトリ配下の全ファイルを再帰的に列挙し、相対パス（POSIX形式）のソート済み配列を返す

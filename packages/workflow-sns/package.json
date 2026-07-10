@@ -1,0 +1,12 @@
+{
+  "name": "@trimix/workflow-trimix-sns",
+  "version": "1.0.0",
+  "description": "ai-team sns workflow plugin",
+  "files": ["plugin.json", "templates/"],
+  "keywords": ["ai-team-plugin", "trimix", "workflow", "sns"],
+  "author": "Trimix",
+  "license": "MIT",
+  "peerDependencies": {
+    "@trimix/ai-team": ">=0.4.0"
+  }
+}

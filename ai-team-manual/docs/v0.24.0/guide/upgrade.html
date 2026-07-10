@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アップグレード - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.24.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class="active"><a href="../guide/upgrade.html">アップグレード</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">アップグレード</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/guide/upgrade.html" >v0.5.1</option><option value="../../v0.5.2/guide/upgrade.html" >v0.5.2</option><option value="../../v0.6.0/guide/upgrade.html" >v0.6.0</option><option value="../../v0.7.0/guide/upgrade.html" >v0.7.0</option><option value="../../v0.8.0/guide/upgrade.html" >v0.8.0</option><option value="../../v0.9.0/guide/upgrade.html" >v0.9.0</option><option value="../../v0.10.0/guide/upgrade.html" >v0.10.0</option><option value="../../v0.11.0/guide/upgrade.html" >v0.11.0</option><option value="../../v0.12.0/guide/upgrade.html" >v0.12.0</option><option value="../../v0.13.0/guide/upgrade.html" >v0.13.0</option><option value="../../v0.14.0/guide/upgrade.html" >v0.14.0</option><option value="../../v0.15.0/guide/upgrade.html" >v0.15.0</option><option value="../../v0.16.0/guide/upgrade.html" >v0.16.0</option><option value="../../v0.17.0/guide/upgrade.html" >v0.17.0</option><option value="../../v0.18.0/guide/upgrade.html" >v0.18.0</option><option value="../../v0.20.0/guide/upgrade.html" >v0.20.0</option><option value="../../v0.21.0/guide/upgrade.html" >v0.21.0</option><option value="../../v0.21.1/guide/upgrade.html" >v0.21.1</option><option value="../../v0.22.0/guide/upgrade.html" >v0.22.0</option><option value="../../v0.22.1/guide/upgrade.html" >v0.22.1</option><option value="../../v0.23.0/guide/upgrade.html" >v0.23.0</option><option value="../../v0.24.0/guide/upgrade.html" selected>v0.24.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>アップグレード</h1>
+
+<code>@trimix/ai-team</code> を新しいバージョンへ更新したとき、導入先プロジェクトの <code>.claude/</code> 配下に配置済みのテンプレート（エージェント定義・ワークフロー・DOD など）を最新版へ追随させるための <strong><code>upgrade</code> コマンド</strong>を解説します。v0.24.0 で新設されました。
+
+<hr>
+
+<h2>なぜ <code>upgrade</code> が必要なのか</h2>
+
+<code>npm install</code>（パッケージの更新）だけでは、更新されるのは <strong>スキル（<code>.claude/commands/</code>）と同梱マニュアル（<code>ai-team-manual/</code>）のみ</strong>です。<code>postinstall</code> はこの 2 つしか展開しません。
+
+<p>つまり、次のものは <code>npm install</code> では<strong>一度配置されたら古いまま</strong>になります。</p>
+
+<table><thead><tr><th>領域</th><th>配置先</th><th><code>npm install</code> で更新</th><th><code>upgrade</code> で更新</th></tr></thead><tbody><tr><td>スキル（スラッシュコマンド）</td><td><code>.claude/commands/</code></td><td>✅</td><td>✅</td></tr><tr><td>同梱マニュアル</td><td><code>ai-team-manual/</code></td><td>✅</td><td>—</td></tr><tr><td>共通エージェント</td><td><code>.claude/agents/</code></td><td>❌</td><td>✅</td></tr><tr><td>チームのエージェント</td><td><code>.claude/teams/&lt;team&gt;/agents/</code></td><td>❌</td><td>✅</td></tr><tr><td>ワークフロー定義</td><td><code>.claude/teams/&lt;team&gt;/workflow.yml</code></td><td>❌</td><td>✅</td></tr><tr><td>DOD テンプレート</td><td><code>.claude/teams/&lt;team&gt;/dod/</code></td><td>❌</td><td>✅</td></tr><tr><td>レビュー判定基準</td><td><code>.claude/teams/&lt;team&gt;/review-config.yml</code></td><td>❌</td><td>✅</td></tr><tr><td>エスカレーションルール</td><td><code>.claude/escalation-rules.yml</code></td><td>❌</td><td>✅</td></tr><tr><td>モデルプロファイル</td><td><code>.claude/model-profiles.yml</code></td><td>❌</td><td>✅</td></tr></tbody></table>
+<p>エージェントやワークフローの改善（バグ修正・新しい判定ロジックなど）を受け取るには、パッケージを更新したあとに <code>upgrade</code> を実行する必要があります。</p>
+
+<hr>
+
+<h2>使い方</h2>
+
+<pre><code class="language-bash"># 導入済みの全チームを最新テンプレートへ更新
+npx @trimix/ai-team upgrade
+
+# チームを 1 つだけ更新（team_id を指定）
+npx @trimix/ai-team upgrade backend</code></pre>
+
+<code>team_id</code> を省略すると、<code>.claude/teams/</code> に配置済みのチーム（<code>backend</code> / <code>frontend</code> / <code>content</code> / <code>infra</code> / <code>sns</code> / <code>youtube</code> のうち導入済みのもの）がすべて対象になります。共通エージェント・<code>escalation-rules.yml</code>・<code>model-profiles.yml</code>・スキルは、<code>team_id</code> の指定に関わらず<strong>常に</strong>対象に含まれます（チーム横断の共通設定は、まとめてバージョンに追随させるほうが安全なためです）。
+
+<p>既定の動作は「<strong>差分を提示 → ユーザーが確認 → バックアップ → 適用</strong>」です。確認なしの一括上書きは行いません。</p>
+
+<h3>オプション</h3>
+
+<table><thead><tr><th>オプション</th><th>動作</th></tr></thead><tbody><tr><td><code>--dry</code></td><td>差分の提示のみを行い、<strong>書き込みもバックアップも一切行いません</strong>。何が変わるかを事前に確認したいときに使います</td></tr><tr><td><code>--force</code></td><td><code># customized: true</code> を持つカスタマイズ済みファイルも上書きします（既定では保護されます。後述）</td></tr><tr><td><code>--yes</code></td><td>確認プロンプトを省略します。<strong>非対話環境（CI・パイプ実行など）では続行に必須</strong>です（後述）</td></tr></tbody></table>
+<pre><code class="language-bash"># まず差分だけ確認する（安全）
+npx @trimix/ai-team upgrade --dry
+
+# カスタマイズ済みファイルも含めてすべて最新へ揃える
+npx @trimix/ai-team upgrade --force
+
+# 対話プロンプトを出さずに適用する（CI などの非対話環境）
+npx @trimix/ai-team upgrade --yes</code></pre>
+
+<h3>実行時の流れ</h3>
+
+<code>upgrade</code> は次の順序で処理します。この順序は安全のために固定されており、崩れることはありません。
+
+<ol><li><strong>更新対象の列挙</strong> — 共通設定と、対象チームの <code>plugin.json</code> の <code>install</code> マップから対象ファイルを導き出します</li><li><strong>差分の提示</strong> — 各ファイルを「新規作成 / 上書き更新 / 保護のためスキップ / 変更なし」に分類して表示します</li><li><code>--dry</code> ならここで終了（何も書き込みません）</li><li>適用する差分が無ければ「すべて最新です」で終了</li><li><strong>ユーザーへの確認</strong>（<code>--yes</code> 指定時は省略）</li><li><strong>バックアップの作成</strong>（次章。失敗したら適用せず中止）</li><li><strong>適用</strong> — 差分のあるファイルを書き込みます</li><li><strong>結果表示</strong> — 更新件数・保護スキップ件数・変更なし件数を表示します</li></ol>
+<hr>
+
+<h2>アップグレード前の自動バックアップ</h2>
+
+<p><strong><code>upgrade</code> は、ファイルを上書きする前に必ず既存ファイルをバックアップへ退避します。</strong> これは、有料商材としてユーザーの成果物を失う事故を許容しないための安全策です。</p>
+
+<h3>なぜバックアップするのか</h3>
+
+<p>後述の <code># customized: true</code> による上書き保護は、マーカーが付いているファイルしか守れません。旧バージョンで生成されたファイルや、あなたが手で書き換えたファイル（マーカーの付かないもの）は保護対象になりません。バックアップは、その隙間を埋める<strong>最後の防衛線</strong>として機能します。実行前に次の説明が表示されます。</p>
+
+<pre><code class="language-">🛟 アップグレード前に、上書き対象の既存ファイルをバックアップします
+   理由: カスタマイズしたエージェント定義やワークフローが上書きで失われる事故を防ぐためです。
+   `# customized: true` による上書き保護は、マーカーの付いていない旧世代ファイルや
+   手編集したファイルまでは守れません。そこで適用直前に必ず退避します。</code></pre>
+
+<h3>保存先と構造</h3>
+
+<p>バックアップはプロジェクトルート直下の <strong><code>.ai-team-backups/&lt;YYYYMMDD-HHMMSS&gt;/</code></strong>（実行日時のディレクトリ）に作成されます。退避時は<strong>元の相対パスをそのまま保持</strong>します。</p>
+
+<pre><code class="language-">.ai-team-backups/
+└── 20260710-120000/
+    ├── manifest.json                                   # 退避記録（後述）
+    └── .claude/
+        └── teams/
+            └── backend/
+                ├── workflow.yml
+                └── agents/
+                    └── tech-lead.md</code></pre>
+
+<code>manifest.json</code> には、作成日時（<code>createdAt</code>）・パッケージバージョン（<code>packageVersion</code>）・退避した各ファイルのパスと <strong>SHA-256 ハッシュ</strong>（<code>files[].path</code> / <code>files[].sha256</code>）が記録されます。バックアップは退避後に SHA-256 を再計算して退避元と一致することを検証しており、破損・切り詰めコピーを検出できます。
+
+<p>> <strong>バックアップ対象は差分の有無で絞りません。</strong> <code>upgrade</code> が書き込む可能性のある全ファイルを退避します。差分検出にバグがあってもバックアップが漏れないよう、安全側に倒しています。</p>
+
+<h3>復元方法</h3>
+
+<p>退避したファイルは相対パスを保っているため、<strong>バックアップディレクトリの <code>.claude</code> をプロジェクトルートへコピーし戻すだけ</strong>で元に戻せます。完了後に、実際のパスを添えた復元コマンドが表示されます。</p>
+
+<pre><code class="language-">✅ バックアップを作成しました: /path/to/project/.ai-team-backups/20260710-120000
+   退避ファイル数: 12 件
+   元に戻すには（バックアップから復元）:
+     cp -R /path/to/project/.ai-team-backups/20260710-120000/.claude ./
+   ※ このバックアップは自動削除されません。不要になったら手動で削除してください。</code></pre>
+
+<p>つまり復元は次の 1 行です。</p>
+
+<pre><code class="language-bash">cp -R .ai-team-backups/20260710-120000/.claude ./</code></pre>
+
+<h3>バックアップの保持と <code>.gitignore</code></h3>
+
+<ul><li><strong>バックアップは自動削除されません。</strong> 削除の判断はあなたに委ねられます。繰り返し <code>upgrade</code> を実行すると世代が蓄積するため、不要になったら手動で <code>.ai-team-backups/</code> を削除してください</li><li>バックアップ作成時に <code>.gitignore</code> へ <code>.ai-team-backups/</code> が冪等に追記されます（既に記載があれば何もしません）。退避したファイルが誤ってコミットされるのを防ぐためです</li><li><code>--dry</code> 実行時はバックアップを作成しません（書き込みが発生しないため）</li></ul>
+<h3>バックアップ失敗時は適用しない（fail-closed）</h3>
+
+<p><strong>バックアップが 1 ファイルでも失敗（コピー失敗・SHA-256 不一致など）した場合、<code>upgrade</code> はアップグレードを実行せず、終了コード 1 で停止します。</strong> バックアップできない状態での上書きは決して行いません。</p>
+
+<pre><code class="language-">❌ バックアップに失敗したため、アップグレードを中止します: &lt;理由&gt;
+   （fail-closed: バックアップできない状態での上書きは行いません）</code></pre>
+
+<p>この「fail-closed（安全側に倒して閉じる）」設計により、退避に失敗したままファイルが上書きされてデータが失われる事態を防ぎます。</p>
+
+<hr>
+
+<h2>カスタマイズ済みファイルの上書き保護</h2>
+
+<p>先頭に <strong><code># customized: true</code></strong> コメントを持つファイルは、<code>upgrade</code>（および <code>/ai-team-setup</code> の再実行・<code>/ai-team-install</code>）で<strong>保護され、上書きされません</strong>。差分提示では「保護のためスキップ」に分類され、次のように表示されます。</p>
+
+<pre><code class="language-">  🛡️  保護のためスキップ（--force で上書き可能）:
+     - .claude/teams/backend/workflow.yml</code></pre>
+
+<p>このマーカーが付いたファイルを最新テンプレートへ揃えたい場合は、<strong><code>--force</code> を付けて再実行</strong>します。<code>--force</code> を指定したときだけ、カスタマイズ済みファイルも上書き対象になります。</p>
+
+<p>> <strong>v0.24.0 での修正（データ損失バグ）</strong>: 以前は、この上書き保護が単一ファイル（<code>workflow.yml</code> / <code>review-config.yml</code>）にしか効いておらず、<strong>ワイルドカードで展開されるファイル（<code>agents/*</code> や <code>dod/*</code>）は <code>--force</code> を付けなくても黙って上書きされていました</strong>。v0.24.0 で保護判定を両方の経路に統一し、<code>agents/</code> や <code>dod/</code> のカスタマイズ済みファイルも <code>--force</code> を付けたときだけ上書きされるように修正しました。</p>
+
+<h3>⚠️ 重要な注意点: マーカーの無い手編集ファイルは上書きされる</h3>
+
+<p>上書き保護は <strong><code># customized: true</code> マーカーの有無だけ</strong>で判定します。このマーカーは、<code>/ai-team-configure</code> が生成する <code>workflow.yml</code> には自動的に付きますが、それ以外のファイルには付きません。</p>
+
+<p>したがって、<strong>マーカーの付いていない手編集ファイルは <code>upgrade</code> で上書きされます</strong>。たとえば、セットアップ後に <code>.claude/teams/&lt;team&gt;/agents/*.md</code> や <code>.claude/commands/*.md</code> の <code>model</code> / <code>effort</code> を直接書き換えた場合、それらのファイルにはマーカーが付かないため、次の <code>upgrade</code> で最新テンプレートに置き換えられます。</p>
+
+<table><thead><tr><th>ファイル</th><th><code># customized: true</code></th><th><code>upgrade</code> の挙動</th></tr></thead><tbody><tr><td><code>teams/backend/workflow.yml</code>（<code>/ai-team-configure</code> 生成）</td><td>あり</td><td>🛡️ 保護されスキップ</td></tr><tr><td><code>teams/backend/agents/tech-lead.md</code>（<code>model</code> を手編集）</td><td>なし</td><td>✏️ 上書きされる（<strong>バックアップには退避される</strong>）</td></tr></tbody></table>
+<p>ただし、完全に黙って消えるわけではありません。上書き対象として一覧表示され、確認を求められ、<strong>適用前に必ずバックアップへ退避されます</strong>。上書きされてしまった場合は、前章の復元手順（<code>cp -R .ai-team-backups/&lt;日時&gt;/.claude ./</code>）で元に戻せます。</p>
+
+<p>> <strong>この制限は <a href="https://github.com/takufukagawa/trimix-cc-project-template/issues/85">Issue #85</a> で対応予定です。</strong> マーカー方式をハッシュ照合（dpkg の conffile と同じ考え方）へ移行し、マーカーの無い手編集ファイルも「前回配置したテンプレートと異なるかどうか」で自動的に保護する方針が検討されています。それまでは、手編集したファイルに自分で <code># customized: true</code> を付けておくと、<code>upgrade</code> で保護されます（次項の書き方に従ってください）。</p>
+
+<h4><code># customized: true</code> の正しい付け方（ファイル種別に注意）</h4>
+
+<p>保護判定は、ファイル<strong>先頭のヘッダ領域（先頭 5 行）</strong>に <code># customized: true</code> という文字列があるかどうかだけを見ます。ファイル全体を検索するわけではありません。したがって、<strong>マーカーは必ずファイル先頭のヘッダ領域に置いてください。</strong></p>
+
+<p><strong>本文中でマーカー文字列に言及しても保護対象にはなりません。</strong> これは、マーカーの付け方を本文で解説しているファイル（<code>/ai-team-configure</code> や <code>/ai-team-install</code> のスキルなど、本文にマーカー文字列を含むだけのファイル）を「カスタマイズ済み」と誤検出しないための仕様です。以前はファイル全体を検索していたため、こうしたファイルが誤って保護され、未編集でも <code>upgrade</code> で更新されなくなる問題がありました。</p>
+
+<p>ファイル種別によってマーカーの置き場所が変わります。</p>
+
+<p><strong>frontmatter（先頭が <code>---</code> で始まる YAML ヘッダ）を持つファイルでは、<code>---</code> より前にマーカーを置いてはいけません。</strong> <code>agents/*.md</code> は 1 行目が <code>---</code> の frontmatter です。その前に <code># customized: true</code> を置くと 1 行目が <code>---</code> でなくなり、<strong>frontmatter が壊れてエージェント定義として読み込めなくなります</strong>。frontmatter を持つファイルでは、<code>---</code> の<strong>直後の行</strong>（2 行目）に YAML コメントとして置きます。この位置はヘッダ領域（先頭 5 行）に収まるため検出されます。</p>
+
+<ul><li><strong><code>agents/*.md</code> など frontmatter を持つ Markdown</strong>: 開始の <code>---</code> の<strong>直後の行</strong>に置く</li></ul>
+<pre><code class="language-markdown">---
+# customized: true
+name: tech-lead
+model: opus
+---</code></pre>
+
+<ul><li><strong><code>workflow.yml</code> など frontmatter を持たない YAML ファイル</strong>: 先頭行に置いてよい</li></ul>
+<pre><code class="language-yaml"># customized: true
+name: backend-workflow</code></pre>
+
+<h3>⚠️ 保護されたファイルへ最新の変更を取り込む組み込み手段は無い（現時点の制限）</h3>
+
+<p><strong>保護されたファイルに、新しいテンプレートの変更を取り込むための組み込みの手段は、現時点ではありません。</strong> これは次の理由によります。</p>
+
+<ul><li><code>upgrade</code> は保護対象を<strong>素通りするだけ</strong>で、新しいテンプレートをどこにも書き出しません</li><li>バックアップ（<code>.ai-team-backups/&lt;日時&gt;/</code>）に退避されるのは<strong>あなた自身の現在の版</strong>であり、新テンプレートではありません</li><li>差分の提示は<strong>ファイル名の一覧のみ</strong>で（<code>--dry</code> を含む）、変更の中身は表示されません</li></ul>
+<p>したがって、保護したファイルへ最新テンプレートの変更を取り込みたい場合は、パッケージに同梱された最新テンプレートを直接参照し、差分を手作業で反映する必要があります。テンプレートは導入先プロジェクトの次の場所にあります（<code>npm install</code> で配布物に含まれます）。</p>
+
+<pre><code class="language-">node_modules/@trimix/ai-team/packages/workflow-&lt;team&gt;/templates/</code></pre>
+
+<p>たとえば backend チームの <code>workflow.yml</code> について、あなたの版と最新テンプレートの差分は次のように確認できます。</p>
+
+<pre><code class="language-bash">diff .claude/teams/backend/workflow.yml \
+  node_modules/@trimix/ai-team/packages/workflow-backend/templates/workflow.yml</code></pre>
+
+<p>差分を確認したうえで、必要な変更を手でカスタマイズ済みファイルへ反映してください。</p>
+
+<p>> <strong>この不便は既知の制限です。</strong> <a href="https://github.com/takufukagawa/trimix-cc-project-template/issues/86">Issue #86</a> で、保護されたファイルの隣に最新テンプレートを <code>&lt;ファイル名&gt;.new</code> として自動的に書き出す機能と、差分を表示する <code>--diff</code> オプションを実装予定です。それまでは上記の手作業で差分を取り込んでください。</p>
+
+<hr>
+
+<h2><code>.github/ISSUE_TEMPLATE/</code> は対象外</h2>
+
+<code>upgrade</code> が更新するのは <strong><code>.claude/</code> 配下のみ</strong>です。<code>.github/ISSUE_TEMPLATE/</code> に配置されるチケットテンプレートは <code>.claude/</code> の外にあるリポジトリ設定のため、<code>upgrade</code> の対象外です。
+
+<p>ただし黙って落とすのではなく、対象外であることを実行時に明示します。</p>
+
+<pre><code class="language-">  ℹ️  以下は .claude/ 外のリポジトリ設定のため upgrade の対象外です（更新するには /ai-team-setup で再配置してください）:
+     - .github/ISSUE_TEMPLATE/（backend, frontend）</code></pre>
+
+<p>チケットテンプレートを最新化したい場合は、<a href="setup.html">/ai-team-setup</a> を再実行して再配置してください。</p>
+
+<hr>
+
+<h2>非対話環境での挙動</h2>
+
+<code>upgrade</code> は破壊的な上書きを無確認で走らせないため、<strong>確認応答を取得できない非対話環境（パイプ実行・CI など、標準入力が端末でない場合）では、<code>--yes</code> が無い限り安全側に倒して中止</strong>します。
+
+<pre><code class="language-">⚠️  非対話環境のため確認を取得できません。安全のためアップグレードを中止します。
+   意図的に続行する場合は --yes を付けて再実行してください。</code></pre>
+
+<p>CI などから意図的に実行する場合は、<code>--yes</code> を明示的に付けてください。</p>
+
+<hr>
+
+<h2>更新の有無を通知する</h2>
+
+<code>upgrade</code> の実行時（および <code>npm install</code> の <code>postinstall</code> 完了時）には、導入済みプラグインのバージョンと配布物側の最新バージョンを比較し、差があれば通知します。
+
+<pre><code class="language-">🔔 更新があります: 導入済みプラグインより新しいバージョンが registry にあります
+   - バックエンドチーム: v1.0.0 → v1.1.0
+   最新テンプレートへ更新するには: npx @trimix/ai-team upgrade [team_id]</code></pre>
+
+<p>これは、導入先プロジェクトの <code>ai-team-plugins.json</code> に記録された「導入時のバージョン」と、配布物の <code>registry.json</code> に記載された「最新バージョン」を突き合わせた結果です。更新に気づけるようにするための通知であり、更新の実行自体は <code>upgrade</code> で行います。</p>
+
+<hr>
+
+<h2>使い方の流れ（推奨）</h2>
+
+<ol><li>パッケージを更新する（<code>npm install --save-dev ./trimix-ai-team-x.x.x.tgz</code>）</li><li>まず <code>npx @trimix/ai-team upgrade --dry</code> で差分を確認する</li><li>問題なければ <code>npx @trimix/ai-team upgrade</code> を実行し、確認して適用する（適用直前にバックアップが作成されます）</li><li>カスタマイズ済みファイルも最新へ揃えたい場合のみ、内容を確認したうえで <code>--force</code> を付けて再実行する</li><li>不要になったバックアップ（<code>.ai-team-backups/</code>）は手動で削除する</li></ol>
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="../installation.html">インストールとセットアップ</a> — <code>npm install</code> と <code>/ai-team-setup</code></li><li><a href="migration.html">バージョン移行ガイド</a> — 各バージョンの移行手順</li><li><a href="../reference/config.html">設定ファイル</a> — <code>ai-team-config.yml</code> の全フィールド</li><li><a href="../changelog.html">v0.24.0 の変更点</a> — <code>upgrade</code> コマンド新設を含む変更履歴</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

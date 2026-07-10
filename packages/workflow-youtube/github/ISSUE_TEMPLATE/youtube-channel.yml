@@ -1,0 +1,67 @@
+name: "📺 YouTube — 新規チャンネル立ち上げ"
+description: "新しいYouTubeチャンネルを設計・スキャフォールドします"
+title: "[Channel] "
+labels:
+  - "youtube:director"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > このIssueはYouTube動画制作チームが担当します。
+        > Director が判定し、Channel-Producer がチャンネル設定一式（channel.yaml・voice-guide・glossary・brand・roadmap・初期バックログ・月次配信プラン）を作成します。
+        > YouTube Studio の手動設定・OAuthトークン・声の用意など**人間しかできない作業**は完了後にチェックリストで提示されます。
+
+  - type: input
+    id: channel_id
+    attributes:
+      label: "チャンネルID案"
+      description: "英小文字・数字・ハイフン（例: nihon101）"
+      placeholder: "japan-eats"
+    validations:
+      required: true
+
+  - type: textarea
+    id: concept
+    attributes:
+      label: "チャンネルの趣旨・ターゲット"
+      description: "どんな内容のチャンネルか・誰に向けるか"
+      placeholder: "例: 訪日外国人向けに、東京在住者が日本の食を案内する"
+    validations:
+      required: true
+
+  - type: input
+    id: language
+    attributes:
+      label: "音声（ナレ）言語"
+      description: "例: 英語ベース（en）"
+      placeholder: "en"
+    validations:
+      required: true
+
+  - type: input
+    id: subtitles
+    attributes:
+      label: "字幕言語"
+      description: "既定は8言語（EN/JA/KO/zh-CN/zh-TW/FR/IT/TH）。変更があれば記載"
+      placeholder: "EN/JA/KO/zh-CN/zh-TW/FR/IT/TH"
+
+  - type: input
+    id: schedule
+    attributes:
+      label: "配信スケジュール"
+      description: "例: 週3本（火・木・土 10:00 JST）"
+      placeholder: "週3本（火・木・土 10:00 JST）"
+
+  - type: textarea
+    id: brand
+    attributes:
+      label: "ブランドイメージ（任意）"
+      description: "配色・トーン・案内人のキャラクターなど"
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Definition of Done
+
+        > `teams/youtube/dod/channel-creation.md` を基準に判定します。
