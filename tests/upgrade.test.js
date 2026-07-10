@@ -18,6 +18,8 @@ import {
 import { join, resolve, dirname, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
+import { Readable } from 'node:stream';
+import { execFileSync } from 'node:child_process';
 
 import { runUpgrade, enumerateUpgradeTargets, diffTargets } from '../bin/lib/upgrade.js';
 
@@ -48,6 +50,18 @@ function makeProject() {
   // 古い（テンプレートと異なる）内容を配置する。マーカーなし = 非カスタマイズ。
   writeUnder(cwd, '.claude/teams/backend/workflow.yml', '# 古いバージョンのワークフロー\nsteps: []\n');
   return cwd;
+}
+
+/**
+ * 非対話（非TTY）かつ即 EOF の stdin を作る。confirmProceed へ注入することで、
+ * 対話端末（isTTY=true の実環境）で `node --test` を直接実行しても、確認プロンプト待ちで
+ * ハングせず確定的に「非対話のため中止」経路を通せる。isTTY が偽なので confirmProceed は
+ * askYesNo を呼ばずに false を返すが、万一呼ばれても既に終了した stream なので待たない。
+ */
+function makeClosedStdin() {
+  const stream = Readable.from([]); // 即座に 'end' を発火する空ストリーム
+  stream.isTTY = false;
+  return stream;
 }
 
 test('(a) --dry では書き込みが一切発生しない（バックアップディレクトリも作られない）', async () => {
@@ -101,10 +115,12 @@ test('(b-2) 非対話環境で --yes 無しなら中止し、副作用を一切�
     const workflowPath = join(cwd, '.claude/teams/backend/workflow.yml');
     const before = readFileSync(workflowPath, 'utf-8');
 
-    // node --test は既定で stdin が非TTY。--yes を付けずに呼ぶと confirmProceed が
-    // 「非対話環境のため中止」を選び、書き込み・バックアップ・.gitignore のいずれの
-    // 副作用も発生しない。追加依存なしにこの安全経路を検証する。
-    const code = await runUpgrade(['backend'], { cwd });
+    // --yes を付けずに呼ぶと confirmProceed が確認を必要とする。ここで非TTYの stdin を明示的に
+    // 注入することで、環境の stdin が TTY か否かに依存せず確定的に「非対話環境のため中止」経路を
+    // 通す。これにより、開発者が対話端末で `node --test tests/upgrade.test.js` を直接実行しても
+    // askYesNo のプロンプト待ちでハングしない（#84）。中止経路では書き込み・バックアップ・
+    // .gitignore のいずれの副作用も発生しないことを検証する。
+    const code = await runUpgrade(['backend'], { cwd, stdin: makeClosedStdin() });
     assert.equal(code, 0, '非対話環境での中止は終了コード0で返るべき');
 
     // 対象ファイルが変更されていないこと
@@ -332,6 +348,22 @@ async function captureStdout(fn) {
     process.stdout.write = orig;
   }
   return out;
+}
+
+/** runUpgrade 実行中の標準エラー出力（console.error → process.stderr.write）を捕捉する */
+async function captureStderr(fn) {
+  const orig = process.stderr.write.bind(process.stderr);
+  let err = '';
+  process.stderr.write = (chunk, ...rest) => {
+    err += typeof chunk === 'string' ? chunk : chunk.toString();
+    return true;
+  };
+  try {
+    await fn();
+  } finally {
+    process.stderr.write = orig;
+  }
+  return err;
 }
 
 /** .ai-team-backups/ 配下の世代ディレクトリ数を数える */
@@ -1289,5 +1321,152 @@ test('(#86-R2-15) --force でも <dest>.new / .gitignore のハードリンク�
     } finally {
       rmSync(cwd, { recursive: true, force: true });
     }
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Issue #84: テスト堅牢性と未捕捉例外・EISDIR の整形。
+//   3. 壊れた plugin.json を列挙段階で捕捉し、整形された日本語メッセージ＋終了コード1で停止する
+//   4. dest / <dest>.new が「通常ファイルでない実体」（ディレクトリ / FIFO / ソケット / デバイス）
+//      のとき、EISDIR やハングにせず skip して明示し、外部に一切書き込まない（一般化）
+//
+// 制約: 特殊ファイル（ディレクトリ / FIFO）は必ず一時ディレクトリ（cwd）の内側で完結させる。
+// ---------------------------------------------------------------------------
+
+test('(#84-3) 壊れた plugin.json は列挙段階で捕捉され、どのファイルが不正かを日本語で示して終了コード1で停止する', async () => {
+  const cwd = makeProject();
+  // plugin.json の読み取り元だけを差し替える（本番はパッケージルート固定・不変）。テンプレートは
+  // 実リポジトリを使うためグローバル対象は正常に列挙でき、team=backend の plugin.json でのみ throw する。
+  const pluginRoot = mkdtempSync(join(tmpdir(), 'ai-team-badplugin-'));
+  try {
+    const badPath = join(pluginRoot, 'packages', 'workflow-backend', 'plugin.json');
+    mkdirSync(dirname(badPath), { recursive: true });
+    writeFileSync(badPath, '{ "install": { これは不正な JSON ', 'utf-8'); // 構文エラー
+
+    const workflowPath = join(cwd, '.claude/teams/backend/workflow.yml');
+    const before = readFileSync(workflowPath, 'utf-8');
+
+    let code;
+    const err = await captureStderr(async () => {
+      code = await runUpgrade(['backend', '--yes'], { cwd, pluginRoot });
+    });
+
+    // 終了コード1で停止する（未捕捉例外のスタックトレースではなく、整形された停止）
+    assert.equal(code, 1, '壊れた plugin.json では終了コード1で停止するべき');
+    // 日本語の失敗メッセージであること・どのファイルが不正かをパスで示すこと
+    assert.ok(err.includes('失敗しました'), `日本語の失敗メッセージが無い:\n${err}`);
+    assert.ok(err.includes('plugin.json'), `plugin.json への言及が無い:\n${err}`);
+    assert.ok(err.includes(badPath), `どのファイルが不正かをパスで示していない:\n${err}`);
+
+    // 書き込みより前（fail-closed）で停止：対象ファイルは不変、バックアップも作られない
+    assert.equal(readFileSync(workflowPath, 'utf-8'), before, '停止したのに対象ファイルが変更された');
+    assert.ok(!existsSync(join(cwd, '.ai-team-backups')), '停止したのにバックアップが作られた');
+    assert.ok(!existsSync(join(cwd, '.claude/commands/ai-team-run.md')), '停止したのに新規ファイルが作られた');
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+    rmSync(pluginRoot, { recursive: true, force: true });
+  }
+});
+
+test('(#84-4a) dest がディレクトリのとき、EISDIR にせず skip して明示し、ディレクトリを上書きしない', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-dir-'));
+  try {
+    // workflow.yml を「ディレクトリ」として作る（通常ファイルでない dest）
+    const destRel = '.claude/teams/backend/workflow.yml';
+    mkdirSync(join(cwd, destRel), { recursive: true });
+    // ディレクトリ内に番兵を置き、copyFileSync で潰されていないことを確認する
+    const sentinel = join(cwd, destRel, 'inside.txt');
+    writeFileSync(sentinel, 'ディレクトリ内の既存ファイル\n', 'utf-8');
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0, 'ディレクトリ dest でも整形して継続し、終了コード0で終わるべき');
+    });
+
+    // dest はディレクトリのまま（copyFileSync で通常ファイルへ置き換えられていない）
+    assert.ok(statSync(join(cwd, destRel)).isDirectory(), 'ディレクトリ dest が置き換えられた');
+    assert.equal(
+      readFileSync(sentinel, 'utf-8'), 'ディレクトリ内の既存ファイル\n',
+      'ディレクトリ内のファイルが壊れた（外部に書き込まれた）'
+    );
+    // スキップが明示される（通常ファイル以外である旨・種別・パス）。
+    // 「（ディレクトリ）」は per-item の formatSkip（種別ラベル）でのみ現れる形であり、
+    // ヘッダ文言（"ディレクトリ／FIFO 等"）では満たされない＝実際に該当項目が明示された証拠。
+    assert.ok(out.includes('通常ファイルではありません'), `通常ファイル以外のスキップ明示が無い:\n${out}`);
+    assert.ok(out.includes('（ディレクトリ）'), `種別（ディレクトリ）が per-item で示されていない:\n${out}`);
+    assert.ok(out.includes(destRel), `スキップした dest のパスが表示されていない:\n${out}`);
+    // リンクのスキップに巻き込まれず、無関係なグローバル対象は作られている
+    assert.ok(
+      existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      'ディレクトリ dest のスキップに巻き込まれ、通常ファイルの新規作成がされていない'
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#84-4b) <dest>.new がディレクトリのとき、EISDIR にせず skip して明示し、書き出さない', async () => {
+  const { cwd, customized } = makeCustomizedProject(); // workflow.yml はカスタマイズ済み（保護）
+  try {
+    const newRel = '.claude/teams/backend/workflow.yml.new';
+    // .new を「ディレクトリ」として作る（protectedNewNeedsWrite の readFileSync が EISDIR になる経路）
+    mkdirSync(join(cwd, newRel), { recursive: true });
+    const sentinel = join(cwd, newRel, 'inside.txt');
+    writeFileSync(sentinel, '.new ディレクトリ内の既存ファイル\n', 'utf-8');
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0, 'ディレクトリ .new でも整形して継続し、終了コード0で終わるべき');
+    });
+
+    // 本体は保護される
+    assert.equal(
+      readFileSync(join(cwd, '.claude/teams/backend/workflow.yml'), 'utf-8'), customized,
+      '保護ファイル本体が上書きされた'
+    );
+    // .new はディレクトリのまま・中身も無傷（copyFileSync で潰されていない）
+    assert.ok(statSync(join(cwd, newRel)).isDirectory(), '.new ディレクトリが置き換えられた');
+    assert.equal(
+      readFileSync(sentinel, 'utf-8'), '.new ディレクトリ内の既存ファイル\n',
+      '.new ディレクトリ内のファイルが壊れた（外部に書き込まれた）'
+    );
+    // スキップが明示される（誤って「保存しました」と案内しない）
+    assert.ok(out.includes('通常ファイル'), `.new の通常ファイル以外スキップ明示が無い:\n${out}`);
+    assert.ok(
+      !out.includes(`最新テンプレートを ${newRel} として保存しました`),
+      `ディレクトリ .new を「保存しました」と誤案内している:\n${out}`
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#84-4c) dest が FIFO（名前付きパイプ）のとき、書き込みでハングせず skip して明示する', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-upgrade-fifo-'));
+  try {
+    const destRel = '.claude/teams/backend/workflow.yml';
+    const destAbs = join(cwd, destRel);
+    mkdirSync(dirname(destAbs), { recursive: true });
+    // Node に mkfifoSync は無いため mkfifo(1) を呼ぶ（既存テストと同じく Unix 前提）。
+    // FIFO へ copyFileSync すると reader が居ないため write がブロック（ハング）するため、
+    // 「通常ファイル以外」として辿らずスキップできていることが、ハングしないことで裏取りされる。
+    execFileSync('mkfifo', [destAbs]);
+    assert.ok(lstatSync(destAbs).isFIFO(), '前提: dest は FIFO であるべき');
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0, 'FIFO dest でもハングせず整形して継続し、終了コード0で終わるべき');
+    });
+
+    // FIFO のまま（通常ファイルへ置き換えられていない＝copyFileSync が走っていない）
+    assert.ok(lstatSync(destAbs).isFIFO(), 'FIFO dest が置き換えられた（書き込みが起きた）');
+    // スキップが明示される（通常ファイル以外・FIFO・パス）。
+    // 「FIFO（名前付きパイプ）」は per-item の formatSkip でのみ現れる形であり、
+    // ヘッダ文言（"FIFO 等"）では満たされない＝実際に該当項目が明示された証拠。
+    assert.ok(out.includes('通常ファイルではありません'), `FIFO の通常ファイル以外スキップ明示が無い:\n${out}`);
+    assert.ok(out.includes('FIFO（名前付きパイプ）'), `種別（FIFO）が per-item で示されていない:\n${out}`);
+    assert.ok(out.includes(destRel), `スキップした FIFO dest のパスが表示されていない:\n${out}`);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
   }
 });

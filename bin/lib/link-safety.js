@@ -103,3 +103,39 @@ export function hardlinkNlink(absPath) {
   }
   return null;
 }
+
+/**
+ * absPath が「通常ファイルでない実体」（ディレクトリ / FIFO / ソケット / ブロック・
+ * キャラクタデバイス等）なら、その種別文字列を返す。存在しない・シンボリックリンク・
+ * 通常ファイルの場合は null。ENOENT 以外の lstat 例外は再送出する（fail-closed）。
+ *
+ * upgrade の書き込み系（copyFileSync）と比較系（readFileSync(...).equals(...)）は、いずれも
+ * 書き込み先・比較先が「通常ファイル」であることを暗黙の前提にしている。前提が崩れると:
+ *  - ディレクトリ  … readFileSync / copyFileSync が EISDIR で異常終了する
+ *  - FIFO          … reader/writer が居ないと read/write がブロックしてハングする
+ *  - デバイスファイル … デバイスへの読み書きという想定外の副作用を起こす
+ *
+ * これらは「テンプレートで置き換え可能な通常ファイル」ではないため、リンク（シンボリック／
+ * ハード）と同じく辿らず（触れず）スキップして明示する。#84 のインシデント教訓に従い、
+ * ディレクトリだけを個別対応するのではなく「通常ファイルでないものはすべて」一般化して弾く。
+ *
+ * シンボリックリンクは firstSymlinkInPath、ハードリンクは hardlinkNlink が別途弾くため、
+ * ここでは対象外にする（呼び出し側で symlink → hardlink → irregular の順に検査する）。
+ *
+ * @param {string} absPath 検査対象の絶対パス
+ * @returns {{ fileType: 'directory'|'fifo'|'socket'|'blockDevice'|'charDevice'|'unknown' } | null}
+ */
+export function irregularFileType(absPath) {
+  const st = lstatOrNull(absPath);
+  if (st === null) return null;         // 未作成 → これから通常ファイルとして作られる
+  if (st.isSymbolicLink()) return null; // シンボリックリンクは firstSymlinkInPath が処理
+  if (st.isFile()) return null;         // 通常ファイル（nlink 判定は hardlinkNlink が担当）
+  // ここに来るのは通常ファイルでない実体。人間が読める種別に落として明示する。
+  let fileType = 'unknown';
+  if (st.isDirectory()) fileType = 'directory';
+  else if (st.isFIFO()) fileType = 'fifo';
+  else if (st.isSocket()) fileType = 'socket';
+  else if (st.isBlockDevice()) fileType = 'blockDevice';
+  else if (st.isCharacterDevice()) fileType = 'charDevice';
+  return { fileType };
+}
