@@ -27,7 +27,7 @@ import {
   createBackup, ensureGitignore, printBackupIntro, printBackupSummary
 } from './backup.js';
 import { checkPluginUpdates, printUpdateNotice } from './version-check.js';
-import { firstSymlinkInPath, hardlinkNlink, irregularFileType } from './link-safety.js';
+import { firstSymlinkInPath, hardlinkNlink, irregularFileType, fileTypeLabel } from './link-safety.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '../..');
@@ -93,18 +93,6 @@ function inspectDest(cwd, rel) {
  */
 function inspectNew(cwd, newRel) {
   return inspectDest(cwd, newRel);
-}
-
-/** 通常ファイル以外の種別（irregularFileType の fileType）を日本語ラベルに変換する */
-function fileTypeLabel(fileType) {
-  switch (fileType) {
-    case 'directory': return 'ディレクトリ';
-    case 'fifo': return 'FIFO（名前付きパイプ）';
-    case 'socket': return 'ソケット';
-    case 'blockDevice': return 'ブロックデバイス';
-    case 'charDevice': return 'キャラクタデバイス';
-    default: return '通常ファイル以外の実体';
-  }
 }
 
 /**
@@ -674,12 +662,25 @@ export async function runUpgrade(args, { cwd, pluginRoot = packageRoot, stdin = 
   // 冒頭で、前回書き出した .new が残っていれば警告する（自動削除はしない）
   printResidualNew(findResidualNew(cwd, targets), { force });
 
-  // 2. 差分の提示
-  const diffs = diffTargets({ cwd, targets, force });
+  // 2. 差分の提示（読み取りのみ。まだ書き込みはしていない = fail-closed でデータ損失は無い）
+  //    diffTargets / collectSkips は inspectDest / inspectNew 経由で lstatSync を呼ぶ。
+  //    EACCES / ELOOP 等の非 ENOENT 例外は lstatOrNull が握らず再送出する（安全側）。
+  //    #84 の try/catch は enumerateUpgradeTargets しか包んでいなかったため、これらの例外は
+  //    setup.js まで生スタックトレースとして上がっていた。列挙段階と同じ整形メッセージで
+  //    差分検査フェーズも fail-closed に停止させ、一貫させる（Issue #93 副次的な指摘）。
+  let diffs, skips;
+  try {
+    diffs = diffTargets({ cwd, targets, force });
+    // 書き込み先がリンク（経路のシンボリックリンク／ハードリンク／通常ファイル以外）のものは
+    // 辿らずスキップする。差分サマリに明示する（R-1）。
+    skips = collectSkips(cwd, diffs);
+  } catch (e) {
+    console.error('');
+    console.error(`❌ 差分の検査に失敗しました: ${e.message}`);
+    console.error('   （書き込み前に停止したため、ファイルは一切変更していません）');
+    return 1;
+  }
   printDiff(diffs);
-  // 書き込み先がリンク（経路のシンボリックリンク／ハードリンク）のものは辿らずスキップする。
-  // 差分サマリに明示する（R-1）。
-  const skips = collectSkips(cwd, diffs);
   printSkips(skips);
   // --diff 指定時は、上書き更新／保護スキップ対象の中身の差分を表示する（--dry --diff でも表示）
   if (showDiff) printUnifiedDiffs({ cwd, diffs });

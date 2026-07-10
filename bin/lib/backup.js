@@ -20,7 +20,9 @@ import {
 import { join, dirname } from 'path';
 import { createHash } from 'crypto';
 
-import { firstSymlinkInPath, hardlinkNlink } from './link-safety.js';
+import {
+  firstSymlinkInPath, hardlinkNlink, irregularFileType, fileTypeLabel
+} from './link-safety.js';
 
 /** バックアップ格納ルートのディレクトリ名（.gitignore に登録する対象） */
 export const BACKUP_ROOT_DIRNAME = '.ai-team-backups';
@@ -176,6 +178,22 @@ export function ensureGitignore(cwd) {
     console.log(`  ⚠️  .gitignore がハードリンク（外部の実体を共有・nlink=${nlink}）のため、${entry} の追記をスキップします。`);
     console.log('   外部ファイルの実体（共有 inode）を書き換えないためです。通常ファイルに置き換えると次回から追記できます。');
     return { added: false, path: gitignorePath, skippedHardlink: true };
+  }
+
+  // .gitignore が通常ファイルでない実体（ディレクトリ / FIFO / ソケット / デバイス）なら、
+  // 以降の readFileSync がディレクトリで EISDIR の未捕捉例外になり、writer 不在の FIFO では
+  // read がブロックしてプロセスごと無限ハングする。シンボリックリンク・ハードリンクと同じく
+  // 「通常ファイルでない書き込み先はすべて辿らずスキップ」する #84 の一般化を、3つ目の
+  // 書き込み口である .gitignore にも適用する。#84 は inspectDest / inspectNew にしか
+  // この一般化を入れず .gitignore を落とした（インシデント #4 教訓1: 書き込み経路を機械的に
+  // 全列挙し、単数形の語で仕様を書かない）。existsSync はディレクトリ / FIFO に対して true を
+  // 返すため、この検査は必ず existsSync / readFileSync より前に置く。
+  const irregular = irregularFileType(gitignorePath);
+  if (irregular) {
+    console.log('');
+    console.log(`  ⚠️  .gitignore が通常ファイルではない（${fileTypeLabel(irregular.fileType)}）ため、${entry} の追記をスキップします。`);
+    console.log('   ディレクトリや FIFO 等は追記の対象にできないためです。通常ファイルに置き換えると次回から追記できます。');
+    return { added: false, path: gitignorePath, skippedIrregular: true, fileType: irregular.fileType };
   }
 
   if (!existsSync(gitignorePath)) {

@@ -19,7 +19,8 @@ import { join, resolve, dirname, sep } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { Readable } from 'node:stream';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
+import { createServer } from 'node:net';
 
 import { runUpgrade, enumerateUpgradeTargets, diffTargets } from '../bin/lib/upgrade.js';
 
@@ -120,6 +121,16 @@ test('(b-2) 非対話環境で --yes 無しなら中止し、副作用を一切�
     // 通す。これにより、開発者が対話端末で `node --test tests/upgrade.test.js` を直接実行しても
     // askYesNo のプロンプト待ちでハングしない（#84）。中止経路では書き込み・バックアップ・
     // .gitignore のいずれの副作用も発生しないことを検証する。
+    //
+    // 【このテストが保証する範囲と限界（Issue #93 副次的な指摘・NOTE）】
+    //   保証する: 「非対話（isTTY=false）で --yes 無し → 中止・副作用なし」の分岐と後片付け。
+    //   保証しない: stdin 注入そのものの必要性（注入を process.stdin へ戻す退行）。非TTY の CI では
+    //     process.stdin も isTTY=false のため、注入を消しても同じ中止経路を通り緑のまま通過する。
+    //     注入の必要性（対話端末でのハング防止）は実 PTY 無しには CI で再現できない。
+    //   その退行は下の (b-5) が捕捉する: (b-5) は isTTY=true かつ 'y' を供給した stdin を注入し、
+    //     「注入 stdin を実際に読んで承諾したときにのみ適用が起きる」ことを検証する。注入を
+    //     process.stdin へ戻すと、CI の非TTY stdin では即中止し適用されず (b-5) が落ちるため、
+    //     注入の削除を CI でも検出できる。実 PTY 依存の追加なしに回帰ガードを成立させている。
     const code = await runUpgrade(['backend'], { cwd, stdin: makeClosedStdin() });
     assert.equal(code, 0, '非対話環境での中止は終了コード0で返るべき');
 
@@ -178,6 +189,38 @@ test('(b-4) バックアップ失敗で中止したとき .gitignore を新規�
     assert.ok(
       !existsSync(join(cwd, '.gitignore')),
       'バックアップ失敗で中止したのに .gitignore が新規作成された'
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(b-5) 対話環境で y と応答すると適用される（注入 stdin を実際に読む回帰ガード・Issue #93）', async () => {
+  // (b-2) の限界（注入の削除を非TTY の CI で捕捉できない）を埋める対の正常系ガード。
+  // isTTY=true かつ 'y' を供給した stdin を注入し、confirmProceed が askYesNo 経由で
+  // その stdin を読んで承諾したときにのみ適用が起きることを検証する。
+  //   - 注入を process.stdin へ戻す退行が起きると、CI の process.stdin は非TTY のため
+  //     confirmProceed が即中止し（applyUpgrade まで到達しない）、workflow.yml が更新されず
+  //     このテストが落ちる。すなわち stdin 注入の削除を CI（非TTY）でも検出できる。
+  //   - `npm test` は stdout をパイプするため readline は非ターミナル（行）モードで動作し、
+  //     注入した Readable から 'y\n' を確定的に1行読む（実PTY 不要で決定的）。
+  const cwd = makeProject();
+  try {
+    const workflowPath = join(cwd, '.claude/teams/backend/workflow.yml');
+    assert.notEqual(
+      readFileSync(workflowPath, 'utf-8'), readTemplate('teams/backend/workflow.yml'),
+      '前提: 初期内容はテンプレートと異なるべき（適用の有無で差が出るように）'
+    );
+    const ttyYes = Readable.from(['y\n']);
+    ttyYes.isTTY = true; // confirmProceed に「対話（askYesNo）」経路を通させる
+
+    const code = await runUpgrade(['backend'], { cwd, stdin: ttyYes });
+    assert.equal(code, 0, '承諾時は終了コード0であるべき');
+
+    // askYesNo が注入 stdin から 'y' を読み、適用が実行されている（注入が生きている証拠）
+    assert.equal(
+      readFileSync(workflowPath, 'utf-8'), readTemplate('teams/backend/workflow.yml'),
+      '注入した stdin の y が読まれず適用されなかった（注入が process.stdin へ退行した疑い）'
     );
   } finally {
     rmSync(cwd, { recursive: true, force: true });
@@ -1466,6 +1509,208 @@ test('(#84-4c) dest が FIFO（名前付きパイプ）のとき、書き込み�
     assert.ok(out.includes('通常ファイルではありません'), `FIFO の通常ファイル以外スキップ明示が無い:\n${out}`);
     assert.ok(out.includes('FIFO（名前付きパイプ）'), `種別（FIFO）が per-item で示されていない:\n${out}`);
     assert.ok(out.includes(destRel), `スキップした FIFO dest のパスが表示されていない:\n${out}`);
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Issue #93: 3つ目の書き込み口である cwd/.gitignore（ensureGitignore）にも、通常ファイル
+//   以外（ディレクトリ / FIFO / ソケット / デバイス）の検査を広げる。#84 は inspectDest /
+//   inspectNew にしか一般化を入れず .gitignore を落とし、ディレクトリで EISDIR の生クラッシュ、
+//   FIFO でプロセスごと無限ハングが起きていた（インシデント #4 教訓1: 書き込み経路を機械的に
+//   全列挙する）。symlink（#86-R2-8）/ hardlink（#86-R2-14）の既存ガードに退行がないことも
+//   併せて担保する。
+//
+// 検証規律（インシデント #4 教訓13 / #5）:
+//   - ディレクトリ / ソケットは readFileSync が同期的に throw する（ハングしない）ため、
+//     ガードを外すと runUpgrade が reject し、これらのインプロセステストは「落ちる」。
+//     すなわち変異検出が効く（ハングはしない）。
+//   - FIFO はガードを外すと writer 不在の read でプロセスごとハングする。インプロセスの
+//     タイマでは同期ハングを捕捉できないため、必ず別プロセス（spawn）+ 親からの SIGKILL
+//     デッドラインで計測する（#93-3）。ガードを外すと子がハング→デッドライン到達→SIGKILL で
+//     code!==0 となり、テストが「落ちる」（ハングして固まらない）。
+// ---------------------------------------------------------------------------
+
+/**
+ * setup.js の upgrade サブコマンドを「別プロセス」で起動し、親側の実時計デッドラインで監視する。
+ *
+ * 対象プロセスが同期 read でブロック（FIFO のハング）しても、この関数を呼ぶ親プロセス自身は
+ * ブロックしていないため setTimeout が発火でき、SIGKILL で確実に停止させられる。同期ハングは
+ * インプロセスの setTimeout / Promise.race では捕捉できない（コールバックがイベントループに
+ * 載らない）ので、ハング検証は必ず別プロセスで測る（インシデント #4 教訓13）。
+ *
+ * 対象バイナリは packageRoot 直下の bin/setup.js に固定する（可変の作業ツリーを相対で指さない・
+ * インシデント #5 追記）。timeout(1) 等の外部コマンドは使わない（この環境に存在せず exit 127 を
+ * 「正常終了」と誤読するため・教訓13）。
+ *
+ * @param {string} cwd 実行時の作業ディレクトリ
+ * @param {{ timeoutMs: number, args?: string[] }} opts
+ * @returns {Promise<{ code: number|null, signal: string|null, timedOut: boolean, stdout: string, stderr: string, elapsedMs: number }>}
+ */
+function runUpgradeSubprocess(cwd, { timeoutMs, args = ['backend', '--yes'] }) {
+  return new Promise((resolvePromise) => {
+    const setupBin = join(packageRoot, 'bin', 'setup.js'); // 対象バイナリを固定
+    const started = Date.now();
+    // --yes を渡すため confirmProceed は stdin を読まない。stdin は無効化（'ignore'）してよい。
+    const child = spawn(process.execPath, [setupBin, 'upgrade', ...args], {
+      cwd, stdio: ['ignore', 'pipe', 'pipe']
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (d) => { stdout += d.toString(); });
+    child.stderr.on('data', (d) => { stderr += d.toString(); });
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      // ハング検証: writer 不在の FIFO read は SIGKILL でしか止まらない（SIGTERM では死なない）
+      child.kill('SIGKILL');
+    }, timeoutMs);
+    child.on('close', (code, signal) => {
+      clearTimeout(timer);
+      resolvePromise({ code, signal, timedOut, stdout, stderr, elapsedMs: Date.now() - started });
+    });
+  });
+}
+
+test('(#93-1) .gitignore がディレクトリのとき、EISDIR にせず追記スキップを明示し、適用は続行される', async () => {
+  const cwd = makeProject(); // 古い workflow.yml（update）→ バックアップ経由で ensureGitignore に到達
+  try {
+    // .gitignore を「ディレクトリ」として作る（readFileSync が EISDIR で生クラッシュする経路）
+    mkdirSync(join(cwd, '.gitignore'), { recursive: true });
+    const sentinel = join(cwd, '.gitignore', 'inside.txt');
+    writeFileSync(sentinel, 'ディレクトリ内の既存ファイル\n', 'utf-8');
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0, 'ディレクトリ .gitignore でも EISDIR で落ちず終了コード0で終わるべき');
+    });
+
+    // .gitignore はディレクトリのまま・中身も無傷（追記されていない）
+    assert.ok(statSync(join(cwd, '.gitignore')).isDirectory(), 'ディレクトリ .gitignore が置き換えられた');
+    assert.equal(
+      readFileSync(sentinel, 'utf-8'), 'ディレクトリ内の既存ファイル\n',
+      'ディレクトリ .gitignore 内のファイルが壊れた'
+    );
+    // 追記スキップの明示（通常ファイル以外・種別＝ディレクトリ）。
+    // 「（ディレクトリ）」は fileTypeLabel（per-type 文言）でのみ現れる形＝実際に該当した証拠。
+    assert.ok(out.includes('.gitignore が通常ファイルではない'), `ディレクトリ .gitignore のスキップ明示が無い:\n${out}`);
+    assert.ok(out.includes('（ディレクトリ）'), `種別（ディレクトリ）が示されていない:\n${out}`);
+    // 適用は続行される: workflow.yml が最新テンプレートへ更新され、グローバル対象が新規作成される
+    assert.equal(
+      readFileSync(join(cwd, '.claude/teams/backend/workflow.yml'), 'utf-8'),
+      readTemplate('teams/backend/workflow.yml'),
+      'ディレクトリ .gitignore のスキップに巻き込まれ workflow.yml が更新されなかった'
+    );
+    assert.ok(
+      existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      'ディレクトリ .gitignore のスキップに巻き込まれ、グローバル対象が新規作成されなかった（早期 return していないサニティ）'
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#93-2) .gitignore が UNIX ドメインソケットのとき、生クラッシュせず追記スキップし、適用は続行される', async () => {
+  const cwd = makeProject();
+  const server = createServer();
+  try {
+    const sockPath = join(cwd, '.gitignore');
+    await new Promise((res, rej) => { server.once('error', rej); server.listen(sockPath, res); });
+    assert.ok(lstatSync(sockPath).isSocket(), '前提: .gitignore はソケットであるべき');
+
+    const out = await captureStdout(async () => {
+      const code = await runUpgrade(['backend', '--yes'], { cwd });
+      assert.equal(code, 0, 'ソケット .gitignore でも生クラッシュせず終了コード0で終わるべき');
+    });
+
+    assert.ok(lstatSync(sockPath).isSocket(), 'ソケット .gitignore が置き換えられた');
+    assert.ok(out.includes('.gitignore が通常ファイルではない'), `ソケット .gitignore のスキップ明示が無い:\n${out}`);
+    assert.ok(out.includes('（ソケット）'), `種別（ソケット）が示されていない:\n${out}`);
+    // 適用は続行される
+    assert.equal(
+      readFileSync(join(cwd, '.claude/teams/backend/workflow.yml'), 'utf-8'),
+      readTemplate('teams/backend/workflow.yml'),
+      'ソケット .gitignore のスキップに巻き込まれ workflow.yml が更新されなかった'
+    );
+    assert.ok(
+      existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      'ソケット .gitignore のスキップに巻き込まれ、グローバル対象が新規作成されなかった'
+    );
+  } finally {
+    await new Promise((res) => server.close(res));
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#93-3) .gitignore が FIFO のとき、別プロセス計測でハングせず追記スキップし、適用は続行される', async () => {
+  const cwd = mkdtempSync(join(tmpdir(), 'ai-team-gitignore-fifo-'));
+  try {
+    // makeProject 相当: 古い workflow.yml（update）を置き、ensureGitignore まで到達させる
+    writeUnder(cwd, '.claude/teams/backend/workflow.yml', '# 古いバージョンのワークフロー\nsteps: []\n');
+    // .gitignore を FIFO にする（Node に mkfifoSync は無いため mkfifo(1)・既存 #84 テストと同じ Unix 前提）
+    execFileSync('mkfifo', [join(cwd, '.gitignore')]);
+    assert.ok(lstatSync(join(cwd, '.gitignore')).isFIFO(), '前提: .gitignore は FIFO であるべき');
+
+    // 別プロセス + 親側 SIGKILL デッドラインで計測（インプロセスのタイマでは同期ハングを捕捉できない）。
+    // ガードがあれば FIFO を read せず即終了する。ガードを外すと writer 不在の read でハングし、
+    // デッドライン到達→SIGKILL となって timedOut=true / code!==0 となり、下の assert が落ちる。
+    const r = await runUpgradeSubprocess(cwd, { timeoutMs: 20000 });
+
+    assert.equal(
+      r.timedOut, false,
+      `FIFO .gitignore でハングした（別プロセスが ${r.elapsedMs}ms でデッドライン到達・SIGKILL）:\n[stdout]\n${r.stdout}\n[stderr]\n${r.stderr}`
+    );
+    assert.equal(
+      r.code, 0,
+      `FIFO .gitignore でも終了コード0であるべき（signal=${r.signal}, elapsed=${r.elapsedMs}ms）:\n[stdout]\n${r.stdout}\n[stderr]\n${r.stderr}`
+    );
+    // 追記スキップの警告（通常ファイル以外・FIFO）が出ている
+    assert.ok(r.stdout.includes('.gitignore が通常ファイルではない'), `FIFO .gitignore のスキップ警告が無い:\n${r.stdout}`);
+    assert.ok(r.stdout.includes('FIFO（名前付きパイプ）'), `種別（FIFO）が示されていない:\n${r.stdout}`);
+    // .gitignore は FIFO のまま（通常ファイルへ置換されていない）
+    assert.ok(lstatSync(join(cwd, '.gitignore')).isFIFO(), 'FIFO .gitignore が置き換えられた');
+    // 適用は続行される: workflow.yml が最新へ更新され、グローバル対象が新規作成される
+    assert.equal(
+      readFileSync(join(cwd, '.claude/teams/backend/workflow.yml'), 'utf-8'),
+      readTemplate('teams/backend/workflow.yml'),
+      'FIFO .gitignore のスキップに巻き込まれ workflow.yml が更新されなかった'
+    );
+    assert.ok(
+      existsSync(join(cwd, '.claude/commands/ai-team-run.md')),
+      'FIFO .gitignore のスキップに巻き込まれ、グローバル対象が新規作成されなかった（早期 return していないサニティ）'
+    );
+  } finally {
+    rmSync(cwd, { recursive: true, force: true });
+  }
+});
+
+test('(#93-4) 差分検査中の非 ENOENT な lstat 例外（ENOTDIR）を生スタックにせず整形して fail-closed で停止する（Issue #93 副次的な指摘）', async () => {
+  const cwd = makeProject();
+  try {
+    // グローバル対象 .claude/agents/<...>.md の祖先 .claude/agents を「通常ファイル」にする。
+    // すると diffTargets → inspectDest → firstSymlinkInPath が子要素を lstat した瞬間に ENOTDIR
+    // を投げる（親がディレクトリでない）。lstatOrNull は ENOENT 以外を握らず再送出する（安全側）
+    // ため、これが diffTargets 経由で runUpgrade まで伝播する。#84 の try/catch は列挙段階しか
+    // 包んでいなかったため、この例外は生スタックトレースになっていた。本 fix で差分検査フェーズも
+    // 整形して終了コード1で停止する。書き込み前なのでデータ損失は無い。
+    // この検査は権限に依存せず（root でも）決定的に ENOTDIR を発生させる。
+    writeUnder(cwd, '.claude/agents', 'これはディレクトリではなくファイル\n');
+    const workflowPath = join(cwd, '.claude/teams/backend/workflow.yml');
+    const before = readFileSync(workflowPath, 'utf-8');
+
+    let code;
+    const err = await captureStderr(async () => {
+      code = await runUpgrade(['backend', '--yes'], { cwd });
+    });
+    assert.equal(code, 1, '差分検査の非 ENOENT 例外では終了コード1で停止するべき');
+    // 整形された日本語メッセージが出ている（生スタックトレースではない）
+    assert.ok(err.includes('差分の検査に失敗しました'), `整形メッセージが無い（生スタックの疑い）:\n${err}`);
+    assert.ok(err.includes('ファイルは一切変更していません'), `fail-closed の明示が無い:\n${err}`);
+    // 書き込み前に停止: 対象ファイル不変・バックアップ未作成・グローバル新規未作成
+    assert.equal(readFileSync(workflowPath, 'utf-8'), before, '停止したのに対象ファイルが変更された');
+    assert.ok(!existsSync(join(cwd, '.ai-team-backups')), '停止したのにバックアップが作られた');
+    assert.ok(!existsSync(join(cwd, '.claude/commands/ai-team-run.md')), '停止したのに新規ファイルが作られた');
   } finally {
     rmSync(cwd, { recursive: true, force: true });
   }
