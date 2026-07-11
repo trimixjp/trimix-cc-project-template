@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v0.25.0 の変更点 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.25.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class=""><a href="faq.html">よくある質問（FAQ）</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/upgrade.html">アップグレード</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class="active"><a href="changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">v0.25.0 の変更点</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/changelog.html" >v0.5.1</option><option value="../v0.5.2/changelog.html" >v0.5.2</option><option value="../v0.6.0/changelog.html" >v0.6.0</option><option value="../v0.7.0/changelog.html" >v0.7.0</option><option value="../v0.8.0/changelog.html" >v0.8.0</option><option value="../v0.9.0/changelog.html" >v0.9.0</option><option value="../v0.10.0/changelog.html" >v0.10.0</option><option value="../v0.11.0/changelog.html" >v0.11.0</option><option value="../v0.12.0/changelog.html" >v0.12.0</option><option value="../v0.13.0/changelog.html" >v0.13.0</option><option value="../v0.14.0/changelog.html" >v0.14.0</option><option value="../v0.15.0/changelog.html" >v0.15.0</option><option value="../v0.16.0/changelog.html" >v0.16.0</option><option value="../v0.17.0/changelog.html" >v0.17.0</option><option value="../v0.18.0/changelog.html" >v0.18.0</option><option value="../v0.20.0/changelog.html" >v0.20.0</option><option value="../v0.21.0/changelog.html" >v0.21.0</option><option value="../v0.21.1/changelog.html" >v0.21.1</option><option value="../v0.22.0/changelog.html" >v0.22.0</option><option value="../v0.22.1/changelog.html" >v0.22.1</option><option value="../v0.23.0/changelog.html" >v0.23.0</option><option value="../v0.24.0/changelog.html" >v0.24.0</option><option value="../v0.25.0/changelog.html" selected>v0.25.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>v0.25.0 の変更点</h1>
+
+<p>このページは、直前バージョン <strong>v0.24.0</strong> から <strong>v0.25.0</strong> までの変更点をまとめたものです。ソースコードのコミット履歴（前回の版バンプコミット <code>3a190ad</code> 以降）に基づいて記載しています。</p>
+
+<hr>
+
+<h2>概要</h2>
+
+<p>v0.25.0 の主眼は、<strong>インシデント記録（失敗の学び）の責務分担モデルの確立と、それに伴うドキュメント体系の刷新</strong>です（Issue #89・#97）。</p>
+
+<p>v0.24.0 以前は、インシデント記録は Contributor エージェントが チケットクローズ時に実施する「事後処理」として位置づけられていました。この構造では、差し戻し・エスカレーション・作業事故のループ最中には記録が参照できず、同一チケット内での失敗の繰り返しを防ぐ機会が失われていました。</p>
+
+<p>v0.25.0 では記録責務を<strong>失敗が顕在化した時点に前倒し</strong>し、オーケストレーター・各チームリーダー・Human-Escalator が一次記録を行い、Contributor は記録漏れの拾い上げと内容検証に専念する体系へ移行しました。3つの発火点（差し戻し直前／再実装起動前／エスカレーション遷移時）で記録・再照合を行う構造により、ループ最中から教訓が参照でき、差し戻しループの短縮に貢献します。</p>
+
+<p>詳細は <a href="incidents/README.html">インシデント管理ガイド</a>・<a href="reference/dod.html">DOD（Definition of Done）</a>・<a href="guide/workflow.html">ワークフロー解説</a> を参照してください。</p>
+
+<hr>
+
+<h2>改善</h2>
+
+<h3>インシデント記録の責務分担モデルの移行（Issue #89・#97）</h3>
+
+<p>失敗（差し戻し・エスカレーション・作業事故）の学び記録を、旧モデル「Contributor がチケットクローズ時に記録する唯一の担い手」から新モデル「失敗が顕在化した時点で一次記録者（オーケストレーター/チームリーダー/Human-Escalator）が記録し、Contributor は拾い上げ・検証を行う」へ移行しました。</p>
+
+<h4>主な変更内容</h4>
+
+<p><strong>責務分担の明確化</strong>:</p>
+<ul><li>オーケストレーター（<code>/ai-team-run</code>）: 3つの発火点（差し戻し直前／再実装起動前／エスカレーション遷移時）で一次記録</li><li>各チームリーダー（Tech-Lead 等）: 自身が差し戻しを発する場合の補助記録</li><li>Human-Escalator: <code>escalated:human</code> への遷移時の記録</li><li>Contributor: 記録漏れの拾い上げ・既存記録の内容と <code>index.yml</code> 登録の検証</li></ul>
+<p><strong>3つの発火点で記録・再照合</strong>:</p>
+<ol><li>差し戻しコメント投稿の直前（<code>on_rework</code>）— その場で原因・争点を記録</li><li>再実装担当起動前（<code>on_rework.next</code>）— <code>index.yml</code> を照合し、再発防止策を作業指示に反映</li><li><code>escalated:human</code> への遷移時（<code>on_escalation</code>）— 原因・経緯を記録</li></ol>
+<p><strong>重複回避（dedup）の実装</strong>:</p>
+<ul><li>記録前に必ず <code>index.yml</code> を読み、当該チケット（<code>issue</code>）と事象で既存エントリを照合</li><li>既記録なら新規作成せず、不足箇所（<code>keywords</code>・再発防止策等）を補完のみ</li></ul>
+<h4>ドキュメント体系の刷新</h4>
+
+<ul><li><strong>インシデント管理ガイド</strong> (<a href="incidents/README.html">incidents/README.html</a>): 責務分担表・3発火点・dedup ルールを明記</li><li><strong>DOD（インシデント対応）</strong> (<a href="reference/dod.html">reference/dod.html</a>): チェック項目に「発生時点記録」「dedup 照合」「Contributor 検証」を追加</li><li><strong>ワークフロー解説</strong> (<a href="guide/workflow.html">guide/workflow.html</a>): 実践例を新モデルの記録フロー（差し戻し時の即時記録 + クローズ時の検証）に改稿</li></ul>
+<h4>位置づけ</h4>
+
+<p>記録・再照合は<strong>補助であり、差し戻しループ防止の主軸は対象の事前全列挙</strong>（修正着手時に境界・横断的関心事のすべての経路を先に確定させること）です。過去の教訓は失敗の変種のみであり、記録・再照合だけに頼ると同じ「単数形で狭く書く癖」を繰り返すため、複数の防止メカニズムが相補的に機能する設計になっています。</p>
+
+<hr>
+
+<h2>破壊的変更</h2>
+
+<p>なし。</p>
+
+<p>Contributor の役割が「一次記録の担い手」から「記録漏れの拾い上げ・検証」へ縮退しますが、チケットクローズ時のインシデント対応フローそのものは維持されます（チェック項目の実装内容のみが更新）。既存の運用に支障はありません。</p>
+
+<hr>
+
+<h2>既知の制限</h2>
+
+<ul><li>v0.16.x 以前のマニュアルドリフト（バージョン履歴の欠落）は未解決のままです。本バージョンで v0.25.0 分を追記しましたが、過去分の穴埋めは別チケット（Issue #59）での対応予定です</li></ul>
+<hr>
+
+<h2>関連 Issue</h2>
+
+<ul><li>Issue #97: 失敗の学びの記録位置 — ドキュメントが旧モデルのまま新モデルに未追随</li><li>Issue #89: 失敗時点記録モデルへの移行（設計・実装済み）</li><li>Issue #86: インシデント #4 − 差し戻し3回ループの実例（本チケットの背景）</li><li>Issue #84: インシデント #5 − レビューゲートバイパスの実例</li><li>Issue #59: インシデント記録ドキュメントがドリフト状態（v0.16.x 以降）</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
