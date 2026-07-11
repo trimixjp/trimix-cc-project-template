@@ -775,12 +775,15 @@ Network-Engineer の実装と Infra-Specialist の実装の整合性を確認し
 
 #### 5. Security-Engineer がセキュリティレビュー → Contributor がクローズ
 
-Architect の助言を受けた実装をSecurity-Engineerがレビューし合格。Contributorがクローズ。
+Architect の助言を受けた実装をSecurity-Engineerがレビューし合格。今回のシナリオでは差し戻し・エスカレーションは発生しなかったため、オーケストレーター・Infra-Lead・Human-Escalatorによる失敗時点の記録（下記コラム参照）は行われていません。Security-Engineerのレビュー合格後、Contributorがクローズします。
 
-クローズ時にインシデント調査を実施：
+> **もし差し戻しが発生していたら（Issue #89 の記録モデル）**: レビュー不合格のコメントを投稿する**直前**に、オーケストレーター（`/ai-team-run`）がその原因・争点を `.claude/incidents/` に即時記録します（発火点1）。再実装担当（Infra-Specialist / Network-Engineer）を再起動する**前**には `index.yml` を照合し、記録済みの再発防止策を作業指示に反映します（発火点2）。`escalated:human` へ遷移した場合はHuman-Escalatorが停止前に記録します（発火点3）。詳細は `templates/incidents/README.md`「責務分担」を参照してください。
+
+クローズ時、Contributorはインシデント記録の**拾い上げ・検証**を実施します（一次記録は失敗時点で完了している前提のため、ゼロからの調査ではありません）。**Contributorの役割縮退はレビューの省略を意味しません**（レビュー自体は既定どおりSecurity-Engineerが独立して実施済みです。レビューステップを経ずにマージすることは許容されません）。
 
 ```
 ✅ Contributor確認済み：インシデント記録なし
 
-今回のAPI Gateway導入では特筆すべき障害・事故・判断ミスはありませんでした。
+インシデント記録の判定基準: (a)〜(d) いずれも非該当
+今回のAPI Gateway導入では差し戻し・エスカレーション・障害はなく、オーケストレーター/リーダーによる一次記録もありませんでした。既存記録の拾い上げ対象もありません。
 ```
