@@ -258,6 +258,13 @@ solo:
     - ai-team:in-progress
     - escalated:human
     - contributor:ready
+
+# 委託監視（点呼・ウォッチドッグ。Issue #99）— キー不在時は下記既定値で動作する
+# Opus/Sonnet をオーケストレーターにした場合でも、サブエージェントの無音停止を
+# bin/watchdog.js が機械的に検知し、自動再委託・エスカレーションにつなげる設定
+delegation_watchdog:
+  stall_threshold_minutes: 10   # heartbeat 5分間隔義務 × 2回欠落 = 憲法第6条「2回連続無応答」に対応
+  max_redelegations: 2          # rework_limit と同じ思想（3回目は人間へエスカレーション）
 ```
 
 ### モデル・effort の一括反映（質問5・6 の後、ファイル配置直後に必ず実行）
@@ -732,6 +739,7 @@ node <パッケージルート>/bin/setup.js baseline record --force
 
 - [ ] 配置したファイルが実在する（`ls .claude/agents/ .claude/teams/<選択チーム>/` で確認）
 - [ ] `.claude/ai-team-config.yml` に選択した `mode` / `version_management` / `workspace.strategy` / `model_performance` / `effort_depth` / `runtime` が記録されている
+- [ ] `.claude/ai-team-config.yml` に `delegation_watchdog`（`stall_threshold_minutes` / `max_redelegations`）が記録されている（Issue #99。キー不在でも既定値で動作するが、setup が生成する config には明記する）
 - [ ] 質問4c で worktree を選んだ場合、`.gitignore` に `.claude/worktrees/` が追記されている（`grep -qxF ".claude/worktrees/" .gitignore`）
 - [ ] モデル・effort プロファイルを配置済み md に反映済み（tech-lead / pr-creator / ai-team-run の frontmatter を spot チェック）
 - [ ] `.claude/model-profiles.yml` が配置されている

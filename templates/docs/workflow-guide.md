@@ -266,6 +266,34 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ---
 
+## サブエージェントの無音停止検知（点呼・ウォッチドッグ）
+
+Opus / Sonnet をオーケストレーターにした場合、委託したサブエージェントが API エラー等で無音停止しても、モデルの自発的な注意力だけでは検知できません（Issue #99）。`/ai-team-run` はサブエージェントへの委託と同時に `bin/watchdog.js` をバックグラウンドで起動し、機械的に停止を検知します。
+
+### 仕組みの概要
+
+1. 委託時、サブエージェントへのプロンプトに定期報告契約（着手時・主要ステップごと・失敗時即時・完了時の報告、5分ごとの heartbeat 打刻、完了時の done マーカー作成）を必ず含める
+2. サブエージェント起動と同時に `bin/watchdog.js` をバックグラウンドで起動し、heartbeat の更新と done マーカーの出現を監視する
+3. watchdog がバックグラウンドプロセスとして終了することで、オーケストレーターがモデルの注意力に依存せず起床する
+4. 終了コードで分岐:
+   - `0`（完了検出）→ 完了報告を検証して次のステップへ
+   - `3`（無音検出）→ heartbeat・成果物の mtime を実測して裏取りしたうえで、生存なら watchdog を再起動、死亡なら再委託
+   - `2`（検査エラー）→ 引数不正または heartbeat/done-marker のパスが通常ファイルでない実体（symlink・FIFO・ディレクトリ等）
+
+### 設定（`.claude/ai-team-config.yml` の `delegation_watchdog`）
+
+```yaml
+delegation_watchdog:
+  stall_threshold_minutes: 10   # 既定値。heartbeat 5分間隔義務 × 2回欠落に対応
+  max_redelegations: 2          # 既定値。超過時は subagent_stall として escalated:human へ
+```
+
+キー不在時は上記既定値で動作します（後方互換）。再委託回数が `max_redelegations` を超えると、`escalation-rules.yml` の `subagent_stall` トリガーに従いエスカレーションします。
+
+詳細な委託前手順・プロンプトテンプレート・起床時の判定手順は `skills/ai-team-run.md`（配布後は `.claude/commands/ai-team-run.md`）の「委託監視プロトコル（点呼・ウォッチドッグ）」を参照してください。
+
+---
+
 ## エスカレーション
 
 ### エスカレーション定義
