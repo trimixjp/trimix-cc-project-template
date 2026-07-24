@@ -42,6 +42,23 @@ escalation_triggers:
         2. main ブランチ（または保護ブランチ）へのマージが必要になった
       ※ このトリガーは例外なく常にエスカレーションする（AIによる自動マージは禁止）
 
+  # サブエージェントの無音停止（Issue #99）
+  - id: subagent_stall
+    type: subagent_stall
+    priority: P2
+    description: |
+      委託したサブエージェントが無音停止（API エラー等による異常終了・応答消失）し、
+      再委託を上限回数まで試みても復旧しない
+    detection: |
+      以下の3条件が**すべて**成立した時点でエスカレーションと判定する:
+        1. bin/watchdog.js が無音検出（終了コード3）を報告した
+        2. heartbeat・成果物ファイルの mtime を実測し、死亡（生存ではない）と裏取り済みである
+           （長考中を死亡と誤判定しないため。実測せず経過時間だけで判定してはならない）
+        3. 同一タスクでの再委託回数が `.claude/ai-team-config.yml` の
+           `delegation_watchdog.max_redelegations`（既定値2）を超過した
+      3条件がすべて揃わない場合はエスカレーションせず、watchdog を再起動して監視を継続する
+      （生存が疑われる場合）か、上限内で再委託する。
+
   # 仕様の曖昧さ
   - id: ambiguous_spec
     type: ambiguous_spec
