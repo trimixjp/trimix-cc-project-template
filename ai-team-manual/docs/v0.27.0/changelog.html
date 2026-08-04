@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v0.27.0 の変更点 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.27.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class=""><a href="faq.html">よくある質問（FAQ）</a></li><li class="active"><a href="changelog.html">v0.26.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/upgrade.html">アップグレード</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class="active"><a href="changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">v0.27.0 の変更点</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/changelog.html" >v0.5.1</option><option value="../v0.5.2/changelog.html" >v0.5.2</option><option value="../v0.6.0/changelog.html" >v0.6.0</option><option value="../v0.7.0/changelog.html" >v0.7.0</option><option value="../v0.8.0/changelog.html" >v0.8.0</option><option value="../v0.9.0/changelog.html" >v0.9.0</option><option value="../v0.10.0/changelog.html" >v0.10.0</option><option value="../v0.11.0/changelog.html" >v0.11.0</option><option value="../v0.12.0/changelog.html" >v0.12.0</option><option value="../v0.13.0/changelog.html" >v0.13.0</option><option value="../v0.14.0/changelog.html" >v0.14.0</option><option value="../v0.15.0/changelog.html" >v0.15.0</option><option value="../v0.16.0/changelog.html" >v0.16.0</option><option value="../v0.17.0/changelog.html" >v0.17.0</option><option value="../v0.18.0/changelog.html" >v0.18.0</option><option value="../v0.20.0/changelog.html" >v0.20.0</option><option value="../v0.21.0/changelog.html" >v0.21.0</option><option value="../v0.21.1/changelog.html" >v0.21.1</option><option value="../v0.22.0/changelog.html" >v0.22.0</option><option value="../v0.22.1/changelog.html" >v0.22.1</option><option value="../v0.23.0/changelog.html" >v0.23.0</option><option value="../v0.24.0/changelog.html" >v0.24.0</option><option value="../v0.25.0/changelog.html" >v0.25.0</option><option value="../v0.26.0/changelog.html" >v0.26.0</option><option value="../v0.27.0/changelog.html" selected>v0.27.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>v0.27.0 の変更点</h1>
+
+<p><strong>リリース日</strong>: 2026-08-04</p>
+
+<h2>概要</h2>
+
+<p>頻繁に使う3つのスキルに短縮エイリアス <code>/airun</code> <code>/aiwatch</code> <code>/aiticket</code> を追加しました。あわせて、配布対象スキルの判定が2箇所に二重実装されていた問題を解消し、<code>isSkillFile()</code> に集約しました。</p>
+
+<h2>新機能</h2>
+
+<h3>スキルの短縮エイリアス</h3>
+
+<code>/ai-team-run</code> のような長いコマンド名を毎回打つ負担を減らすため、使用頻度の高い3つに短縮名を用意しました。
+
+<table><thead><tr><th>正規名</th><th>エイリアス</th></tr></thead><tbody><tr><td><code>/ai-team-run</code></td><td><code>/airun</code></td></tr><tr><td><code>/ai-team-watch</code></td><td><code>/aiwatch</code></td></tr><tr><td><code>/ai-team-ticket</code></td><td><code>/aiticket</code></td></tr></tbody></table>
+<ul><li>引数はそのまま引き継がれます（<code>/airun 42</code> は <code>/ai-team-run 42</code> と同じ）</li><li>エイリアスは正規スキルの手順を複製せず、<code>$ARGUMENTS</code> を渡して委譲する薄いファイルです。正規スキルを更新してもエイリアス側の追従は不要です</li><li>モデル・effort は委譲先の正規スキルと同じ値が割り当たります（<code>airun</code> / <code>aiwatch</code> は leader、<code>aiticket</code> は simple）</li></ul>
+<p>残る6スキル（<code>setup</code> / <code>resume</code> / <code>create</code> / <code>configure</code> / <code>install</code> / <code>gallery</code>）は正規名のみです。綴りが破綻するもの（<code>aiinstall</code> 等）があり、使用頻度も低いためです。</p>
+
+<h2>改善</h2>
+
+<h3>配布判定の単一化</h3>
+
+<p>配布対象スキルかどうかの判定が、<code>bin/lib/skill-files.js</code> の命名規則フィルタと <code>bin/lib/apply-model-profile.js</code> の接頭辞判定に<strong>二重実装</strong>されていました。エイリアスのように <code>ai-team-</code> で始まらないファイルを追加するとき、片方だけを直すと「配布はされるがモデルプロファイルが適用されない」中途半端な状態になります。</p>
+
+<p>判定を <code>isSkillFile()</code> に集約し、<code>bin/sync-templates.js</code> と <code>bin/lib/apply-model-profile.js</code> の両方から参照する形にしました。</p>
+
+<ul><li><strong>命名規則の正規表現（<code>/^ai-team-.*\.md$/</code>）は緩めていません。</strong> 緩めると <code>README.md</code> / <code>.gitkeep</code> 等の混入を防げなくなるため、明示的な allowlist（<code>SKILL_ALIAS_FILES</code>）で配布対象に加えています</li><li>エイリアスを追加する際は <code>SKILL_ALIAS_FILES</code> と <code>SKILL_ROLES</code> の<strong>両方</strong>への追記が必要です（片方だけだと role が <code>worker</code> にフォールバックします）。両ファイルのコメントに明記しています</li></ul>
+<h3>ドキュメント</h3>
+
+<ul><li>v0.26.0 の変更履歴ページの内部リンク4件が、生成後に存在しないパスを指していた問題を修正しました（バージョンディレクトリ直下のページは相対リンクに <code>../</code> を付けない規約）</li></ul>
+<h2>テスト・品質保証</h2>
+
+<ul><li><code>tests/skill-distribution.test.js</code> に2件追加</li></ul>  - 短縮エイリアスが配布対象に含まれ、かつ <code>README.md</code> / <code>.gitkeep</code> / <code>notes.txt</code> の除外が維持されること
+<p>  - allowlist に無い <code>ai</code> 始まりのファイル（<code>airandom.md</code>）が弾かれること（正規表現を緩める実装へのすり替わりを検知する回帰ガード）</p>
+<p>  - <code>bin/sync-templates.js</code> と <code>bin/lib/apply-model-profile.js</code> が <code>isSkillFile</code> を参照し、独自の接頭辞判定を持たないことのソース検査</p>
+<ul><li><code>tests/model-profiles.test.js</code> のスキル数の期待値を 9 → 12 に更新</li></ul>
+<h2>対象環境</h2>
+
+<ul><li>Claude Code（Opus / Sonnet / Fable）での実行に対応</li></ul>
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="skills/overview.html">スキル一覧</a> — 全コマンドとエイリアスの対応表</li><li><a href="skills/run.html">/ai-team-run</a> — <code>/airun</code> の委譲先</li><li><a href="skills/watch.html">/ai-team-watch</a> — <code>/aiwatch</code> の委譲先</li><li><a href="skills/ticket.html">/ai-team-ticket</a> — <code>/aiticket</code> の委譲先</li></ul>
+<h2>既知の制限（フォローアップで対応予定）</h2>
+
+<ul><li>エイリアスの実行時挙動（<code>/airun 42</code> が実際に <code>/ai-team-run 42</code> と同じ結果を返すこと）は自動テストで検証していません。静的検証（配布・frontmatter・role/model 解決）までが担保範囲です</li><li>スラッシュコマンド名が他ツールや組込スキルと衝突しないことは検証していません（<code>/run</code> は Claude Code 組込スキルと同名になるため候補から除外しました）</li><li><code>SKILL_ALIAS_FILES</code> から <code>SKILL_ROLES</code> への相互参照コメントが片方向です（追記忘れはテストで検知されます）</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
