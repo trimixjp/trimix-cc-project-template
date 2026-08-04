@@ -201,9 +201,10 @@ test('templates の全エージェント md が balance/normal の model・effor
   }
 });
 
-test('skills の全 ai-team-*.md が balance/normal の model・effort を持つ', () => {
+test('skills の全スキル（ai-team-*.md と短縮エイリアス）が balance/normal の model・effort を持つ', () => {
   const files = collectSkillFiles(join(packageRoot, 'skills'));
-  assert.equal(files.length, 9, `スキル数: ${files.length}`);
+  // 正規スキル9件 + 短縮エイリアス3件（airun / aiwatch / aiticket）
+  assert.equal(files.length, 12, `スキル数: ${files.length}`);
 
   for (const file of files) {
     const text = readFileSync(file, 'utf-8');

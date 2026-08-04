@@ -116,7 +116,12 @@
   },
   {
     "version": "v0.26.0",
-    "label": "v0.26.0 (最新)",
+    "label": "v0.26.0",
     "path": "./v0.26.0/index.html"
+  },
+  {
+    "version": "v0.27.0",
+    "label": "v0.27.0 (最新)",
+    "path": "./v0.27.0/index.html"
   }
 ]

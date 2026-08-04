@@ -13,7 +13,7 @@
 import { mkdirSync, copyFileSync, readdirSync, statSync, existsSync } from 'fs';
 import { resolve, dirname, join, relative } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { SKILL_FILE_PATTERN } from './lib/skill-files.js';
+import { isSkillFile } from './lib/skill-files.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(__dirname, '..');
@@ -51,12 +51,13 @@ const MAPPINGS = [
   { from: 'teams/sns',            to: 'teams/sns' },
   { from: 'teams/youtube',        to: 'teams/youtube' },
   // スキル（templates/ の外＝リポジトリ直下 skills/）→ .claude/commands/
-  // 配布と同じ命名規則（ai-team-*.md）でフィルタし、README 等の混入を防ぐ。
+  // 配布判定は skill-files.js の isSkillFile に集約する（命名規則 ai-team-*.md と
+  // 短縮エイリアスの両方を含み、README 等の混入は防ぐ）。
   {
     base: 'project',
     from: 'skills',
     to: 'commands',
-    filter: (name) => SKILL_FILE_PATTERN.test(name)
+    filter: (name) => isSkillFile(name)
   },
 ];
 

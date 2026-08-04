@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>/ai-team-ticket — チケット操作 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.27.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li><li class=""><a href="../changelog.html">v0.26.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class="active"><a href="../skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/upgrade.html">アップグレード</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">/ai-team-ticket — チケット操作</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/skills/ticket.html" >v0.5.1</option><option value="../../v0.5.2/skills/ticket.html" >v0.5.2</option><option value="../../v0.6.0/skills/ticket.html" >v0.6.0</option><option value="../../v0.7.0/skills/ticket.html" >v0.7.0</option><option value="../../v0.8.0/skills/ticket.html" >v0.8.0</option><option value="../../v0.9.0/skills/ticket.html" >v0.9.0</option><option value="../../v0.10.0/skills/ticket.html" >v0.10.0</option><option value="../../v0.11.0/skills/ticket.html" >v0.11.0</option><option value="../../v0.12.0/skills/ticket.html" >v0.12.0</option><option value="../../v0.13.0/skills/ticket.html" >v0.13.0</option><option value="../../v0.14.0/skills/ticket.html" >v0.14.0</option><option value="../../v0.15.0/skills/ticket.html" >v0.15.0</option><option value="../../v0.16.0/skills/ticket.html" >v0.16.0</option><option value="../../v0.17.0/skills/ticket.html" >v0.17.0</option><option value="../../v0.18.0/skills/ticket.html" >v0.18.0</option><option value="../../v0.20.0/skills/ticket.html" >v0.20.0</option><option value="../../v0.21.0/skills/ticket.html" >v0.21.0</option><option value="../../v0.21.1/skills/ticket.html" >v0.21.1</option><option value="../../v0.22.0/skills/ticket.html" >v0.22.0</option><option value="../../v0.22.1/skills/ticket.html" >v0.22.1</option><option value="../../v0.23.0/skills/ticket.html" >v0.23.0</option><option value="../../v0.24.0/skills/ticket.html" >v0.24.0</option><option value="../../v0.25.0/skills/ticket.html" >v0.25.0</option><option value="../../v0.26.0/skills/ticket.html" >v0.26.0</option><option value="../../v0.27.0/skills/ticket.html" selected>v0.27.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>/ai-team-ticket — チケット操作</h1>
+
+<p>チケットの作成・一覧・詳細・コメント・ラベル更新・クローズを行うスキルです。  </p>
+<code>ticket_backend: github | local</code> のどちらでも同じ呼び出しで使えます。
+
+<p>> <strong>スキル定義</strong>: <code>skills/ai-team-ticket.md</code></p>
+<p>> <strong>短縮エイリアス</strong>: <code>/aiticket</code>（v0.27.0 以降。<code>/aiticket list</code> は <code>/ai-team-ticket list</code> と同じ）  </p>
+<p>> <strong>配置先</strong>: <code>.claude/commands/ai-team-ticket.md</code></p>
+
+<hr>
+
+<h2>使い方</h2>
+
+<pre><code class="language-">/ai-team-ticket create
+/ai-team-ticket list
+/ai-team-ticket view
+/ai-team-ticket comment
+/ai-team-ticket edit
+/ai-team-ticket close
+/ai-team-ticket backend</code></pre>
+
+<p>引数で全部渡すこともできますが、<strong>足りない項目はスキルが対話で入力を求めます</strong>。</p>
+
+<hr>
+
+<h2>入力の決まり</h2>
+
+<table><thead><tr><th>操作</th><th>ユーザーが入力するもの</th></tr></thead><tbody><tr><td><strong>create</strong></td><td><strong>タイトル</strong>（必須）と <strong>本文</strong>（必須）。起動ラベルは任意</td></tr><tr><td><strong>view</strong></td><td><strong>チケット番号</strong>（必須）</td></tr><tr><td><strong>comment</strong></td><td><strong>チケット番号</strong> と <strong>コメント本文</strong></td></tr><tr><td><strong>edit</strong></td><td><strong>チケット番号</strong> と追加/削除するラベル</td></tr><tr><td><strong>close</strong>（削除含む）</td><td><strong>チケット番号</strong>（実行前に確認あり）</td></tr><tr><td><strong>list</strong> / <strong>backend</strong></td><td>番号不要</td></tr></tbody></table>
+<h3>作成の流れ（例）</h3>
+
+<pre><code class="language-">ユーザー: /ai-team-ticket create
+スキル: チケットのタイトルを入力してください
+ユーザー: ログインAPIにレート制限を追加する
+スキル: チケットの本文を入力してください
+ユーザー: （目的・完了条件など）
+スキル: 起動ラベルは？（例: backend:tech-lead / なし）
+ユーザー: backend:tech-lead
+→ CLI 実行 → 番号 1 を表示 → /ai-team-run 1 を案内</code></pre>
+
+<h3>クローズの流れ（例）</h3>
+
+<pre><code class="language-">ユーザー: /ai-team-ticket close
+スキル: 対象のチケット番号を入力してください
+ユーザー: 1
+スキル: チケット #1 をクローズします。よろしいですか？
+ユーザー: はい
+→ CLI 実行</code></pre>
+
+<hr>
+
+<h2>サブコマンド一覧</h2>
+
+<table><thead><tr><th>サブコマンド</th><th>説明</th></tr></thead><tbody><tr><td><code>create</code></td><td>作成（タイトル・本文を対話入力）</td></tr><tr><td><code>list</code></td><td>一覧</td></tr><tr><td><code>view</code></td><td>詳細（番号を対話入力）</td></tr><tr><td><code>comment</code></td><td>コメント（番号・本文）</td></tr><tr><td><code>edit</code></td><td>ラベル更新（番号・ラベル）</td></tr><tr><td><code>close</code></td><td>クローズ（番号・確認）</td></tr><tr><td><code>backend</code></td><td>設定確認</td></tr></tbody></table>
+<hr>
+
+<h2>CLI との関係</h2>
+
+<p>スキルは内部で次と同等です。</p>
+
+<pre><code class="language-bash">npx @trimix/ai-team ticket &lt;サブコマンド&gt; ...</code></pre>
+
+<hr>
+
+<h2>関連</h2>
+
+<ul><li><a href="run.html">ai-team-run</a> — ワークフロー起動</li><li><a href="../getting-started.html">クイックスタート</a></li><li><a href="../reference/config.html">設定ファイル</a> — <code>ticket_backend</code></li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

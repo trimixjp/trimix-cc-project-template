@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>インシデント管理ガイド - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.27.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li><li class=""><a href="../changelog.html">v0.26.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/upgrade.html">アップグレード</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">インシデント管理ガイド</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/incidents/README.html" >v0.5.1</option><option value="../../v0.5.2/incidents/README.html" >v0.5.2</option><option value="../../v0.6.0/incidents/README.html" >v0.6.0</option><option value="../../v0.7.0/incidents/README.html" >v0.7.0</option><option value="../../v0.8.0/incidents/README.html" >v0.8.0</option><option value="../../v0.9.0/incidents/README.html" >v0.9.0</option><option value="../../v0.10.0/incidents/README.html" >v0.10.0</option><option value="../../v0.11.0/incidents/README.html" >v0.11.0</option><option value="../../v0.12.0/incidents/README.html" >v0.12.0</option><option value="../../v0.13.0/incidents/README.html" >v0.13.0</option><option value="../../v0.14.0/incidents/README.html" >v0.14.0</option><option value="../../v0.15.0/incidents/README.html" >v0.15.0</option><option value="../../v0.16.0/incidents/README.html" >v0.16.0</option><option value="../../v0.17.0/incidents/README.html" >v0.17.0</option><option value="../../v0.18.0/incidents/README.html" >v0.18.0</option><option value="../../v0.20.0/incidents/README.html" >v0.20.0</option><option value="../../v0.21.0/incidents/README.html" >v0.21.0</option><option value="../../v0.21.1/incidents/README.html" >v0.21.1</option><option value="../../v0.22.0/incidents/README.html" >v0.22.0</option><option value="../../v0.22.1/incidents/README.html" >v0.22.1</option><option value="../../v0.23.0/incidents/README.html" >v0.23.0</option><option value="../../v0.24.0/incidents/README.html" >v0.24.0</option><option value="../../v0.25.0/incidents/README.html" >v0.25.0</option><option value="../../v0.26.0/incidents/README.html" >v0.26.0</option><option value="../../v0.27.0/incidents/README.html" selected>v0.27.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>インシデント管理ガイド</h1>
+
+<p>このディレクトリは AIチームが学習・参照するインシデント記録を管理します。</p>
+
+<hr>
+
+<h2>ディレクトリ構成</h2>
+
+<pre><code class="language-">incidents/
+├── index.yml          # インシデントインデックス（一次記録者が追記。Contributorが整合性を検証）
+├── TEMPLATE.md        # インシデントファイルのテンプレート
+├── README.md          # このファイル
+└── YYYYMMDD-*.md      # 個別インシデントファイル（一次記録者が生成。Contributorが拾い上げ・検証）</code></pre>
+
+<hr>
+
+<h2>インシデントが記録される条件</h2>
+
+<p>以下のいずれかに該当する場合、インシデントファイルが記録されます。記録は<strong>失敗が発生したその時点</strong>（差し戻し・エスカレーション・作業中の事故の発生時）で一次記録者が行い、Contributor はチケットクローズ時に記録の拾い上げと検証を行います（詳細は次節「責務分担」）。</p>
+
+<table><thead><tr><th>条件</th><th>例</th></tr></thead><tbody><tr><td>本番障害が発生した</td><td>APIが応答不能、データ損失</td></tr><tr><td>セキュリティインシデントが発生した</td><td>不正アクセス、権限設定ミス</td></tr><tr><td>重大なバグが本番環境に影響した</td><td>P1/P2の本番バグ</td></tr><tr><td>設定ミス・操作ミスで障害が発生した</td><td>Terraform誤操作、DNS設定ミス</td></tr><tr><td>差し戻し（レビュー不合格）が発生した</td><td>同一クラスの欠陥での再修正</td></tr><tr><td><code>escalated:human</code> への遷移が発生した</td><td>AIだけでは解決できない判断</td></tr><tr><td>再発防止のために記録すべき教訓がある</td><td>類似ミスの防止</td></tr></tbody></table>
+<p>上記に該当しない場合は「✅ Contributor確認済み — インシデント対象外」とコメントしてチケットをクローズします。</p>
+
+<hr>
+
+<h2>責務分担（Issue #89 以降の記録モデル）</h2>
+
+<p>インシデントの<strong>一次記録責任</strong>は、失敗が顕在化した時点でその遷移を実際に扱うエージェントが負います。Contributor の役割は「ゼロからの記録」ではなく、<strong>①記録し漏らした事象の拾い上げ</strong>と<strong>②既に記録された事象の内容・<code>index.yml</code> 登録の検証</strong>に縮退しています（Contributor の役割縮退は「レビューを省く」という意味ではなく、あくまで「インシデント記録の一次責務の移管」です）。</p>
+
+<table><thead><tr><th>記録主体</th><th>記録タイミング</th><th>担当範囲</th><th>定義箇所</th></tr></thead><tbody><tr><td>オーケストレーター（<code>/ai-team-run</code>）</td><td>差し戻し・エスカレーション・再実装起動前の3発火点（次節）</td><td>全チーム共通（workflow.yml の遷移を実際に処理するため）</td><td><code>skills/ai-team-run.md</code>「インシデントの即時記録と再照合」</td></tr><tr><td>各チームリーダー（例: Tech-Lead）</td><td>自身が差し戻しを発する場合の補助記録</td><td>自チームの差し戻し・エスカレーション・作業事故</td><td>各チームリーダー定義（例: <code>tech-lead.md</code>）「失敗の即時記録」節</td></tr><tr><td>Human-Escalator</td><td><code>escalated:human</code> への遷移時</td><td>全チーム共通のエスカレーション実務</td><td><code>human-escalator.md</code>「ステップ3.5: インシデント記録」</td></tr><tr><td>Contributor</td><td>チケットクローズ時</td><td>記録漏れの拾い上げ・既存記録の検証</td><td><code>contributor.md</code>「ステップ5: インシデント調査」</td></tr></tbody></table>
+<p><strong>dedup（重複記録の回避）</strong>: 記録前に必ず <code>index.yml</code> を読み、当該チケット番号（<code>issue</code>）と事象に対応するエントリが既にあるか照合します。既に記録済みなら新規レポートを作らず、既存エントリの不足（<code>keywords</code>・再発防止策等）を補うのみとします。この方針は上記すべての記録主体に共通です。</p>
+
+<hr>
+
+<h2>3つの発火点（オーケストレーターの責務）</h2>
+
+<code>/ai-team-run</code> は以下の3つの発火点で記録・再照合を行います（詳細: <code>skills/ai-team-run.md</code>「インシデントの即時記録と再照合」）。
+
+<ol><li><strong>発火点1: 差し戻しコメント投稿の直前（<code>on_rework</code>）</strong> — 差し戻しの原因・争点をその場で記録します。Contributor のクローズ処理を待ちません。</li><li><strong>発火点2: <code>on_rework.next</code> の再実装担当を起動する前</strong> — <code>index.yml</code> を照合し、関連する再発防止策を再実装担当への作業指示に明記して反映してから起動します。差し戻しのたびに実施します。</li><li><strong>発火点3: <code>escalated:human</code> への遷移時（<code>on_escalation</code> / <code>rework_limit</code> 超過）</strong> — その原因と経緯を記録します。Human-Escalator と dedup で重複を避けます。</li></ol>
+<p>> <strong>位置づけの注意</strong>: 記録・再照合は<strong>補助</strong>であり、差し戻しループを防ぐ主軸は<strong>対象の事前全列挙</strong>（境界・横断的関心事の全経路を修正着手時に先に確定させること）です。過去の教訓は失敗の変種しか含まないため、記録・再照合だけに頼ると同じ「単数形で狭く書く癖」を繰り返します（<code>tech-lead.md</code>「失敗の即時記録と網羅的な仕様化」節を参照）。</p>
+
+<hr>
+
+<h2>インシデントファイルの作成（一次記録者・Contributor 共通）</h2>
+
+<pre><code class="language-">ファイル名: YYYYMMDD-&lt;概要をkebab-case&gt;.md
+内容: TEMPLATE.md に従って記載
+  - ⛔ やってはいけないこと
+  - ⚠️ 注意事項
+  - 根本原因
+  - タイムライン
+  - 再発防止策</code></pre>
+
+<h2>index.yml への追記</h2>
+
+<pre><code class="language-yaml">- id: &lt;次の連番&gt;
+  date: "YYYY-MM-DD"
+  file: "incidents/YYYYMMDD-*.md"
+  title: "インシデントの概要タイトル"
+  severity: P1 / P2 / P3
+  teams: [backend, infra, content]
+  issue: &lt;チケット番号&gt;
+  keywords: [関連キーワードのリスト]</code></pre>
+
+<hr>
+
+<h2>エージェントによる活用方法</h2>
+
+<h3>Tech-Lead / Infra-Lead / Editor-in-Chief（作業開始時）</h3>
+
+<pre><code class="language-">1. index.yml を読み込む
+2. チケットのタイトル・ラベル・内容とkeywordsを照合する
+3. 関連インシデントが見つかった場合はチケット本文末に注意事項を追記する</code></pre>
+
+<h3>オーケストレーター（差し戻し・エスカレーション・再実装起動前）</h3>
+
+<pre><code class="language-">1. 差し戻しコメント投稿の直前に記録する（発火点1）
+2. 再実装担当を起動する前に index.yml を照合し、再発防止策を作業指示へ注入する（発火点2）
+3. escalated:human へ遷移する時点で記録する（発火点3）</code></pre>
+
+<h3>Human-Escalator（escalated:human への遷移時）</h3>
+
+<pre><code class="language-">1. index.yml を照合し、オーケストレーターが記録済みでないか確認する（dedup）
+2. 未記録の場合はインシデントファイルを作成しindex.ymlを更新する
+3. 記録した参照パスをエスカレーションコメントに併記する</code></pre>
+
+<h3>Contributor（クローズ時: 拾い上げ・検証）</h3>
+
+<pre><code class="language-">1. クローズするチケットの内容を分析する
+2. 機械的基準（差し戻し2回以上・真のエスカレーション・DOD未達 等）でインシデント記録の要否を判定する
+3a. 既に記録済み → 内容とindex.yml登録を検証し、不足を補う
+3b. 未記録（記録漏れ） → 拾い上げとして新規に記録する</code></pre>
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

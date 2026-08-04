@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOD テンプレート - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.27.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li><li class=""><a href="../changelog.html">v0.26.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/upgrade.html">アップグレード</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class="active"><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">DOD テンプレート</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/reference/dod.html" >v0.5.1</option><option value="../../v0.5.2/reference/dod.html" >v0.5.2</option><option value="../../v0.6.0/reference/dod.html" >v0.6.0</option><option value="../../v0.7.0/reference/dod.html" >v0.7.0</option><option value="../../v0.8.0/reference/dod.html" >v0.8.0</option><option value="../../v0.9.0/reference/dod.html" >v0.9.0</option><option value="../../v0.10.0/reference/dod.html" >v0.10.0</option><option value="../../v0.11.0/reference/dod.html" >v0.11.0</option><option value="../../v0.12.0/reference/dod.html" >v0.12.0</option><option value="../../v0.13.0/reference/dod.html" >v0.13.0</option><option value="../../v0.14.0/reference/dod.html" >v0.14.0</option><option value="../../v0.15.0/reference/dod.html" >v0.15.0</option><option value="../../v0.16.0/reference/dod.html" >v0.16.0</option><option value="../../v0.17.0/reference/dod.html" >v0.17.0</option><option value="../../v0.18.0/reference/dod.html" >v0.18.0</option><option value="../../v0.20.0/reference/dod.html" >v0.20.0</option><option value="../../v0.21.0/reference/dod.html" >v0.21.0</option><option value="../../v0.21.1/reference/dod.html" >v0.21.1</option><option value="../../v0.22.0/reference/dod.html" >v0.22.0</option><option value="../../v0.22.1/reference/dod.html" >v0.22.1</option><option value="../../v0.23.0/reference/dod.html" >v0.23.0</option><option value="../../v0.24.0/reference/dod.html" >v0.24.0</option><option value="../../v0.25.0/reference/dod.html" >v0.25.0</option><option value="../../v0.26.0/reference/dod.html" >v0.26.0</option><option value="../../v0.27.0/reference/dod.html" selected>v0.27.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>DOD テンプレート</h1>
+
+<p>DOD（Definition of Done）は「タスクの完了条件」を定義するチェックリストです。Contributor エージェントが チケットクローズ前に該当する DOD を確認し、全項目を満たしていることを確認してからクローズします。</p>
+
+<p>> <strong>配置場所</strong>:</p>
+<p>> - 共通 DOD: <code>.claude/dod/</code></p>
+<p>> - チーム別 DOD: <code>.claude/teams/&lt;team_id&gt;/dod/</code></p>
+<p>> - 選択ガイド: <code>.claude/dod/README.md</code></p>
+
+<hr>
+
+<h2>DOD の概念</h2>
+
+<table><thead><tr><th>役割</th><th>担当</th></tr></thead><tbody><tr><td>DOD テンプレートの選択</td><td>チケット作成時に担当チームのリーダー AI が貼り付け</td></tr><tr><td>全項目チェックの確認</td><td>Contributor がクローズ前に確認</td></tr><tr><td>未充足時の差し戻し</td><td>Contributor → 担当エージェント</td></tr></tbody></table>
+<hr>
+
+<h2>全 DOD テンプレート一覧</h2>
+
+<h3>バックエンドチーム</h3>
+
+<table><thead><tr><th>テンプレート</th><th>ファイル</th><th>用途</th></tr></thead><tbody><tr><td>新機能実装</td><td><code>.claude/teams/backend/dod/feature.md</code></td><td>新しい機能・API・UI の追加</td></tr><tr><td>バグ修正</td><td><code>.claude/teams/backend/dod/bugfix.md</code></td><td>既存の不具合修正</td></tr><tr><td>リファクタリング</td><td><code>.claude/teams/backend/dod/refactor.md</code></td><td>機能変更なしの品質改善</td></tr><tr><td>コードレビュー</td><td><code>.claude/teams/backend/dod/review.md</code></td><td>レビュー依頼・監査</td></tr><tr><td>ドキュメント更新</td><td><code>.claude/teams/backend/dod/documentation.md</code></td><td>Tech-Writer 用</td></tr></tbody></table>
+<h3>フロントエンドチーム</h3>
+
+<table><thead><tr><th>テンプレート</th><th>ファイル</th><th>用途</th></tr></thead><tbody><tr><td>新機能実装</td><td><code>.claude/teams/frontend/dod/feature.md</code></td><td>新規 UI 機能の追加</td></tr><tr><td>新規コンポーネント</td><td><code>.claude/teams/frontend/dod/component.md</code></td><td>新規 UI コンポーネントの作成</td></tr><tr><td>バグ修正</td><td><code>.claude/teams/frontend/dod/bugfix.md</code></td><td>既存 UI の不具合修正</td></tr></tbody></table>
+<h3>インフラチーム</h3>
+
+<table><thead><tr><th>テンプレート</th><th>ファイル</th><th>用途</th></tr></thead><tbody><tr><td>インフラ変更</td><td><code>.claude/teams/infra/dod/infrastructure-change.md</code></td><td>Terraform・K8s・CI/CD 等</td></tr><tr><td>ネットワーク変更</td><td><code>.claude/teams/infra/dod/network-change.md</code></td><td>VPC・DNS・LB・FW 等</td></tr><tr><td>セキュリティレビュー</td><td><code>.claude/teams/infra/dod/security-review.md</code></td><td>監査・脆弱性対応・権限設計</td></tr></tbody></table>
+<h3>コンテンツチーム</h3>
+
+<table><thead><tr><th>テンプレート</th><th>ファイル</th><th>用途</th></tr></thead><tbody><tr><td>記事作成</td><td><code>.claude/teams/content/dod/article.md</code></td><td>新規記事・ブログ投稿</td></tr><tr><td>ドキュメント</td><td><code>.claude/teams/content/dod/document.md</code></td><td>仕様書・マニュアル・README 等</td></tr><tr><td>修正・更新</td><td><code>.claude/teams/content/dod/revision.md</code></td><td>既存コンテンツの修正・加筆</td></tr></tbody></table>
+<h3>共通（チーム横断）</h3>
+
+<table><thead><tr><th>テンプレート</th><th>ファイル</th><th>用途</th></tr></thead><tbody><tr><td>インシデント対応</td><td><code>.claude/dod/incident.md</code></td><td>本番障害・セキュリティインシデント</td></tr></tbody></table>
+<hr>
+
+<h2>バックエンド <code>feature.md</code> の例</h2>
+
+<pre><code class="language-markdown"># DOD（Definition of Done）— 新機能実装
+
+## ✅ 設計・要件
+- [ ] チケットに要件・機能要件・非機能要件が明記されている
+- [ ] Tech-Lead の設計方針コメントが存在する
+- [ ] 影響範囲が明確にされている
+- [ ] 技術的制約・リスクがコメントに記録されている
+
+## ✅ 実装
+- [ ] Tech-Lead の設計方針に従い実装されている
+- [ ] 変更ファイル一覧が Implementer のコメントに列挙されている
+- [ ] 公開APIの変更がある場合、後方互換性または移行手順が説明されている
+- [ ] セキュリティ要件を満たしている
+- [ ] ハードコードされた秘密情報・認証情報がない
+
+## ✅ テスト
+- [ ] ユニットテストが実装されている
+- [ ] ハッピーパスのテストが通過している
+- [ ] エッジケース・エラーケースのテストが網羅されている
+- [ ] 既存テストがすべて通過している
+- [ ] カバレッジが最低基準（80%以上）を満たしている（**カバレッジ計測手段がないプロジェクトは対象外。対象外とする場合はその根拠を チケットコメントに記録する**）
+
+## ✅ コードレビュー
+- [ ] Reviewer によるレビューが完了し「合格」判定がある
+- [ ] 指摘された CRITICAL / HIGH 件数が0件
+- [ ] 差し戻しがあった場合、全件対応済みのコメントがある
+
+## ✅ PR・マージ
+- [ ] PR が作成されている
+- [ ] PR 本文に設計方針・変更内容・テスト結果が含まれている
+- [ ] 人間が PR を承認・マージ済み
+
+## ✅ ドキュメント
+- [ ] 新しいAPIや関数の説明が適切にコメントされている
+- [ ] README や仕様書の更新が必要な場合は更新されている
+- [ ] 破壊的変更がある場合は CHANGELOG または チケットに明記されている</code></pre>
+
+<hr>
+
+<h2>DOD の適用ルール</h2>
+
+<code>.claude/dod/README.md</code> で定義されているルールです。
+
+<ol><li><strong>チケット作成時</strong>に担当チームのリーダー AI が適切なテンプレートを チケット本文に貼り付ける</li><li><strong>Contributor がクローズ前に</strong>全チェックリストが ✅ であることを確認</li><li><strong>未完了の項目がある場合</strong>は Contributor が該当エージェントに差し戻し</li><li><strong>複数タイプにまたがる場合</strong>（例: バグ修正 + セキュリティ対応）は両方のテンプレートを適用</li></ol>
+<hr>
+
+<h2>各 DOD の特徴的なチェック項目</h2>
+
+<h3>バックエンド feature.md</h3>
+<ul><li>カバレッジ 80% 以上（v0.15.0 改善: <strong>カバレッジ計測手段がないプロジェクトは対象外</strong>。対象外とする場合はその根拠を チケットコメントに記録する）</li><li>公開 API の後方互換性または移行手順</li></ul>
+<h3>バックエンド bugfix.md</h3>
+<ul><li>根本原因（root cause）の明記</li><li>リグレッションテストの追加</li><li>一時的回避策（workaround）ではなく恒久修正</li><li>同種バグが他箇所にないことの確認</li><li>本番影響の場合インシデントレポート作成</li></ul>
+<h3>バックエンド refactor.md</h3>
+<ul><li>機能変更を含まない（外部インターフェース不変）</li><li>カバレッジ維持</li></ul>
+<h3>バックエンド documentation.md（Tech-Writer 用）</h3>
+<ul><li>全 git diff 変更箇所のドキュメント反映</li><li><code>docs-src/versions/v{バージョン}/</code> 存在確認</li><li><code>node docs-src/build.js</code> 成功確認</li><li><code>docs-src/</code> と <code>ai-team-manual/</code>（ルート <code>index.html</code> を含む）を同一コミット</li></ul>
+<h3>フロントエンド feature.md</h3>
+<ul><li>WCAG 2.1 AA 準拠</li><li>レスポンシブ（モバイル・タブレット・デスクトップ）</li><li>Core Web Vitals 基準（LCP 2.5s / INP 200ms / CLS 0.1）</li><li>PR にスクリーンショット添付</li></ul>
+<h3>フロントエンド component.md</h3>
+<ul><li>単一責務原則</li><li>Props インターフェース定義</li><li>再利用性</li><li>Storybook 等のドキュメント</li></ul>
+<h3>インフラ infrastructure-change.md</h3>
+<ul><li>公式ドキュメント参照元の明記</li><li>IaC（Terraform 等）の更新</li><li>ステージング環境での検証</li><li>ロールバック手順の明記</li></ul>
+<h3>インフラ network-change.md</h3>
+<ul><li>ネットワーク影響分析</li><li>疎通確認</li><li>最小公開原則</li></ul>
+<h3>インフラ security-review.md</h3>
+<ul><li>5 カテゴリ（認証・暗号化・ネットワーク・シークレット・ログ）のレビュー</li><li>重大度別の発見事項整理</li><li>次回レビュー推奨時期</li></ul>
+<h3>コンテンツ article.md</h3>
+<ul><li>Editor-in-Chief 方針コメント</li><li>Researcher 要否判断とレポート</li><li>Compliance 合格</li><li>分野別カスタムチェック（health-pharma 等）</li></ul>
+<h3>共通 incident.md</h3>
+<ul><li>初動対応（暫定対応完了）</li><li>根本原因特定</li><li>恒久対応とリグレッションテスト</li><li>インシデントファイル作成（<code>.claude/incidents/YYYYMMDD-&lt;概要&gt;.md</code>）</li><li><code>incidents/index.yml</code> への追記</li><li>ポストモーテム</li></ul>
+<hr>
+
+<h2>DOD のカスタマイズ</h2>
+
+<p>プロジェクト固有のチェック項目を追加できます。</p>
+
+<h3>既存テンプレートの編集</h3>
+
+<code>.claude/teams/&lt;team_id&gt;/dod/&lt;template&gt;.md</code> を直接編集します。チェックリスト項目を追加・削除・変更できます。
+
+<h3>新規テンプレートの追加</h3>
+
+<p>新しい用途用のテンプレートを追加する場合：</p>
+
+<ol><li><code>.claude/teams/&lt;team_id&gt;/dod/&lt;新テンプレート&gt;.md</code> を作成</li><li><code>.claude/dod/README.md</code> のテンプレート一覧表に追記</li><li>該当チームのリーダーエージェント定義（<code>agents/&lt;lead&gt;.md</code>）にも適用条件を追記</li></ol>
+<h3>共通テンプレートの追加</h3>
+
+<p>複数チームで共通利用するテンプレートは <code>.claude/dod/</code> に配置し、<code>.claude/dod/README.md</code> の「共通（チーム横断）」セクションに追記します。</p>
+
+<hr>
+
+<h2>Contributor による DOD チェックの流れ</h2>
+
+<pre><code class="language-">1. Contributor 起動（contributor:ready ラベル付与時）
+2. チケットの本文・タスクタイプから該当 DOD を特定
+3. .claude/teams/&lt;team_id&gt;/dod/&lt;template&gt;.md を読み込む
+4. 全項目について チケットコメント履歴で充足を確認
+5. 未充足 → 該当エージェントに差し戻し
+   全項目充足 → ステップ 3（PR・マージ確認）へ
+6. PR が必要な場合は人間にエスカレーション
+7. ✅ Contributor 確認完了 コメント投稿 → チケットクローズ
+8. インシデント候補があれば .claude/incidents/ に記録</code></pre>
+
+<p>詳細は <code>.claude/agents/contributor.md</code> の動作フローを参照してください。</p>
+
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="../teams/overview.html">チーム概要</a> — チーム別の DOD 一覧</li><li><a href="escalation.html">エスカレーションルール</a> — Contributor によるエスカレーション条件</li><li><a href="config.html">設定ファイル</a> — escalation-rules.yml の運用</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
