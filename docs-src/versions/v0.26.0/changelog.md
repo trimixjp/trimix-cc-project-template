@@ -39,10 +39,10 @@ Opus / Sonnet をオーケストレーターとして使用する場合、委託
 
 ## 関連ドキュメント
 
-- [/ai-team-run](../skills/run.html) — サブエージェント委託・監視プロトコル
-- [エスカレーションルール](../reference/escalation.html) — `subagent_stall` トリガー定義
-- [ワークフロー構築ガイド](../guide/workflow.html) — 無音停止検知の仕組み
-- [設定ファイル](../reference/config.html) — `delegation_watchdog` 設定項目
+- [/ai-team-run](skills/run.html) — サブエージェント委託・監視プロトコル
+- [エスカレーションルール](reference/escalation.html) — `subagent_stall` トリガー定義
+- [ワークフロー構築ガイド](guide/workflow.html) — 無音停止検知の仕組み
+- [設定ファイル](reference/config.html) — `delegation_watchdog` 設定項目
 
 ## 既知の制限（フォローアップで対応予定）
 
