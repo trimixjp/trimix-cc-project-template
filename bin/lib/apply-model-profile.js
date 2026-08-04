@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync, copyFi
 import { join, relative, resolve, dirname, basename, sep } from 'path';
 import { fileURLToPath } from 'url';
 import { recordFiles } from './baseline.js';
+import { isSkillFile } from './skill-files.js';
 import {
   PERFORMANCE_PROFILES,
   EFFORT_PROFILES,
@@ -128,7 +129,9 @@ export function collectSkillFiles(root) {
     if (!existsSync(base)) continue;
     for (const f of walkFiles(base, (p) => {
       const baseName = p.split(/[/\\]/).pop() || '';
-      return baseName.startsWith('ai-team-') && baseName.endsWith('.md');
+      // 配布判定は skill-files.js の isSkillFile に集約する。ここで独自の接頭辞判定を
+      // 書くと、短縮エイリアスを追加したときに片方だけ反映される（インシデント #4）。
+      return isSkillFile(baseName);
     })) {
       files.add(f);
     }

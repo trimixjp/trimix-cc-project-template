@@ -69,6 +69,70 @@ test('(a) SKILL_FILES は実際の skills/ を走査した結果と一致する'
   assert.ok(SKILL_FILES.length > 0, '配布対象スキルが1件も検出されていない');
 });
 
+test('(a) 短縮エイリアスは配布対象に含まれ、かつ README 等の除外は維持される', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'ai-team-alias-'));
+  try {
+    // 命名規則に合う正規スキルと、規則に合わない短縮エイリアスを混在させる
+    writeFileSync(join(dir, 'ai-team-run.md'), '# run\n');
+    writeFileSync(join(dir, 'airun.md'), '# airun\n');
+    writeFileSync(join(dir, 'aiwatch.md'), '# aiwatch\n');
+    writeFileSync(join(dir, 'aiticket.md'), '# aiticket\n');
+    // allowlist 方式が命名規則フィルタを壊していないことを確認するための混入候補
+    writeFileSync(join(dir, 'README.md'), '# readme\n');
+    writeFileSync(join(dir, '.gitkeep'), '');
+    writeFileSync(join(dir, 'notes.txt'), 'memo\n');
+    // allowlist に無い ai- 始まりのファイルは配布対象にしない（正規表現を緩めていないこと）
+    writeFileSync(join(dir, 'airandom.md'), '# 未登録\n');
+
+    const result = listSkillFiles(dir);
+
+    assert.deepEqual(
+      result,
+      ['ai-team-run.md', 'aiticket.md', 'aiwatch.md', 'airun.md'].sort(),
+      `正規スキルと allowlist 済みエイリアスのみがソート済みで返るべき: ${result.join(', ')}`
+    );
+    for (const alias of ['airun.md', 'aiwatch.md', 'aiticket.md']) {
+      assert.ok(result.includes(alias), `${alias} が配布対象に含まれていない`);
+    }
+    // 命名規則フィルタの回帰ガード（インシデント #3: フィルタの緩さによる誤検出）
+    assert.ok(!result.includes('README.md'), 'README.md が混入している');
+    assert.ok(!result.includes('.gitkeep'), '.gitkeep が混入している');
+    assert.ok(!result.includes('notes.txt'), 'notes.txt が混入している');
+    assert.ok(!result.includes('airandom.md'), 'allowlist に無い airandom.md が混入している');
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test('(a) isSkillFile は配布判定の単一の情報源として全経路から参照できる', async () => {
+  const { isSkillFile, SKILL_ALIAS_FILES } = await import('../bin/lib/skill-files.js');
+
+  assert.ok(isSkillFile('ai-team-run.md'), '命名規則に合うファイルが false になっている');
+  assert.ok(isSkillFile('airun.md'), 'エイリアスが false になっている');
+  assert.ok(!isSkillFile('README.md'), 'README.md が true になっている');
+  assert.ok(!isSkillFile('airandom.md'), 'allowlist 外のファイルが true になっている');
+
+  // sync-templates.js と apply-model-profile.js が独自の接頭辞判定を持たないこと。
+  // 判定が二重実装されると、エイリアス追加時に片方だけ反映される（インシデント #4）。
+  for (const rel of ['../bin/sync-templates.js', '../bin/lib/apply-model-profile.js']) {
+    const src = readFileSync(join(__dirname, rel), 'utf8');
+    assert.ok(
+      src.includes('isSkillFile'),
+      `${rel} が isSkillFile を参照していない（判定の二重実装が残っている疑い）`
+    );
+    assert.ok(
+      !src.includes("startsWith('ai-team-')"),
+      `${rel} に独自の接頭辞判定 startsWith('ai-team-') が残っている`
+    );
+  }
+
+  assert.deepEqual(
+    [...SKILL_ALIAS_FILES].sort(),
+    ['aiticket.md', 'aiwatch.md', 'airun.md'].sort(),
+    'SKILL_ALIAS_FILES の内容が想定と異なる'
+  );
+});
+
 // ---------------------------------------------------------------------------
 // (b) sync 実行後、skills/*.md と .claude/commands/*.md が一致する
 // ---------------------------------------------------------------------------

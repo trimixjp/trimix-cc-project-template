@@ -202,6 +202,12 @@ export const SKILL_ROLES = {
   'ai-team-install': 'simple',
   'ai-team-gallery': 'simple',
   'ai-team-ticket': 'simple',
+  // 短縮エイリアス。委譲先の正規スキルと同じ role を割り当てる。
+  // 未登録だと resolveRole() が worker にフォールバックし、正規スキルと異なる
+  // モデルが割り当たるため、エイリアスを増やしたらここにも追記する。
+  airun: 'leader', // = ai-team-run
+  aiwatch: 'leader', // = ai-team-watch
+  aiticket: 'simple', // = ai-team-ticket
 };
 
 /** Claude Code 向けモデルエイリアス */
