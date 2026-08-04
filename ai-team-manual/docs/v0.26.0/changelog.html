@@ -60,7 +60,7 @@
 <ul><li>Claude Code（Opus / Sonnet / Fable）での実行に対応</li><li>Grok Build ランタイムでのバックグラウンドプロセス挙動は本バージョンの対象外（未検証）</li></ul>
 <h2>関連ドキュメント</h2>
 
-<ul><li><a href="../skills/run.html">/ai-team-run</a> — サブエージェント委託・監視プロトコル</li><li><a href="../reference/escalation.html">エスカレーションルール</a> — <code>subagent_stall</code> トリガー定義</li><li><a href="../guide/workflow.html">ワークフロー構築ガイド</a> — 無音停止検知の仕組み</li><li><a href="../reference/config.html">設定ファイル</a> — <code>delegation_watchdog</code> 設定項目</li></ul>
+<ul><li><a href="skills/run.html">/ai-team-run</a> — サブエージェント委託・監視プロトコル</li><li><a href="reference/escalation.html">エスカレーションルール</a> — <code>subagent_stall</code> トリガー定義</li><li><a href="guide/workflow.html">ワークフロー構築ガイド</a> — 無音停止検知の仕組み</li><li><a href="reference/config.html">設定ファイル</a> — <code>delegation_watchdog</code> 設定項目</li></ul>
 <h2>既知の制限（フォローアップで対応予定）</h2>
 
 <ul><li>再委託回数のカウント手順（コメント先頭行の機械照合）が差し戻しカウントと同水準に厳密でない（フォローアップで固定テンプレ＋grep コマンドを追加予定）</li><li><code>inspectPath</code> のEACCES 等非 ENOENT 系エラー伝播経路がテスト未カバー（フォローアップでテスト追加予定）</li><li>既定値（<code>stall_threshold_minutes</code> / <code>max_redelegations</code>）が複数ドキュメント・設定に一字一句重複記載（SSOT 化をフォローアップで予定）</li></ul>
