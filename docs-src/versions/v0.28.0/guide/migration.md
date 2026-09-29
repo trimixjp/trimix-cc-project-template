@@ -54,14 +54,29 @@ rm .claude/teams/backend/agents/reviewer.md.new
 
 ### ファイルの分類と `.new` が書き出される場合
 
-`upgrade --dry` で以下のいずれかが表示されます：
+`upgrade --dry` で、ファイルは以下のいずれかのカテゴリに分類されます：
 
-- `update` ... baseline と一致（未編集）。このファイルは上書きされます
-- `protected (edited)` ... baseline と不一致（手編集済み）。本体は保護され、`.new` が書き出されます
-- `protected (no-baseline)` ... baseline に記録がない。本体は保護され、`.new` が書き出されます
-- `protected (marker)` ... `# customized: true` マーカーがある。本体は保護され、`.new` が書き出されます
+#### ✏️  上書き更新されるファイル
 
-検証役 16 ファイルのうち、未編集のものは `update` と表示され、実際に上書きされます。自分で編集したファイルや、baseline 記録がないファイルは `protected` と表示され、`.new` が書き出されます。
+baseline と一致する未編集のファイルです。検証役 16 ファイルのうち、編集していないものはここに表示され、実際に上書きされます。
+
+**注意:** high-performance や low-cost プロファイルでは、検証役の `model` は変わりません（opus や sonnet のままです）が、`model_role` が `worker` から `verifier` に書き換わるため、このカテゴリに表示されます。これは正常な動作です（`model_role` の行が変わるため「更新」と扱われます）。
+
+#### 🛡️  保護のためスキップ（--force で上書き可能）
+
+以下のいずれかのファイルです。本体は維持され、`.new` ファイルが書き出されます：
+
+- baseline と不一致（自分で編集済み）
+- `# customized: true` マーカーがある
+- baseline に記録がない
+
+#### ℹ️  baseline に記録が無いため安全側で保護したファイル
+
+baseline 未記録のファイルについては、編集していないことを確認のうえ次を実行すると、以後は自動判定になります：
+
+```bash
+npx @trimix/ai-team baseline record
+```
 
 ### 注意：移行手段として推奨しない方法
 
@@ -101,12 +116,11 @@ npm install --save-dev ./trimix-ai-team-0.28.0.tgz
 npx @trimix/ai-team upgrade --dry
 ```
 
-以下のいずれかが表示されます：
+以下のカテゴリが表示されます：
 
-- `update` ... 未編集の検証役エージェント（16ファイル。上書きされます）
-- `protected (edited)` ... 手編集済みファイル（保護される）
-- `protected (no-baseline)` ... baseline 未記録のファイル（保護される）
-- `protected (marker)` ... `# customized: true` マーカー付きファイル（保護される）
+- **✏️  上書き更新されるファイル:** 未編集の検証役エージェント（16ファイル。上書きされます）
+- **🛡️  保護のためスキップ:** 手編集済みファイル・baseline 未記録・`# customized: true` マーカー付きファイル（本体は保護され `.new` が書き出されます）
+- **ℹ️  baseline に記録が無いため安全側で保護したファイル:** baseline 未記録ファイルについての追加案内。`baseline record` コマンドで解消できます
 
 #### ステップ 3: アップグレード実行
 
@@ -119,7 +133,7 @@ npx @trimix/ai-team upgrade
 #### ステップ 4: 確認事項チェック
 
 - [ ] `npm list @trimix/ai-team` でバージョンが `0.28.0` になっている
-- [ ] `upgrade --dry` で想定どおりの16ファイルが「update」と出た
+- [ ] `upgrade --dry` で「✏️  上書き更新されるファイル」として16ファイルが表示された
 - [ ] 手編集ファイルがある場合、`.new` ファイルを見比べて frontmatter を適用
 - [ ] frontmatter を適用済みの `.new` ファイルを1つずつ確認して削除（例: `rm .claude/teams/backend/agents/reviewer.md.new`）
 

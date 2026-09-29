@@ -69,10 +69,24 @@ rm .claude/teams/backend/agents/reviewer.md.new</code></pre>
 
 <h3>ファイルの分類と <code>.new</code> が書き出される場合</h3>
 
-<code>upgrade --dry</code> で以下のいずれかが表示されます：
+<code>upgrade --dry</code> で、ファイルは以下のいずれかのカテゴリに分類されます：
 
-<ul><li><code>update</code> ... baseline と一致（未編集）。このファイルは上書きされます</li><li><code>protected (edited)</code> ... baseline と不一致（手編集済み）。本体は保護され、<code>.new</code> が書き出されます</li><li><code>protected (no-baseline)</code> ... baseline に記録がない。本体は保護され、<code>.new</code> が書き出されます</li><li><code>protected (marker)</code> ... <code># customized: true</code> マーカーがある。本体は保護され、<code>.new</code> が書き出されます</li></ul>
-<p>検証役 16 ファイルのうち、未編集のものは <code>update</code> と表示され、実際に上書きされます。自分で編集したファイルや、baseline 記録がないファイルは <code>protected</code> と表示され、<code>.new</code> が書き出されます。</p>
+<h4>✏️  上書き更新されるファイル</h4>
+
+<p>baseline と一致する未編集のファイルです。検証役 16 ファイルのうち、編集していないものはここに表示され、実際に上書きされます。</p>
+
+<p><strong>注意:</strong> high-performance や low-cost プロファイルでは、検証役の <code>model</code> は変わりません（opus や sonnet のままです）が、<code>model_role</code> が <code>worker</code> から <code>verifier</code> に書き換わるため、このカテゴリに表示されます。これは正常な動作です（<code>model_role</code> の行が変わるため「更新」と扱われます）。</p>
+
+<h4>🛡️  保護のためスキップ（--force で上書き可能）</h4>
+
+<p>以下のいずれかのファイルです。本体は維持され、<code>.new</code> ファイルが書き出されます：</p>
+
+<ul><li>baseline と不一致（自分で編集済み）</li><li><code># customized: true</code> マーカーがある</li><li>baseline に記録がない</li></ul>
+<h4>ℹ️  baseline に記録が無いため安全側で保護したファイル</h4>
+
+<p>baseline 未記録のファイルについては、編集していないことを確認のうえ次を実行すると、以後は自動判定になります：</p>
+
+<pre><code class="language-bash">npx @trimix/ai-team baseline record</code></pre>
 
 <h3>注意：移行手段として推奨しない方法</h3>
 
@@ -104,9 +118,9 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 
 <pre><code class="language-bash">npx @trimix/ai-team upgrade --dry</code></pre>
 
-<p>以下のいずれかが表示されます：</p>
+<p>以下のカテゴリが表示されます：</p>
 
-<ul><li><code>update</code> ... 未編集の検証役エージェント（16ファイル。上書きされます）</li><li><code>protected (edited)</code> ... 手編集済みファイル（保護される）</li><li><code>protected (no-baseline)</code> ... baseline 未記録のファイル（保護される）</li><li><code>protected (marker)</code> ... <code># customized: true</code> マーカー付きファイル（保護される）</li></ul>
+<ul><li><strong>✏️  上書き更新されるファイル:</strong> 未編集の検証役エージェント（16ファイル。上書きされます）</li><li><strong>🛡️  保護のためスキップ:</strong> 手編集済みファイル・baseline 未記録・<code># customized: true</code> マーカー付きファイル（本体は保護され <code>.new</code> が書き出されます）</li><li><strong>ℹ️  baseline に記録が無いため安全側で保護したファイル:</strong> baseline 未記録ファイルについての追加案内。<code>baseline record</code> コマンドで解消できます</li></ul>
 <h4>ステップ 3: アップグレード実行</h4>
 
 <pre><code class="language-bash">npx @trimix/ai-team upgrade</code></pre>
@@ -116,7 +130,7 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 <h4>ステップ 4: 確認事項チェック</h4>
 
 <li class="task-item"><input type="checkbox" disabled> <code>npm list @trimix/ai-team</code> でバージョンが <code>0.28.0</code> になっている</li>
-<li class="task-item"><input type="checkbox" disabled> <code>upgrade --dry</code> で想定どおりの16ファイルが「update」と出た</li>
+<li class="task-item"><input type="checkbox" disabled> <code>upgrade --dry</code> で「✏️  上書き更新されるファイル」として16ファイルが表示された</li>
 <li class="task-item"><input type="checkbox" disabled> 手編集ファイルがある場合、<code>.new</code> ファイルを見比べて frontmatter を適用</li>
 <li class="task-item"><input type="checkbox" disabled> frontmatter を適用済みの <code>.new</code> ファイルを1つずつ確認して削除（例: <code>rm .claude/teams/backend/agents/reviewer.md.new</code>）</li>
 
