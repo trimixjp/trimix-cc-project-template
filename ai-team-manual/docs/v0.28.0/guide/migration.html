@@ -67,13 +67,12 @@
 # .new ファイルは削除
 rm .claude/teams/backend/agents/reviewer.md.new</code></pre>
 
-<h3>「更新」と表示されるが model が不変な場合</h3>
+<h3>ファイルの分類と <code>.new</code> が書き出される場合</h3>
 
-<code>upgrade --dry</code> で以下が表示される場合があります：
+<code>upgrade --dry</code> で以下のいずれかが表示されます：
 
-<pre><code class="language-">update (no-baseline) .claude/teams/backend/agents/reviewer.md</code></pre>
-
-<p>これは <code>model_role</code> が変わるため、アップグレード対象として認識されているのです。<strong>model が不変（high-performance や low-cost など）でも、<code>model_role</code> の行が書き直されるため「更新」と表示されるのは正常動作</strong>です。</p>
+<ul><li><code>update</code> ... baseline と一致（未編集）。このファイルは上書きされます</li><li><code>protected (edited)</code> ... baseline と不一致（手編集済み）。本体は保護され、<code>.new</code> が書き出されます</li><li><code>protected (no-baseline)</code> ... baseline に記録がない。本体は保護され、<code>.new</code> が書き出されます</li><li><code>protected (marker)</code> ... <code># customized: true</code> マーカーがある。本体は保護され、<code>.new</code> が書き出されます</li></ul>
+<p>検証役 16 ファイルのうち、未編集のものは <code>update</code> と表示され、実際に上書きされます。自分で編集したファイルや、baseline 記録がないファイルは <code>protected</code> と表示され、<code>.new</code> が書き出されます。</p>
 
 <h3>注意：移行手段として推奨しない方法</h3>
 
@@ -105,9 +104,9 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 
 <pre><code class="language-bash">npx @trimix/ai-team upgrade --dry</code></pre>
 
-<p>以下が表示されます：</p>
+<p>以下のいずれかが表示されます：</p>
 
-<ul><li><code>update</code> または <code>update (no-baseline)</code>：16ファイルの検証役エージェント</li><li><code>update (edited)</code>：手編集済みファイル（保護されます）</li></ul>
+<ul><li><code>update</code> ... 未編集の検証役エージェント（16ファイル。上書きされます）</li><li><code>protected (edited)</code> ... 手編集済みファイル（保護される）</li><li><code>protected (no-baseline)</code> ... baseline 未記録のファイル（保護される）</li><li><code>protected (marker)</code> ... <code># customized: true</code> マーカー付きファイル（保護される）</li></ul>
 <h4>ステップ 3: アップグレード実行</h4>
 
 <pre><code class="language-bash">npx @trimix/ai-team upgrade</code></pre>
@@ -117,9 +116,9 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 <h4>ステップ 4: 確認事項チェック</h4>
 
 <li class="task-item"><input type="checkbox" disabled> <code>npm list @trimix/ai-team</code> でバージョンが <code>0.28.0</code> になっている</li>
-<li class="task-item"><input type="checkbox" disabled> <code>upgrade --dry</code> で想定どおりの16ファイルが「更新」と出た</li>
+<li class="task-item"><input type="checkbox" disabled> <code>upgrade --dry</code> で想定どおりの16ファイルが「update」と出た</li>
 <li class="task-item"><input type="checkbox" disabled> 手編集ファイルがある場合、<code>.new</code> ファイルを見比べて frontmatter を適用</li>
-<li class="task-item"><input type="checkbox" disabled> <code>.new</code> ファイルが残っていれば削除（<code>rm .claude/teams/**/agents/*.new 2&gt;/dev/null</code>）</li>
+<li class="task-item"><input type="checkbox" disabled> frontmatter を適用済みの <code>.new</code> ファイルを1つずつ確認して削除（例: <code>rm .claude/teams/backend/agents/reviewer.md.new</code>）</li>
 
 <h3>参考</h3>
 

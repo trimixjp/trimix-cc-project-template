@@ -52,15 +52,16 @@ v0.28.0 では、**検証役ロール `verifier` を新設**し、レビュー�
 rm .claude/teams/backend/agents/reviewer.md.new
 ```
 
-### 「更新」と表示されるが model が不変な場合
+### ファイルの分類と `.new` が書き出される場合
 
-`upgrade --dry` で以下が表示される場合があります：
+`upgrade --dry` で以下のいずれかが表示されます：
 
-```
-update (no-baseline) .claude/teams/backend/agents/reviewer.md
-```
+- `update` ... baseline と一致（未編集）。このファイルは上書きされます
+- `protected (edited)` ... baseline と不一致（手編集済み）。本体は保護され、`.new` が書き出されます
+- `protected (no-baseline)` ... baseline に記録がない。本体は保護され、`.new` が書き出されます
+- `protected (marker)` ... `# customized: true` マーカーがある。本体は保護され、`.new` が書き出されます
 
-これは `model_role` が変わるため、アップグレード対象として認識されているのです。**model が不変（high-performance や low-cost など）でも、`model_role` の行が書き直されるため「更新」と表示されるのは正常動作**です。
+検証役 16 ファイルのうち、未編集のものは `update` と表示され、実際に上書きされます。自分で編集したファイルや、baseline 記録がないファイルは `protected` と表示され、`.new` が書き出されます。
 
 ### 注意：移行手段として推奨しない方法
 
@@ -100,10 +101,12 @@ npm install --save-dev ./trimix-ai-team-0.28.0.tgz
 npx @trimix/ai-team upgrade --dry
 ```
 
-以下が表示されます：
+以下のいずれかが表示されます：
 
-- `update` または `update (no-baseline)`：16ファイルの検証役エージェント
-- `update (edited)`：手編集済みファイル（保護されます）
+- `update` ... 未編集の検証役エージェント（16ファイル。上書きされます）
+- `protected (edited)` ... 手編集済みファイル（保護される）
+- `protected (no-baseline)` ... baseline 未記録のファイル（保護される）
+- `protected (marker)` ... `# customized: true` マーカー付きファイル（保護される）
 
 #### ステップ 3: アップグレード実行
 
@@ -116,9 +119,9 @@ npx @trimix/ai-team upgrade
 #### ステップ 4: 確認事項チェック
 
 - [ ] `npm list @trimix/ai-team` でバージョンが `0.28.0` になっている
-- [ ] `upgrade --dry` で想定どおりの16ファイルが「更新」と出た
+- [ ] `upgrade --dry` で想定どおりの16ファイルが「update」と出た
 - [ ] 手編集ファイルがある場合、`.new` ファイルを見比べて frontmatter を適用
-- [ ] `.new` ファイルが残っていれば削除（`rm .claude/teams/**/agents/*.new 2>/dev/null`）
+- [ ] frontmatter を適用済みの `.new` ファイルを1つずつ確認して削除（例: `rm .claude/teams/backend/agents/reviewer.md.new`）
 
 ### 参考
 
