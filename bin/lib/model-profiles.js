@@ -6,11 +6,12 @@
  *
  * role:
  *   leader  … オーケストレータ・チームリーダー（上流・設計）
- *   worker  … 実装・レビュー・調査などの作業者
+ *   verifier … レビュー・QA など他者成果物の合否判定（検証専任）
+ *   worker  … 実装・調査などの作業者
  *   simple  … PR作成・版バンプ・公開など定型の単純作業
  */
 
-/** @typedef {'leader' | 'worker' | 'simple'} ModelRole */
+/** @typedef {'leader' | 'verifier' | 'worker' | 'simple'} ModelRole */
 /** @typedef {'high-performance' | 'balance' | 'low-cost'} PerformanceProfile */
 /** @typedef {'deep' | 'normal' | 'light'} EffortProfile */
 /** @typedef {'claude-code' | 'grok'} RuntimeId */
@@ -38,12 +39,12 @@ export const PERFORMANCE_PROFILES = {
   'high-performance': {
     id: 'high-performance',
     label: 'ハイパフォーマンス',
-    description: '上流に高能力モデル、単純作業は一段下',
+    description: '設計に最上位、検証・実装に高能力、単純作業は一段下',
   },
   balance: {
     id: 'balance',
     label: 'バランス（デフォルト）',
-    description: '上流に高能力、作業者に中位、単純作業に軽量',
+    description: '設計・検証に高能力、実装に中位、単純作業に軽量',
   },
   'low-cost': {
     id: 'low-cost',
@@ -58,23 +59,26 @@ export const PERFORMANCE_PROFILES = {
  */
 export const RUNTIME_MODEL_MAP = {
   'claude-code': {
-    'high-performance': { leader: 'fable', worker: 'opus', simple: 'sonnet' },
-    balance: { leader: 'opus', worker: 'sonnet', simple: 'haiku' },
-    'low-cost': { leader: 'sonnet', worker: 'sonnet', simple: 'haiku' },
+    'high-performance': { leader: 'fable', verifier: 'opus', worker: 'opus', simple: 'sonnet' },
+    balance: { leader: 'opus', verifier: 'opus', worker: 'sonnet', simple: 'haiku' },
+    'low-cost': { leader: 'sonnet', verifier: 'sonnet', worker: 'sonnet', simple: 'haiku' },
   },
   grok: {
     'high-performance': {
       leader: 'grok-4.5',
+      verifier: 'grok-4.5',
       worker: 'grok-4.5',
       simple: 'grok-composer-2.5-fast',
     },
     balance: {
       leader: 'grok-4.5',
+      verifier: 'grok-4.5',
       worker: 'grok-4.5',
       simple: 'grok-composer-2.5-fast',
     },
     'low-cost': {
       leader: 'grok-composer-2.5-fast',
+      verifier: 'grok-composer-2.5-fast',
       worker: 'grok-composer-2.5-fast',
       simple: 'grok-composer-2.5-fast',
     },
@@ -136,9 +140,9 @@ export const AGENT_ROLES = {
   // backend
   'tech-lead': 'leader',
   implementer: 'worker',
-  reviewer: 'worker',
-  'reviewer-a': 'worker',
-  'reviewer-b': 'worker',
+  reviewer: 'verifier',
+  'reviewer-a': 'verifier',
+  'reviewer-b': 'verifier',
   'pr-creator': 'simple',
   'version-bumper': 'simple',
   'tech-writer': 'simple',
@@ -153,14 +157,14 @@ export const AGENT_ROLES = {
   'editor-in-chief': 'leader',
   writer: 'worker',
   researcher: 'worker',
-  compliance: 'worker',
+  compliance: 'verifier',
 
   // infra
   'infra-lead': 'leader',
   architect: 'leader',
   'infra-specialist': 'worker',
   'network-engineer': 'worker',
-  'security-engineer': 'worker',
+  'security-engineer': 'verifier',
 
   // sns
   strategist: 'leader',
@@ -172,20 +176,20 @@ export const AGENT_ROLES = {
   'channel-producer': 'leader',
   'market-analyst': 'leader',
   scriptwriter: 'worker',
-  'script-qa': 'worker',
+  'script-qa': 'verifier',
   'growth-strategist': 'worker',
-  'growth-qa': 'worker',
+  'growth-qa': 'verifier',
   affiliate: 'worker',
-  'affiliate-qa': 'worker',
+  'affiliate-qa': 'verifier',
   editor: 'simple',
-  'render-reviewer': 'worker',
+  'render-reviewer': 'verifier',
   publisher: 'simple',
-  'publish-qa': 'worker',
+  'publish-qa': 'verifier',
   'sns-distributor': 'worker',
-  'sns-qa': 'worker',
+  'sns-qa': 'verifier',
   monetizer: 'worker',
-  'monetizer-qa': 'worker',
-  'channel-producer-qa': 'worker',
+  'monetizer-qa': 'verifier',
+  'channel-producer-qa': 'verifier',
 };
 
 /**

@@ -1,9 +1,9 @@
 ---
 name: reviewer
 description: フロントエンドチームのレビュー担当AI。実装内容をレビューし、合格はPR-Creatorへ、不合格はDeveloperへ差し戻す
-model: sonnet
+model: opus
 effort: high
-model_role: worker
+model_role: verifier
 ---
 
 # Reviewer - フロントエンドチームレビュー担当

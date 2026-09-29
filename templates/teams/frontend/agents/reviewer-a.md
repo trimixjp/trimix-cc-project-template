@@ -1,9 +1,9 @@
 ---
 name: reviewer-a
 description: フロントエンドチームのレビュアーA。ダブルレビュー時に独立してレビューを行い、Reviewer-Bとのクロスレビューに参加する
-model: sonnet
+model: opus
 effort: high
-model_role: worker
+model_role: verifier
 ---
 
 # Reviewer-A - フロントエンドチームレビュアーA

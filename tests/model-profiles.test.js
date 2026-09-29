@@ -53,16 +53,19 @@ test('デフォルトは claude-code / balance / normal', () => {
 test('Claude 向けモデル割当が仕様どおり', () => {
   assert.deepEqual(RUNTIME_MODEL_MAP['claude-code']['high-performance'], {
     leader: 'fable',
+    verifier: 'opus',
     worker: 'opus',
     simple: 'sonnet',
   });
   assert.deepEqual(RUNTIME_MODEL_MAP['claude-code'].balance, {
     leader: 'opus',
+    verifier: 'opus',
     worker: 'sonnet',
     simple: 'haiku',
   });
   assert.deepEqual(RUNTIME_MODEL_MAP['claude-code']['low-cost'], {
     leader: 'sonnet',
+    verifier: 'sonnet',
     worker: 'sonnet',
     simple: 'haiku',
   });
@@ -71,11 +74,13 @@ test('Claude 向けモデル割当が仕様どおり', () => {
 test('Grok 向けモデル割当が仕様どおり', () => {
   assert.deepEqual(RUNTIME_MODEL_MAP.grok.balance, {
     leader: 'grok-4.5',
+    verifier: 'grok-4.5',
     worker: 'grok-4.5',
     simple: 'grok-composer-2.5-fast',
   });
   assert.deepEqual(RUNTIME_MODEL_MAP.grok['low-cost'], {
     leader: 'grok-composer-2.5-fast',
+    verifier: 'grok-composer-2.5-fast',
     worker: 'grok-composer-2.5-fast',
     simple: 'grok-composer-2.5-fast',
   });
@@ -95,6 +100,11 @@ test('resolveModel / resolveEffort が role ごとに正しい値を返す', () 
   assert.equal(resolveModel('balance', 'worker'), 'sonnet');
   assert.equal(resolveModel('balance', 'simple'), 'haiku');
   assert.equal(resolveModel('high-performance', 'leader'), 'fable');
+  assert.equal(resolveModel('balance', 'verifier'), 'opus');
+  assert.equal(resolveModel('high-performance', 'verifier'), 'opus');
+  assert.equal(resolveModel('low-cost', 'verifier'), 'sonnet');
+  assert.equal(resolveModel('balance', 'verifier', 'grok'), 'grok-4.5');
+  assert.equal(resolveModel('low-cost', 'verifier', 'grok'), 'grok-composer-2.5-fast');
   assert.equal(resolveModel('balance', 'leader', 'grok'), 'grok-4.5');
   assert.equal(resolveModel('balance', 'simple', 'grok'), 'grok-composer-2.5-fast');
   assert.equal(resolveEffort('deep'), 'xhigh');
@@ -102,10 +112,16 @@ test('resolveModel / resolveEffort が role ごとに正しい値を返す', () 
   assert.equal(normalizeRuntime('grok-build'), 'grok');
 });
 
-test('resolveRole: leader / worker / simple の代表例', () => {
+test('resolveRole: leader / verifier / worker / simple の代表例', () => {
   assert.equal(resolveRole('tech-lead', 'agent'), 'leader');
   assert.equal(resolveRole('dispatcher', 'agent'), 'leader');
   assert.equal(resolveRole('implementer', 'agent'), 'worker');
+  for (const n of ['reviewer', 'reviewer-a', 'reviewer-b', 'security-engineer', 'compliance', 'script-qa']) {
+    assert.equal(resolveRole(n, 'agent'), 'verifier', n);
+  }
+  // 据え置き（verifier 化しないことの退行防止）
+  assert.equal(resolveRole('operator', 'agent'), 'worker');
+  assert.equal(resolveRole('editor', 'agent'), 'simple');
   assert.equal(resolveRole('pr-creator', 'agent'), 'simple');
   assert.equal(resolveRole('version-bumper', 'agent'), 'simple');
   assert.equal(resolveRole('ai-team-run', 'skill'), 'leader');

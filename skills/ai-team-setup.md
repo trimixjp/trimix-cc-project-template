@@ -140,9 +140,9 @@ node <パッケージルート>/bin/lib/apply-model-profile.js \
 
 | ユーザー選択 | 内部 ID（config に記録） | 反映内容 |
 |-------------|--------------------------|----------|
-| バランス | `model_performance: balance` | leader=opus, worker=sonnet, simple=haiku |
-| ハイパフォーマンス | `model_performance: high-performance` | leader=fable, worker=opus, simple=sonnet |
-| 低コスト | `model_performance: low-cost` | leader=sonnet, worker=sonnet, simple=haiku |
+| バランス | `model_performance: balance` | leader=opus, verifier=opus, worker=sonnet, simple=haiku |
+| ハイパフォーマンス | `model_performance: high-performance` | leader=fable, verifier=opus, worker=opus, simple=sonnet |
+| 低コスト | `model_performance: low-cost` | leader=sonnet, verifier=sonnet, worker=sonnet, simple=haiku |
 | 普通 | `effort_depth: normal` | 全ファイル `effort: high` |
 | 深く | `effort_depth: deep` | 全ファイル `effort: xhigh` |
 | 軽く | `effort_depth: light` | 全ファイル `effort: medium` |
@@ -217,9 +217,9 @@ workspace:
   worktree_dir: .claude/worktrees
 
 # モデル性能プロファイル（質問5）
-# high-performance: leader=fable, worker=opus, simple=sonnet
-# balance:          leader=opus,  worker=sonnet, simple=haiku（デフォルト）
-# low-cost:         leader=sonnet, worker=sonnet, simple=haiku
+# high-performance: leader=fable, verifier=opus, worker=opus, simple=sonnet
+# balance:          leader=opus,  verifier=opus, worker=sonnet, simple=haiku（デフォルト）
+# low-cost:         leader=sonnet, verifier=sonnet, worker=sonnet, simple=haiku
 model_performance: balance  # または high-performance / low-cost
 
 # effort 深度（質問6）

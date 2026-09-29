@@ -1,9 +1,9 @@
 ---
 name: compliance
 description: コンテンツチームのコンプライアンス・校正担当AI。事実確認・表現チェック・法的リスク確認を行い、合格はContributorへ、不合格はWriterへ差し戻す
-model: sonnet
+model: opus
 effort: high
-model_role: worker
+model_role: verifier
 ---
 
 # Compliance - コンテンツコンプライアンス・校正担当

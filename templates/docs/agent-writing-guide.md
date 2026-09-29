@@ -31,7 +31,7 @@ name: <エージェント名（kebab-case）>
 description: <一行説明（役職・チーム・主な責務を含む）>
 model: <opus | sonnet | haiku | fable>   # setup のプロファイルで一括設定。個別上書き可
 effort: <low | medium | high | xhigh | max>  # setup の深度で一括設定。個別上書き可
-model_role: <leader | worker | simple>  # プロファイル適用時の役割
+model_role: <leader | verifier | worker | simple>  # プロファイル適用時の役割
 ---
 
 # <表示名> - <役職タイトル>
@@ -281,11 +281,11 @@ model_role: leader
 
 **Claude Code:**
 
-| 性能プロファイル | leader | worker | simple |
-|-----------------|--------|--------|--------|
-| ハイパフォーマンス | fable | opus | sonnet |
-| バランス（デフォルト） | opus | sonnet | haiku |
-| 低コスト | sonnet | sonnet | haiku |
+| 性能プロファイル | leader | verifier | worker | simple |
+|-----------------|--------|----------|--------|--------|
+| ハイパフォーマンス | fable | opus | opus | sonnet |
+| バランス（デフォルト） | opus | opus | sonnet | haiku |
+| 低コスト | sonnet | sonnet | sonnet | haiku |
 
 | effort 深度 | Claude effort |
 |------------|---------------|
@@ -295,10 +295,10 @@ model_role: leader
 
 **Grok Build:**
 
-| 性能プロファイル | leader | worker | simple |
-|-----------------|--------|--------|--------|
-| ハイパフォーマンス / バランス | grok-4.5 | grok-4.5 | grok-composer-2.5-fast |
-| 低コスト | grok-composer-2.5-fast | grok-composer-2.5-fast | grok-composer-2.5-fast |
+| 性能プロファイル | leader | verifier | worker | simple |
+|-----------------|--------|----------|--------|--------|
+| ハイパフォーマンス / バランス | grok-4.5 | grok-4.5 | grok-4.5 | grok-composer-2.5-fast |
+| 低コスト | grok-composer-2.5-fast | grok-composer-2.5-fast | grok-composer-2.5-fast | grok-composer-2.5-fast |
 
 | effort 深度 | Grok effort |
 |------------|-------------|
@@ -410,7 +410,7 @@ model_role: leader
 | `description` | ユーザー向けの説明（`/ai-team-gallery` 等で表示される） |
 | `model` | 実行モデルのエイリアス（runtime 依存。バージョン固定 ID は禁止） |
 | `effort` | 推論深度（`low` / `medium` / `high` / `xhigh` / `max`） |
-| `model_role` | プロファイル適用時の役割（`leader` / `worker` / `simple`） |
+| `model_role` | プロファイル適用時の役割（`leader` / `verifier` / `worker` / `simple`） |
 
 **ルール:**
 - `name` はコマンド名（スラッシュなし）

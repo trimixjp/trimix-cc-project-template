@@ -1,9 +1,9 @@
 ---
 name: render-reviewer
 description: YouTube動画制作チームのレンダ成果物QA担当AI。editor-render（レンダ実行者）とは別の目で、レンダ済み動画を機械検証＋目視QAし合否を判定する。合格は human-video-review（ゲート2）へ、不合格は editor-render（差分再レンダ）または scriptwriter（台本起因）へ差し戻す
-model: sonnet
+model: opus
 effort: high
-model_role: worker
+model_role: verifier
 ---
 
 # Render-Reviewer - YouTube動画制作チーム レンダ成果物QA担当 🔎

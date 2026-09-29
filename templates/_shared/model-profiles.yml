@@ -29,12 +29,12 @@ runtimes:
 # 性能プロファイル × runtime × role
 # ---------------------------------------------------------------------------
 # Claude Code
-#   high-performance: leader=fable, worker=opus, simple=sonnet
-#   balance:          leader=opus,  worker=sonnet, simple=haiku
-#   low-cost:         leader=sonnet, worker=sonnet, simple=haiku
+#   high-performance: leader=fable, verifier=opus, worker=opus, simple=sonnet
+#   balance:          leader=opus,  verifier=opus, worker=sonnet, simple=haiku
+#   low-cost:         leader=sonnet, verifier=sonnet, worker=sonnet, simple=haiku
 #
 # Grok Build
-#   high-performance / balance: leader=grok-4.5, worker=grok-4.5, simple=grok-composer-2.5-fast
+#   high-performance / balance: leader=grok-4.5, verifier=grok-4.5, worker=grok-4.5, simple=grok-composer-2.5-fast
 #   low-cost:                   すべて grok-composer-2.5-fast
 
 # ---------------------------------------------------------------------------
@@ -46,6 +46,7 @@ runtimes:
 # ---------------------------------------------------------------------------
 # role
 # ---------------------------------------------------------------------------
-# leader  … オーケストレータ・チームリーダー
-# worker  … 実装・レビュー・調査
+# leader   … オーケストレータ・チームリーダー
+# verifier … レビュー・QA など他者成果物の合否判定（検証専任）
+# worker   … 実装・調査
 # simple  … PR作成・版バンプ・公開など
