@@ -86,6 +86,19 @@ test('Grok 向けモデル割当が仕様どおり', () => {
   });
 });
 
+test('Grok の verifier は全プロファイルで leader と同値（high-performance も検査）', () => {
+  assert.deepEqual(RUNTIME_MODEL_MAP.grok['high-performance'], {
+    leader: 'grok-4.5',
+    verifier: 'grok-4.5',
+    worker: 'grok-4.5',
+    simple: 'grok-composer-2.5-fast',
+  });
+  for (const profileId of Object.keys(RUNTIME_MODEL_MAP.grok)) {
+    const m = RUNTIME_MODEL_MAP.grok[profileId];
+    assert.equal(m.verifier, m.leader, profileId);
+  }
+});
+
 test('effort は runtime ごとに解決される', () => {
   assert.equal(resolveEffort('deep', 'claude-code'), 'xhigh');
   assert.equal(resolveEffort('normal', 'claude-code'), 'high');

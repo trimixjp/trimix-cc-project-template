@@ -309,7 +309,8 @@ Grok 選択時は `.grok/agents/` と `.grok/commands/` にもミラーされま
 
 役割の例:
 - **leader**: dispatcher, contributor, tech-lead, frontend-lead, editor-in-chief, infra-lead, architect, strategist, director 等。**次の担当へ渡す チケットコメントには詳細な設計書（要件・方針・タスク分割・制約・完了条件）を書く**
-- **worker**: implementer, developer, reviewer, writer, researcher 等。リーダーの設計に従って実装・検証する
+- **verifier**: reviewer, reviewer-a, reviewer-b, security-engineer, compliance, render-reviewer, script-qa などの *-qa 等。他者の成果物の合否判定を専任で行う（自分では制作しない）
+- **worker**: implementer, developer, writer, researcher 等。リーダーの設計に従って実装・調査する
 - **simple**: pr-creator, version-bumper, tech-writer, publisher, editor（レンダ）等
 
 **細かい設定は md ファイルの変更で可能です。** 個別にモデルだけ変えたい場合は、対象 md の `model` / `effort` を直接編集してください。プロファイルの一括再適用:

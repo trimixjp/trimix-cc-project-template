@@ -49,4 +49,4 @@ runtimes:
 # leader   … オーケストレータ・チームリーダー
 # verifier … レビュー・QA など他者成果物の合否判定（検証専任）
 # worker   … 実装・調査
-# simple  … PR作成・版バンプ・公開など
+# simple   … PR作成・版バンプ・公開など
