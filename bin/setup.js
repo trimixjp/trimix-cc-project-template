@@ -31,7 +31,7 @@ function printHelp() {
   console.log('  npx @trimix/ai-team install <team_id>    ワークフロープラグインをインストール');
   console.log('  npx @trimix/ai-team upgrade [team_id]    導入済みチームを最新テンプレートへ更新（バックアップ付き）');
   console.log('  npx @trimix/ai-team baseline <cmd>       upgrade の保護判定用ハッシュ台帳を操作（record / show）');
-  console.log('  npx @trimix/ai-team advisor <cmd>        advisor のモデルを確認・設定（check / apply）');
+  console.log('  npx @trimix/ai-team advisor <cmd>        advisor のモデルを確認・設定（check / apply / gitignore）');
   console.log('  npx @trimix/ai-team gallery              利用可能なプラグイン一覧を表示');
   console.log('  npx @trimix/ai-team list                 インストール済みプラグインを表示');
   console.log('  npx @trimix/ai-team uninstall <team_id>  プラグインをアンインストール');

@@ -8,7 +8,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, symlinkSync, linkSync, statSync, realpathSync, utimesSync
+  mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, symlinkSync, linkSync, statSync, realpathSync, utimesSync, chmodSync, rmSync
 } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -25,6 +25,9 @@ process.env.GIT_CONFIG_NOSYSTEM = '1';
 const ISOLATED_HOME = realpathSync(mkdtempSync(join(tmpdir(), 'advisor-test-home-')));
 process.env.HOME = ISOLATED_HOME;
 process.env.XDG_CONFIG_HOME = join(ISOLATED_HOME, 'xdg');
+// CLAUDE_CONFIG_DIR も差し替える（各テストは env を注入するが、注入漏れでも実ユーザー設定を読まないため）
+process.env.CLAUDE_CONFIG_DIR = join(ISOLATED_HOME, 'claude-config');
+const LOCAL = '.claude/settings.local.json';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '..');
@@ -228,7 +231,6 @@ test('10: CLI（spawn）は一時 dir にだけ書き、パッケージルート
   assert.equal(readJson(local(t)).advisorModel, 'fable');
   assert.equal(existsSync(pkgLocal) ? sha(pkgLocal) : null, before);
 });
-const LOCAL = '.claude/settings.local.json';
 
 test('11: --model が不正なら終了コード2', () => {
   const t = setup();
@@ -267,6 +269,9 @@ test('12: シンボリックリンク・ハードリンクへは書かない（.
   const r = run(t4, ['apply', '--model', 'fable', '--gitignore']);
   assert.equal(r.code, 4);
   assert.equal(readFileSync(gi, 'utf-8'), 'keep\n');
+  // 終了コード4 は「何も書いていない」。個人設定も .claude/ も作られていないこと（必須2・Y1）
+  assert.equal(existsSync(local(t4)), false);
+  assert.equal(existsSync(join(t4.repo, '.claude')), false);
 });
 
 test('13: git 状態の判定と --gitignore の追記（2回実行しても1回分）', () => {
@@ -346,4 +351,267 @@ test('18: どの操作でも R3/R4 のバイト列は不変（fable・opus・uns
     run(t, ['apply', '--model', ...a]);
   }
   assert.deepEqual([sha(r3), sha(r4)], before);
+});
+
+// ---------------------------------------------------------------------------
+// 差し戻し 1/2 の対応（Issue #115・インシデント #12）
+// ---------------------------------------------------------------------------
+
+const CLI = join(packageRoot, 'bin', 'setup.js');
+const TIME_LIMIT_MS = 4000;
+
+/** 別プロセスで実行し、親から SIGKILL で時間制限する（同期ハングはインプロセスのタイマでは捕捉できない） */
+function spawnLimited(args, t, cwd = t.repo) {
+  const r = spawnSync(process.execPath, args, {
+    cwd, encoding: 'utf-8', timeout: TIME_LIMIT_MS, killSignal: 'SIGKILL',
+    env: { ...process.env, CLAUDE_CONFIG_DIR: t.cfg, HOME: t.home },
+  });
+  return { hung: r.signal === 'SIGKILL', status: r.status, out: r.stdout ?? '', err: r.stderr ?? '' };
+}
+const cli = (t, argv, cwd) => spawnLimited([CLI, 'advisor', ...argv], t, cwd);
+const mkfifo = p => { mkdirSync(dirname(p), { recursive: true }); execFileSync('mkfifo', [p]); };
+
+test('19: 制御群 — FIFO を読む処理は本当にハングし、時間制限（SIGKILL）で止められる', () => {
+  const t = setup();
+  const fifo = join(t.base, 'control.fifo'); mkfifo(fifo);
+  const r = spawnLimited(['-e', `require('fs').readFileSync(${JSON.stringify(fifo)})`], t);
+  assert.equal(r.hung, true, 'この検証環境では FIFO の同期読み取りがハングし、SIGKILL で止まる');
+});
+
+// 読み取り経路ごとに、次の3点を対にして固定する（教訓13・16）。
+//  (1) 通常ファイルの双子: 処理がそのパスに到達して読むこと（check の出力に値が出る）
+//  (2) FIFO: 時間内に終わり、決められた終了コードで、ファイルの状態が変わらないこと
+//  (3) 制御群: 同じ FIFO をそのまま読む別プロセスは実際に kill されること（上の19 と併せて）
+const readPaths = [
+  { id: 'R1', cwdSub: false, path: t => join(t.repo, '.claude', 'settings.local.json'), applyCode: 4 },
+  { id: 'R2', cwdSub: true, path: t => join(t.repo, 'sub', '.claude', 'settings.local.json'), applyCode: 3 },
+  { id: 'R3', cwdSub: false, path: t => join(t.repo, '.claude', 'settings.json'), applyCode: 3 },
+  { id: 'R4', cwdSub: false, path: t => join(t.cfg, 'settings.json'), applyCode: 3 },
+];
+for (const rp of readPaths) {
+  test(`20-${rp.id}: ${rp.id} が FIFO でも check / apply は止まらない（双子・制御群と対）`, () => {
+    const t = setup();
+    const sub = join(t.repo, 'sub'); mkdirSync(sub);
+    const cwd = rp.cwdSub ? sub : t.repo;
+    const p = rp.path(t);
+    // (1) 通常ファイルの双子: このパスが実際に読まれる（R3 は cwd の .claude、R2 は cwd≠root のときだけ）
+    writeJson(p, { advisorModel: 'sonnet' });
+    const twin = cli(t, ['check', '--json'], cwd);
+    assert.equal(twin.hung, false);
+    const src = JSON.parse(twin.out).sources.find(s => s.id === rp.id);
+    assert.equal(src.path, p, `${rp.id} の読み取り先`);
+    assert.equal(src.value, 'sonnet', '処理がこのパスに到達して読んだ');
+    rmSync(p);
+    // (3) 制御群: 同じパスを FIFO にして、素朴に読むとハングする
+    mkfifo(p);
+    const control = spawnLimited(['-e', `require('fs').readFileSync(${JSON.stringify(p)})`], t);
+    assert.equal(control.hung, true, '制御群は kill される');
+    // (2) FIFO のまま check / apply
+    const chk = cli(t, ['check'], cwd);
+    assert.equal(chk.hung, false, 'check が止まらない');
+    assert.equal(chk.status, 0);
+    assert.match(chk.out, /通常ファイルではない/);
+    const dry = cli(t, ['apply', '--model', 'fable', '--dry'], cwd);
+    assert.equal(dry.hung, false, 'apply が止まらない');
+    assert.equal(dry.status, rp.applyCode);
+    const real = cli(t, ['apply', '--model', 'fable', '--gitignore'], cwd);
+    assert.equal(real.hung, false);
+    assert.equal(real.status, rp.applyCode);
+    // 拒否・要確認のときは何も書かれていない
+    assert.equal(existsSync(join(t.repo, '.gitignore')), false);
+    if (rp.id !== 'R1') assert.equal(existsSync(join(t.repo, '.claude', 'settings.local.json')), false);
+    assert.equal(statSync(p).isFIFO(), true, 'FIFO はそのまま');
+  });
+}
+
+test('20-config: ai-team-config.yml が FIFO でも止まらない（警告つき）。双子で到達を確認', () => {
+  const t = setup();
+  const p = join(t.repo, '.claude', 'ai-team-config.yml');
+  writeJson(p, 'model_performance: "high-performance"  # 引用符つき\n');
+  const twin = cli(t, ['apply', '--model', 'opus', '--dry']);
+  assert.equal(twin.status, 2, '双子: config を読んで決定6 で opus を拒否（引用符つきの値も読める）');
+  rmSync(p);
+  mkfifo(p);
+  assert.equal(spawnLimited(['-e', `require('fs').readFileSync(${JSON.stringify(p)})`], t).hung, true, '制御群');
+  const chk = cli(t, ['check', '--json']);
+  assert.equal(chk.hung, false);
+  assert.equal(chk.status, 0);
+  const c = JSON.parse(chk.out);
+  assert.equal(c.profile, null);
+  assert.match(c.warnings.join('\n'), /通常ファイルではない/);
+  const dry = cli(t, ['apply', '--model', 'fable', '--dry']);
+  assert.equal(dry.hung, false);
+  assert.equal(dry.status, 0);
+  assert.match(dry.out, /警告/);
+  assert.equal(existsSync(local(t)), false);
+});
+
+test('20-symlink: 設定ファイルが FIFO へのシンボリックリンクでも止まらない', () => {
+  const t = setup();
+  const fifo = join(t.base, 'target.fifo'); mkfifo(fifo);
+  mkdirSync(join(t.repo, '.claude'));
+  symlinkSync(fifo, join(t.repo, '.claude', 'settings.json'));
+  const chk = cli(t, ['check']);
+  assert.equal(chk.hung, false);
+  assert.equal(chk.status, 0);
+  assert.match(chk.out, /通常ファイルではない/);
+});
+
+test('21: .gitignore が読み取り専用 → 終了コード5、個人設定は作られない（Y2）', { skip: process.getuid?.() === 0 }, () => {
+  const t = setup();
+  const gi = join(t.repo, '.gitignore');
+  writeFileSync(gi, 'keep\n'); chmodSync(gi, 0o444);
+  const r = run(t, ['apply', '--model', 'fable', '--gitignore']);
+  assert.equal(r.code, 5);
+  assert.equal(existsSync(local(t)), false);
+  assert.equal(existsSync(join(t.repo, '.claude')), false);
+  assert.equal(readFileSync(gi, 'utf-8'), 'keep\n');
+  assert.match(r.err, /何も書いていません/);
+});
+
+test('21b: .gitignore は追記できたが個人設定を書けなかった → 終了コード5と、追記済みの明示', { skip: process.getuid?.() === 0 }, () => {
+  const t = setup();
+  const dir = join(t.repo, '.claude'); mkdirSync(dir); chmodSync(dir, 0o555); // 検査は通るが書けない
+  try {
+    const r = run(t, ['apply', '--model', 'fable', '--gitignore']);
+    assert.equal(r.code, 5);
+    assert.match(r.err, /\.gitignore は追記済み/);
+    assert.match(readFileSync(join(t.repo, '.gitignore'), 'utf-8'), /\.claude\/settings\.local\.json/);
+    assert.equal(existsSync(local(t)), false);
+  } finally { chmodSync(dir, 0o755); }
+});
+
+test('21c: .claude が通常ファイル（ENOTDIR）でも例外で落ちず、何も書かない', () => {
+  const t = setup();
+  writeFileSync(join(t.repo, '.claude'), 'x');
+  const r = run(t, ['apply', '--model', 'fable']);
+  assert.equal(r.code, 5);
+  assert.match(r.err, /何も書いていません/);
+  assert.equal(existsSync(join(t.repo, '.gitignore')), false);
+});
+
+/** 決定7 の状態: R1 あり（advisorModel なし）・Git 管理外になっていない */
+function d7() {
+  const t = setup();
+  writeJson(local(t), { keep: 1 });
+  utimesSync(local(t), 1000, 1000);
+  return t;
+}
+
+test('22: 決定7 — gitignore だけ追記。R1 のバイト列・更新時刻は不変、advisorModel は書かれない。2回でも1回分', () => {
+  const t = d7();
+  const h = sha(local(t)); const m = statSync(local(t)).mtimeMs;
+  assert.equal(gitState(t.repo), 'not-ignored');
+  const r = run(t, ['gitignore']);
+  assert.equal(r.code, 0);
+  assert.equal(gitState(t.repo), 'ignored');
+  assert.equal(run(t, ['gitignore']).code, 0);
+  const gi = readFileSync(join(t.repo, '.gitignore'), 'utf-8');
+  assert.equal(gi.split('\n').filter(l => l === '.claude/settings.local.json').length, 1);
+  assert.equal(sha(local(t)), h);
+  assert.equal(statSync(local(t)).mtimeMs, m);
+  assert.equal('advisorModel' in readJson(local(t)), false);
+});
+
+test('22b: 決定7 — .gitignore がシンボリックリンクなら終了コード4で R1 もリンク先も不変', () => {
+  const t = d7();
+  const target = join(t.base, 'gi-target'); writeFileSync(target, 'keep\n');
+  symlinkSync(target, join(t.repo, '.gitignore'));
+  const h = sha(local(t)); const m = statSync(local(t)).mtimeMs;
+  assert.equal(run(t, ['gitignore']).code, 4);
+  assert.equal(readFileSync(target, 'utf-8'), 'keep\n');
+  assert.equal(sha(local(t)), h);
+  assert.equal(statSync(local(t)).mtimeMs, m);
+});
+
+test('22c: 決定7 — tracked は警告だけ、not-git は何もしない、--dry は何も書かない、R1 が無ければ何もしない', () => {
+  const t = d7();
+  git(t.repo, 'add', '-f', '.claude/settings.local.json'); git(t.repo, 'commit', '-q', '-m', 'track');
+  const r = run(t, ['gitignore']);
+  assert.equal(r.code, 0);
+  assert.match(r.out, /追跡/);
+  assert.equal(existsSync(join(t.repo, '.gitignore')), false);
+
+  const t2 = setup({ init: false });
+  writeJson(local(t2), { keep: 1 });
+  assert.equal(run(t2, ['gitignore']).code, 0);
+  assert.equal(existsSync(join(t2.repo, '.gitignore')), false);
+
+  const t3 = d7();
+  const r3 = run(t3, ['gitignore', '--dry']);
+  assert.equal(r3.code, 0);
+  assert.match(r3.out, /dry/);
+  assert.equal(existsSync(join(t3.repo, '.gitignore')), false);
+
+  const t4 = setup();
+  const r4 = run(t4, ['gitignore']);
+  assert.equal(r4.code, 0);
+  assert.equal(existsSync(join(t4.repo, '.gitignore')), false);
+  assert.equal(existsSync(join(t4.repo, '.claude')), false);
+});
+
+test('22d: 決定7 — .gitignore が読み取り専用なら終了コード5で R1 不変', { skip: process.getuid?.() === 0 }, () => {
+  const t = d7();
+  const gi = join(t.repo, '.gitignore'); writeFileSync(gi, 'keep\n'); chmodSync(gi, 0o444);
+  const h = sha(local(t));
+  assert.equal(run(t, ['gitignore']).code, 5);
+  assert.equal(sha(local(t)), h);
+  assert.equal(readFileSync(gi, 'utf-8'), 'keep\n');
+});
+
+test('23: 値を取るオプションの検証 — 値なし・`--` 始まり・空・未知の profile は終了コード2で何も書かない', () => {
+  const t = setup();
+  const bad = [
+    ['apply', '--model', 'fable', '--profile', '--dry'],   // --dry を値として飲み込まない（Z1）
+    ['apply', '--model', 'fable', '--profile'],
+    ['apply', '--model', 'opus', '--profile', ''],         // 空文字で決定6 をすり抜けない（Z2）
+    ['apply', '--model', 'opus', '--profile', 'ハイパフォーマンス'], // 表示名（Z3）
+    ['apply', '--model', 'opus', '--profile', 'high_performance'],   // 打ち間違い（Z4）
+    ['apply', '--model', '--dry'],
+    ['check', '--profile', 'nope'],
+  ];
+  for (const argv of bad) {
+    const r = run(t, argv);
+    assert.equal(r.code, 2, argv.join(' '));
+  }
+  assert.equal(existsSync(join(t.repo, '.claude')), false);
+  assert.equal(run(t, ['apply', '--model', 'fable', '--profile', 'balance', '--dry']).code, 0);
+  assert.equal(run(t, ['apply', '--model', 'opus', '--profile', 'high-performance']).code, 2);
+});
+
+test('24: 逸脱1 — R1 がすでに選んだ値なら、他に別の値があっても確認せず、書かず、隠れた値を表示', () => {
+  const t = setup();
+  writeJson(local(t), { advisorModel: 'fable' });
+  const r4 = join(t.cfg, 'settings.json'); writeJson(r4, { advisorModel: 'opus' });
+  const h = sha(local(t)); const h4 = sha(r4);
+  utimesSync(local(t), 1000, 1000); const m = statSync(local(t)).mtimeMs;
+  const r = run(t, ['apply', '--model', 'fable']);
+  assert.equal(r.code, 0);
+  assert.match(r.out, /変更なし/);
+  assert.match(r.out, /R4/);
+  assert.match(r.out, /opus/);
+  assert.equal(sha(local(t)), h);
+  assert.equal(statSync(local(t)).mtimeMs, m);
+  assert.equal(sha(r4), h4);
+});
+
+test('25: check は --profile なしで config から性能を読む。完全なモデル ID の opus も profileConflict', () => {
+  const t = setup();
+  writeJson(join(t.repo, '.claude', 'ai-team-config.yml'), 'runtime: claude-code\nmodel_performance: high-performance\n');
+  writeJson(join(t.cfg, 'settings.json'), { advisorModel: 'claude-opus-4-1' });
+  const c = JSON.parse(run(t, ['check', '--json']).out);
+  assert.equal(c.profile, 'high-performance');
+  assert.equal(c.profileConflict, true);
+  writeJson(join(t.repo, '.claude', 'ai-team-config.yml'), 'model_performance: balance\n');
+  assert.equal(JSON.parse(run(t, ['check', '--json']).out).profileConflict, false);
+});
+
+test('26: unset は、書く必要が無いとき（advisorModel が無い）ハードリンクでも拒否しない', () => {
+  const t = setup();
+  const other = join(t.base, 'other.json'); writeJson(other, { y: 1 });
+  mkdirSync(join(t.repo, '.claude'));
+  linkSync(other, local(t));
+  const r = run(t, ['apply', '--model', 'unset']);
+  assert.equal(r.code, 0);
+  assert.deepEqual(readJson(other), { y: 1 });
 });

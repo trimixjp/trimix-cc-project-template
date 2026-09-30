@@ -145,7 +145,8 @@ advisor は、実装エージェントが判断に迷ったときに相談する
 
 ```bash
 # <パッケージルート> は npm なら node_modules/@trimix/ai-team、ソースならリポジトリルート
-# <performance> = 質問5 の選択（再 setup で質問5 を聞かないときは現在の config の値）
+# <performance> = 質問5 の選択の**内部 ID**（`balance` / `high-performance` / `low-cost`。表示名や打ち間違いは終了コード2）
+#   再 setup で質問5 を聞かないときは、現在の config の値（`--profile` を省くと config から読む）
 node <パッケージルート>/bin/setup.js advisor check --profile <performance>
 ```
 
@@ -348,8 +349,11 @@ head -8 .claude/commands/ai-team-run.md
 JSON の読み書きはコードで行います（既存キーを壊さない・同じ操作を繰り返しても結果が変わらない・黙って上書きしない、をコード側で保証するため）。`.claude/settings.local.json` を手で編集せず、必ず次のコマンドを使ってください。
 
 ```bash
-# <model> = fable | opus | unset（unset は質問7 の「解除」）。質問7 で「設定しない」を選んだときは何も実行しない
+# <model> = fable | opus | unset（unset は質問7 の「解除」）。質問7 で「設定しない」を選んだときは apply を実行しない
 node <パッケージルート>/bin/setup.js advisor apply --model <model> --profile <performance>
+
+# 「設定しない」を選んだが .gitignore の追記に同意したとき（決定7）だけ、advisorModel を書かずに追記する
+node <パッケージルート>/bin/setup.js advisor gitignore
 ```
 
 書き込み先は **git リポジトリのルート**（worktree では本体側のルート）の `.claude/settings.local.json` です（公式ドキュメントの読み取り位置に合わせるため。git 外では実行フォルダ）。ファイルが無ければ作成し、あれば既存のキーを保ったまま `advisorModel` だけを設定します。
@@ -361,11 +365,17 @@ node <パッケージルート>/bin/setup.js advisor apply --model <model> --pro
 | 0 | 成功、または変更なし | 出力（変更内容・残っている他の設定の値と場所）を利用者に伝える |
 | 2 | 引数誤り、または性能 high-performance で opus を選んだ | 選び直しを案内する |
 | 3 | 既存の `advisorModel` があり、選んだ値と違う（または他の設定ファイルを確認できない） | 出力された**値と場所**を示し、上書きするかを `AskUserQuestion` で尋ねる。はいなら `--overwrite` を付けて再実行、いいえなら何も書かない。**黙って上書きしない** |
-| 4 | 書き込み拒否（壊れた JSON・シンボリックリンク・ハードリンクなど） | 「コマンド失敗時のフォールバック」に従い、理由とコマンドを示して停止する |
+| 4 | 書き込み拒否（壊れた JSON・シンボリックリンク・ハードリンク・通常ファイルでない実体など）。**何も書いていない** | 「コマンド失敗時のフォールバック」に従い、理由とコマンドを示して停止する |
+| 5 | 想定外の例外、または書き込みの失敗。**出力の「状態」に、どこまで書いたか**（何も書いていない／`.gitignore` は追記済みで個人設定は未書き込み）が書かれる | エラー出力を、その「状態」とあわせて利用者に示す。`advisor check` で実際の状態を確かめてから停止する（黙って再実行しない） |
+
+通常ファイルでない実体（FIFO など）が設定ファイルの場所にあるときは、読まずに「確認できません」と表示します（`check` は終了コード0、`apply` は R1 なら 4、R2〜R4 なら 3）。
 
 - `--overwrite` でも、共有プロジェクト設定（`.claude/settings.json`）とユーザー設定（`CLAUDE_CONFIG_DIR` があればその下、無ければ `~/.claude/settings.json`）は変更しません。個人設定の値が優先されて隠れるだけです。その旨を伝えてください
-- **「設定しない」を選んでも、既存の値が問題になる場合がある**: 性能を high-performance にする（またはすでにそうである）状態で、`check` の実効値が `opus` のとき（`profileConflict: true`）は、黙って放置せず、値と場所を示して「fable に変更 / そのまま残す / 解除（R1 にあるときだけ）」を尋ねる（決定3と同じ扱い）。変更を選んだ場合は `apply --model fable --overwrite`（解除なら `--model unset`）を実行する
-- **Git 管理外の確認**: `check` の「git 状態」が `not-ignored` なら、`.gitignore` への追記（`.claude/settings.local.json`）を利用者に提案する。はいなら `apply` に `--gitignore` を付ける（「設定しない」のときは何も実行しないので、追記の提案もしない）。`tracked`（すでに Git が追跡している）なら追記しても外れないので、警告だけを伝え、`git rm --cached` は利用者の判断に任せる。`not-git` なら何もしない
+- **「設定しない」を選んでも、既存の値が問題になる場合がある**: 性能を high-performance にする（またはすでにそうである）状態で、`check` の実効値が `opus`（完全なモデル ID を含む）のとき（`check` の出力に「注意: high-performance では本体が fable のため、opus の advisor は付きません」が出る。`--json` では `profileConflict` が `true`）は、黙って放置せず、値と場所を示して「fable に変更 / そのまま残す / 解除（R1 にあるときだけ）」を尋ねる（決定3と同じ扱い）。変更を選んだ場合は `apply --model fable --overwrite`（解除なら `--model unset`）を実行する
+- **Git 管理外の確認**: `check` の「git 状態」が `not-ignored` なら、`.gitignore` への追記（`.claude/settings.local.json`）を利用者に提案する。追記は同意したときだけ行う。
+  - fable / opus / 解除を選んだとき: はいなら `apply` に `--gitignore` を付ける（R1 を新しく作る場合も提案する）
+  - **「設定しない」を選んだとき（決定7）**: `check` の R1（`.claude/settings.local.json`）が**すでにあり**、git 状態が `not-ignored` のときだけ提案する（R1 が無ければ提案しない。個人設定がコミットされる危険は「設定しない」でも変わらないため）。はいなら `advisor gitignore` を実行する（`advisorModel` は書かず、R1 も変えない。R1 が無いときはコマンド側でも何もしない）。いいえなら何もしない
+  - `tracked`（すでに Git が追跡している）なら追記しても外れないので、警告だけを伝え、`git rm --cached` は利用者の判断に任せる。`not-git` なら何もしない
 - 実行フォルダとルートが違う場合（サブフォルダ・worktree）は、`.claude/`（実行フォルダ）と `settings.local.json`（ルート）の場所が分かれることを伝える
 
 ### ソロモード（選択時）
@@ -794,7 +804,7 @@ node <パッケージルート>/bin/setup.js baseline record --force
 - [ ] 質問4c で worktree を選んだ場合、`.gitignore` に `.claude/worktrees/` が追記されている（`grep -qxF ".claude/worktrees/" .gitignore`）
 - [ ] モデル・effort プロファイルを配置済み md に反映済み（tech-lead / pr-creator / ai-team-run の frontmatter を spot チェック）
 - [ ] `.claude/model-profiles.yml` が配置されている
-- [ ] runtime=claude-code のとき、質問7 の結果が `node <パッケージルート>/bin/setup.js advisor check --profile <performance>` の実効値と一致している（「設定しない」を選んだ場合は `.claude/settings.local.json` が実行前と同じ）。runtime=grok なら質問7 を聞いていない
+- [ ] runtime=claude-code のとき、質問7 の結果が `node <パッケージルート>/bin/setup.js advisor check --profile <performance>` の実効値と一致している（「設定しない」を選んだ場合は `.claude/settings.local.json` が実行前と同じ。ただし、決定7 の `.gitignore` 追記に同意したときは `.gitignore` だけが変わる）。`.gitignore` の追記を提案した／した結果（追記した・断られた・追跡中で警告・対象外）を確認した。runtime=grok なら質問7 を聞いていない
 - [ ] プロジェクト指示: `claude-code` なら `.claude/CLAUDE.md`、`grok` なら `AGENTS.md` と `.claude/CLAUDE.md` の両方に AIチーム設定がある
 - [ ] `runtime=grok` なら `.grok/agents/` にエージェントがミラーされている
 - [ ] hooks 選択時: `.claude/hooks/ensure-issue.sh` があり、`grok` なら `.grok/hooks/ensure-issue.json` もある
@@ -820,6 +830,7 @@ node <パッケージルート>/bin/setup.js baseline record --force
 - モデル性能: [balance / high-performance / low-cost]
 - effort 深度: [normal / deep / light]
 - advisor のモデル: [fable / opus / 設定しない / 解除 / 対象外（grok）]（実効値と、その値がある場所。書き込み先の絶対パス）
+- `.gitignore` への追記: [追記した / 断られた / すでに管理外 / 追跡中（警告のみ） / git 外 / 提案不要（設定しない・R1 なし）]
 
 ## 次のステップ
 1. プロジェクト指示を確認・カスタマイズ（claude-code: `.claude/CLAUDE.md` / grok: `AGENTS.md` と `.claude/CLAUDE.md`）

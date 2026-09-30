@@ -19,6 +19,10 @@
  * 書き込み経路:
  *   W1 <root>/.claude/ の作成 / W2 <root>/.claude/settings.local.json / W3 <root>/.gitignore の追記
  *
+ * 読み取りは、読む前に通常ファイルかを確かめる（FIFO の readFileSync は同期でブロックし、try/catch では
+ * 捕まえられない。インシデント #4 教訓15・#12。bin/lib/upgrade.js:159-161 と同じ）。
+ * 書き込みは、失敗しうる判定（リンク検査・書き込み可否）をすべて済ませてから始める（#12）。
+ *
  * 環境（cwd / env / homedir / uid / platform）は引数で注入できる。テストが実ユーザー設定に触れないため。
  */
 
@@ -29,11 +33,13 @@ import { join, resolve, dirname, basename } from 'path';
 import { homedir as osHomedir } from 'os';
 import { execFileSync } from 'child_process';
 
-import { firstSymlinkInPath, hardlinkNlink, irregularFileType } from './link-safety.js';
+import { firstSymlinkInPath, hardlinkNlink, irregularFileType, fileTypeLabel } from './link-safety.js';
+import { PERFORMANCE_PROFILES } from './model-profiles.js';
 
 export const LOCAL_REL = '.claude/settings.local.json';
 export const MODELS = ['fable', 'opus'];
-export const EXIT = { OK: 0, USAGE: 2, NEED_CONFIRM: 3, REFUSED: 4 };
+// FAILED(5): 想定外の例外・書き込みの失敗。出力に「どこまで書いたか」を必ず示す
+export const EXIT = { OK: 0, USAGE: 2, NEED_CONFIRM: 3, REFUSED: 4, FAILED: 5 };
 const GITIGNORE_BLOCK = '\n# @trimix/ai-team - 個人設定（advisor のモデルなど）\n.claude/settings.local.json\n';
 
 /** 実行環境の既定値を補う（テストは全項目を注入する） */
@@ -85,9 +91,26 @@ export function resolveRoot(e) {
   return owned ? r : cwd;
 }
 
+/**
+ * 読んでよい通常ファイルでなければ、種別の日本語ラベルを返す（読んでよければ null）。
+ * irregularFileType は lstat なので、シンボリックリンクの先が FIFO のものは stat で追加確認する。
+ */
+function notReadableFile(path) {
+  try {
+    const irr = irregularFileType(path);
+    if (irr) return fileTypeLabel(irr.fileType);
+    const st = statSync(path);
+    return st.isFile() ? null : (st.isDirectory() ? 'ディレクトリ' : '通常ファイル以外の実体');
+  } catch (err) {
+    return `状態を確認できません: ${err.code ?? err.message}`;
+  }
+}
+
 /** 設定ファイル1つを読む。{ path, exists, value, error } */
 export function readSetting(path) {
   if (!existsSync(path)) return { path, exists: false, value: undefined, error: null };
+  const bad = notReadableFile(path);
+  if (bad) return { path, exists: true, value: undefined, error: `通常ファイルではない（${bad}）ため読みません`, obj: undefined };
   try {
     const obj = JSON.parse(readFileSync(path, 'utf-8'));
     if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
@@ -119,14 +142,20 @@ export function gitState(root) {
   try { git(root, ['check-ignore', '-q', '--', LOCAL_REL]); return 'ignored'; } catch { return 'not-ignored'; }
 }
 
-/** config の model_performance を読む（無ければ null）。読むだけ */
+/**
+ * config の model_performance を読む。{ value, warning }（読めなければ value は null）。読むだけ
+ * 通常ファイル以外は読まない（FIFO でブロックするため）。値の引用符と行末コメントは除く
+ */
 export function readProfile(cwd) {
+  const path = join(cwd, '.claude', 'ai-team-config.yml');
+  if (!existsSync(path)) return { value: null, warning: null };
+  const bad = notReadableFile(path);
+  if (bad) return { value: null, warning: `${path} は通常ファイルではない（${bad}）ため読みません。性能プロファイルは不明として扱います` };
   try {
-    const m = readFileSync(join(cwd, '.claude', 'ai-team-config.yml'), 'utf-8')
-      .match(/^\s*model_performance:\s*([\w-]+)/m);
-    return m ? m[1] : null;
-  } catch {
-    return null;
+    const m = readFileSync(path, 'utf-8').match(/^\s*model_performance:\s*["']?([\w-]+)/m);
+    return { value: m ? m[1] : null, warning: null };
+  } catch (err) {
+    return { value: null, warning: `${path} を読めません（${err.message}）。性能プロファイルは不明として扱います` };
   }
 }
 
@@ -135,7 +164,8 @@ export function checkAdvisor(e, opts = {}) {
   const root = resolveRoot(e);
   const sources = collectSources(e, root);
   const eff = sources.find(s => s.value !== undefined);
-  const profile = opts.profile ?? readProfile(real(e.cwd));
+  const fromConfig = opts.profile === undefined ? readProfile(real(e.cwd)) : { value: opts.profile, warning: null };
+  const profile = fromConfig.value;
   return {
     cwd: real(e.cwd),
     root,
@@ -145,8 +175,9 @@ export function checkAdvisor(e, opts = {}) {
     effective: eff ? { value: eff.value, id: eff.id, path: eff.path } : null,
     git: gitState(root),
     profile,
-    // high-performance では本体が fable になり、opus の advisor は付かない（決定6）
-    profileConflict: profile === 'high-performance' && eff?.value === 'opus',
+    warnings: fromConfig.warning ? [fromConfig.warning] : [],
+    // high-performance では本体が fable になり、opus の advisor は付かない（決定6）。完全なモデル ID も対象
+    profileConflict: profile === 'high-performance' && typeof eff?.value === 'string' && /opus/i.test(eff.value),
   };
 }
 
@@ -162,6 +193,7 @@ function describeCheck(c) {
   lines.push(c.effective ? `実効値: ${show(c.effective.value)}（${c.effective.id}: ${c.effective.path}）` : '実効値: なし（advisor はオフ）');
   lines.push(`git 状態: ${c.git}`);
   if (c.profile) lines.push(`性能プロファイル: ${c.profile}`);
+  lines.push(...c.warnings.map(w => `警告: ${w}`));
   if (c.profileConflict) lines.push('注意: high-performance では本体が fable のため、opus の advisor は付きません');
   return lines;
 }
@@ -188,9 +220,11 @@ function conflictsFor(sources, model) {
     .concat(sources.filter(s => s.id === 'R1' && s.value !== undefined && s.value !== model));
 }
 
+/** .gitignore 追記の計画。書き込みはしない（拒否の判定をここで済ませる） */
 function planGitignore(c, opts, root) {
   if (!opts.gitignore) return { lines: [], write: false };
   if (c.git === 'tracked') return { lines: ['警告: .claude/settings.local.json は Git に追跡されています。.gitignore では外れません（`git rm --cached .claude/settings.local.json` は利用者の判断）'], write: false };
+  if (c.git === 'not-git') return { lines: ['git リポジトリではないため、.gitignore への追記はしません'], write: false };
   if (c.git !== 'not-ignored') return { lines: [], write: false };
   const refuse = refuseWrite(root, null, '.gitignore');
   if (refuse) return { lines: [refuse], write: false, refused: true };
@@ -199,6 +233,29 @@ function planGitignore(c, opts, root) {
 
 function doGitignore(root) {
   appendFileSync(join(root, '.gitignore'), GITIGNORE_BLOCK, 'utf-8');
+}
+
+/** 個人設定を書かずに .gitignore だけ追記する（決定7）。個人設定ファイルが無ければ何もしない */
+export function gitignoreOnly(e, opts = {}) {
+  const c = checkAdvisor(e, {});
+  const r1 = c.sources[0];
+  if (!r1.exists) return { code: EXIT.OK, lines: ['個人設定（.claude/settings.local.json）がまだ無いため、何もしません'] };
+  const gi = planGitignore(c, { gitignore: true }, c.root);
+  const lines = [...gi.lines];
+  if (gi.refused) return { code: EXIT.REFUSED, lines };
+  if (gi.write && !opts.dry) {
+    try { doGitignore(c.root); } catch (err) {
+      return { code: EXIT.FAILED, lines: [...lines, `.gitignore に追記できませんでした（${err.message}）。個人設定は変更していません`] };
+    }
+  }
+  if (opts.dry) lines.push('[dry] 何も書いていません');
+  return { code: EXIT.OK, lines };
+}
+
+/** 選んだ値を書いても、すでに同じで書く必要が無いか（検査も不要） */
+function needsNoWrite(r1, model) {
+  if (model === 'unset') return !r1.exists || (!r1.error && !('advisorModel' in r1.obj));
+  return r1.value === model && !r1.error;
 }
 
 /** apply 本体。{ code, lines } を返す */
@@ -212,8 +269,7 @@ export function applyAdvisor(e, opts) {
     return { code: EXIT.USAGE, lines: ['性能 high-performance では本体が fable のため、opus の advisor は選べません（fable か unset を選んでください）'] };
   }
   const r1 = c.sources[0];
-  const lines = [];
-  let code = EXIT.OK;
+  const root = c.root;
 
   if (model !== 'unset' && r1.value !== model) {
     const conf = conflictsFor(c.sources, model);
@@ -221,23 +277,30 @@ export function applyAdvisor(e, opts) {
       return { code: EXIT.NEED_CONFIRM, lines: [`既存の設定があります。上書きするなら --overwrite を付けてください（選んだ値: ${model}）`, ...conf.map(s => `  ${s.id} ${s.path}: ${s.error ? s.error : `advisorModel = ${show(s.value)}`}`)] };
     }
   }
-  const root = c.root;
-  const refuse = (model === 'unset' && !r1.exists) || (model !== 'unset' && r1.value === model && !r1.error) ? null : refuseWrite(root, r1, LOCAL_REL);
-  if (refuse) return { code: EXIT.REFUSED, lines: [refuse] };
 
-  const next = model === 'unset' ? unsetValue(r1) : setValue(r1, model);
-  if (next.obj) {
-    lines.push(`${dry ? '[dry] ' : ''}${next.msg}: ${c.writeTarget}`);
-    if (!dry) { mkdirSync(join(root, '.claude'), { recursive: true }); writeJson(c.writeTarget, next.obj); }
-  } else {
-    lines.push(next.msg);
-  }
+  // --- 書き込み前に、失敗しうる判定をすべて済ませる（何も書かないまま 4 を返せるように）---
+  const refuse = needsNoWrite(r1, model) ? null : refuseWrite(root, r1, LOCAL_REL);
+  if (refuse) return { code: EXIT.REFUSED, lines: [refuse] };
   const gi = planGitignore(c, { gitignore }, root);
+  if (gi.refused) return { code: EXIT.REFUSED, lines: gi.lines };
+
+  // --- 書き込み。.gitignore を先にする（個人設定だけが Git 管理外にならないまま残る状態を作らない）---
+  const next = model === 'unset' ? unsetValue(r1) : setValue(r1, model);
+  const lines = [];
+  const done = [];
+  try {
+    if (gi.write && !dry) { doGitignore(root); done.push('.gitignore は追記済み'); }
+    if (next.obj && !dry) { mkdirSync(join(root, '.claude'), { recursive: true }); writeJson(c.writeTarget, next.obj); }
+  } catch (err) {
+    // .gitignore の追記に失敗したときは個人設定にまだ触れていない。追記後の失敗なら追記済みと明示する
+    const state = done.length ? `${done.join('、')}。個人設定（${c.writeTarget}）は書けていません（advisor check で確かめてください）` : '何も書いていません';
+    return { code: EXIT.FAILED, lines: [`書き込みに失敗しました（${err.message}）。状態: ${state}`] };
+  }
+  lines.push(next.obj ? `${dry ? '[dry] ' : ''}${next.msg}: ${c.writeTarget}` : next.msg);
   lines.push(...gi.lines);
-  if (gi.refused) code = EXIT.REFUSED;
-  else if (gi.write && !dry) doGitignore(root);
+  lines.push(...c.warnings.map(w => `警告: ${w}`));
   lines.push(...afterNotes(c, model, dry));
-  return { code, lines };
+  return { code: EXIT.OK, lines };
 }
 
 function setValue(r1, model) {
@@ -268,17 +331,29 @@ function afterNotes(c, model, dry) {
   return notes;
 }
 
-/** CLI の引数を解釈する */
+const USAGE = '使い方: advisor check [--json] [--profile <id>] | advisor apply --model <fable|opus|unset> [--overwrite] [--gitignore] [--dry] [--profile <id>] | advisor gitignore [--dry]';
+
+/** CLI の引数を解釈する。値を取るオプション（--model / --profile）は、値が無い・`--` で始まる・空のときエラー */
 export function parseAdvisorArgs(argv) {
   const opts = { overwrite: false, gitignore: false, dry: false, json: false };
+  const value = (i) => {
+    const v = argv[i];
+    return v === undefined || v === '' || v.startsWith('--') ? null : v;
+  };
   for (let i = 1; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--overwrite') opts.overwrite = true;
     else if (a === '--gitignore') opts.gitignore = true;
     else if (a === '--dry') opts.dry = true;
     else if (a === '--json') opts.json = true;
-    else if (a === '--model') opts.model = argv[++i];
-    else if (a === '--profile') opts.profile = argv[++i];
+    else if (a === '--model' || a === '--profile') {
+      const v = value(i + 1);
+      if (v === null) return { error: `${a} には値が必要です（指定: ${show(argv[i + 1])}）` };
+      i++;
+      if (a === '--model') opts.model = v;
+      else if (!Object.hasOwn(PERFORMANCE_PROFILES, v)) return { error: `--profile は ${Object.keys(PERFORMANCE_PROFILES).join(' / ')} のいずれかです（内部 ID。指定: ${show(v)}）` };
+      else opts.profile = v;
+    }
     else return { error: `不明なオプション: ${a}` };
   }
   return { sub: argv[0], opts };
@@ -289,18 +364,24 @@ export function runAdvisor(argv, overrides = {}) {
   const out = overrides.out ?? (s => console.log(s));
   const errOut = overrides.err ?? (s => console.error(s));
   const parsed = parseAdvisorArgs(argv);
-  if (parsed.error || !['check', 'apply'].includes(parsed.sub)) {
-    errOut(parsed.error ?? '使い方: advisor check [--json] | advisor apply --model <fable|opus|unset> [--overwrite] [--gitignore] [--dry] [--profile <id>]');
+  if (parsed.error || !['check', 'apply', 'gitignore'].includes(parsed.sub)) {
+    errOut(parsed.error ?? USAGE);
     return EXIT.USAGE;
   }
-  const e = makeEnv(overrides);
-  if (parsed.sub === 'check') {
-    const c = checkAdvisor(e, { profile: parsed.opts.profile });
-    if (parsed.opts.json) out(JSON.stringify(c, (k, v) => (k === 'obj' ? undefined : v), 2));
-    else describeCheck(c).forEach(out);
-    return EXIT.OK;
+  try {
+    const e = makeEnv(overrides);
+    if (parsed.sub === 'check') {
+      const c = checkAdvisor(e, { profile: parsed.opts.profile });
+      if (parsed.opts.json) out(JSON.stringify(c, (k, v) => (k === 'obj' ? undefined : v), 2));
+      else describeCheck(c).forEach(out);
+      return EXIT.OK;
+    }
+    const r = parsed.sub === 'gitignore' ? gitignoreOnly(e, parsed.opts) : applyAdvisor(e, parsed.opts);
+    r.lines.forEach(l => (r.code === EXIT.OK ? out(l) : errOut(l)));
+    return r.code;
+  } catch (err) {
+    // 検査（書き込み前）で起きた例外。何も書いていない（書き込み中の失敗は apply 側で状態つきで返す）
+    errOut(`想定外のエラー: ${err.message}。何も書いていません。状態は advisor check で確かめてください`);
+    return EXIT.FAILED;
   }
-  const r = applyAdvisor(e, parsed.opts);
-  r.lines.forEach(l => (r.code === EXIT.OK ? out(l) : errOut(l)));
-  return r.code;
 }
