@@ -31,6 +31,7 @@ function printHelp() {
   console.log('  npx @trimix/ai-team install <team_id>    ワークフロープラグインをインストール');
   console.log('  npx @trimix/ai-team upgrade [team_id]    導入済みチームを最新テンプレートへ更新（バックアップ付き）');
   console.log('  npx @trimix/ai-team baseline <cmd>       upgrade の保護判定用ハッシュ台帳を操作（record / show）');
+  console.log('  npx @trimix/ai-team advisor <cmd>        advisor のモデルを確認・設定（check / apply）');
   console.log('  npx @trimix/ai-team gallery              利用可能なプラグイン一覧を表示');
   console.log('  npx @trimix/ai-team list                 インストール済みプラグインを表示');
   console.log('  npx @trimix/ai-team uninstall <team_id>  プラグインをアンインストール');
@@ -115,6 +116,10 @@ async function main() {
     const { runBaseline } = await import('./lib/upgrade.js');
     const code = runBaseline(args.slice(1), { cwd });
     process.exit(code);
+  } else if (command === 'advisor') {
+    // advisor のモデル（advisorModel）を .claude/settings.local.json へ読み書き（Issue #115）
+    const { runAdvisor } = await import('./lib/advisor-model.js');
+    process.exit(runAdvisor(args.slice(1), { cwd }));
   } else if (command === 'gallery') {
     const { showGallery } = await import('./lib/gallery.js');
     await showGallery({ cwd, packageRoot });
