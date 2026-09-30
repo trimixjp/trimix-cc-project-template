@@ -630,6 +630,8 @@ Reviewer-A・Reviewer-B はお互いのコメントを見ずにそれぞれレ�
   根拠: .claude/rules/security.md「環境変数は必ず存在チェックを行うこと」
 
 </details>
+
+⏭️ 次のアクション: Reviewer-B の独立レビュー完了後にクロスレビューを実施します
 ```
 
 ```
@@ -645,6 +647,8 @@ Reviewer-A・Reviewer-B はお互いのコメントを見ずにそれぞれレ�
 - 指摘: tests/auth.test.ts — 環境変数未定義時のテストケースがない
 
 </details>
+
+⏭️ 次のアクション: Reviewer-A の独立レビュー完了後にクロスレビューを実施します
 ```
 
 #### 5. クロスレビューで合意形成

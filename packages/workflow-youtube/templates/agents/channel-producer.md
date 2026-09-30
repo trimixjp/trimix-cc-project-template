@@ -209,6 +209,11 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 
 <判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
 
+## 人間残作業（次工程で人間が実施）
+- [ ] YouTube Studio 手動設定（youtube-channel.md の設定値を転記）
+- [ ] OAuth トークンの用意
+- [ ] 声（TTS provider / voice_id）の用意
+
 <details>
 <summary>詳細（エージェント向けの記録）</summary>
 
@@ -244,11 +249,6 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 
 ## スキーマ検証
 - [ ] channel.yaml が Zod パース（render --dry-run）を通過
-
-## 人間残作業（次工程で人間が実施）
-- [ ] YouTube Studio 手動設定（youtube-channel.md の設定値を転記）
-- [ ] OAuth トークンの用意
-- [ ] 声（TTS provider / voice_id）の用意
 
 ## 判断根拠
 （参照したファイル・PRODUCTION-GUIDE の該当節・配色や字幕言語の決定根拠）

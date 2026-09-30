@@ -10,6 +10,11 @@
  *   2. 1行目に「関連インシデント注意事項」または「独立レビュー完了」を含む
  *   3. 空行を除いて10行以上ある
  *
+ * 追加の検査（差し戻し 1/2 の対応）:
+ *   - 人への依頼の節（`## 人間…`・`## 人へ…`・`## 人に…`）が <details> の中に入っていない（R3）
+ *   - 1行目の規則に当たらないブロック（<details> 先頭・1行目の前に空行）も、外枠でなければ失敗にする（O1）
+ *   - 規約本文の `split("\n")[0]` に本物の改行が混入していない（O8）
+ *
  * このテストが検知しないこと: 実行時にエージェントが雛形どおりに書くか（LLM の振る舞い）、
  * 要点行に書いた事実の正しさ、GitHub と Obsidian の実際の描画、既存環境への upgrade 配布。
  */
@@ -38,7 +43,12 @@ function walk(dir, out = []) {
   return out;
 }
 
-/** コードブロック（``` と、入れ子用にエスケープした \`\`\`）を抜き出す */
+/**
+ * コードブロック（``` と、入れ子用にエスケープした \`\`\`）を抜き出す。
+ * 外枠（``` の中にエスケープしたフェンスが開くブロック。雛形の入れ物）には outer を付ける。
+ * 印は、生のブロックが開いている間にエスケープしたフェンスが開いた時点でしか付けられない
+ * （フェンス行は読み飛ばすので、抽出の後からは外枠を判定できない）。
+ */
 function extractBlocks(text) {
   const lines = text.split('\n');
   const out = [];
@@ -52,6 +62,7 @@ function extractBlocks(text) {
         cur[kind] = null;
       } else {
         cur[kind] = { start: i + 1, lines: [] };
+        if (kind === 'esc' && cur.raw) cur.raw.outer = true;
       }
       continue;
     }
@@ -69,18 +80,19 @@ function isTemplate(lines) {
   return lines.filter((l) => l.trim()).length >= 10;
 }
 
-function collectTemplates() {
+function collectBlocks() {
   const found = [];
   for (const file of walk(join(root, 'templates'))) {
     const rel = file.slice(root.length + 1);
     for (const b of extractBlocks(readFileSync(file, 'utf8'))) {
-      if (isTemplate(b.lines)) found.push({ where: `${rel}:${b.start}`, file: rel, lines: b.lines });
+      found.push({ where: `${rel}:${b.start}`, file: rel, start: b.start, lines: b.lines, outer: !!b.outer });
     }
   }
   return found;
 }
 
-const templates = collectTemplates();
+const allBlocks = collectBlocks();
+const templates = allBlocks.filter((b) => isTemplate(b.lines));
 
 test('雛形の件数が下限を下回らない（判定の壊れ・雛形の消失を検知）', () => {
   assert.ok(templates.length >= MIN_TEMPLATES, `雛形 ${templates.length} 件（下限 ${MIN_TEMPLATES}）`);
@@ -125,6 +137,52 @@ test('1行目（差し戻し回数の照合が読む行）が雛形の先頭に�
   }
 });
 
+// 人への依頼の節（承認依頼・手動作業の依頼など）は、人が読むので <details> の外に置く（Issue #116 の決定④・インシデント #13）
+const HUMAN_REQUEST_HEADING = /^#{1,6}\s*(人間|人へ|人に)/;
+
+/** <details> と </details> の間にある、人への依頼の見出しを返す */
+function humanRequestsInsideDetails(lines) {
+  const hits = [];
+  let inside = false;
+  lines.forEach((l, i) => {
+    if (l === '<details>') inside = true;
+    else if (l === '</details>') inside = false;
+    else if (inside && HUMAN_REQUEST_HEADING.test(l)) hits.push({ line: i, text: l });
+  });
+  return hits;
+}
+
+test('人への依頼の節（## 人間…・## 人へ…・## 人に…）が <details> の中に入っていない', () => {
+  const problems = [];
+  for (const b of allBlocks) {
+    if (b.outer) continue;
+    for (const h of humanRequestsInsideDetails(b.lines)) {
+      problems.push(`${b.where}（ブロック内 ${h.line + 1} 行目）: 人への依頼の節が <details> の中にある: ${h.text}`);
+    }
+  }
+  assert.deepEqual(problems, []);
+  // 走査が空振りしていないことの確認: 依頼の節を持つ雛形（外側）が1件以上ある
+  const outside = templates.filter((t) => t.lines.some((l) => HUMAN_REQUEST_HEADING.test(l)));
+  assert.ok(outside.length >= 4, `依頼の節を持つ雛形 ${outside.length} 件（少なくとも4件あるはず）`);
+});
+
+test('1行目の規則に当たらない雛形を見逃さない（<details> 先頭・1行目の前の空行）', () => {
+  const problems = [];
+  for (const b of allBlocks) {
+    if (b.outer) continue;
+    const firstNonBlank = b.lines.find((l) => l.trim());
+    // 1行目の前に空行がある旧形式（1行目の規則で拾えない）
+    if (b.lines[0] === '' && firstNonBlank && FIRST_LINE.test(firstNonBlank) && b.lines.includes('</details>')) {
+      problems.push(`${b.where}: 1行目の前に空行がある（差し戻し回数の照合が1行目を読めない）`);
+    }
+    // 詳細の <details> を持つのに、1行目が絵文字等で始まっていない（<details> が先頭など）
+    if (b.lines.includes(SUMMARY) && !FIRST_LINE.test(b.lines[0] || '')) {
+      problems.push(`${b.where}: 詳細の <details> を持つが、1行目が絵文字・プレースホルダ・注意事項見出しで始まらない`);
+    }
+  }
+  assert.deepEqual(problems, []);
+});
+
 test('pr-creator の PR 本文フォーマットに、実行していない確認の既定値が無い（インシデント #11）', () => {
   for (const team of ['backend', 'frontend']) {
     const text = readFileSync(join(root, `templates/teams/${team}/agents/pr-creator.md`), 'utf8');
@@ -149,6 +207,16 @@ test('skills/ai-team-run.md に規約の小節・引き継ぎ前チェック・6
     /1行目がコメントの先頭にあり、`⏭️ 次のアクション:` 行が `<\/details>` の外にある/.test(text),
     '引き継ぎ前チェックの項目が無い',
   );
+  // O8: 規約本文の式に本物の改行が混入していない（\n はバックスラッシュと n の2文字）
+  const section = text.slice(text.indexOf('### コメントの表示構成（折りたたみ）'), text.indexOf('### 引き継ぎ前チェック'));
+  assert.ok(section.includes('split("\\n")[0]'), '規約の小節に split("\\n")[0] が改行なしで書かれていない');
+  for (const dir of ['skills', 'templates']) {
+    for (const f of walk(join(root, dir))) {
+      readFileSync(f, 'utf8').split('\n').forEach((l, i) => {
+        assert.ok(!/split\("$/.test(l), `${f.slice(root.length + 1)}:${i + 1}: split(" の直後で改行している`);
+      });
+    }
+  }
   assert.ok(text.includes('以下6条項を**そのまま**'), '委託条項が6条項になっていない');
   assert.match(text, /^6\. チケットコメント・PR 本文は/m, '委託条項の6条目が無い');
   const step4 = text.slice(text.indexOf('## ステップ4'), text.indexOf('## ステップ5'));

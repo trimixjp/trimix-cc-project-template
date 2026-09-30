@@ -258,6 +258,12 @@ yt-script → 【プレビュー承認（必須・人間ゲート）】 → yt-r
 
 <判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
 
+## 人間残作業チェックリスト（YouTube Studio 手動設定・OAuth・声の用意）
+- [ ] YouTube Studio での手動設定（チャンネルアート・ポリシー等）
+- [ ] OAuth トークンの取得・認証
+- [ ] 声の用意（voice provider の voice_id 設定／音声準備）
+- [ ] （必要時）15分超対応のための電話番号確認
+
 <details>
 <summary>詳細（エージェント向けの記録）</summary>
 
@@ -269,12 +275,6 @@ yt-script → 【プレビュー承認（必須・人間ゲート）】 → yt-r
 - glossary / voice-guide / brand / roadmap: （確認結果・パス）
 - YouTube設定ドキュメント / 初期トピックバックログ / 月次配信プラン: （確認結果・パス）
 - 前提点検: 字幕8言語・privacy:private 起点・三大原則の反映（PRODUCTION-GUIDE.md §3・§4・§12）
-
-## 人間残作業チェックリスト（YouTube Studio 手動設定・OAuth・声の用意）
-- [ ] YouTube Studio での手動設定（チャンネルアート・ポリシー等）
-- [ ] OAuth トークンの取得・認証
-- [ ] 声の用意（voice provider の voice_id 設定／音声準備）
-- [ ] （必要時）15分超対応のための電話番号確認
 
 ## 成果物
 - なし（このステップではファイル変更を行いません）

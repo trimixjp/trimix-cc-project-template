@@ -116,6 +116,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 Reviewer-B の独立レビュー完了後にクロスレビューを実施します。
 
 </details>
+
+⏭️ 次のアクション: Reviewer-B の独立レビュー完了後にクロスレビューを実施します
 ```
 
 ### クロスレビュー結果: 合格時（ステップ4・5）
