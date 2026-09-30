@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>エージェントのカスタマイズ - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.30.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li><li class=""><a href="../changelog.html">v0.30.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class="active"><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/upgrade.html">アップグレード</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.30.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">エージェントのカスタマイズ</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/guide/agents.html" >v0.5.1</option><option value="../../v0.5.2/guide/agents.html" >v0.5.2</option><option value="../../v0.6.0/guide/agents.html" >v0.6.0</option><option value="../../v0.7.0/guide/agents.html" >v0.7.0</option><option value="../../v0.8.0/guide/agents.html" >v0.8.0</option><option value="../../v0.9.0/guide/agents.html" >v0.9.0</option><option value="../../v0.10.0/guide/agents.html" >v0.10.0</option><option value="../../v0.11.0/guide/agents.html" >v0.11.0</option><option value="../../v0.12.0/guide/agents.html" >v0.12.0</option><option value="../../v0.13.0/guide/agents.html" >v0.13.0</option><option value="../../v0.14.0/guide/agents.html" >v0.14.0</option><option value="../../v0.15.0/guide/agents.html" >v0.15.0</option><option value="../../v0.16.0/guide/agents.html" >v0.16.0</option><option value="../../v0.17.0/guide/agents.html" >v0.17.0</option><option value="../../v0.18.0/guide/agents.html" >v0.18.0</option><option value="../../v0.20.0/guide/agents.html" >v0.20.0</option><option value="../../v0.21.0/guide/agents.html" >v0.21.0</option><option value="../../v0.21.1/guide/agents.html" >v0.21.1</option><option value="../../v0.22.0/guide/agents.html" >v0.22.0</option><option value="../../v0.22.1/guide/agents.html" >v0.22.1</option><option value="../../v0.23.0/guide/agents.html" >v0.23.0</option><option value="../../v0.24.0/guide/agents.html" >v0.24.0</option><option value="../../v0.25.0/guide/agents.html" >v0.25.0</option><option value="../../v0.26.0/guide/agents.html" >v0.26.0</option><option value="../../v0.27.0/guide/agents.html" >v0.27.0</option><option value="../../v0.28.0/guide/agents.html" >v0.28.0</option><option value="../../v0.29.0/guide/agents.html" >v0.29.0</option><option value="../../v0.30.0/guide/agents.html" selected>v0.30.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>エージェントのカスタマイズ</h1>
+
+<h2>エージェント定義ファイルとは</h2>
+
+<p>各エージェントの動作は <code>.claude/teams/{チーム}/agents/*.md</code> に配置された Markdown ファイルで定義されています。インストール時にパッケージ同梱のデフォルト定義が展開されますが、プロジェクトの運用ルールに合わせてファイルを直接編集することでエージェントの動作を変更できます。</p>
+
+<hr>
+
+<h2>ファイルの基本構造</h2>
+
+<p>エージェント定義ファイルは YAML frontmatter と Markdown セクションで構成されます。</p>
+
+<pre><code class="language-markdown">---
+name: エージェント名
+description: 一行の説明
+---
+
+# エージェント名
+
+## 役割
+このエージェントが担当する責務を記述します。
+
+## 起動条件
+どのタイミングで起動されるかを記述します。
+
+## 動作フロー
+起動後にどのような手順で処理を進めるかを記述します。
+チケットへのコメント投稿や次のエージェントへの引き継ぎ手順を含めます。
+
+## チケットコメントフォーマット
+このエージェントが チケットに投稿するコメントのテンプレートを記述します。
+
+## エスカレーション条件
+human-escalator を呼び出すべき状況を具体的に列挙します。
+
+## 重要な原則
+このエージェントが遵守すべきルールや制約を記述します。</code></pre>
+
+<p>frontmatter の <code>name</code> と <code>description</code> は Claude Code がエージェントを識別するために使用します。<code>description</code> は 1 行で簡潔に記述してください。</p>
+
+<h3>モデル・effort 指定（カスタマイズ）</h3>
+
+<p>全エージェント定義とスキルは frontmatter で <code>model</code> / <code>effort</code> / <code>model_role</code> を明示します。  </p>
+<p><strong>バージョン付きモデル ID（例: <code>claude-opus-4-7</code>）は禁止</strong>です。runtime が解釈するエイリアスのみ使います。</p>
+
+<pre><code class="language-markdown">---
+name: tech-lead
+description: バックエンドチームのリーダーAI
+model: opus
+effort: high
+model_role: leader
+---</code></pre>
+
+<table><thead><tr><th>frontmatter</th><th>意味</th></tr></thead><tbody><tr><td><code>model</code></td><td>実行モデルのエイリアス（runtime 依存）</td></tr><tr><td><code>effort</code></td><td>推論深度（<code>low</code> / <code>medium</code> / <code>high</code> / <code>xhigh</code> / <code>max</code>。runtime・モデルにより利用可範囲が異なる）</td></tr><tr><td><code>model_role</code></td><td>プロファイル適用時の役割ヒント（<code>leader</code> / <code>verifier</code> / <code>worker</code> / <code>simple</code>）</td></tr></tbody></table>
+<h4>setup での一括設定</h4>
+
+<code>/ai-team-setup</code> で次を選び、全エージェント・スキルへ反映します。<strong>再 setup の「設定の切替のみ」でも変更可能</strong>です。
+
+<ol><li><strong>runtime</strong> … <code>claude-code</code>（既定）または <code>grok</code></li><li><strong>性能プロファイル</strong> … ハイパフォーマンス / バランス / 低コスト</li><li><strong>effort 深度</strong> … 深く / 普通 / 軽く</li></ol>
+<p>設定値は <code>.claude/ai-team-config.yml</code> の <code>runtime</code> / <code>model_performance</code> / <code>effort_depth</code> に記録されます。</p>
+
+<h4>Claude Code（<code>runtime: claude-code</code>）</h4>
+
+<table><thead><tr><th>性能</th><th>leader</th><th>verifier</th><th>worker</th><th>simple</th></tr></thead><tbody><tr><td>ハイパフォーマンス</td><td>fable</td><td>opus</td><td>opus</td><td>sonnet</td></tr><tr><td>バランス（デフォルト）</td><td>opus</td><td>opus</td><td>sonnet</td><td>haiku</td></tr><tr><td>低コスト</td><td>sonnet</td><td>sonnet</td><td>sonnet</td><td>haiku</td></tr></tbody></table>
+<table><thead><tr><th>effort 深度</th><th>effort 値</th></tr></thead><tbody><tr><td>深く</td><td>xhigh</td></tr><tr><td>普通（デフォルト）</td><td>high</td></tr><tr><td>軽く</td><td>medium</td></tr></tbody></table>
+<h4>Grok Build（<code>runtime: grok</code>）</h4>
+
+<table><thead><tr><th>性能</th><th>leader</th><th>verifier</th><th>worker</th><th>simple</th></tr></thead><tbody><tr><td>ハイパフォーマンス / バランス</td><td>grok-4.5</td><td>grok-4.5</td><td>grok-4.5</td><td>grok-composer-2.5-fast</td></tr><tr><td>低コスト</td><td>grok-composer-2.5-fast</td><td>grok-composer-2.5-fast</td><td>grok-composer-2.5-fast</td><td>grok-composer-2.5-fast</td></tr></tbody></table>
+<table><thead><tr><th>effort 深度</th><th>effort 値</th></tr></thead><tbody><tr><td>深く / 普通</td><td>high（Grok では xhigh を使わない）</td></tr><tr><td>軽く</td><td>medium</td></tr></tbody></table>
+<p>Grok 選択時は <code>.grok/agents/</code> と <code>.grok/commands/</code> にもエージェント・スキルがミラーされます。プロジェクト指示は <strong><code>AGENTS.md</code>（正規）</strong> と <code>.claude/CLAUDE.md</code>（互換）の両方に配置します（詳細は <a href="setup.html">セットアップ</a>）。</p>
+
+<h4>役割（model_role）</h4>
+
+<table><thead><tr><th>role</th><th>例</th><th>期待</th></tr></thead><tbody><tr><td><code>leader</code></td><td>dispatcher, tech-lead, frontend-lead</td><td>次担当へ渡す チケットに<strong>詳細な設計書</strong>を書く</td></tr><tr><td><code>verifier</code></td><td>reviewer, reviewer-a, reviewer-b, security-engineer, compliance、*-qa</td><td>他者の成果物の合否判定を専任で行う</td></tr><tr><td><code>worker</code></td><td>implementer, developer, writer, researcher</td><td>リーダーの設計に従って実装・調査</td></tr><tr><td><code>simple</code></td><td>pr-creator, version-bumper</td><td>定型処理</td></tr></tbody></table>
+<h4>細かいカスタマイズ（md 直接編集）</h4>
+
+<p><strong>個別にモデルや effort だけ変えたい場合は、対象 md の frontmatter を直接編集してください。</strong></p>
+
+<pre><code class="language-bash"># 例: 実装者だけ sonnet → opus にしたい
+# .claude/teams/backend/agents/implementer.md の model: を編集</code></pre>
+
+<p>一括でプロファイルを掛け直す場合（<strong>個別編集は上書きされる</strong>点に注意）:</p>
+
+<pre><code class="language-bash">node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code \
+  --profile balance \
+  --effort normal \
+  --dir .claude
+
+# Grok に切替
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime grok \
+  --profile balance \
+  --effort normal \
+  --dir .claude</code></pre>
+
+<p>定義の写し: <code>.claude/model-profiles.yml</code>  </p>
+<p>実装の SSOT: <code>bin/lib/model-profiles.js</code>  </p>
+<p>記述ルール詳細: プロジェクト内 <code>.claude/docs/agent-writing-guide.md</code> の §3-8</p>
+
+<hr>
+
+<h2>全エージェント共通の統一規約（v0.11.0）</h2>
+
+<p>v0.11.0 から、全エージェント定義は次の 3 つの規約に従います。<code>/ai-team-create</code>・<code>/ai-team-configure</code> が生成するエージェント定義もこの規約に対応しています。</p>
+
+<h3>1. 完了条件（exit criteria）チェックリスト</h3>
+
+<p>各エージェントの動作フローの末尾に、そのステップを「完了」とみなす条件をチェックリストで明記します。</p>
+
+<pre><code class="language-markdown">## 完了条件（exit criteria）
+
+- [ ] 設計方針コメントを チケットに投稿した
+- [ ] 参照したルール・仕様書を方針コメントに明記した
+- [ ] 次のステップのラベル（`backend:implementer`）を付与した</code></pre>
+
+<p>1 つでも未充足の項目がある状態で次のステップへ引き継いではいけません。</p>
+
+<h3>2. 状態記録の原則</h3>
+
+<ul><li>ワークフローの状態は <strong>チケットのラベルとコメントのみ</strong>で表現する（エージェントの内部状態・会話コンテキストに依存しない）</li><li>セッションが中断しても <code>/ai-team-resume</code> が<strong>コメント履歴のみ</strong>で状態を復元できる状態を常に保つ</li><li>判断・分岐を行った場合は、その根拠と参照ドキュメントを必ずコメントに残す</li></ul>
+<h3>3. コメント必須 5 フィールド</h3>
+
+<p>各エージェントの完了報告コメントには、以下の 5 フィールドを必ず含めます。</p>
+
+<table><thead><tr><th>フィールド</th><th>内容</th></tr></thead><tbody><tr><td>実施内容</td><td>このステップで何を行ったか</td></tr><tr><td>成果物</td><td>作成・変更したファイル・PR・コメント等の一覧</td></tr><tr><td>判断根拠</td><td>分岐・選択を行った理由と参照したルール・ドキュメント</td></tr><tr><td>完了条件チェック</td><td>完了条件（exit criteria）の充足状況</td></tr><tr><td>次のアクション</td><td>次に起動するステップ・付与するラベル（<code>⏭️ 次のアクション:</code> 行で明示。折りたたみの外に置く）</td></tr></tbody></table>
+<p>記述方法の詳細は <code>.claude/docs/agent-writing-guide.md</code>（エージェント定義ファイル記述ガイドライン）を参照してください。</p>
+
+<h3>4. コメントの表示構成（折りたたみ）（v0.30.0）</h3>
+
+<p>チケットコメントと PR 本文は、人が承認判断に必要な情報だけを表示し、それ以外を折りたたみます。全文を展開すると、コスト増や既存環境への影響、人の対応の要否が埋もれてしまうためです。折りたたむのは表示だけで、必須 5 フィールドなどの記録の中身は削りません。</p>
+
+<p><strong>表示したままにするもの</strong></p>
+
+<ol><li>1行目（例: <code>✅ Reviewer: レビュー合格</code>、<code>❌ Reviewer: 差し戻し（差し戻し回数: n/2）</code>）</li><li>人が知っておくべき要点を1〜3行（判定結果・コストや既存環境への影響・訂正・人の対応の要否）。人の対応が無いときは「人の対応は不要」と書きます</li><li>人への依頼の節（承認依頼・エスカレーションの判断依頼など）</li><li><code>⏭️ 次のアクション:</code> 行</li></ol>
+<p>それ以外（必須 5 フィールドの詳細・計測値・変更ファイル表・判断根拠・完了条件チェックなど）は、<code>&lt;details&gt;&lt;summary&gt;詳細（エージェント向けの記録）&lt;/summary&gt;</code> から <code>&lt;/details&gt;</code> までに入れます。</p>
+
+<pre><code class="language-">✅ Reviewer: レビュー合格
+
+&lt;判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く&gt;
+
+&lt;details&gt;
+&lt;summary&gt;詳細（エージェント向けの記録）&lt;/summary&gt;
+
+## 実施内容
+- review-config.yml の review_criteria 全項目と設計整合をレビュー
+
+（以下、成果物・判断根拠・完了条件チェックなど）
+
+&lt;/details&gt;
+
+⏭️ 次のアクション: backend:version-bumper ラベルを付与し、Version-Bumper に引き継ぎます</code></pre>
+
+<p>守る点は次のとおりです。</p>
+
+<ul><li><strong>1行目と <code>⏭️ 次のアクション:</code> 行は <code>&lt;details&gt;</code> の外に置く</strong>。差し戻し回数の数え方（各コメントの1行目の照合）と <code>/ai-team-resume</code> の状態復元（最後の <code>⏭️ 次のアクション:</code> 行）が、コメントの生テキストからこれらを読み取るためです。<code>&lt;details&gt;</code> をコメントの先頭に置いてはいけません。<code>⏭️</code> 行は <code>&lt;/details&gt;</code> の外に1つだけ置きます</li><li><strong>空行を3か所に入れる</strong>: <code>&lt;summary&gt;</code> の直後、<code>&lt;/details&gt;</code> の直前、<code>&lt;/details&gt;</code> の直後。空行が無いと、GitHub で中の表・リストや直後の行が Markdown として描画されません</li><li><strong>要点行には実測した事実だけを書く</strong>。「全件パス」のような既定の文言を埋めただけの行を表示側に出しません</li><li><strong>短い連絡は畳まなくてよい</strong>: 1行目・要点・人への依頼しか無く、折りたたむ記録が無いコメントは、短い形のままで構いません</li></ul>
+<p><strong>PR 本文</strong>では、<code>## 概要</code> と <code>## 承認前に知っておくこと</code> を表示し、残りは話題ごとの <code>&lt;details&gt;</code> に入れます。<code>&lt;summary&gt;</code> は <code>変更ファイルの内訳</code>・<code>設計方針</code>・<code>テストとレビューの詳細</code> のように内容の名前にします（コメントと違い、固定の文言にはしません）。<code>**検証**:</code> 行と <code>## テスト</code> には、実行したコマンドと結果だけを書きます。CI・リントが無いときは「無し」と書き、代わりに行った確認を書きます。</p>
+
+<p><strong>カスタムエージェントを書く場合</strong>: 完了報告の雛形は、この構成で書きます。雛形の1行目の次に要点行の記入指示を置き、続けて <code>&lt;details&gt;</code> で必須 5 フィールドのうち次のアクション以外の節を囲み、<code>&lt;/details&gt;</code> の外に <code>⏭️ 次のアクション:</code> 行を置きます。要点行の記入指示には「全件パス」などの既定の文言を置かず、実測した事実だけを書かせてください。<code>ai-team-create</code> が使うベーステンプレート（<code>_agent-template.md</code>）もこの構成になっています。</p>
+
+<code>ticket_backend: local</code> の場合の見え方は、<a href="../faq.html">よくある質問</a> を参照してください。
+
+<h3>5. モデル非依存の記述標準（v0.23.0）</h3>
+
+<p>v0.23.0 から、実行するモデルの推論能力に依存せず同等品質で動作させるための記述標準が追加されました（agent-writing-guide §9-5〜9-8）。全エージェント定義とカスタムチーム用のベーステンプレート（<code>_agent-template.md</code>）がこの標準に従います。</p>
+
+<table><thead><tr><th>節</th><th>標準</th><th>内容</th></tr></thead><tbody><tr><td>§9-5</td><td>「失敗時挙動」セクションの必須化</td><td>前提が崩れた場合（ファイル欠落・コマンド失敗・0 件検出等）の対応を、全エージェントが「失敗時挙動」セクションとして明文で持つ。既定原則は「安全側に倒す」</td></tr><tr><td>§9-6</td><td>機械的検証の原則</td><td>合否・分岐の判定は、コマンド出力・正規表現照合など機械的に再現できる基準で行う（人間の感覚・モデルの裁量に委ねない）</td></tr><tr><td>§9-7</td><td>モデル非依存の原則</td><td>「適切に」「柔軟に」等、モデルの推論能力に依存する曖昧な指示を避け、決定表・手順として書き下す</td></tr><tr><td>§9-8</td><td>設定値のハードコード禁止</td><td>しきい値・ラベル名等は設定ファイル（workflow.yml・review-config.yml 等）を単一情報源とし、エージェント本文に重複記載しない</td></tr></tbody></table>
+<p>自前のエージェントを追加・編集する場合も、この標準に沿って「失敗時挙動」セクションと決定表による分岐判定を記述することを推奨します。</p>
+
+<hr>
+
+<h2>既存エージェントの変更方法</h2>
+
+<code>.claude/teams/{チーム}/agents/</code> 配下の対象ファイルをテキストエディタで直接編集します。よく変更される箇所は以下のとおりです。
+
+<p><strong>動作フローを変更する場合</strong></p>
+<code>## 動作フロー</code> セクションの手順を書き換えます。たとえばテスト実施の基準を厳格化したい場合は、Implementer の動作フローにカバレッジ閾値の確認ステップを追記します。
+
+<p><strong>コメントフォーマットを変更する場合</strong></p>
+<code>## チケットコメントフォーマット</code> セクションのテンプレートを書き換えます。プロジェクト固有の情報（チケット番号形式・通知先など）を追加する場合に使います。
+
+<p><strong>エスカレーション条件を変更する場合</strong></p>
+<code>## エスカレーション条件</code> セクションの記述を変更します。AI に判断させる範囲を広げたい場合は条件を減らし、人間の承認を必須にしたい操作がある場合は条件を追加します。
+
+<hr>
+
+<h2>新しいエージェントの追加方法</h2>
+
+<ol><li><code>.claude/teams/{チーム}/agents/</code> に新しい <code>.md</code> ファイルを作成し、上記の基本構造に従って定義を記述します。</li><li><code>.claude/teams/{チーム}/workflow.yml</code> の <code>steps</code> リストに追加したエージェントのファイル名（拡張子なし）を記述します。</li></ol>
+<pre><code class="language-yaml">steps:
+  - agent: tech-lead
+  - agent: implementer
+  - agent: your-new-agent   # 追加したエージェント
+  - agent: reviewer</code></pre>
+
+<p>追加後は <code>/ai-team-run</code> で動作を確認してください。</p>
+
+<hr>
+
+<h2>共通エージェントについて</h2>
+
+<code>dispatcher</code>（Epic の チケット分解）・<code>contributor</code>（チケットクローズ管理）・<code>human-escalator</code>（人間へのエスカレーション）の 3 エージェントは <code>.claude/agents/</code> に配置されており、全チームで共有されます。これらは特別な理由がない限り変更不要です。変更する場合は全チームの動作に影響することを念頭においてください。
+
+<hr>
+
+<h2>詳細な各エージェントの仕様</h2>
+
+<p>チームごとの全エージェントの役割・起動条件・コメントフォーマットの詳細は <code>agents/</code> ディレクトリの各ページを参照してください。</p>
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

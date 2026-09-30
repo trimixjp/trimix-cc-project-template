@@ -71,6 +71,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ```
 {{agent_emoji}} {{agent_name}}: 作業が完了しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 （作業内容を記述）
 
@@ -85,6 +90,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ## 懸念点・注意事項
 - （なければ「なし」）
+
+</details>
 
 ⏭️ 次のアクション: {{team_id}}:{{next_agent}}（次のラベル名を記載して引き継ぎます）
 ```

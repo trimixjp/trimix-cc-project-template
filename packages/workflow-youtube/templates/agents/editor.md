@@ -163,6 +163,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ```
 🎞️ Editor: 動画生成(yt-render)＋一次確認 → 完了（QAは render-review へ）
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 - yt-render を実行（producer）。生成の完走・明らかな破綻が無いかの一次確認まで実施。最終合否は判定しない（別エージェント render-review が判定）
 
@@ -191,6 +196,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ## 懸念点・注意事項
 - （なければ「なし」）
 
+</details>
+
 ⏭️ 次のアクション: youtube:render-reviewer（render-review）に引き継ぎ、別エージェントの QA を受けます
 ```
 
@@ -200,6 +207,11 @@ editor-render の一次確認で、写真不一致・同期ズレが**明らか�
 
 ```
 ❌ Editor: 差し戻し（差し戻し回数: <n>/2）
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 - yt-render の一次確認で、明らかに台本起因の根本問題を検出（合否判定そのものは render-review が担当）
@@ -221,6 +233,8 @@ editor-render の一次確認で、写真不一致・同期ズレが**明らか�
 
 ## 完了条件チェック
 - [x] （該当する検証項目までの結果を記録）
+
+</details>
 
 ⏭️ 次のアクション: youtube:scriptwriter に差し戻します
 ```

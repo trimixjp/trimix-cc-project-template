@@ -158,6 +158,11 @@ node -e "const s=require('./package.json').scripts||{}; console.log(JSON.stringi
 ```
 🛠️ Implementer: 実装が完了しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 （Tech-Lead の設計方針に対して、何をどのように実装したかを記述）
 
@@ -191,10 +196,12 @@ node -e "const s=require('./package.json').scripts||{}; console.log(JSON.stringi
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
+</details>
+
 ⏭️ 次のアクション: backend:tech-lead に引き継ぎます（レビュー方式判断）
 ```
 
-### 差し戻し対応報告（差し戻し対応時は実装完了報告に以下のセクションを追加）
+### 差し戻し対応報告（差し戻し対応時は実装完了報告の `<details>` の中（`## 完了条件チェック` の前）に以下のセクションを追加）
 
 ```
 ## 差し戻し対応の記録

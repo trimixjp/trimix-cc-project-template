@@ -90,6 +90,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ```
 💰🔎 Monetizer-QA: 収益施策成果物QA → 合格
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 - monetizer の収益施策を、作った本人とは別の目で §11/§12・monetizer 完了条件で照合
 
@@ -117,6 +122,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ## 懸念点・注意事項
 - （なければ「なし」）
 
+</details>
+
 ⏭️ 次のアクション: contributor:ready（contributor-close）に引き継ぎます
 ```
 
@@ -126,6 +133,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ```
 ❌ Monetizer-QA: 差し戻し（差し戻し回数: <n>/2）
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 - 収益施策成果物QAを実施（不合格）
@@ -150,6 +162,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: youtube:monetizer に差し戻します
 ```

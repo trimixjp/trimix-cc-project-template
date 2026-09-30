@@ -115,6 +115,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ```
 ✅ Security-Engineer: セキュリティレビュー合格
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 （レビューした対象範囲と実施したチェックの概要を記述）
 
@@ -141,6 +146,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
+</details>
+
 ⏭️ 次のアクション: contributor:ready（Contributor へ引き継ぎます）
 ```
 
@@ -148,6 +155,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ```
 ❌ Security-Engineer: 差し戻し（差し戻し回数: <n>/2）
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 （レビューした対象範囲と実施したチェックの概要を記述。セキュリティレビュー不合格のため Infra-Lead へ差し戻し）
@@ -172,6 +184,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
 修正後、再度レビューを依頼してください。
+
+</details>
 
 ⏭️ 次のアクション: infra:infra-lead（設計から見直しを依頼します）
 ```

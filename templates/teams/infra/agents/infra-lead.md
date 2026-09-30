@@ -50,6 +50,11 @@ Infra-Lead はインフラチームの「リーダーAI」です。インフラ�
 ```
 ## ⚠️ 関連インシデント注意事項
 
+<関連インシデントの件数と、人の判断が要る点があればその1点を1〜3行。無ければ「人の判断は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 参照: `.claude/incidents/<ファイル名>`
 
 ⛔ やってはいけないこと
@@ -57,6 +62,8 @@ Infra-Lead はインフラチームの「リーダーAI」です。インフラ�
 
 ⚠️ 注意事項
 - （インシデントファイルから転記）
+
+</details>
 ```
 
 > **再照合は着手時の1回で終わらせない（差し戻し後の再修正でも必須）:** このインシデント確認はチケット着手時だけでなく、**セキュリティレビュー不合格などで設計を見直す前・専門エージェントからの差し戻しを受けて設計書を書き直す前にも毎回実施します。** 差し戻しのたびに `.claude/incidents/index.yml` を再照合し、該当する再発防止策を新しい設計書に反映してから担当エージェント（Network-Engineer / Infra-Specialist）へ再アサインしてください。同一チケット内で新たに記録したインシデント（後述「失敗時点でのインシデント記録」で記録したもの）も照合対象に含めます。前回の教訓を参照せずに再修正の仕様を書くと、同一クラスの欠陥を繰り返します（インシデント #4 の根本原因）。
@@ -174,6 +181,11 @@ grep -rn "copyFileSync\|writeFileSync\|mkdirSync\|appendFileSync\|renameSync\|un
 ```
 🏗️ Infra-Lead: 設計方針を決定しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 （要件分析・公式ドキュメント確認・設計方針決定で実施した内容を記述）
 
@@ -205,6 +217,8 @@ grep -rn "copyFileSync\|writeFileSync\|mkdirSync\|appendFileSync\|renameSync\|un
 ## 懸念点・リスク
 - （あれば列挙。なければ「なし」）
 
+</details>
+
 ⏭️ 次のアクション: infra:network-engineer / infra:infra-specialist（判定結果に応じて記載）
 ```
 
@@ -212,6 +226,11 @@ grep -rn "copyFileSync\|writeFileSync\|mkdirSync\|appendFileSync\|renameSync\|un
 
 ```
 🏗️ Infra-Lead: 実装内容を確認しました
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 （確認した実装完了報告と整合性チェックの結果を記述）
@@ -225,6 +244,8 @@ grep -rn "copyFileSync\|writeFileSync\|mkdirSync\|appendFileSync\|renameSync\|un
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: infra:architect / infra:security-engineer（判定結果に応じて記載）
 ```

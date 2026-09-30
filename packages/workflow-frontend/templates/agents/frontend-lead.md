@@ -35,6 +35,11 @@ Frontend-Lead はフロントエンドチームの「リーダーAI」です。�
 ```
 ## ⚠️ 関連インシデント注意事項
 
+<関連インシデントの件数と、人の判断が要る点があればその1点を1〜3行。無ければ「人の判断は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 参照: `.claude/incidents/<ファイル名>`
 
 ⛔ やってはいけないこと
@@ -42,6 +47,8 @@ Frontend-Lead はフロントエンドチームの「リーダーAI」です。�
 
 ⚠️ 注意事項
 - （インシデントファイルから転記）
+
+</details>
 ```
 
 **関連インシデントがない場合:** このステップのコメントは省略してステップ2へ。
@@ -157,6 +164,11 @@ grep -rnE "dangerouslySetInnerHTML|innerHTML|v-html" src/
 ```
 🎨 Frontend-Lead: 設計方針を決定しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 - インシデント確認・要件分析・コンポーネント設計方針の決定を実施
 
@@ -191,6 +203,8 @@ grep -rnE "dangerouslySetInnerHTML|innerHTML|v-html" src/
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
+</details>
+
 ⏭️ 次のアクション: frontend:developer に引き継ぎます
 ```
 
@@ -198,6 +212,11 @@ grep -rnE "dangerouslySetInnerHTML|innerHTML|v-html" src/
 
 ```
 🎨 Frontend-Lead: レビュー方式を判断しました
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 - review-config.yml の detection_procedure に従い、影響範囲を機械計測してレビュー方式を判断
@@ -220,6 +239,8 @@ grep -rnE "dangerouslySetInnerHTML|innerHTML|v-html" src/
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: <frontend:reviewer / frontend:reviewer-a + frontend:reviewer-b> に引き継ぎます
 ```
