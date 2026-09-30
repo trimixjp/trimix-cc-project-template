@@ -5,7 +5,7 @@
  * 実際の ~/.claude・CLAUDE_CONFIG_DIR・このリポジトリの .claude/ には触れない。
  */
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, symlinkSync, linkSync, statSync, realpathSync, utimesSync, chmodSync, rmSync
@@ -23,6 +23,11 @@ process.env.GIT_CONFIG_GLOBAL = '/dev/null';
 process.env.GIT_CONFIG_NOSYSTEM = '1';
 // ~/.config/git/ignore（XDG の既定 excludes）も読ませない。HOME を空の一時ディレクトリへ差し替える
 const ISOLATED_HOME = realpathSync(mkdtempSync(join(tmpdir(), 'advisor-test-home-')));
+// このファイルが作る一時ディレクトリ。終了時に FIFO を含めて削除する（OS の一時ディレクトリに残さない・Issue #115）
+const CREATED_DIRS = [ISOLATED_HOME];
+after(() => {
+  for (const d of CREATED_DIRS) rmSync(d, { recursive: true, force: true });
+});
 process.env.HOME = ISOLATED_HOME;
 process.env.XDG_CONFIG_HOME = join(ISOLATED_HOME, 'xdg');
 // CLAUDE_CONFIG_DIR も差し替える（各テストは env を注入するが、注入漏れでも実ユーザー設定を読まないため）
@@ -32,7 +37,11 @@ const LOCAL = '.claude/settings.local.json';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(__dirname, '..');
 
-const tmp = () => realpathSync(mkdtempSync(join(tmpdir(), 'advisor-test-')));
+const tmp = () => {
+  const d = realpathSync(mkdtempSync(join(tmpdir(), 'advisor-test-')));
+  CREATED_DIRS.push(d);
+  return d;
+};
 const G = ['-c', 'user.name=t', '-c', 'user.email=t@example.invalid'];
 const git = (cwd, ...a) => execFileSync('git', [...G, ...a], { cwd, stdio: 'pipe' });
 
@@ -361,10 +370,10 @@ const CLI = join(packageRoot, 'bin', 'setup.js');
 const TIME_LIMIT_MS = 4000;
 
 /** 別プロセスで実行し、親から SIGKILL で時間制限する（同期ハングはインプロセスのタイマでは捕捉できない） */
-function spawnLimited(args, t, cwd = t.repo) {
-  const r = spawnSync(process.execPath, args, {
-    cwd, encoding: 'utf-8', timeout: TIME_LIMIT_MS, killSignal: 'SIGKILL',
-    env: { ...process.env, CLAUDE_CONFIG_DIR: t.cfg, HOME: t.home },
+function spawnLimited(args, t, cwd = t.repo, { cmd = process.execPath, limit = TIME_LIMIT_MS, env = {} } = {}) {
+  const r = spawnSync(cmd, args, {
+    cwd, encoding: 'utf-8', timeout: limit, killSignal: 'SIGKILL',
+    env: { ...process.env, CLAUDE_CONFIG_DIR: t.cfg, HOME: t.home, ...env },
   });
   return { hung: r.signal === 'SIGKILL', status: r.status, out: r.stdout ?? '', err: r.stderr ?? '' };
 }
@@ -614,4 +623,95 @@ test('26: unset は、書く必要が無いとき（advisorModel が無い）ハ
   const r = run(t, ['apply', '--model', 'unset']);
   assert.equal(r.code, 0);
   assert.deepEqual(readJson(other), { y: 1 });
+});
+
+// ---------------------------------------------------------------------------
+// 2回目の修正（Issue #115・インシデント #12 の2度目）: git が読む無視ファイルが FIFO のとき
+// ---------------------------------------------------------------------------
+//  git check-ignore が読むのは .gitignore（ルートと .claude/）・.git/info/exclude・core.excludesFile
+//  （未設定なら $XDG_CONFIG_HOME/git/ignore）。実測でどれが FIFO でも止まる。gitState は git を呼ぶ前に検査する。
+//  対にする3点: (1) 双子（通常ファイル）で処理が check-ignore まで到達する  (2) FIFO で時間内に終わり「確認不能」
+//  (3) 制御群: 素朴に git check-ignore を呼ぶと本当に kill される（git 自身を SIGKILL する。node 経由だと git が孤児で残る）
+const IGNORE_TARGETS = [
+  { id: 'root', label: '<root>/.gitignore', path: t => join(t.repo, '.gitignore'), prep: () => {} },
+  { id: 'claude', label: '<root>/.claude/.gitignore', path: t => join(t.repo, '.claude', '.gitignore'), prep: () => {}, body: 'settings.local.json\n' },
+  { id: 'exclude', label: '.git/info/exclude', path: t => join(t.repo, '.git', 'info', 'exclude'), prep: () => {} },
+  { id: 'excludesFile', label: 'core.excludesFile の指す先', path: t => join(t.base, 'my-excludes'),
+    prep: (t, p) => git(t.repo, 'config', 'core.excludesFile', p) },
+  { id: 'xdg', label: '$XDG_CONFIG_HOME/git/ignore（core.excludesFile 未設定）', path: t => join(t.base, 'xdg', 'git', 'ignore'), prep: () => {}, env: t => ({ XDG_CONFIG_HOME: join(t.base, 'xdg') }) },
+];
+const CHECK_IGNORE = ['check-ignore', '-q', '--', LOCAL];
+
+for (const it of IGNORE_TARGETS) {
+  test(`22-${it.id}: ${it.label} が FIFO でも check / apply は止まらず「確認不能」（双子・制御群と対）`, () => {
+    const t = setup();
+    const p = it.path(t);
+    const env = it.env ? it.env(t) : {};
+    it.prep(t, p);
+    mkdirSync(dirname(p), { recursive: true });
+    // (1) 双子: 通常ファイルなら check-ignore まで到達して ignored になる
+    writeFileSync(p, it.body ?? `${LOCAL}\n`);
+    const twin = spawnLimited([CLI, 'advisor', 'check', '--json'], t, t.repo, { env });
+    assert.equal(twin.hung, false);
+    assert.equal(JSON.parse(twin.out).git, 'ignored', '処理が check-ignore まで到達し、このファイルを読んだ');
+    rmSync(p);
+    // (3) 制御群: FIFO にして素朴に git check-ignore を呼ぶと止まる
+    execFileSync('mkfifo', [p]);
+    const control = spawnLimited(CHECK_IGNORE, t, t.repo, { cmd: 'git', env });
+    assert.equal(control.hung, true, '制御群（git check-ignore）は kill される');
+    // (2) FIFO のまま
+    const chk = spawnLimited([CLI, 'advisor', 'check', '--json'], t, t.repo, { env });
+    assert.equal(chk.hung, false, 'check が止まらない');
+    assert.equal(chk.status, 0);
+    const c = JSON.parse(chk.out);
+    assert.equal(c.git, 'unknown');
+    assert.match(c.gitReason, /通常ファイルではない/);
+    assert.ok(c.gitReason.includes(p), '理由に対象パスが出る');
+    const txt = spawnLimited([CLI, 'advisor', 'check'], t, t.repo, { env });
+    assert.equal(txt.status, 0);
+    assert.match(txt.out, /git 状態: 確認不能/);
+    // apply: --gitignore なしは書ける（git 状態に依らない）／--gitignore は拒否（4）で何も書かない
+    const dry = spawnLimited([CLI, 'advisor', 'apply', '--model', 'fable', '--gitignore', '--dry'], t, t.repo, { env });
+    assert.equal(dry.hung, false);
+    assert.equal(dry.status, 4);
+    assert.match(dry.err, /git 状態を確認できない/);
+    assert.equal(existsSync(local(t)), false, '拒否のとき個人設定は作られない');
+    const plain = spawnLimited([CLI, 'advisor', 'apply', '--model', 'fable'], t, t.repo, { env });
+    assert.equal(plain.hung, false);
+    assert.equal(plain.status, 0);
+    assert.equal(readJson(local(t)).advisorModel, 'fable');
+    // 個人設定ができたので gitignore サブコマンドも 4 で拒否し、FIFO はそのまま
+    const gi = spawnLimited([CLI, 'advisor', 'gitignore'], t, t.repo, { env });
+    assert.equal(gi.hung, false);
+    assert.equal(gi.status, 4);
+    assert.equal(statSync(p).isFIFO(), true, 'FIFO はそのまま');
+    rmSync(p);
+  });
+}
+
+test('23: git が時間制限内に終わらなければ「確認不能」（偽の git で check-ignore だけ止める）', () => {
+  const t = setup();
+  const bin = join(t.base, 'fakebin'); mkdirSync(bin);
+  const fake = join(bin, 'git');
+  writeFileSync(fake, `#!/bin/sh
+case "$1$2" in
+  rev-parse--git-path) echo "$3" ;;
+esac
+case "$1" in
+  check-ignore) exec sleep 60 ;;
+  ls-files) exit 1 ;;
+  config) exit 1 ;;
+  rev-parse) [ "$2" = "--git-path" ] || echo "${t.repo}/.git" ;;
+esac
+`, { mode: 0o755 });
+  const env = { PATH: `${bin}:${process.env.PATH}` };
+  const started = Date.now();
+  const r = spawnLimited([CLI, 'advisor', 'check', '--json'], t, t.repo, { env, limit: 20000 });
+  const elapsed = Date.now() - started;
+  assert.equal(r.hung, false, '打ち切られて戻る');
+  assert.equal(r.status, 0);
+  const c = JSON.parse(r.out);
+  assert.equal(c.git, 'unknown');
+  assert.match(c.gitReason, /5 秒以内に終わりませんでした/);
+  assert.ok(elapsed < 15000, `時間制限（5秒）で戻った（実測 ${elapsed}ms）`);
 });

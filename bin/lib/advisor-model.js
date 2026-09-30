@@ -54,8 +54,11 @@ export function makeEnv(overrides = {}) {
   };
 }
 
+// git が想定外に止まっても戻れるようにする時間制限（ミリ秒）。通常の git 呼び出しは数十ミリ秒で終わる
+const GIT_TIMEOUT_MS = 5000;
+
 function git(cwd, args) {
-  return execFileSync('git', args, { cwd, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  return execFileSync('git', args, { cwd, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'], timeout: GIT_TIMEOUT_MS }).trim();
 }
 
 function real(p) {
@@ -135,12 +138,68 @@ export function collectSources(e, root) {
     .map(s => ({ ...s, ...readSetting(s.path) }));
 }
 
-/** ignored | not-ignored | tracked | not-git */
-export function gitState(root) {
-  try { git(root, ['rev-parse', '--git-dir']); } catch { return 'not-git'; }
-  try { git(root, ['ls-files', '--error-unmatch', '--', LOCAL_REL]); return 'tracked'; } catch { /* 未追跡 */ }
-  try { git(root, ['check-ignore', '-q', '--', LOCAL_REL]); return 'ignored'; } catch { return 'not-ignored'; }
+/** git 実行が時間制限で打ち切られた例外か */
+function timedOut(err) {
+  return err?.code === 'ETIMEDOUT' || err?.signal === 'SIGTERM';
 }
+
+/**
+ * `git check-ignore` が読みうる無視ファイルの一覧（インシデント #12・教訓13: 読み取り経路の全列挙）。
+ *  - 作業ツリーの最上位から `.claude/` までの各ディレクトリの `.gitignore`（通常は <root>/.gitignore と <root>/.claude/.gitignore。
+ *    ルートが git の最上位でないとき〔所有者が違うなどで cwd にフォールバックしたサブフォルダ〕は途中の階層も読まれる）
+ *  - `.git/info/exclude`（worktree では共通 git ディレクトリ側）
+ *  - core.excludesFile の指す先（未設定なら既定の $XDG_CONFIG_HOME/git/ignore、無ければ ~/.config/git/ignore）
+ * 実測（git 2.50.1）で、上の5種類のどれが FIFO でも check-ignore は止まる。検査しないのは、
+ * 作業ツリーの外にある他リポジトリ・ルートより下（.claude/ 以外）の `.gitignore`（このパスの判定では読まれない）。
+ */
+export function gitIgnoreSources(root) {
+  const dirs = [];
+  let d = root;
+  for (;;) {
+    dirs.push(d);
+    if (existsSync(join(d, '.git')) || dirname(d) === d) break;
+    d = dirname(d);
+  }
+  const paths = dirs.reverse().map(x => join(x, '.gitignore'));
+  paths.push(join(root, '.claude', '.gitignore'));
+  try { paths.push(resolve(root, git(root, ['rev-parse', '--git-path', 'info/exclude']))); } catch { /* 取れなければ検査しない */ }
+  let excludes = '';
+  try { excludes = git(root, ['config', '--type=path', '--get', 'core.excludesFile']); } catch { /* 未設定 */ }
+  if (excludes) paths.push(resolve(root, excludes));
+  else {
+    const xdg = process.env.XDG_CONFIG_HOME || join(process.env.HOME || osHomedir(), '.config');
+    paths.push(join(xdg, 'git', 'ignore'));
+  }
+  return paths;
+}
+
+/** git が読む無視ファイルのうち、通常ファイルでないものがあれば { path, label }。無ければ null（ファイルが無いのは問題なし） */
+function irregularIgnoreSource(root) {
+  for (const p of gitIgnoreSources(root)) {
+    if (!existsSync(p)) continue; // ファイルが無いのは問題なし（壊れたシンボリックリンクも git は読めず無視する）
+    const bad = notReadableFile(p);
+    if (bad) return { path: p, label: bad };
+  }
+  return null;
+}
+
+/**
+ * git 状態を { state, reason } で返す。state は ignored | not-ignored | tracked | not-git | unknown。
+ * unknown（確認不能）は、git が読む無視ファイルが FIFO 等の通常ファイルでないとき（git を呼ばない）、
+ * または git が時間制限内に終わらなかったとき。
+ */
+export function gitCheck(root) {
+  try { git(root, ['rev-parse', '--git-dir']); } catch { return { state: 'not-git', reason: null }; }
+  try { git(root, ['ls-files', '--error-unmatch', '--', LOCAL_REL]); return { state: 'tracked', reason: null }; } catch { /* 未追跡 */ }
+  const bad = irregularIgnoreSource(root);
+  if (bad) return { state: 'unknown', reason: `${bad.path} は通常ファイルではない（${bad.label}）ため、git に読ませません` };
+  try { git(root, ['check-ignore', '-q', '--', LOCAL_REL]); return { state: 'ignored', reason: null }; } catch (err) {
+    if (timedOut(err)) return { state: 'unknown', reason: `git check-ignore が ${GIT_TIMEOUT_MS / 1000} 秒以内に終わりませんでした` };
+    return { state: 'not-ignored', reason: null };
+  }
+}
+
+export function gitState(root) { return gitCheck(root).state; }
 
 /**
  * config の model_performance を読む。{ value, warning }（読めなければ value は null）。読むだけ
@@ -164,6 +223,7 @@ export function checkAdvisor(e, opts = {}) {
   const root = resolveRoot(e);
   const sources = collectSources(e, root);
   const eff = sources.find(s => s.value !== undefined);
+  const gc = gitCheck(root);
   const fromConfig = opts.profile === undefined ? readProfile(real(e.cwd)) : { value: opts.profile, warning: null };
   const profile = fromConfig.value;
   return {
@@ -173,7 +233,8 @@ export function checkAdvisor(e, opts = {}) {
     writeTarget: join(root, LOCAL_REL),
     sources,
     effective: eff ? { value: eff.value, id: eff.id, path: eff.path } : null,
-    git: gitState(root),
+    git: gc.state,
+    gitReason: gc.reason,
     profile,
     warnings: fromConfig.warning ? [fromConfig.warning] : [],
     // high-performance では本体が fable になり、opus の advisor は付かない（決定6）。完全なモデル ID も対象
@@ -191,7 +252,7 @@ function describeCheck(c) {
     lines.push(`${s.id} ${s.path}: ${st}`);
   }
   lines.push(c.effective ? `実効値: ${show(c.effective.value)}（${c.effective.id}: ${c.effective.path}）` : '実効値: なし（advisor はオフ）');
-  lines.push(`git 状態: ${c.git}`);
+  lines.push(c.git === 'unknown' ? `git 状態: 確認不能（${c.gitReason}）` : `git 状態: ${c.git}`);
   if (c.profile) lines.push(`性能プロファイル: ${c.profile}`);
   lines.push(...c.warnings.map(w => `警告: ${w}`));
   if (c.profileConflict) lines.push('注意: high-performance では本体が fable のため、opus の advisor は付きません');
@@ -224,6 +285,7 @@ function conflictsFor(sources, model) {
 function planGitignore(c, opts, root) {
   if (!opts.gitignore) return { lines: [], write: false };
   if (c.git === 'tracked') return { lines: ['警告: .claude/settings.local.json は Git に追跡されています。.gitignore では外れません（`git rm --cached .claude/settings.local.json` は利用者の判断）'], write: false };
+  if (c.git === 'unknown') return { lines: [`git 状態を確認できないため、.gitignore への追記はしません。何も書いていません（${c.gitReason}）。通常ファイルに置き換えてから、もう一度実行してください`], write: false, refused: true };
   if (c.git === 'not-git') return { lines: ['git リポジトリではないため、.gitignore への追記はしません'], write: false };
   if (c.git !== 'not-ignored') return { lines: [], write: false };
   const refuse = refuseWrite(root, null, '.gitignore');

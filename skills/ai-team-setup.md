@@ -370,12 +370,14 @@ node <パッケージルート>/bin/setup.js advisor gitignore
 
 通常ファイルでない実体（FIFO など）が設定ファイルの場所にあるときは、読まずに「確認できません」と表示します（`check` は終了コード0、`apply` は R1 なら 4、R2〜R4 なら 3）。
 
+git が読む無視ファイル（`.gitignore`〔ルートと `.claude/`〕・`.git/info/exclude`・`core.excludesFile` の指す先〔未設定なら `$XDG_CONFIG_HOME/git/ignore`〕）が通常ファイルでないとき、または git が5秒以内に終わらないときは、git を呼ばずに「git 状態: 確認不能（理由）」と表示します。`check` は終了コード0、`apply --gitignore` と `advisor gitignore` は終了コード4（何も書かない。`.gitignore` への追記は提案せず、通常ファイルに置き換えるよう案内する）、`--gitignore` なしの `apply` は通常どおり書き込めます。
+
 - `--overwrite` でも、共有プロジェクト設定（`.claude/settings.json`）とユーザー設定（`CLAUDE_CONFIG_DIR` があればその下、無ければ `~/.claude/settings.json`）は変更しません。個人設定の値が優先されて隠れるだけです。その旨を伝えてください
 - **「設定しない」を選んでも、既存の値が問題になる場合がある**: 性能を high-performance にする（またはすでにそうである）状態で、`check` の実効値が `opus`（完全なモデル ID を含む）のとき（`check` の出力に「注意: high-performance では本体が fable のため、opus の advisor は付きません」が出る。`--json` では `profileConflict` が `true`）は、黙って放置せず、値と場所を示して「fable に変更 / そのまま残す / 解除（R1 にあるときだけ）」を尋ねる（決定3と同じ扱い）。変更を選んだ場合は `apply --model fable --overwrite`（解除なら `--model unset`）を実行する
 - **Git 管理外の確認**: `check` の「git 状態」が `not-ignored` なら、`.gitignore` への追記（`.claude/settings.local.json`）を利用者に提案する。追記は同意したときだけ行う。
   - fable / opus / 解除を選んだとき: はいなら `apply` に `--gitignore` を付ける（R1 を新しく作る場合も提案する）
   - **「設定しない」を選んだとき（決定7）**: `check` の R1（`.claude/settings.local.json`）が**すでにあり**、git 状態が `not-ignored` のときだけ提案する（R1 が無ければ提案しない。個人設定がコミットされる危険は「設定しない」でも変わらないため）。はいなら `advisor gitignore` を実行する（`advisorModel` は書かず、R1 も変えない。R1 が無いときはコマンド側でも何もしない）。いいえなら何もしない
-  - `tracked`（すでに Git が追跡している）なら追記しても外れないので、警告だけを伝え、`git rm --cached` は利用者の判断に任せる。`not-git` なら何もしない
+  - `unknown`（確認不能）なら追記は提案せず、出力の理由（どのファイルが通常ファイルでないか）を伝える。`tracked`（すでに Git が追跡している）なら追記しても外れないので、警告だけを伝え、`git rm --cached` は利用者の判断に任せる。`not-git` なら何もしない
 - 実行フォルダとルートが違う場合（サブフォルダ・worktree）は、`.claude/`（実行フォルダ）と `settings.local.json`（ルート）の場所が分かれることを伝える
 
 ### ソロモード（選択時）
