@@ -92,6 +92,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ```
 🔎 Render-Reviewer: レンダ成果物QA → 合格
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 - editor-render の成果物（sections/NN-*.mp4・still）を、レンダした本人とは別の目で機械検証＋目視QA
 
@@ -118,6 +123,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ## 懸念点・注意事項
 - （なければ「なし」）
 
+</details>
+
 ⏭️ 次のアクション: human-video-review（ゲート2）へ引き継ぎます（escalated:human）
 ```
 
@@ -127,6 +134,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ```
 ❌ Render-Reviewer: 差し戻し（差し戻し回数: <n>/2）
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 - レンダ成果物QAを実施（不合格）
@@ -155,6 +167,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: youtube:editor（差分再レンダ）／ youtube:scriptwriter（台本起因）に差し戻します
 ```

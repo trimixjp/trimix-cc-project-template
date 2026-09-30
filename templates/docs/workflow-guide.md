@@ -562,6 +562,11 @@ Tech-Lead がインシデントファイルを確認すると、過去に同種�
 ```
 ⚠️ 関連インシデント注意事項
 
+<関連インシデントの件数と、人の判断が要る点があればその1点を1〜3行。無ければ「人の判断は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 参照: `.claude/incidents/2026-05-10_101_auth-token-expiry.md`
 
 ⛔ やってはいけないこと
@@ -570,6 +575,8 @@ Tech-Lead がインシデントファイルを確認すると、過去に同種�
 
 ⚠️ 注意事項
 - 必ず config/auth.yml の値を参照すること
+
+</details>
 ```
 
 設計方針コメントを投稿し、`backend:implementer` に更新。
@@ -583,6 +590,11 @@ Tech-Lead がインシデントファイルを確認すると、過去に同種�
 ```
 🔧 Tech-Lead: レビュー方式を判断しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 影響範囲の分析
 - 変更ファイル数: 3件
 - 変更対象領域: 認証・JWT・トークン管理
@@ -593,6 +605,8 @@ Tech-Lead がインシデントファイルを確認すると、過去に同種�
 判断理由:
 - 認証ロジック（JWT）の変更を含むため、double_review_criteria の
   「認証・認可に関わる変更」に該当する
+
+</details>
 
 ⏭️ 次のアクション: backend:reviewer-a + backend:reviewer-b に引き継ぎます
 ```
@@ -605,22 +619,43 @@ Reviewer-A・Reviewer-B はお互いのコメントを見ずにそれぞれレ�
 
 ```
 🔍 Reviewer-A: 独立レビュー完了（暫定）
+
+<暫定判定と主な指摘を、実測した事実だけで1〜3行>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ※ このレビューはReviewer-Bの結果を見ずに独立して行いました
 - 指摘: src/auth/jwt.ts L.23 — 環境変数が未定義の場合のフォールバック処理がない
   根拠: .claude/rules/security.md「環境変数は必ず存在チェックを行うこと」
+
+</details>
 ```
 
 ```
 🔍 Reviewer-B: 独立レビュー完了（暫定）
+
+<暫定判定と主な指摘を、実測した事実だけで1〜3行>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ※ このレビューはReviewer-Aの結果を見ずに独立して行いました
 - 指摘: src/auth/jwt.ts L.23 — 同上（環境変数の存在チェック漏れ）
 - 指摘: tests/auth.test.ts — 環境変数未定義時のテストケースがない
+
+</details>
 ```
 
 #### 5. クロスレビューで合意形成
 
 ```
 ❌ Reviewer-A: 差し戻し（差し戻し回数: 1/2）
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 🔀 クロスレビュー完了 → 最終判定
 
@@ -631,6 +666,8 @@ Reviewer-A・Reviewer-B はお互いのコメントを見ずにそれぞれレ�
 | テストケース不足 | 指摘なし | 指摘あり | 要修正（Reviewer-Bが正しい） |
 
 ## 最終判定: 不合格
+
+</details>
 
 ⏭️ 次のアクション: backend:implementer に差し戻します
 ```
@@ -654,11 +691,18 @@ Editor-in-Chief の判断：
 ```
 📝 Editor-in-Chief: 方針を決定しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ...（方針の記述）...
 
 ## Researcherへの調査依頼
 統計データ（日本人の平均睡眠時間・睡眠不足の割合）と
 科学的根拠のある改善策が必要なため、Researcherに調査を依頼します。
+
+</details>
 
 ⏭️ 次のアクション: content:researcher に引き継ぎます
 ```
@@ -690,11 +734,18 @@ Editor-in-Chief の判断：
 ```
 📝 Editor-in-Chief: 方針を決定しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ...（方針の記述）...
 
 ## 調査の要否
 内部ドキュメントの整理・更新であり、既知の情報のみで構成されるため
 Researcherへの調査依頼は不要と判断します。
+
+</details>
 
 ⏭️ 次のアクション: content:writer に直接引き継ぎます
 ```
@@ -710,12 +761,19 @@ Compliance がチェック：
 ```
 ❌ Compliance: 差し戻し（差し戻し回数: 1/2）
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## CRITICAL（必ず修正）
 - [ ] 「睡眠を改善します」という表現
   - 問題: 薬機法上の効能・効果の標榜に該当する可能性がある
   - 根拠: compliance-rules/health-pharma.md「効能・効果の標榜禁止」
   - 修正方針: 「睡眠をサポートする成分を含みます」等の表現に変更、
               またはHuman-Escalatorで法的判断を仰ぐ
+
+</details>
 
 ⏭️ 次のアクション: content:writer に差し戻します
 ```
@@ -752,6 +810,11 @@ Compliance がチェック：
 ```
 🏗️ Infra-Lead: 実装完了を確認しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 整合性チェック結果
 Network-Engineer の実装と Infra-Specialist の実装の整合性を確認しました。
 技術的には問題ありませんが、以下の理由でArchitectへの助言を依頼します。
@@ -761,6 +824,8 @@ Network-Engineer の実装と Infra-Specialist の実装の整合性を確認し
 を伴います。言語・デザインパターン・将来の拡張性について、
 システム全体の観点からの助言が必要と判断しました。
 
+</details>
+
 ⏭️ 次のアクション: infra:architect に助言を依頼します（深い推論が必要な助言専用エージェント）
 ```
 
@@ -768,6 +833,11 @@ Network-Engineer の実装と Infra-Specialist の実装の整合性を確認し
 
 ```
 🏛️ Architect: 助言を提供します
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 質問・依頼の理解
 モノリスAPIをAPI Gateway + Lambda構成に移行する際の
@@ -799,6 +869,8 @@ Network-Engineer の実装と Infra-Specialist の実装の整合性を確認し
 ## 参照したパターン・原則
 - マイクロサービスパターン: API Gatewayパターン（Richardson, 2018）
 - AWSベストプラクティス: Serverless Application Lens
+
+</details>
 ```
 
 #### 5. Security-Engineer がセキュリティレビュー → Contributor がクローズ

@@ -52,6 +52,11 @@ Strategist は SNS チームの「戦略担当 AI」です。**「何を・誰�
 ```
 ## ⚠️ 関連インシデント注意事項
 
+<関連インシデントの件数と、人の判断が要る点があればその1点を1〜3行。無ければ「人の判断は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 参照: `.claude/incidents/<ファイル名>`
 
 ⛔ やってはいけないこと
@@ -59,6 +64,8 @@ Strategist は SNS チームの「戦略担当 AI」です。**「何を・誰�
 
 ⚠️ 注意事項
 - （インシデントファイルから転記）
+
+</details>
 ```
 
 - 関連なし → そのまま次のステップへ
@@ -175,6 +182,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ```
 📱 Strategist: 投稿戦略を策定しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 （インシデント確認・チケット 分析・戦略策定で実施した内容）
 
@@ -209,6 +221,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
+</details>
+
 ⏭️ 次のアクション: sns:researcher / sns:writer（判定結果に応じて記載）
 ```
 
@@ -216,6 +230,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ```
 📱 Strategist: 調査レポートを確認し、方針を更新しました
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 （確認した調査レポートと方針更新の概要）
@@ -235,6 +254,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
+</details>
+
 ⏭️ 次のアクション: sns:writer（Writer に引き継ぎます）
 ```
 
@@ -242,6 +263,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ```
 ❌ Strategist: 差し戻し（差し戻し回数: <n>/<rework_limit>）
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 （確認した調査レポート・適用した確認観点を記述）
@@ -260,6 +286,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: sns:researcher（差し戻します）
 ```

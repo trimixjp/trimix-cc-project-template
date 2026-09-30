@@ -37,6 +37,11 @@ grep "version_management" .claude/ai-team-config.yml
 ```
 🔖 Version-Bumper: バージョン管理はスキップしました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 - ai-team-config.yml の version_management 設定を確認（manual のためスキップ）
 
@@ -49,6 +54,8 @@ grep "version_management" .claude/ai-team-config.yml
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: backend:tech-writer に引き継ぎます
 ```
@@ -198,6 +205,11 @@ git commit -m "chore: v$NEW_VERSION にバージョンアップ"
 ```
 🔖 Version-Bumper: バージョンを更新しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 - version_management: auto を確認し、conventional commit の判定正規表現に基づき package.json を更新
 
@@ -221,6 +233,8 @@ git commit -m "chore: v$NEW_VERSION にバージョンアップ"
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: backend:tech-writer に引き継ぎます（docs-src/versions/v<新バージョン>/ を作成・更新してください）
 ```

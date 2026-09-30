@@ -80,6 +80,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ```
 ✅ Reviewer: レビュー合格
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 - review-config.yml の review_criteria 全項目と設計整合をレビュー
 
@@ -106,6 +111,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
+</details>
+
 ⏭️ 次のアクション: backend:version-bumper ラベルを付与し、Version-Bumper に引き継ぎます
 ```
 
@@ -113,6 +120,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ```
 ❌ Reviewer: 差し戻し（差し戻し回数: <n>/<rework_limit>）
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 - review-config.yml の review_criteria 全項目と設計整合をレビューし、不合格と判定
@@ -145,6 +157,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: backend:implementer に差し戻します
 ```

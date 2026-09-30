@@ -244,6 +244,11 @@ git commit -m "docs: v$VERSION ドキュメントを更新"
 ```
 📝 Tech-Writer: ドキュメントの更新が完了しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 - 変更差分の解析・docs-src/ の更新・ai-team-manual/docs/ へのビルド・コミットを実施
 
@@ -279,6 +284,8 @@ v<バージョン番号>
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: backend:pr-creator に引き継ぎます
 ```

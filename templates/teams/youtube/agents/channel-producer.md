@@ -97,6 +97,11 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 ```
 ## ⚠️ 関連インシデント注意事項
 
+<関連インシデントの件数と、人の判断が要る点があればその1点を1〜3行。無ければ「人の判断は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 参照: `.claude/incidents/<ファイル名>`
 
 ⛔ やってはいけないこと
@@ -104,6 +109,8 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 
 ⚠️ 注意事項
 - （インシデントファイルから転記）
+
+</details>
 ```
 
 - 関連なし → そのまま次のステップへ
@@ -200,6 +207,11 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 ```
 📺 Channel Producer: チャンネル設定一式を作成しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## モード判定
 - [x] モードA（チャンネル作成 / channel-producer-setup）
 - 判定根拠: （抽出した直前の ⏭️ 行の原文・一致した決定表の行・該当ワークフローステップ）
@@ -247,6 +259,8 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 ## 懸念点・注意事項
 - （なければ「なし」）
 
+</details>
+
 ⏭️ 次のアクション: youtube:director（director-channel-review。チャンネル設定一式の完成確認と人間残作業の整理へ引き継ぎます）
 ```
 
@@ -254,6 +268,11 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 
 ```
 📺 Channel Producer: エピソードを企画し配信プランに組み込みました
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## モード判定
 - [x] モードB（エピソード企画 / channel-producer-planning）
@@ -295,6 +314,8 @@ Channel Producer は YouTube 動画制作チームの「チャンネルプロデ
 
 ## 懸念点・注意事項
 - （なければ「なし」）
+
+</details>
 
 ⏭️ 次のアクション: youtube:channel-producer-qa（企画/編成QA＝channel-producer-qa に引き継ぎます。合格で scriptwriter へ）
 ```

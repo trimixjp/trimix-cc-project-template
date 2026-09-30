@@ -146,6 +146,11 @@ CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine
 ```
 🚀 Publisher: 動画の公開が完了しました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 （公開方針のユーザー確認→DoD確認→dry-run→本実行→API検証→frontmatter/配信カレンダー更新の概要を記述）
 
@@ -194,6 +199,8 @@ CLI 規約は `node <engine>/packages/app/dist/cli.js publish` の形（`<engine
 
 ## 懸念点・注意事項
 - （クォータ残量・字幕失敗言語・予約待ち状態などの未解決事項。なければ「なし」）
+
+</details>
 
 ⏭️ 次のアクション: youtube:publish-qa（公開QA＝publish-qa に引き継ぎます。合格で sns-distributor へ）
 ```

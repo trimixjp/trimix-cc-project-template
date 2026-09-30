@@ -78,6 +78,11 @@ Issue #89 で全リーダー（`model_role: leader`）に「失敗時点での�
 ```
 🏛️ Architect: 助言を提供します
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 （受けた依頼と実施した分析の概要を記述）
 
@@ -122,6 +127,8 @@ Issue #89 で全リーダー（`model_role: leader`）に「失敗時点での�
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: infra:security-engineer（実装への反映判断は Infra-Lead に委ねます）
 ```

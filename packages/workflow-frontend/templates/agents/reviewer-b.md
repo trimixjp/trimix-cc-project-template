@@ -86,6 +86,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ```
 🔍 Reviewer-B: 独立レビュー完了（暫定: 合格 / 不合格）
 
+<暫定判定と主な指摘を、実測した事実だけで1〜3行>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ※ このレビューはReviewer-Aの結果を見ずに独立して行いました
 
 ## レビュー結果（暫定）
@@ -101,12 +106,19 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 - （指摘内容と根拠）
 
 Reviewer-A の独立レビュー完了後にクロスレビューを実施します。
+
+</details>
 ```
 
 ### クロスレビューへの応答（Reviewer-A のクロスレビューコメントへの返答）
 
 ```
 💬 Reviewer-B: クロスレビューへの応答
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 - Reviewer-A のクロスレビューに対して全指摘への見解を回答
@@ -128,6 +140,8 @@ Reviewer-A の独立レビュー完了後にクロスレビューを実施しま
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: 最終判定は Reviewer-A が投稿します（合格時: frontend:pr-creator / 不合格時: frontend:developer）
 ```

@@ -72,6 +72,11 @@ yt-script → 【プレビュー承認（必須・人間ゲート）】 → yt-r
 ```
 ## ⚠️ 関連インシデント注意事項
 
+<関連インシデントの件数と、人の判断が要る点があればその1点を1〜3行。無ければ「人の判断は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 参照: `.claude/incidents/<ファイル名>`
 
 ⛔ やってはいけないこと
@@ -79,6 +84,8 @@ yt-script → 【プレビュー承認（必須・人間ゲート）】 → yt-r
 
 ⚠️ 注意事項
 - （インシデントファイルから転記）
+
+</details>
 ```
 
 **関連インシデントがない場合:** このステップのコメントは省略してステップ1.5へ。
@@ -209,6 +216,11 @@ yt-script → 【プレビュー承認（必須・人間ゲート）】 → yt-r
 ```
 🎬 Director: タスク種別を判定し振り分けました
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 - インシデント確認・要件分析・タスク種別判定（3分岐）を実施
 
@@ -234,6 +246,8 @@ yt-script → 【プレビュー承認（必須・人間ゲート）】 → yt-r
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
+</details>
+
 ⏭️ 次のアクション: <youtube:channel-producer（channel-producer-setup） / youtube:channel-producer（channel-producer-planning） / youtube:growth-strategist（growth-standalone）> に引き継ぎます
 ```
 
@@ -241,6 +255,11 @@ yt-script → 【プレビュー承認（必須・人間ゲート）】 → yt-r
 
 ```
 🎬 Director: チャンネル設定一式を確認し、人間残作業を整理しました
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 - channel-producer のチャンネル設定一式の完成を確認し、人間しかできない残作業をチェックリスト化
@@ -268,6 +287,8 @@ yt-script → 【プレビュー承認（必須・人間ゲート）】 → yt-r
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: escalated:human（human-channel-setup）に引き継ぎます
 ```

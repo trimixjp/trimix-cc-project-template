@@ -24,6 +24,12 @@ GitHub Issues を使わず、**プロジェクト内の Markdown** で進捗管�
 **一般・非エンジニア向け推奨:** `tickets/` を Obsidian vault として開く。  
 **エンジニア向け:** 従来どおり GitHub Issues も選択可（`ticket_backend: github`）。
 
+### Obsidian でのコメントの見え方（注記）
+
+エージェントのコメントは、人向けの要点以外を `<details><summary>詳細（エージェント向けの記録）</summary>…</details>` に折りたたむ書式で書かれます（`ticket_backend: github` と同じ書式のまま運用します。決定: 2026-09-30、#116）。
+Obsidian の公式ヘルプでは、HTML 要素の中の Markdown は描画されず、HTML ブロックの中の空行でブロックが切れるとされています。そのため Obsidian では `<details>` が**折りたたまれず、全文が表示される場合があります**（記録は失われず、読めるだけです。実機では未確認）。
+Obsidian 向けにコールアウトへ変換する対応は、実機で見え方を確かめてから別の Issue で判断します。
+
 ---
 
 ## セットアップ

@@ -99,6 +99,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ```
 ✅ Compliance: チェック合格
 
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
+
 ## 実施内容
 （チェックした対象ファイル・適用したチェックリスト（カスタムルール含む）を記述）
 
@@ -121,6 +126,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
 
+</details>
+
 ⏭️ 次のアクション: contributor:ready（ラベルを付与し、Contributor に引き継ぎます）
 ```
 
@@ -128,6 +135,11 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ```
 ❌ Compliance: 差し戻し（差し戻し回数: <n>/2）
+
+<判定・影響・訂正・人の対応の要否を、実測した事実だけで1〜3行。人の対応が無ければ「人の対応は不要」と書く>
+
+<details>
+<summary>詳細（エージェント向けの記録）</summary>
 
 ## 実施内容
 （チェックした対象ファイル・適用したチェックリスト（カスタムルール含む）を記述）
@@ -157,6 +169,8 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 
 ## 完了条件チェック
 - [x] （「完了条件（exit criteria）」の各項目を転記してチェック）
+
+</details>
 
 ⏭️ 次のアクション: content:writer（差し戻します）
 ```
