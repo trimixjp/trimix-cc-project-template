@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>バージョン移行ガイド - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.28.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li><li class=""><a href="../changelog.html">v0.28.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/upgrade.html">アップグレード</a></li><li class="active"><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">バージョン移行ガイド</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/guide/migration.html" >v0.5.1</option><option value="../../v0.5.2/guide/migration.html" >v0.5.2</option><option value="../../v0.6.0/guide/migration.html" >v0.6.0</option><option value="../../v0.7.0/guide/migration.html" >v0.7.0</option><option value="../../v0.8.0/guide/migration.html" >v0.8.0</option><option value="../../v0.9.0/guide/migration.html" >v0.9.0</option><option value="../../v0.10.0/guide/migration.html" >v0.10.0</option><option value="../../v0.11.0/guide/migration.html" >v0.11.0</option><option value="../../v0.12.0/guide/migration.html" >v0.12.0</option><option value="../../v0.13.0/guide/migration.html" >v0.13.0</option><option value="../../v0.14.0/guide/migration.html" >v0.14.0</option><option value="../../v0.15.0/guide/migration.html" >v0.15.0</option><option value="../../v0.16.0/guide/migration.html" >v0.16.0</option><option value="../../v0.17.0/guide/migration.html" >v0.17.0</option><option value="../../v0.18.0/guide/migration.html" >v0.18.0</option><option value="../../v0.20.0/guide/migration.html" >v0.20.0</option><option value="../../v0.21.0/guide/migration.html" >v0.21.0</option><option value="../../v0.21.1/guide/migration.html" >v0.21.1</option><option value="../../v0.22.0/guide/migration.html" >v0.22.0</option><option value="../../v0.22.1/guide/migration.html" >v0.22.1</option><option value="../../v0.23.0/guide/migration.html" >v0.23.0</option><option value="../../v0.24.0/guide/migration.html" >v0.24.0</option><option value="../../v0.25.0/guide/migration.html" >v0.25.0</option><option value="../../v0.26.0/guide/migration.html" >v0.26.0</option><option value="../../v0.27.0/guide/migration.html" >v0.27.0</option><option value="../../v0.28.0/guide/migration.html" selected>v0.28.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>バージョン移行ガイド</h1>
+
+<code>@trimix/ai-team</code> のバージョンアップ手順をまとめています。
+
+<hr>
+
+<h2>v0.27.0 から v0.28.0 への移行</h2>
+
+<p>v0.28.0 では、<strong>検証役ロール <code>verifier</code> を新設</strong>し、レビュー・QA・セキュリティ確認などの検証専任エージェント 13 名（16ファイル）を <code>worker</code> から <code>verifier</code> に変更しました。このアップグレードでは、既存インストールの検証役エージェントが自動で更新されます。</p>
+
+<h3>破壊的変更</h3>
+
+<p><strong>破壊的変更はありません</strong>。ただし、未編集のエージェント定義ファイルの <code>model</code> と <code>model_role</code> が変わります（詳細は下記）。</p>
+
+<h3>アップグレード時の変更</h3>
+
+<h4>未編集のファイル（baseline と一致）</h4>
+
+<p>検証役 13 名（16ファイル）の frontmatter が変わります。<strong>全プロファイルで <code>model_role</code> が <code>worker</code> → <code>verifier</code> に</strong> 変わり、<strong>balance プロファイル限定で <code>model</code> も <code>sonnet</code> → <code>opus</code> に</strong> 変わります。</p>
+
+<table><thead><tr><th>runtime / プロファイル</th><th>model の変更</th><th>model_role の変更</th></tr></thead><tbody><tr><td>claude-code / balance</td><td>sonnet → opus</td><td>worker → verifier</td></tr><tr><td>claude-code / high-performance</td><td>不変（opus のまま）</td><td>worker → verifier</td></tr><tr><td>claude-code / low-cost</td><td>不変（sonnet のまま）</td><td>worker → verifier</td></tr><tr><td>grok / balance</td><td>不変（grok-4.5）</td><td>worker → verifier</td></tr><tr><td>grok / high-performance</td><td>不変（grok-4.5）</td><td>worker → verifier</td></tr><tr><td>grok / low-cost</td><td>不変（grok-composer-2.5-fast）</td><td>worker → verifier</td></tr></tbody></table>
+<p>対象エージェント（16ファイル）：</p>
+
+<ul><li>backend・frontend：<code>reviewer</code>、<code>reviewer-a</code>、<code>reviewer-b</code></li><li>infra：<code>security-engineer</code></li><li>content：<code>compliance</code></li><li>youtube：<code>render-reviewer</code>、<code>script-qa</code>、<code>growth-qa</code>、<code>affiliate-qa</code>、<code>publish-qa</code>、<code>sns-qa</code>、<code>monetizer-qa</code>、<code>channel-producer-qa</code></li></ul>
+<h4>手編集済みのファイル</h4>
+
+<code># customized: true</code> マーカーの無い手編集ファイル（例：frontmatter の <code>model</code> を直接編集）は、<code>.new</code> ファイルが書き出されます。本体は <code>sonnet</code> / <code>worker</code> のまま保護されます。
+
+<p>アップグレード後、自分の編集を保持しながら新しい仕様を取り込むには：</p>
+
+<ol><li>アップグレードが <code>*.new</code> ファイルを作成していることを確認</li><li><code>.new</code> ファイルを編集するエディタで開き、frontmatter（先頭 3～10 行）の <code>model</code> と <code>model_role</code> だけを確認</li><li>本来のファイルを開き、frontmatter の 2 行だけを変更（本文は触らない）</li></ol>
+<pre><code class="language-bash"># 例：backend/agents/reviewer.md の frontmatter をアップグレード適用
+# reviewer.md.new を確認 → model: opus, model_role: verifier を採用
+# reviewer.md を編集：model と model_role だけを上の 2 行に更新
+# .new ファイルは削除
+rm .claude/teams/backend/agents/reviewer.md.new</code></pre>
+
+<h3>ファイルの分類と <code>.new</code> が書き出される場合</h3>
+
+<code>upgrade --dry</code> で、ファイルは以下のいずれかのカテゴリに分類されます：
+
+<h4>✏️  上書き更新されるファイル</h4>
+
+<p>baseline と一致する未編集のファイルです。検証役 16 ファイルのうち、編集していないものはここに表示され、実際に上書きされます。</p>
+
+<p><strong>注意:</strong> high-performance や low-cost プロファイルでは、検証役の <code>model</code> は変わりません（opus や sonnet のままです）が、<code>model_role</code> が <code>worker</code> から <code>verifier</code> に書き換わるため、このカテゴリに表示されます。これは正常な動作です（<code>model_role</code> の行が変わるため「更新」と扱われます）。</p>
+
+<h4>🛡️  保護のためスキップ（--force で上書き可能）</h4>
+
+<p>以下のいずれかのファイルです。本体は維持され、<code>.new</code> ファイルが書き出されます：</p>
+
+<ul><li>baseline と不一致（自分で編集済み）</li><li><code># customized: true</code> マーカーがある</li><li>baseline に記録がない</li></ul>
+<h4>ℹ️  baseline に記録が無いため安全側で保護したファイル</h4>
+
+<p>baseline 未記録のファイルについては、編集していないことを確認のうえ次を実行すると、以後は自動判定になります：</p>
+
+<pre><code class="language-bash">npx @trimix/ai-team baseline record</code></pre>
+
+<h3>注意：移行手段として推奨しない方法</h3>
+
+<p><strong><code>apply-model-profile</code> を移行手段として使わないことを推奨します。</strong> 理由：</p>
+
+<pre><code class="language-bash"># ❌ これはしないこと
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code \
+  --profile balance --effort normal --dir .claude</code></pre>
+
+<p>手編集済みファイルで <code>apply-model-profile</code> を再実行した場合、手編集内容が baseline に記録され（<code>recordChangedToBaseline</code> 経路）、次のバージョンアップグレードで保護が外れて上書きされる可能性があります。</p>
+
+<h3>バランスプロファイルでのコスト増</h3>
+
+<p>バランスプロファイルを使用している場合、検証役エージェントが <code>sonnet</code> から <code>opus</code> に変わるため、<strong>トークン消費量が増加します</strong>。特にレビュー・QA が多いプロジェクトでは、月次のコスト見積もりを見直してください。</p>
+
+<p>高コストが課題の場合、以下の選択肢があります：</p>
+
+<ol><li><strong>低コストプロファイルに切り替え</strong>：すべての検証役を <code>sonnet</code> に保つ（他の <code>worker</code> も <code>sonnet</code>）</li><li><strong>個別に <code>model</code> を編集</strong>：特定の検証役エージェント（例：script-qa）だけ <code>sonnet</code> に変える</li></ol>
+<p>詳細は <a href="agents.html">エージェントのカスタマイズ</a> を参照してください。</p>
+
+<h3>アップグレード手順</h3>
+
+<h4>ステップ 1: インストール</h4>
+
+<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.28.0.tgz</code></pre>
+
+<h4>ステップ 2: 差分確認（ドライラン）</h4>
+
+<pre><code class="language-bash">npx @trimix/ai-team upgrade --dry</code></pre>
+
+<p>以下のカテゴリが表示されます：</p>
+
+<ul><li><strong>✏️  上書き更新されるファイル:</strong> 未編集の検証役エージェント（16ファイル。上書きされます）</li><li><strong>🛡️  保護のためスキップ:</strong> 手編集済みファイル・baseline 未記録・<code># customized: true</code> マーカー付きファイル（本体は保護され <code>.new</code> が書き出されます）</li><li><strong>ℹ️  baseline に記録が無いため安全側で保護したファイル:</strong> baseline 未記録ファイルについての追加案内。<code>baseline record</code> コマンドで解消できます</li></ul>
+<h4>ステップ 3: アップグレード実行</h4>
+
+<pre><code class="language-bash">npx @trimix/ai-team upgrade</code></pre>
+
+<p>自動でバックアップが <code>.ai-team-backups/&lt;日時&gt;/</code> に作成されます。</p>
+
+<h4>ステップ 4: 確認事項チェック</h4>
+
+<li class="task-item"><input type="checkbox" disabled> <code>npm list @trimix/ai-team</code> でバージョンが <code>0.28.0</code> になっている</li>
+<li class="task-item"><input type="checkbox" disabled> <code>upgrade --dry</code> で「✏️  上書き更新されるファイル」として16ファイルが表示された</li>
+<li class="task-item"><input type="checkbox" disabled> 手編集ファイルがある場合、<code>.new</code> ファイルを見比べて frontmatter を適用</li>
+<li class="task-item"><input type="checkbox" disabled> frontmatter を適用済みの <code>.new</code> ファイルを1つずつ確認して削除（例: <code>rm .claude/teams/backend/agents/reviewer.md.new</code>）</li>
+
+<h3>参考</h3>
+
+<ul><li><a href="agents.html">エージェントのカスタマイズ</a>（model 直接編集の詳細）</li><li><a href="upgrade.html">アップグレード</a>（upgrade コマンドの仕組み）</li><li>Issue #111（検証役ロール新設の背景）</li></ul>
+<hr>
+
+<h2>v0.23.x から v0.24.0 への移行</h2>
+
+<p>v0.24.0 で <strong><code>upgrade</code> コマンド</strong>が新設され、<code>.claude/</code> 配下のテンプレート（エージェント定義・ワークフロー・DOD など）を最新版へ追随できるようになりました。</p>
+
+<h3>変更点サマリー</h3>
+
+<table><thead><tr><th>変更内容</th><th>詳細</th></tr></thead><tbody><tr><td><code>upgrade</code> コマンドの新設</td><td><code>npx @trimix/ai-team upgrade [team_id]</code> で <code>.claude/</code> 配下のテンプレートを更新。<code>npm install</code> はスキルとマニュアルしか更新しない</td></tr><tr><td>アップグレード前の自動バックアップ</td><td>上書き前に <code>.ai-team-backups/&lt;日時&gt;/</code> へ退避し SHA-256 で検証。失敗時はアップグレードを実行しない（fail-closed）</td></tr><tr><td>カスタマイズ上書き保護のバグ修正</td><td><code># customized: true</code> の保護が <code>agents/*</code> / <code>dod/*</code> のワイルドカード展開でも効くように修正（データ損失の修正）</td></tr></tbody></table>
+<h3>移行手順</h3>
+
+<h4>ステップ 1: インストール</h4>
+
+<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.24.0.tgz</code></pre>
+
+<p>この時点では、更新されるのはスキル（<code>.claude/commands/</code>）と同梱マニュアルのみです。</p>
+
+<h4>ステップ 2: <code>upgrade</code> でテンプレートを最新化</h4>
+
+<p>エージェント定義・ワークフロー・DOD などを最新化するには、<code>upgrade</code> を実行します。まず差分だけ確認することを推奨します。</p>
+
+<pre><code class="language-bash"># 差分の確認（書き込み・バックアップとも行わない）
+npx @trimix/ai-team upgrade --dry
+
+# 問題なければ適用（適用直前に自動でバックアップが作成されます）
+npx @trimix/ai-team upgrade</code></pre>
+
+<code># customized: true</code> を持つカスタマイズ済みファイルは保護され、上書きされません。最新テンプレートへ揃えたい場合のみ、内容を確認したうえで <code>--force</code> を付けて再実行してください。
+
+<p>> <strong>注意（既知の制限）</strong>: 上書き保護は <code># customized: true</code> マーカーの有無だけで判定します。マーカーの付かない手編集ファイル（例: <code>agents/*.md</code> の <code>model</code> / <code>effort</code> を直接編集したもの）は上書きされます（適用前にバックアップへ退避はされます）。また、保護されたファイルへ最新テンプレートの変更を取り込む組み込み手段は現時点ではありません。詳細と回避手順は <a href="upgrade.html">アップグレード</a> を参照してください。</p>
+
+<h4>ステップ 3: 確認事項チェックリスト</h4>
+
+<li class="task-item"><input type="checkbox" disabled> <code>npm list @trimix/ai-team</code> でバージョンが <code>0.24.0</code> になっている</li>
+<li class="task-item"><input type="checkbox" disabled> <code>upgrade --dry</code> の差分が想定どおりである（保護されたファイル・上書きされるファイルを確認した）</li>
+<li class="task-item"><input type="checkbox" disabled> <code>upgrade</code> 実行後、<code>.ai-team-backups/&lt;日時&gt;/</code> にバックアップが作成されている（適用した場合）</li>
+
+<h3>v0.23.x からの破壊的変更</h3>
+
+<p><strong>破壊的変更はありません</strong>。<code>npm install</code>（<code>postinstall</code>）の挙動は従来どおりで、スキルとマニュアルのみを展開します。<code>upgrade</code> は明示的に実行するコマンドとして追加されたものです。</p>
+
+<hr>
+
+<h2>モデル・effort プロファイル / runtime 導入後の移行</h2>
+
+<p>エージェント定義とスキルに <code>model</code> / <code>effort</code> / <code>model_role</code> が入り、実行基盤 <code>runtime</code>（<code>claude-code</code> | <code>grok</code>）を選べるようになりました。既存プロジェクトを更新する場合:</p>
+
+<ol><li>パッケージを更新し、<code>templates/_shared/model-profiles.yml</code> を <code>.claude/model-profiles.yml</code> に配置する</li><li><code>.claude/ai-team-config.yml</code> に次を追加する（推奨既定）:</li></ol>   - <code>runtime: claude-code</code>
+<p>   - <code>model_performance: balance</code></p>
+<p>   - <code>effort_depth: normal</code></p>
+<ol><li>一括反映する:</li></ol>
+<pre><code class="language-bash">node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code \
+  --profile balance --effort normal --dir .claude
+node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
+  --runtime claude-code \
+  --profile balance --effort normal --dir .claude/commands --skills-only</code></pre>
+
+<p>Grok に切り替える場合は <code>--runtime grok</code> を使い、<code>AGENTS.md</code> と（hooks 利用時）<code>.grok/hooks/ensure-issue.json</code> を setup 手順どおり配置してください。</p>
+
+<p><strong>細かい設定は md ファイルの変更で可能です。</strong> 既に個別で <code>model</code> を書いている場合は、apply 前にバックアップするか、apply 後に再編集してください。  </p>
+<p>カスタマイズの詳細は <a href="agents.html">エージェントのカスタマイズ</a> を参照。</p>
+<hr>
+
+<h2>v0.21.x から v0.22.0 への移行</h2>
+
+<h3>変更点サマリー</h3>
+
+<table><thead><tr><th>変更内容</th><th>詳細</th></tr></thead><tbody><tr><td>同梱ドキュメントディレクトリのリネーム</td><td>npm 配布物に同梱するドキュメントディレクトリを <code>public/</code> から <code>ai-team-manual/</code> に変更（<code>package.json</code> の <code>files</code>）。<strong>破壊的変更</strong></td></tr><tr><td>postinstall 展開先の変更</td><td><code>bin/postinstall.js</code> がドキュメントを展開する先を、導入先プロジェクトの <code>public/</code> から <code>ai-team-manual/</code> に変更。<strong>破壊的変更</strong></td></tr><tr><td>ルート index のバージョン追従化</td><td>ルート <code>ai-team-manual/index.html</code>（最新版ドキュメントへのリダイレクト）を <code>docs-src/build.js</code> の生成対象に追加。<code>config.latest</code> へ自動追従するため、バージョンアップ時の手動更新が不要に</td></tr></tbody></table>
+<h3>背景</h3>
+
+<code>public/</code> は、多くのプロジェクトでビルド出力ディレクトリやホスティングの公開ルートとして使われる一般的な名前です。本パッケージがこの名前でドキュメントを展開すると、導入先が自前で使っている <code>public/</code> と衝突するおそれがありました。この衝突を避けるため、専用の <code>ai-team-manual/</code> にリネームしました。
+
+<p>あわせて、これまで手動で管理していたルートのリダイレクト用 index をビルド生成（<code>docs-src/build.js</code>）に一本化し、バージョンアップ時に入口が旧バージョンを指したまま取り残される問題も解消しています。</p>
+
+<h3>移行手順</h3>
+
+<h4>ステップ 1: インストール</h4>
+
+<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.22.0.tgz</code></pre>
+
+<p>インストール時、ドキュメントは導入先プロジェクトの <code>ai-team-manual/</code> に展開されます（従来の <code>public/</code> には展開されなくなります）。</p>
+
+<h4>ステップ 2: 旧 <code>public/docs/</code> の削除（任意）</h4>
+
+<p>本パッケージが過去（v0.21.x 以前）に展開した <code>public/docs/</code> が導入先に残っている場合、本パッケージはそれを自動削除しません（導入先の資産を誤って削除しないための安全側の挙動です）。不要であれば手動で削除して構いません。</p>
+
+<pre><code class="language-bash">rm -rf public/docs/</code></pre>
+
+<p>> <strong>注意</strong>: 導入先が自前で <code>public/</code> を別用途に使っている場合は、本変更によって本パッケージとの名前の衝突が解消されます。<code>public/</code> 配下のうち、本パッケージが展開した <code>docs/</code> 以外のファイルには触れないでください。</p>
+
+<h4>ステップ 3: 確認事項チェックリスト</h4>
+
+<li class="task-item"><input type="checkbox" disabled> <code>npm list @trimix/ai-team</code> でバージョンが <code>0.22.0</code> になっている</li>
+<li class="task-item"><input type="checkbox" disabled> ドキュメントが導入先プロジェクトの <code>ai-team-manual/docs/</code> に展開されている</li>
+<li class="task-item"><input type="checkbox" disabled> ルート <code>ai-team-manual/index.html</code> が最新バージョンのドキュメントへリダイレクトする</li>
+
+<h3>v0.21.x からの破壊的変更</h3>
+
+<p><strong>破壊的変更があります</strong>。npm 配布物の同梱ディレクトリ名（<code>public/</code> → <code>ai-team-manual/</code>）と postinstall の展開先が変わります。導入先に残る旧 <code>public/docs/</code> は自動削除されないため、必要に応じて手動で削除してください。また、リポジトリ外（ホスティングの管理画面など）で公開ルートを <code>public/</code> に設定している場合は、別途 <code>ai-team-manual/</code> へ追従させる必要があります。</p>
+
+<hr>
+
+<h2>v0.11.x から v0.12.0 への移行</h2>
+
+<h3>変更点サマリー</h3>
+
+<table><thead><tr><th>変更内容</th><th>詳細</th></tr></thead><tbody><tr><td>YouTube動画制作チームの機構強化</td><td>テンプレートを v1.1.0 に更新。6 つの新機構（多言語メタ・gallery 型・縦 Shorts 自動 UP・X／TikTok 配信・yt-episode 統括フロー・予約再スケジュール）を追加</td></tr><tr><td>新機構の有効化</td><td>いずれも <code>channel.yaml</code> の任意フィールド（<code>upload.shorts_upload</code>・<code>social.enabled</code>・<code>social.tiktok.enabled</code>・<code>subtitles.targets</code>）で有効化。<strong>未設定なら従来どおり動作</strong>（後方互換）</td></tr><tr><td>registry.json の更新</td><td>youtube プラグインの version を 1.0.0 → 1.1.0 に更新。tags に <code>shorts</code>／<code>localization</code>／<code>tiktok</code> を追加</td></tr></tbody></table>
+<h3>移行手順</h3>
+
+<h4>ステップ 1: インストール</h4>
+
+<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.12.0.tgz</code></pre>
+
+<h4>ステップ 2: YouTube テンプレートの更新（youtube チーム利用時のみ）</h4>
+
+<p>YouTube動画制作チームを導入済みのプロジェクトでは、<code>/ai-team-install youtube</code> を再実行するとテンプレート v1.1.0 が反映されます。</p>
+
+<p>> <strong>注意</strong>: <code># customized: true</code> コメントがあるファイルは上書きされません。カスタマイズ済みの <code>.claude/teams/youtube/</code> に新機構を取り込みたい場合は、<code>PRODUCTION-GUIDE.md</code>・各エージェント定義・<code>workflow.yml</code>・<code>dod/</code> の差分を手動で反映してください。</p>
+
+<h4>ステップ 3: 確認事項チェックリスト</h4>
+
+<li class="task-item"><input type="checkbox" disabled> <code>npm list @trimix/ai-team</code> でバージョンが <code>0.12.0</code> になっている</li>
+<li class="task-item"><input type="checkbox" disabled> <code>registry.json</code> の youtube プラグインが version <code>1.1.0</code> になっている</li>
+<li class="task-item"><input type="checkbox" disabled> 新機構を使う場合のみ、<code>channel.yaml</code> に対応するスイッチ（<code>upload.shorts_upload</code>・<code>social.enabled</code>・<code>social.tiktok.enabled</code>）を設定する</li>
+
+<h3>v0.11.x からの破壊的変更</h3>
+
+<p><strong>破壊的変更はありません</strong>。YouTube の新機構はすべて <code>channel.yaml</code> の任意フィールドで有効化する後方互換の設計のため、設定を変更しなければ既存チャンネルの挙動は変わりません。youtube チームを導入していないプロジェクトには影響しません。</p>
+
+<hr>
+
+<h2>v0.10.x から v0.11.0 への移行</h2>
+
+<h3>変更点サマリー</h3>
+
+<table><thead><tr><th>変更内容</th><th>詳細</th></tr></thead><tbody><tr><td>Opus 最適化</td><td>全エージェント定義が Claude Opus で動作する前提に最適化。モデルはエイリアス指定（<code>architect</code> のみ <code>model: opus</code> を明示）</td></tr><tr><td>レビュー方式の機械判定化</td><td><code>review-config.yml</code> の <code>sensitive_areas</code> に正規表現 <code>pattern</code> を追加。<code>detection_procedure</code>（base_branch 検証・git diff 計測・パス照合=確定 / 本文照合=参考値）で機械判定</td></tr><tr><td>差し戻し上限</td><td><code>workflow.yml</code> に <code>rework_limit: 2</code> と <code>on_rework.limit_exceeded_next</code> を追加（全 5 チーム）。3 回目の不合格は <code>escalated:human</code> へ。先頭行照合による決定論的カウント</td></tr><tr><td>AND 待機のアトミック遷移</td><td><code>requires_all_of</code> 合流時のレースコンディション対策（待機パス再確認・冪等付与・誤発動ガード付きリカバリ）</td></tr><tr><td><code>return_to_previous</code> の構造化</td><td>human-escalator が「エスカレーション元ステップ」を構造化フィールドで記録し、<code>/ai-team-resume</code> が機械的に復帰</td></tr><tr><td>リマインド方針</td><td>人間無応答時、48 時間経過後に 1 回のみリマインドコメントを投稿</td></tr><tr><td>エージェント統一規約</td><td>コメント必須 5 フィールド・完了条件（exit criteria）・状態記録の原則を全エージェントに適用</td></tr><tr><td>レビュアー観点差別化</td><td>Reviewer-A = 設計・保守性・テスト、Reviewer-B = セキュリティ・パフォーマンス・エラー処理</td></tr><tr><td>生成器の新規約対応</td><td><code>/ai-team-create</code>・<code>/ai-team-configure</code> が生成するファイルも新規約に準拠。テンプレート整合性テストを追加</td></tr></tbody></table>
+<h3>移行手順</h3>
+
+<h4>ステップ 1: インストール</h4>
+
+<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.11.0.tgz</code></pre>
+
+<h4>ステップ 2: セットアップウィザードを再実行</h4>
+
+<p>機械判定（<code>pattern</code> / <code>detection_procedure</code>）・<code>rework_limit</code>・統一規約は <code>.claude/teams/</code> 配下のテンプレート更新で反映されるため、<code>/ai-team-setup</code> の再実行を推奨します。</p>
+
+<p>> <strong>注意</strong>: <code># customized: true</code> コメントがあるファイルは上書きされません。カスタマイズ済みの workflow.yml / review-config.yml に新フィールドを反映したい場合は、手動で <code>rework_limit: 2</code>・<code>limit_exceeded_next</code>・<code>pattern</code>・<code>detection_procedure</code> を追記してください。</p>
+
+<h4>ステップ 3: 確認事項チェックリスト</h4>
+
+<li class="task-item"><input type="checkbox" disabled> <code>npm list @trimix/ai-team</code> でバージョンが <code>0.11.0</code> になっている</li>
+<li class="task-item"><input type="checkbox" disabled> 各チームの <code>workflow.yml</code> に <code>rework_limit: 2</code> が存在する</li>
+<li class="task-item"><input type="checkbox" disabled> backend / frontend の <code>review-config.yml</code> に <code>detection_procedure</code> と <code>sensitive_areas[].pattern</code> が存在する</li>
+<li class="task-item"><input type="checkbox" disabled> <code>.claude/agents/human-escalator.md</code> のエスカレーションコメント形式に「エスカレーション元ステップ」フィールドが含まれている</li>
+<li class="task-item"><input type="checkbox" disabled> <code>detection_procedure.base_branch</code> がプロジェクトのデフォルトブランチと一致している（<code>main</code> 以外の場合は変更）</li>
+
+<h3>v0.10.x からの破壊的変更</h3>
+
+<p>ワークフローの構造に<strong>破壊的変更はありません</strong>。ただし旧形式のエスカレーションコメント（「エスカレーション元ステップ」フィールドなし）が残っている チケットでは、<code>/ai-team-resume</code> が復帰先を機械的に決定できないため、コメント履歴から文脈で判断するフォールバック動作になります。</p>
+
+<hr>
+
+<h2>v0.6.x から v0.7.0 への移行</h2>
+
+<h3>変更点サマリー</h3>
+
+<table><thead><tr><th>変更内容</th><th>詳細</th></tr></thead><tbody><tr><td>SNS運用チームの追加</td><td>Strategist / Researcher / Writer / Operator の 4 エージェント構成のテンプレートが新規追加</td></tr><tr><td>チケット強制チェック（hooks）オプション</td><td>セットアップ時に <code>UserPromptSubmit</code> フックで変更系指示をブロックする設定を選択可能に</td></tr><tr><td><code>.gitignore</code> の自動更新</td><td>セットアップ時に <code>.claude/</code> 配下の個人設定ファイルを <code>.gitignore</code> から除外するパターンを追記</td></tr></tbody></table>
+<hr>
+
+<h3>移行手順</h3>
+
+<h4>ステップ 1: 新しい <code>.tgz</code> を入手してインストール</h4>
+
+<p>配布された <code>trimix-ai-team-0.7.0.tgz</code> をプロジェクトルートに配置してインストールします。</p>
+
+<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.7.0.tgz</code></pre>
+
+<p>インストール完了メッセージでスキルファイルが展開されたことを確認してください（現行は 9 件。<code>/ai-team-ticket</code> を含む）。</p>
+
+<hr>
+
+<h4>ステップ 2: セットアップウィザードを再実行（オプション）</h4>
+
+<p>SNS チームを追加したい場合や、hooks による チケット強制チェックを有効にしたい場合は、<code>/ai-team-setup</code> を再実行してください。</p>
+
+<pre><code class="language-">/ai-team-setup</code></pre>
+
+<p>> <strong>注意</strong>: 既存チームのワークフロー・エージェント定義（<code>.claude/teams/</code> 配下）は、ファイルに <code># customized: true</code> コメントがある場合は上書きされません。カスタマイズ済みの設定は保持されます。</p>
+
+<hr>
+
+<h4>ステップ 3: 確認事項チェックリスト</h4>
+
+<p>移行後に以下を確認してください。</p>
+
+<li class="task-item"><input type="checkbox" disabled> <code>npm list @trimix/ai-team</code> でバージョンが <code>0.7.0</code> になっている</li>
+<li class="task-item"><input type="checkbox" disabled> <code>.claude/commands/</code> に 7 つのスキルファイルが存在する</li>
+<li class="task-item"><input type="checkbox" disabled> 既存チームのワークフロー定義（<code>.claude/teams/*/workflow.yml</code>）が想定通りの内容になっている</li>
+<li class="task-item"><input type="checkbox" disabled> SNS チームを追加した場合、<code>.claude/teams/sns/</code> が正しく展開されている</li>
+<li class="task-item"><input type="checkbox" disabled> hooks を有効にした場合、<code>.claude/hooks/ensure-issue.sh</code> が存在し、<code>.claude/settings.json</code> に登録されている</li>
+
+<hr>
+
+<h3>v0.6.x からの破壊的変更</h3>
+
+<p>v0.6.x から v0.7.0 への変更に<strong>破壊的変更はありません</strong>。既存のワークフロー・エージェント・設定ファイルはそのまま動作します。</p>
+
+<hr>
+
+<h2>v0.5.x から v0.6.0 への移行（参考）</h2>
+
+<h3>変更点サマリー</h3>
+
+<table><thead><tr><th>変更内容</th><th>詳細</th></tr></thead><tbody><tr><td>Version-Bumper ステップの追加</td><td>バックエンドワークフローに <code>version-bumper</code> ステップが追加（Reviewer 合格後に <code>package.json</code> を自動更新）</td></tr><tr><td>バージョン管理設定</td><td><code>ai-team-config.yml</code> に <code>version_management</code> フィールドを追加（<code>auto</code> / <code>manual</code> を選択）</td></tr></tbody></table>
+<h3>移行手順</h3>
+
+<h4>ステップ 1: インストール</h4>
+
+<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.6.0.tgz</code></pre>
+
+<h4>ステップ 2: <code>ai-team-config.yml</code> に <code>version_management</code> を追加</h4>
+
+<p>v0.5.x では <code>version_management</code> フィールドが存在しないため、手動で追加する必要があります。</p>
+
+<pre><code class="language-yaml"># .claude/ai-team-config.yml に追記
+version_management: manual  # または auto</code></pre>
+
+<code>auto</code> を選択すると、Reviewer 合格後に conventional commit に基づき <code>package.json</code> のバージョンが自動インクリメントされます。
+
+<h4>ステップ 3: 確認事項チェックリスト</h4>
+
+<li class="task-item"><input type="checkbox" disabled> <code>ai-team-config.yml</code> に <code>version_management</code> フィールドが存在する</li>
+<li class="task-item"><input type="checkbox" disabled> バックエンドワークフローの <code>steps</code> に <code>version-bumper</code> ステップが含まれている（<code>auto</code> 選択時）</li>
+
+<hr>
+
+<h2>バージョン履歴</h2>
+
+<table><thead><tr><th>バージョン</th><th>主な変更内容</th></tr></thead><tbody><tr><td>v0.11.0</td><td>Opus 最適化と再現性強化（レビュー機械判定・<code>rework_limit</code>・アトミック遷移・<code>return_to_previous</code> 構造化・統一規約）</td></tr><tr><td>v0.10.0</td><td><code>/ai-team-create</code> スキル追加（カスタムチーム作成ウィザード）</td></tr><tr><td>v0.9.0</td><td><code>/ai-team-gallery</code> の実行環境判定バグ修正・<code>npm run sync</code> 追加</td></tr><tr><td>v0.8.0</td><td>ワークフロー設計の汎用化・全チーム workflow.yml の整合性修正・月次見直しの仕組み追加</td></tr><tr><td>v0.7.0</td><td>SNS運用チーム追加・hooks による チケット強制チェック・<code>.gitignore</code> 自動更新</td></tr><tr><td>v0.6.0</td><td>Version-Bumper ステップ追加・バージョン管理設定サポート</td></tr><tr><td>v0.5.2</td><td>Mermaid.js 対応・マニュアル全体の構造再編成</td></tr><tr><td>v0.5.1</td><td>postinstall でスキルファイルが展開されない問題を修正</td></tr><tr><td>v0.5.0</td><td>ワークフロー設定ウィザード（<code>/ai-team-configure</code>）を追加</td></tr></tbody></table>
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="../installation.html">インストール</a> — インストール手順の詳細</li><li><a href="setup.html">セットアップガイド</a> — <code>/ai-team-setup</code> の詳細</li><li><a href="../reference/config.html">設定ファイル</a> — <code>ai-team-config.yml</code> の全フィールド</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

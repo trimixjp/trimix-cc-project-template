@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v0.28.0 の変更点 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.28.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class=""><a href="faq.html">よくある質問（FAQ）</a></li><li class="active"><a href="changelog.html">v0.28.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/upgrade.html">アップグレード</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class="active"><a href="changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">v0.28.0 の変更点</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/changelog.html" >v0.5.1</option><option value="../v0.5.2/changelog.html" >v0.5.2</option><option value="../v0.6.0/changelog.html" >v0.6.0</option><option value="../v0.7.0/changelog.html" >v0.7.0</option><option value="../v0.8.0/changelog.html" >v0.8.0</option><option value="../v0.9.0/changelog.html" >v0.9.0</option><option value="../v0.10.0/changelog.html" >v0.10.0</option><option value="../v0.11.0/changelog.html" >v0.11.0</option><option value="../v0.12.0/changelog.html" >v0.12.0</option><option value="../v0.13.0/changelog.html" >v0.13.0</option><option value="../v0.14.0/changelog.html" >v0.14.0</option><option value="../v0.15.0/changelog.html" >v0.15.0</option><option value="../v0.16.0/changelog.html" >v0.16.0</option><option value="../v0.17.0/changelog.html" >v0.17.0</option><option value="../v0.18.0/changelog.html" >v0.18.0</option><option value="../v0.20.0/changelog.html" >v0.20.0</option><option value="../v0.21.0/changelog.html" >v0.21.0</option><option value="../v0.21.1/changelog.html" >v0.21.1</option><option value="../v0.22.0/changelog.html" >v0.22.0</option><option value="../v0.22.1/changelog.html" >v0.22.1</option><option value="../v0.23.0/changelog.html" >v0.23.0</option><option value="../v0.24.0/changelog.html" >v0.24.0</option><option value="../v0.25.0/changelog.html" >v0.25.0</option><option value="../v0.26.0/changelog.html" >v0.26.0</option><option value="../v0.27.0/changelog.html" >v0.27.0</option><option value="../v0.28.0/changelog.html" selected>v0.28.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>v0.28.0 の変更点</h1>
+
+<h2>概要</h2>
+
+<p>v0.28.0 ではモデル割り当てアーキテクチャを改善し、<strong>検証役ロール <code>verifier</code> を新設</strong>しました。検証（レビュー・QA・セキュリティ確認など）は設計と同格の判断力を要するため、これまで実装役と同じモデルで動いていた検証役エージェントを独立させ、より高性能なモデルを割り当てることができるようになります。</p>
+
+<h2>主な変更</h2>
+
+<h3>モデルロール拡張（Issue #111）</h3>
+
+<p><strong>新しいロール体系: leader（設計）/ verifier（検証）/ worker（実装）/ simple（定型）</strong></p>
+
+<p>v0.27.0 までは3つのロール（<code>leader</code> / <code>worker</code> / <code>simple</code>）で運用していました。v0.28.0 では <strong>4つ目のロール <code>verifier</code>（検証役）</strong> を追加し、以下の検証タスク専任エージェント 13 名（16ファイル）を割り当てました：</p>
+
+<ul><li><strong>backend / frontend</strong>: <code>reviewer</code>、<code>reviewer-a</code>、<code>reviewer-b</code></li><li><strong>infra</strong>: <code>security-engineer</code></li><li><strong>content</strong>: <code>compliance</code></li><li><strong>youtube</strong>: <code>render-reviewer</code>、<code>script-qa</code>、<code>growth-qa</code>、<code>affiliate-qa</code>、<code>publish-qa</code>、<code>sns-qa</code>、<code>monetizer-qa</code>、<code>channel-producer-qa</code></li></ul>
+<h3>モデル対応表の変更</h3>
+
+<h4>Claude Code（バランスプロファイルの例）</h4>
+<table><thead><tr><th>ロール</th><th>v0.27.0</th><th>v0.28.0</th></tr></thead><tbody><tr><td>leader（設計）</td><td>opus</td><td>opus</td></tr><tr><td><strong>verifier（検証・新設）</strong></td><td>—</td><td><strong>opus</strong></td></tr><tr><td>worker（実装）</td><td>sonnet</td><td>sonnet</td></tr><tr><td>simple（定型）</td><td>haiku</td><td>haiku</td></tr></tbody></table>
+<h4>全性能プロファイル（Claude Code）</h4>
+<table><thead><tr><th>性能プロファイル</th><th>leader</th><th>verifier</th><th>worker</th><th>simple</th></tr></thead><tbody><tr><td>high-performance</td><td>fable</td><td><strong>opus</strong></td><td>opus</td><td>sonnet</td></tr><tr><td>balance（推奨）</td><td>opus</td><td><strong>opus</strong></td><td>sonnet</td><td>haiku</td></tr><tr><td>low-cost</td><td>sonnet</td><td><strong>sonnet</strong></td><td>sonnet</td><td>haiku</td></tr></tbody></table>
+<p>Grok Build では verifier が leader と同値になります。</p>
+
+<h3>導入時の影響</h3>
+
+<p>この変更は <strong>breaking change ではありません</strong> が、既存インストールでアップグレードする際に以下の変更が行われます：</p>
+
+<p><strong>未編集のファイル</strong>: 検証役 13 名（16ファイル）の <code>model_role</code> が <code>worker</code> から <code>verifier</code> に、バランスプロファイルではモデルが <code>sonnet</code> から <code>opus</code> に変わります。</p>
+
+<p><strong>手編集済みのファイル</strong>: <code>.new</code> ファイルが書き出されます。自分の編集を保持しながらアップグレードする場合は、<code>.new</code> を見て frontmatter の <code>model</code> と <code>model_role</code> の2行だけを選別して取り込んでください。</p>
+
+<p><strong>バランスプロファイルでのコスト増</strong>: opus 呼び出しが増えるため、トークン消費量が増加します。</p>
+
+<h2>インシデント修正・改善</h2>
+
+<p>なし。本バージョンの変更は新機能追加です。</p>
+
+<h2>関連チケット・参照資料</h2>
+
+<ul><li>Issue #111: 検証役ロール（verifier）の新設</li><li>Issue #73: モデル・effort プロファイル導入</li><li>Issue #89: リーダーへの規律適用</li></ul>
+<h2>アップグレード手順</h2>
+
+<pre><code class="language-bash">ai-team upgrade</code></pre>
+
+<p>詳細は <a href="guide/migration.html">アップグレードガイド</a> を参照してください。</p>
+
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

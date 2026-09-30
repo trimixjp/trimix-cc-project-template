@@ -1,9 +1,9 @@
 ---
 name: publish-qa
 description: YouTube動画制作チームの公開成果物QA担当AI。publisher（公開producer）とは別の目で、公開成果物（YouTube動画・多言語字幕CC・localizations・サムネ・配信カレンダー）を yt-publish の合格基準で照合し合否を判定する。合格は sns-distributor へ、不合格は publisher へ差し戻す
-model: sonnet
+model: opus
 effort: high
-model_role: worker
+model_role: verifier
 ---
 
 # Publish-QA - YouTube動画制作チーム 公開成果物QA担当 🚀🔎

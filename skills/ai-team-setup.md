@@ -120,11 +120,11 @@ node <パッケージルート>/bin/lib/apply-model-profile.js \
 
 **質問5**: モデル性能プロファイルを選択してください（`AskUserQuestion` ツールを使用）
 
-各エージェント・スキルの frontmatter（`model`）に、役割（指揮者 / 作業者 / 単純作業）ごとのモデルを一括反映します。
+各エージェント・スキルの frontmatter（`model`）に、役割（設計 / 検証 / 実装 / 単純作業）ごとのモデルを一括反映します。
 
-- **バランス（推奨・デフォルト）**: 指揮者 `opus`、作業者 `sonnet`、単純作業 `haiku`
-- **ハイパフォーマンス**: 指揮者 `fable`、作業者 `opus`、単純作業 `sonnet`（高品質優先）
-- **低コスト**: 指揮者 `sonnet`、作業者 `sonnet`、単純作業 `haiku`（コスト優先）
+- **バランス（推奨・デフォルト）**: 設計 `opus`、検証 `opus`、実装 `sonnet`、単純作業 `haiku`
+- **ハイパフォーマンス**: 設計 `fable`、検証 `opus`、実装 `opus`、単純作業 `sonnet`（高品質優先）
+- **低コスト**: 設計 `sonnet`、検証 `sonnet`、実装 `sonnet`、単純作業 `haiku`（コスト優先）
 
 **質問6**: effort（推論の深さ）を選択してください（`AskUserQuestion` ツールを使用）
 
@@ -140,9 +140,9 @@ node <パッケージルート>/bin/lib/apply-model-profile.js \
 
 | ユーザー選択 | 内部 ID（config に記録） | 反映内容 |
 |-------------|--------------------------|----------|
-| バランス | `model_performance: balance` | leader=opus, worker=sonnet, simple=haiku |
-| ハイパフォーマンス | `model_performance: high-performance` | leader=fable, worker=opus, simple=sonnet |
-| 低コスト | `model_performance: low-cost` | leader=sonnet, worker=sonnet, simple=haiku |
+| バランス | `model_performance: balance` | leader=opus, verifier=opus, worker=sonnet, simple=haiku |
+| ハイパフォーマンス | `model_performance: high-performance` | leader=fable, verifier=opus, worker=opus, simple=sonnet |
+| 低コスト | `model_performance: low-cost` | leader=sonnet, verifier=sonnet, worker=sonnet, simple=haiku |
 | 普通 | `effort_depth: normal` | 全ファイル `effort: high` |
 | 深く | `effort_depth: deep` | 全ファイル `effort: xhigh` |
 | 軽く | `effort_depth: light` | 全ファイル `effort: medium` |
@@ -217,9 +217,9 @@ workspace:
   worktree_dir: .claude/worktrees
 
 # モデル性能プロファイル（質問5）
-# high-performance: leader=fable, worker=opus, simple=sonnet
-# balance:          leader=opus,  worker=sonnet, simple=haiku（デフォルト）
-# low-cost:         leader=sonnet, worker=sonnet, simple=haiku
+# high-performance: leader=fable, verifier=opus, worker=opus, simple=sonnet
+# balance:          leader=opus,  verifier=opus, worker=sonnet, simple=haiku（デフォルト）
+# low-cost:         leader=sonnet, verifier=sonnet, worker=sonnet, simple=haiku
 model_performance: balance  # または high-performance / low-cost
 
 # effort 深度（質問6）
