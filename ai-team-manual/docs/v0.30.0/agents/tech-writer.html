@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tech-Writer エージェント - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.30.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li><li class=""><a href="../changelog.html">v0.30.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/upgrade.html">アップグレード</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.30.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">Tech-Writer エージェント</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/agents/tech-writer.html" >v0.5.1</option><option value="../../v0.5.2/agents/tech-writer.html" >v0.5.2</option><option value="../../v0.6.0/agents/tech-writer.html" >v0.6.0</option><option value="../../v0.7.0/agents/tech-writer.html" >v0.7.0</option><option value="../../v0.8.0/agents/tech-writer.html" >v0.8.0</option><option value="../../v0.9.0/agents/tech-writer.html" >v0.9.0</option><option value="../../v0.10.0/agents/tech-writer.html" >v0.10.0</option><option value="../../v0.11.0/agents/tech-writer.html" >v0.11.0</option><option value="../../v0.12.0/agents/tech-writer.html" >v0.12.0</option><option value="../../v0.13.0/agents/tech-writer.html" >v0.13.0</option><option value="../../v0.14.0/agents/tech-writer.html" >v0.14.0</option><option value="../../v0.15.0/agents/tech-writer.html" >v0.15.0</option><option value="../../v0.16.0/agents/tech-writer.html" >v0.16.0</option><option value="../../v0.17.0/agents/tech-writer.html" >v0.17.0</option><option value="../../v0.18.0/agents/tech-writer.html" >v0.18.0</option><option value="../../v0.20.0/agents/tech-writer.html" >v0.20.0</option><option value="../../v0.21.0/agents/tech-writer.html" >v0.21.0</option><option value="../../v0.21.1/agents/tech-writer.html" >v0.21.1</option><option value="../../v0.22.0/agents/tech-writer.html" >v0.22.0</option><option value="../../v0.22.1/agents/tech-writer.html" >v0.22.1</option><option value="../../v0.23.0/agents/tech-writer.html" >v0.23.0</option><option value="../../v0.24.0/agents/tech-writer.html" >v0.24.0</option><option value="../../v0.25.0/agents/tech-writer.html" >v0.25.0</option><option value="../../v0.26.0/agents/tech-writer.html" >v0.26.0</option><option value="../../v0.27.0/agents/tech-writer.html" >v0.27.0</option><option value="../../v0.28.0/agents/tech-writer.html" >v0.28.0</option><option value="../../v0.29.0/agents/tech-writer.html" >v0.29.0</option><option value="../../v0.30.0/agents/tech-writer.html" selected>v0.30.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>Tech-Writer エージェント</h1>
+
+<p>Tech-Writer はバックエンドチームの「ドキュメント専門 AI」です。コードの変更差分を解析して <code>docs-src/</code> 配下の Markdown を更新し、<code>node docs-src/build.js</code> を実行してコンパイル済みの HTML/CSS/JS を <code>ai-team-manual/docs/</code> に出力します。<strong>PR 作成前に必ず実行されます</strong>。</p>
+
+<p>> <strong>定義場所</strong>: <code>.claude/teams/backend/agents/tech-writer.md</code></p>
+<p>> <strong>対応 DOD</strong>: <code>.claude/teams/backend/dod/documentation.md</code></p>
+
+<hr>
+
+<h2>起動条件</h2>
+
+<ol><li><code>backend:tech-writer</code> ラベルが付与された チケットが作成・更新された</li><li>Reviewer（またはクロスレビュー）の合格後、ワークフローが Tech-Writer ステップに進んだ</li></ol>
+<hr>
+
+<h2>動作フロー</h2>
+
+<h3>ステップ 1: 変更差分の解析</h3>
+
+<p>対象コミット範囲（<code>RANGE</code>）は、<strong>Version-Bumper と同一の多段フォールバック</strong>で決定します。git タグを運用していないリポジトリで履歴全体を誤ってドキュメント反映対象にしないための安全化措置です（インシデント #54 の再発防止策の水平展開）。</p>
+
+<table><thead><tr><th>優先順位</th><th>判定方式</th><th>境界の決め方</th></tr></thead><tbody><tr><td>1</td><td>git タグ境界</td><td><code>git describe --tags</code> で直近のバージョンタグが取得できれば、そのタグから HEAD までを対象にする</td></tr><tr><td>2</td><td>版バンプコミット境界</td><td>タグが無い場合、<code>chore: vX.Y.Z にバージョンアップ</code> という規約コミットを境界にする。Tech-Writer は version-bumper の直後に起動するため HEAD 自身がバンプコミットであることが多く、その場合は HEAD を除外して「前バージョンの版バンプコミット」を境界にする</td></tr><tr><td>3</td><td>package.json 変更境界</td><td>上記が見つからない場合、<code>package.json</code> を最後に変更したコミットを境界候補にする（HEAD 自身なら HEAD を除外して探し直す）</td></tr><tr><td>4</td><td>HEAD 全件</td><td>1〜3 のいずれも検出できない真の初回のみ、履歴全体を対象にする</td></tr></tbody></table>
+<p>採用した範囲判定方式（<code>tag</code> / <code>bump-commit</code> / <code>package.json</code> / <code>HEAD</code>）は完了報告に必ず記録します。</p>
+
+<pre><code class="language-bash"># 現在のバージョンを確認
+cat package.json | grep '"version"'
+
+# 多段フォールバックで決定した RANGE を使って対象範囲を取得
+git log --oneline $RANGE
+
+# 変更されたファイルの一覧
+git diff --name-only $RANGE
+
+# 変更内容の詳細
+git diff $RANGE -- '*.md' '*.yml' '*.json' '*.js' '*.ts'</code></pre>
+
+<p>チケットコメント履歴から以下を把握します：</p>
+
+<ul><li>Tech-Lead の設計方針（追加・変更された機能の概要）</li><li>Implementer の完了報告（変更ファイル一覧・実装内容）</li><li>Reviewer の合格コメント（変更点の評価）</li></ul>
+<h3>ステップ 2: バージョン確認とディレクトリ準備</h3>
+
+<pre><code class="language-bash">VERSION=$(node -e "console.log(require('./package.json').version)")
+echo "Current version: v$VERSION"
+
+ls docs-src/versions/</code></pre>
+
+<p>新しいバージョンのディレクトリが存在しない場合、直前バージョンからコピーして作成します（<code>v</code> 接頭辞の有無が混在しても <code>sort -V</code> が正しく比較できるよう、比較前に正規化します）。</p>
+
+<pre><code class="language-bash">PREV_NUM=$(ls docs-src/versions/ | sed 's/^v//' | sort -V | tail -1)
+if [ -d "docs-src/versions/v$PREV_NUM" ]; then
+  PREV_DIR="v$PREV_NUM"
+else
+  PREV_DIR="$PREV_NUM"
+fi
+if [ ! -d "docs-src/versions/v$VERSION" ]; then
+  cp -r "docs-src/versions/$PREV_DIR" "docs-src/versions/v$VERSION"
+  echo "Created docs-src/versions/v$VERSION from $PREV_DIR"
+fi</code></pre>
+
+<p>あわせて <code>docs-src/config.json</code> の <code>versions</code>（末尾に追加）・<code>latest</code>（新バージョンへ更新）・<code>nav</code>（直前バージョンの定義をコピー）を <code>jq</code> で更新し、<code>jq -e</code> で機械的に検証します。config.json を更新しないとビルドに新バージョンが含まれません。</p>
+
+<h3>ステップ 3: ドキュメントの更新</h3>
+
+<p>変更差分を解析し、以下の判断基準でドキュメントを更新します。</p>
+
+<table><thead><tr><th>変更の種類</th><th>更新対象ドキュメント</th></tr></thead><tbody><tr><td>新機能の追加</td><td>該当機能の説明ページを新規作成または更新</td></tr><tr><td>API の変更</td><td><code>api/</code>（または該当する）配下のページを更新</td></tr><tr><td>設定ファイルの変更</td><td>設定リファレンスを更新</td></tr><tr><td>ワークフロー・エージェントの変更</td><td>ワークフロー / エージェントのページを更新</td></tr><tr><td>セットアップ手順の変更</td><td><code>getting-started.md</code> または <code>installation.md</code> を更新</td></tr><tr><td>バグ修正</td><td>影響するドキュメントに注記（破壊的変更の場合）</td></tr></tbody></table>
+<p>「変更の種類」の判定は、対象範囲のコミットログ 1 行目（<code>feat:</code> / <code>fix:</code> 等のプレフィックス）と変更ファイル一覧のパスに機械的に照合して行います。新しいバージョンを作成する場合は、前バージョンからの変更点を <code>changelog.md</code> に手書きし、<code>config.json</code> の nav（「変更履歴」セクション）に追加します。</p>
+
+<code>docs-src/config.json</code> のナビゲーション構成も必要に応じて更新します（新しいページを追加した場合）。
+
+<h4>ドキュメント執筆の原則</h4>
+
+<ul><li>読者はシステムの利用者（開発者・運用者）であることを前提</li><li>「なぜそうなのか」の背景情報を含める</li><li>コード例・コマンド例を具体的に示す</li><li>箇条書きより文章を優先し、論理的な説明の流れを作る</li><li>専門用語は初出時に説明する</li></ul>
+<h3>ステップ 4: ビルド実行</h3>
+
+<pre><code class="language-bash">node docs-src/build.js
+
+# ビルド結果を確認
+ls ai-team-manual/docs/
+ls ai-team-manual/docs/v$VERSION/</code></pre>
+
+<p>ビルドが失敗した場合は、コミット前の状態のままエラー原因（Markdown 構文エラー・config.json の nav 参照切れ等）を特定して <code>docs-src/</code> 側を修正し、再実行します。<strong>再実行は 2 回まで</strong>とし、それでも成功しない場合はエラーメッセージ全文・終了コード・試行した修正内容を チケットコメントに記録して human-escalator にエスカレーションします。</p>
+
+<h3>ステップ 5: ドキュメント変更のコミット</h3>
+
+<pre><code class="language-bash">git add docs-src/ ai-team-manual/
+git commit -m "docs: v$VERSION ドキュメントを更新"</code></pre>
+
+<h3>ステップ 6: 完了報告</h3>
+
+<hr>
+
+<h2>コメントフォーマット（完了報告）</h2>
+
+<p>> <strong>表示構成（v0.30.0）</strong>: 実際に投稿するコメントは、1行目の直後に要点を1〜3行置き、以下の見出しの節は <code>&lt;details&gt;</code> に折りたたんで、<code>&lt;/details&gt;</code> の外に <code>⏭️ 次のアクション:</code> 行を1つだけ置きます。詳しくは <a href="../guide/agents.html">エージェントのカスタマイズ</a> の「コメントの表示構成」を参照してください。</p>
+
+<pre><code class="language-">📝 Tech-Writer: ドキュメントの更新が完了しました
+
+## 対象バージョン
+v&lt;バージョン番号&gt;
+
+## 対象コミット範囲
+- RANGE: &lt;RANGE&gt;（例: `&lt;commit&gt;..HEAD`）
+- 範囲判定方式: &lt;tag / bump-commit / package.json / HEAD&gt;
+
+## 更新したドキュメント
+| ファイルパス | 変更内容 |
+|-------------|---------|
+| `docs-src/versions/vX.X.X/xxx.md` | （追加・更新・削除した内容） |
+
+## 変更差分との対応
+（コード変更のどの部分を、どのドキュメントに反映したかを記述）
+
+## 新しく追加したページ
+- （なければ「なし」）
+
+## ビルド結果
+- コンパイル: 成功
+- 出力先: `ai-team-manual/docs/v&lt;バージョン番号&gt;/`
+- バージョン一覧: `ai-team-manual/docs/versions.json` を更新
+
+⏭️ 次のアクション: PR-Creator に引き継ぎます</code></pre>
+
+<hr>
+
+<h2>ドキュメント管理システムの構造</h2>
+
+<h3>ソース（編集対象）</h3>
+
+<pre><code class="language-">docs-src/
+├── config.json              # ナビゲーション・バージョン情報
+├── build.js                 # 静的サイトジェネレータ（依存ライブラリなし）
+└── versions/
+    ├── v0.4.0/              # 過去バージョン（変更しない）
+    │   └── *.md
+    ├── v0.5.0/
+    │   └── *.md
+    └── v0.5.1/              # 最新バージョン
+        ├── index.md
+        ├── getting-started.md
+        ├── skills/
+        ├── teams/
+        ├── agents/
+        └── reference/</code></pre>
+
+<h3>ビルド出力（公開対象）</h3>
+
+<pre><code class="language-">ai-team-manual/docs/
+├── index.html               # 最新バージョンへのリダイレクト
+├── versions.json            # バージョン切り替え用メタデータ
+├── v0.4.0/                  # 各バージョンの完全な HTML サイト
+├── v0.5.0/
+└── v0.5.1/
+    ├── assets/
+    │   ├── style.css        # 自動生成
+    │   └── script.js        # 自動生成
+    ├── index.html
+    └── ... (各ページの HTML)</code></pre>
+
+<code>ai-team-manual/docs/</code> は手動編集せず、必ず <code>node docs-src/build.js</code> で再生成します。
+
+<hr>
+
+<h2>バージョン管理の方法</h2>
+
+<h3>新バージョン作成のタイミング</h3>
+
+<code>package.json</code> の <code>version</code> が更新されたとき、Tech-Writer は次の操作を行います。
+
+<ol><li>新しいバージョン番号に対応するディレクトリが <code>docs-src/versions/</code> に存在するかチェック</li><li>存在しない場合、直前バージョンのディレクトリをコピーして作成</li><li><code>docs-src/config.json</code> の <code>versions</code> 配列に新バージョンを追加</li><li><code>docs-src/config.json</code> の <code>latest</code> を新バージョンに更新</li></ol>
+<h3>config.json の更新例</h3>
+
+<p>v0.5.1 → v0.5.2 リリース時：</p>
+
+<pre><code class="language-json">{
+  "title": "@trimix/ai-team ドキュメント",
+  "versions": ["v0.5.0", "v0.5.1", "v0.5.2"],
+  "latest": "v0.5.2",
+  "nav": {
+    "v0.5.1": [...],
+    "v0.5.2": [...]
+  }
+}</code></pre>
+
+<h3>ナビゲーションの更新</h3>
+
+<p>新しいページを追加した場合、対応するバージョンの <code>nav</code> 配列にエントリを追加します。</p>
+
+<pre><code class="language-json">{
+  "nav": {
+    "v0.5.1": [
+      {
+        "title": "スキル",
+        "items": [
+          { "title": "新スキル", "file": "skills/new-skill" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+
+<hr>
+
+<h2>失敗時挙動</h2>
+
+<p>既定原則は「安全側に倒す」です（対象範囲を広げすぎない・判断できなければ停止して記録する）。</p>
+
+<ul><li><strong>ビルドが失敗した場合</strong>: コミット前で停止し、再実行は 2 回まで。超過時はエラー全文を記録してエスカレーション</li><li><strong><code>docs-src/</code> または <code>docs-src/config.json</code> が存在しない場合</strong>: ドキュメント基盤が未整備のため作業を中断し、欠落パスを記録してエスカレーション（勝手にディレクトリ構成を新設しない）</li><li><strong>対象コミット範囲の決定コマンドが失敗した場合</strong>: <code>HEAD</code>（全履歴）に安易にフォールバックせず、失敗したコマンドと出力を記録してエスカレーション</li><li><strong>決定した RANGE の対象コミットが 0 件の場合</strong>: 境界検出失敗とみなし、計測値（RANGE・判定方式・件数）を記録してエスカレーション（「変更なし」と判定して先に進まない）</li><li><strong><code>docs-src/versions/</code> が空の場合</strong>: コピー元（直前バージョン）を特定できないため、勝手に雛形を新設せず状況を記録してエスカレーション</li></ul>
+<hr>
+
+<h2>エスカレーション条件</h2>
+
+<p>以下の場合は <code>human-escalator</code> を呼び出します。</p>
+
+<ul><li><code>docs-src/build.js</code> の実行が失敗し、原因の特定・修正が困難な場合</li><li>ドキュメントの内容について技術的・法的な判断が必要な場合（<code>ambiguous_spec</code> / <code>legal</code>）</li><li>変更差分が大規模すぎてドキュメントの全面改訂が必要と判断した場合（<code>budget</code> 相当）</li><li><code>.claude/escalation-rules.yml</code> の <code>escalation_triggers</code> に該当する事象</li></ul>
+<hr>
+
+<h2>重要な原則</h2>
+
+<ol><li><strong>ドキュメントの更新とコードの変更は必ず同じ PR に含める</strong></li><li><strong>コードが先に変更され、ドキュメントが後から追いつく状態を作らない</strong></li><li><strong><code>docs-src/</code> が真のソース</strong>。<code>ai-team-manual/docs/</code> は常にビルドで生成されるもの（手動編集禁止）</li><li><strong>バージョンごとのドキュメントは独立して完結している必要がある</strong>（他バージョンへの参照禁止）</li><li><strong>不確かな情報を記載してはいけない</strong>。不明な点は「未確認」と明記してエスカレーション</li></ol>
+<hr>
+
+<h2>DOD チェックリスト</h2>
+
+<p>Tech-Writer の作業完了は <code>.claude/teams/backend/dod/documentation.md</code> で次のように定義されています。</p>
+
+<h3>変更差分の反映</h3>
+<li class="task-item"><input type="checkbox" disabled> git diff で確認した全ての変更箇所がドキュメントに反映されている</li>
+<li class="task-item"><input type="checkbox" disabled> 新しい機能・API・設定項目が説明されている</li>
+<li class="task-item"><input type="checkbox" disabled> 削除または変更された機能の記述が更新されている</li>
+<li class="task-item"><input type="checkbox" disabled> コード例が最新の API に合わせて更新されている</li>
+
+<h3>バージョン管理</h3>
+<li class="task-item"><input type="checkbox" disabled> <code>docs-src/versions/v{バージョン}/</code> ディレクトリが存在する</li>
+<li class="task-item"><input type="checkbox" disabled> <code>docs-src/config.json</code> の <code>versions</code> リストに当該バージョンが含まれている</li>
+<li class="task-item"><input type="checkbox" disabled> <code>docs-src/config.json</code> の <code>latest</code> が最新バージョンを指している</li>
+<li class="task-item"><input type="checkbox" disabled> 新しいページを追加した場合、ナビゲーション定義に追加されている</li>
+
+<h3>ビルドと出力</h3>
+<li class="task-item"><input type="checkbox" disabled> <code>node docs-src/build.js</code> がエラーなく完了している</li>
+<li class="task-item"><input type="checkbox" disabled> <code>ai-team-manual/docs/v{バージョン}/</code> に HTML ファイルが生成されている</li>
+<li class="task-item"><input type="checkbox" disabled> <code>ai-team-manual/docs/versions.json</code> が更新されている</li>
+<li class="task-item"><input type="checkbox" disabled> ブラウザで開いてレイアウト・バージョン切り替え・ナビゲーションが正常動作</li>
+
+<h3>品質基準</h3>
+<li class="task-item"><input type="checkbox" disabled> 誤字・脱字がない</li>
+<li class="task-item"><input type="checkbox" disabled> コード例が実際に動作する</li>
+<li class="task-item"><input type="checkbox" disabled> 専門用語は初出時に説明されている</li>
+<li class="task-item"><input type="checkbox" disabled> 見出し・段落の構造が論理的である</li>
+
+<h3>コミット</h3>
+<li class="task-item"><input type="checkbox" disabled> <code>docs-src/</code> と <code>ai-team-manual/</code>（ルート <code>index.html</code> を含む）の変更が同一コミットに含まれている</li>
+<li class="task-item"><input type="checkbox" disabled> コミットメッセージが <code>docs: v{バージョン} ドキュメントを更新</code> の形式</li>
+
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="../teams/backend.html">バックエンドチーム</a> — Tech-Writer が組み込まれているワークフロー</li><li><a href="../teams/backend.html">バックエンドチーム</a> — 他のエージェントの定義</li><li><a href="../reference/dod.html">DOD テンプレート</a> — <code>documentation.md</code> を含む DOD 一覧</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

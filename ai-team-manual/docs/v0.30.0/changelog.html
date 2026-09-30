@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v0.30.0 の変更点 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.30.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class=""><a href="faq.html">よくある質問（FAQ）</a></li><li class="active"><a href="changelog.html">v0.30.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/upgrade.html">アップグレード</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class="active"><a href="changelog.html">v0.30.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">v0.30.0 の変更点</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/changelog.html" >v0.5.1</option><option value="../v0.5.2/changelog.html" >v0.5.2</option><option value="../v0.6.0/changelog.html" >v0.6.0</option><option value="../v0.7.0/changelog.html" >v0.7.0</option><option value="../v0.8.0/changelog.html" >v0.8.0</option><option value="../v0.9.0/changelog.html" >v0.9.0</option><option value="../v0.10.0/changelog.html" >v0.10.0</option><option value="../v0.11.0/changelog.html" >v0.11.0</option><option value="../v0.12.0/changelog.html" >v0.12.0</option><option value="../v0.13.0/changelog.html" >v0.13.0</option><option value="../v0.14.0/changelog.html" >v0.14.0</option><option value="../v0.15.0/changelog.html" >v0.15.0</option><option value="../v0.16.0/changelog.html" >v0.16.0</option><option value="../v0.17.0/changelog.html" >v0.17.0</option><option value="../v0.18.0/changelog.html" >v0.18.0</option><option value="../v0.20.0/changelog.html" >v0.20.0</option><option value="../v0.21.0/changelog.html" >v0.21.0</option><option value="../v0.21.1/changelog.html" >v0.21.1</option><option value="../v0.22.0/changelog.html" >v0.22.0</option><option value="../v0.22.1/changelog.html" >v0.22.1</option><option value="../v0.23.0/changelog.html" >v0.23.0</option><option value="../v0.24.0/changelog.html" >v0.24.0</option><option value="../v0.25.0/changelog.html" >v0.25.0</option><option value="../v0.26.0/changelog.html" >v0.26.0</option><option value="../v0.27.0/changelog.html" >v0.27.0</option><option value="../v0.28.0/changelog.html" >v0.28.0</option><option value="../v0.29.0/changelog.html" >v0.29.0</option><option value="../v0.30.0/changelog.html" selected>v0.30.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>v0.30.0 の変更点</h1>
+
+<h2>概要</h2>
+
+<p>v0.30.0 では、<strong>エージェントが投稿するチケットコメントと PR 本文を、人向けの要点以外は折りたたむ書式</strong> にしました。以前は全文が展開され、承認判断に必要な情報（コストの増減・既存環境への影響・人の対応の要否）が埋もれていました。今後のコメントと PR 本文は、要点だけが最初から表示されます。</p>
+
+<h2>主な変更</h2>
+
+<h3>コメントと PR 本文の折りたたみ（Issue #116）</h3>
+
+<p><strong>コメントの表示構成</strong></p>
+
+<p>次の4つを表示したままにし、それ以外を <code>&lt;details&gt;&lt;summary&gt;詳細（エージェント向けの記録）&lt;/summary&gt;</code> に折りたたみます。</p>
+
+<ol><li>1行目（<code>🔧 Tech-Lead: …</code>・<code>❌ Reviewer: 差し戻し（差し戻し回数: n/2）</code> など）</li><li>人が知っておくべき要点1〜3行（判定結果・コストや既存環境への影響・訂正・人の対応の要否。人の対応が無いときは「人の対応は不要」）</li><li>人への依頼の節（承認依頼・エスカレーションの判断依頼など）</li><li><code>⏭️ 次のアクション:</code> 行</li></ol>
+<p>折りたたむのは表示だけで、必須 5 フィールドなどの記録の中身は削りません。</p>
+
+<p><strong>1行目と <code>⏭️</code> 行を折りたたまない理由</strong></p>
+
+<p>差し戻し回数の数え方（各コメントの1行目を照合）と <code>/ai-team-resume</code> の状態復元（最後の <code>⏭️ 次のアクション:</code> 行）が、コメントの生テキストからこれらを読むためです。そのため、この2つは必ず <code>&lt;details&gt;</code> の外に置きます。</p>
+
+<p><strong>PR 本文</strong></p>
+
+<code>## 概要</code> と <code>## 承認前に知っておくこと</code> を表示し、残りは話題ごとの <code>&lt;details&gt;</code> に入れます。テスト欄（<code>**検証**:</code> 行と <code>## テスト</code>）は、実行したコマンドと結果だけを書く形になりました。CI・リントが無いときは「無し」と書き、代わりに行った確認を書きます。以前の雛形にあった「全件パス」「リント: エラーなし」のような既定の文言と、チェックリストの「CI がパスしている」は無くなりました。
+
+<p><strong>カスタムエージェントを書く方へ</strong></p>
+
+<p>エージェント定義の完了報告の雛形は、この構成で書きます（雛形の書き方は <a href="guide/agents.html">エージェントのカスタマイズ</a> の「コメントの表示構成」を参照）。<code>ai-team-create</code> が使うベーステンプレートと、プロジェクト内のエージェント記述ガイド（<code>.claude/docs/agent-writing-guide.md</code>）も、この構成に合わせて更新されています。</p>
+
+<p><strong><code>ticket_backend: local</code>（Obsidian）での見え方</strong></p>
+
+<p>書式は <code>ticket_backend: github</code> と同じままです。Obsidian の公式ヘルプでは、HTML 要素の中の Markdown は描画されないとされているため、<code>&lt;details&gt;</code> は畳まれず全文が表示される見込みです（記録は失われません）。<strong>実機では確かめていません</strong>。Obsidian 向けの変換は、実機で見え方を確かめてから別に判断します。</p>
+
+<p><strong>対象</strong></p>
+
+<code>skills/ai-team-run.md</code> に規約を追加し、共通エージェント 3 つ（<code>contributor</code>・<code>dispatcher</code>・<code>human-escalator</code>）と、backend・frontend・infra・content・youtube・sns の各チームのエージェント定義の雛形を、この構成に書き換えました。サブエージェントへ委託するときのプロンプトにも、この構成に従う条項を加えています。
+
+<h2>既存環境への影響</h2>
+
+<p><strong>破壊的変更はありません</strong>。<code>upgrade</code> でエージェント定義の雛形が更新されます。手編集したファイルは上書きされず、最新の雛形が <code>.new</code> として書き出されます。導入済みのチームによって、更新されるファイルの数は変わります。詳しくは <a href="guide/migration.html">移行ガイド</a> を参照してください。</p>
+
+<h2>関連チケット</h2>
+
+<ul><li>Issue #116: エージェントのコメントと PR 本文を、人向けの要点以外は折りたたむ</li></ul>
+<h2>アップグレード手順</h2>
+
+<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.30.0.tgz
+npx @trimix/ai-team upgrade</code></pre>
+
+<p>詳細は <a href="guide/migration.html">移行ガイド</a> を参照してください。</p>
+
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
