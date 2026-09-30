@@ -27,11 +27,11 @@ runtime が Claude Code のときだけ質問が出ます。Grok Build では質
 - `advisor apply`: `advisorModel` を設定・解除します。既存の値が違うときは黙って上書きせず、`--overwrite` を付けたときだけ上書きします
 - `advisor gitignore`: `.claude/settings.local.json` を `.gitignore` に追記します
 
-**性能との組み合わせ（決定6）**
+**性能との組み合わせ**
 
 性能が high-performance のときは opus を選べません。既存の値が opus のまま high-performance にした場合は、値と場所を示して変更するかを尋ねます。
 
-**「設定しない」と `.gitignore`（決定7）**
+**「設定しない」と `.gitignore`**
 
 「設定しない」を選んでも、`.claude/settings.local.json` が既にあり Git 管理外でなければ、`.gitignore` への追記を提案します。同意したときだけ追記し、`advisorModel` は書きません。
 

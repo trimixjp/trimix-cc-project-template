@@ -52,11 +52,11 @@
 <code>node &lt;パッケージルート&gt;/bin/setup.js advisor</code> に次のサブコマンドを追加しました。詳細は <a href="reference/config.html">設定リファレンス</a> を参照してください。
 
 <ul><li><code>advisor check</code>: 現在の実効値と、値がある場所を表示します（何も書き込みません）</li><li><code>advisor apply</code>: <code>advisorModel</code> を設定・解除します。既存の値が違うときは黙って上書きせず、<code>--overwrite</code> を付けたときだけ上書きします</li><li><code>advisor gitignore</code>: <code>.claude/settings.local.json</code> を <code>.gitignore</code> に追記します</li></ul>
-<p><strong>性能との組み合わせ（決定6）</strong></p>
+<p><strong>性能との組み合わせ</strong></p>
 
 <p>性能が high-performance のときは opus を選べません。既存の値が opus のまま high-performance にした場合は、値と場所を示して変更するかを尋ねます。</p>
 
-<p><strong>「設定しない」と <code>.gitignore</code>（決定7）</strong></p>
+<p><strong>「設定しない」と <code>.gitignore</code></strong></p>
 
 <p>「設定しない」を選んでも、<code>.claude/settings.local.json</code> が既にあり Git 管理外でなければ、<code>.gitignore</code> への追記を提案します。同意したときだけ追記し、<code>advisorModel</code> は書きません。</p>
 

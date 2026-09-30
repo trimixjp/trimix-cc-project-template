@@ -144,7 +144,7 @@ advisor は、実装エージェントが判断に迷ったときに相談する
 
 **書き込み先**: git リポジトリのルート（worktree では本体側のルート）の `.claude/settings.local.json`（個人設定）。本人にだけ効き、チームの他のメンバーには影響しません。
 
-**決定3の注意**: 既存の `advisorModel` が見つかった場合（`.claude/settings.local.json` / `.claude/settings.json` / ユーザー設定など）、値と場所を示して上書きするかを確認します。**黙って上書きしません**。
+**既存の値があるとき**: 既存の `advisorModel` が見つかった場合（`.claude/settings.local.json` / `.claude/settings.json` / ユーザー設定など）、値と場所を示して上書きするかを確認します。**黙って上書きしません**。
 
 **性能 high-performance と opus**: 性能が high-performance のときは opus を選択肢から外します。既存の値が opus のまま性能を high-performance にしたときは、値と場所を示して変更するかを尋ねます。
 
