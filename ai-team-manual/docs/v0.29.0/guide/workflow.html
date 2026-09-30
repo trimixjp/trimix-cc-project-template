@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ワークフロー定義ガイド - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.29.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li><li class=""><a href="../changelog.html">v0.28.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class=""><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class="active"><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/upgrade.html">アップグレード</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">ワークフロー定義ガイド</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/guide/workflow.html" >v0.5.1</option><option value="../../v0.5.2/guide/workflow.html" >v0.5.2</option><option value="../../v0.6.0/guide/workflow.html" >v0.6.0</option><option value="../../v0.7.0/guide/workflow.html" >v0.7.0</option><option value="../../v0.8.0/guide/workflow.html" >v0.8.0</option><option value="../../v0.9.0/guide/workflow.html" >v0.9.0</option><option value="../../v0.10.0/guide/workflow.html" >v0.10.0</option><option value="../../v0.11.0/guide/workflow.html" >v0.11.0</option><option value="../../v0.12.0/guide/workflow.html" >v0.12.0</option><option value="../../v0.13.0/guide/workflow.html" >v0.13.0</option><option value="../../v0.14.0/guide/workflow.html" >v0.14.0</option><option value="../../v0.15.0/guide/workflow.html" >v0.15.0</option><option value="../../v0.16.0/guide/workflow.html" >v0.16.0</option><option value="../../v0.17.0/guide/workflow.html" >v0.17.0</option><option value="../../v0.18.0/guide/workflow.html" >v0.18.0</option><option value="../../v0.20.0/guide/workflow.html" >v0.20.0</option><option value="../../v0.21.0/guide/workflow.html" >v0.21.0</option><option value="../../v0.21.1/guide/workflow.html" >v0.21.1</option><option value="../../v0.22.0/guide/workflow.html" >v0.22.0</option><option value="../../v0.22.1/guide/workflow.html" >v0.22.1</option><option value="../../v0.23.0/guide/workflow.html" >v0.23.0</option><option value="../../v0.24.0/guide/workflow.html" >v0.24.0</option><option value="../../v0.25.0/guide/workflow.html" >v0.25.0</option><option value="../../v0.26.0/guide/workflow.html" >v0.26.0</option><option value="../../v0.27.0/guide/workflow.html" >v0.27.0</option><option value="../../v0.28.0/guide/workflow.html" >v0.28.0</option><option value="../../v0.29.0/guide/workflow.html" selected>v0.29.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>ワークフロー定義ガイド</h1>
+
+<code>workflow.yml</code> の記述方法・ルール・カスタマイズ方法を説明します。
+
+<hr>
+
+<h2>概要</h2>
+
+<p>各チームの <code>workflow.yml</code> は、AIエージェントが チケットを通じてタスクを処理する順序と条件分岐を定義します。このファイルを読んで動作するのはエージェント自身であり、人間が直接実行するものではありません。</p>
+
+<pre><code class="language-">.claude/teams/&lt;チーム名&gt;/workflow.yml</code></pre>
+
+<hr>
+
+<h2>ファイル構造</h2>
+
+<pre><code class="language-yaml">name: &lt;ワークフロー名&gt;
+description: &lt;ワークフローの説明&gt;
+
+labels:
+  prefix: "&lt;ラベルのプレフィックス&gt;"
+  examples: [...]
+
+steps:
+  - id: &lt;ステップID&gt;
+    agent: &lt;エージェント名&gt;
+    label: "&lt;GitHubラベル&gt;"
+    description: &lt;説明&gt;
+    # 条件・引き継ぎの定義...</code></pre>
+
+<hr>
+
+<h2>フィールド一覧</h2>
+
+<h3>トップレベル</h3>
+
+<table><thead><tr><th>フィールド</th><th>必須</th><th>説明</th></tr></thead><tbody><tr><td><code>name</code></td><td>✅</td><td>ワークフロー識別名（kebab-case）</td></tr><tr><td><code>description</code></td><td>✅</td><td>ワークフローの用途説明</td></tr><tr><td><code>labels</code></td><td>✅</td><td>ラベル命名規則の定義</td></tr><tr><td><code>steps</code></td><td>✅</td><td>ステップのリスト</td></tr></tbody></table>
+<h3><code>labels</code></h3>
+
+<pre><code class="language-yaml">labels:
+  prefix: "backend"        # 全ラベルの先頭に付くプレフィックス
+  examples:                 # 使用するラベルの例示（ドキュメント目的）
+    - "backend:tech-lead"
+    - "escalated:human"</code></pre>
+
+<hr>
+
+<h2>ステップ定義</h2>
+
+<h3>基本構造</h3>
+
+<pre><code class="language-yaml">steps:
+  - id: tech-lead-analysis      # ステップの一意なID（kebab-case）
+    agent: tech-lead            # 担当エージェント名（agents/配下のファイル名と一致）
+    label: "backend:tech-lead" # このステップで付与するGitHubラベル
+    description: &lt;説明&gt;         # ステップの説明（エージェントが参照する）</code></pre>
+
+<h3>完了時の引き継ぎ（<code>on_complete</code>）</h3>
+
+<h4>シンプルな引き継ぎ</h4>
+
+<pre><code class="language-yaml">on_complete:
+  next: implementer  # 次のステップID</code></pre>
+
+<h4>条件分岐</h4>
+
+<pre><code class="language-yaml">on_complete:
+  conditions:
+    - id: single-review             # 条件の識別名
+      description: シングルレビュー条件の説明
+      criteria:                     # 判断基準（AIが解釈する）
+        - 変更ファイル数が5未満
+        - 認証関連の変更なし
+      next: reviewer                # この条件に合致した場合の次ステップ
+
+    - id: double-review
+      description: ダブルレビュー条件の説明
+      criteria:
+        - 変更ファイル数が5以上
+        - 認証・セキュリティ関連の変更を含む
+      next: [reviewer-a, reviewer-b]  # 並列起動（リスト形式）</code></pre>
+
+<p><strong>重要</strong>: <code>criteria</code> はAIが実装内容・チケット内容を見て解釈します。人間が手動で設定するものではありません。</p>
+
+<hr>
+
+<h2>条件分岐のルール</h2>
+
+<h3>1. 条件は上から順に評価する</h3>
+
+<pre><code class="language-yaml">conditions:
+  - id: high-priority    # 最初に評価される
+    criteria: [...]
+    next: urgent-handler
+
+  - id: normal           # 上の条件に非該当の場合に評価される
+    criteria: [...]
+    next: normal-handler</code></pre>
+
+<h3>2. 条件が複数該当する場合</h3>
+
+<p>最初に合致した条件が適用されます。より具体的な条件を先に記述してください。</p>
+
+<h3>3. デフォルト条件</h3>
+
+<p>全ての条件に非該当の場合のフォールバックを定義できます。</p>
+
+<pre><code class="language-yaml">conditions:
+  - id: special-case
+    criteria: [...]
+    next: special-handler
+
+  - id: default           # id: default は全条件に非該当の場合に適用
+    next: normal-handler</code></pre>
+
+<hr>
+
+<h2>並列実行</h2>
+
+<h3>並列起動</h3>
+
+<code>next</code> をリスト形式にすると、複数のステップが並列で起動します。
+
+<pre><code class="language-yaml">on_complete:
+  next: [network-engineer, infra-specialist]  # 同時に両方を起動</code></pre>
+
+<h3>並列ステップの宣言</h3>
+
+<p>並列で実行されるステップには <code>parallel_with</code> を記述します。</p>
+
+<pre><code class="language-yaml">- id: reviewer-a
+  agent: reviewer-a
+  label: "backend:reviewer-a"
+  parallel_with: reviewer-b   # 並列実行であることを宣言
+
+- id: reviewer-b
+  agent: reviewer-b
+  label: "backend:reviewer-b"
+  parallel_with: reviewer-a</code></pre>
+
+<h3>並列ステップの完了待ち</h3>
+
+<p>後続ステップで全並列ステップの完了を待つ場合は <code>requires_all_of</code> を使います。</p>
+
+<pre><code class="language-yaml">- id: cross-review
+  agent: reviewer-a
+  requires_all_of:          # 全ての完了を待つ
+    - reviewer-a
+    - reviewer-b
+  description: 両者のレビュー完了後にクロスレビューを実施する</code></pre>
+
+<h3>AND待機のアトミック遷移</h3>
+
+<code>requires_all_of</code> の合流判定では、並列ステップのラベルの有無が完了状態の指標となります。判定のすれ違い（レースコンディション）を防ぐため、エージェントは以下の手順でラベルを遷移します。
+
+<ol><li><strong>遷移直前</strong>に <code>gh issue view &lt;番号&gt; --json labels</code> で最新のラベルを再取得する（古い取得結果を使い回さない）</li><li>ラベルの除去と付与は<strong>単一の</strong> <code>gh issue edit</code> コマンドで実行する（中間状態を作らない）</li><li><strong>待機パス側の再確認（競合解消）</strong>: 相手のラベルがまだ存在すると判断して自分のラベルのみ除去した側も、除去後にもう一度ラベルを再取得し、「<code>requires_all_of</code> の全ラベルが除去済み かつ 次のステップのラベルが未付与」であれば次のステップのラベルを付与する（ラベル付与は冪等であり、両者が重複して付与しても無害。これにより両者同時完了時に互いを待ち合ってサイレント停止する競合ウィンドウを解消する）</li><li>遷移後にもう一度ラベルを取得し、期待した状態になっているか検証する</li></ol>
+<p><strong>不整合検知時のリカバリ</strong>: 並列ステップのラベルがすべて除去済みなのに次のステップのラベルが付与されていない場合（遷移の中断）、エージェントは次のステップのラベルを付与し、リカバリした旨を チケットにコメントします。<strong>ただし誤発動ガードとして、ワークフロー上の後続ステップのラベルがいずれも付与されていないことを確認してから実行します</strong>（すでに先のステップへ進んでいる チケットに過去のステップのラベルを再付与してはいけません）。</p>
+
+<hr>
+
+<h2>レビュー方式の機械判定（review-config.yml）</h2>
+
+<p>各チームの <code>review-config.yml</code> は、レビュー方式（シングル / ダブル）の判断基準を定義します。AIの解釈だけに頼らず、<strong>機械的に検証可能な判定</strong>を併用することで判断のブレを防ぎます。</p>
+
+<h3>sensitive_areas（pattern による正規表現マッチ）</h3>
+
+<code>sensitive_areas</code> は <code>id</code> / <code>description</code> / <code>pattern</code> を持つ項目のリストです。<code>pattern</code> には<strong>単語境界 <code>\b</code> 付きの拡張正規表現</strong>を定義し、変更ファイルのパス・差分内容と機械的に照合します。
+
+<pre><code class="language-yaml">double_review_criteria:
+  file_count_threshold: 5
+  sensitive_areas:
+    - id: auth
+      description: 認証・認可（auth / login / session / token / JWT）
+      pattern: '\b(auth|login|session|token|jwt)\b'
+    - id: payment
+      description: 決済・課金（payment / billing / stripe / invoice）
+      pattern: '\b(payment|billing|stripe|invoice)\b'</code></pre>
+
+<h3>機械判定手順（detection_procedure）</h3>
+
+<code>detection_procedure</code> には計測の基点ブランチ（<code>base_branch: main</code>、設定値）と判定手順を定義します。判定するエージェント（Tech-Lead 等）は以下の手順どおりに計測し、主観で判定してはいけません。
+
+<pre><code class="language-yaml">detection_procedure:
+  base_branch: main   # 計測の基点ブランチ（設定値）</code></pre>
+
+<ol><li><strong>基点ブランチの検証</strong>: <code>git rev-parse --verify &lt;base_branch&gt;</code> を実行する。失敗した場合は<strong>計測不能</strong>としてダブルレビューを選択する（安全側に倒す）</li><li><strong>変更ファイル数の計測</strong>: <code>git diff --name-only &lt;base_branch&gt;...HEAD | wc -l</code> で計測し、<code>file_count_threshold</code> 以上ならダブルレビュー該当</li><li><strong>パス照合（該当確定）</strong>: 変更ファイルのパスを各 <code>pattern</code> と照合する（<code>git diff --name-only &lt;base_branch&gt;...HEAD | grep -ciE "&lt;pattern&gt;"</code>）。1件でもマッチした場合は<strong>該当確定</strong>としてダブルレビューを選択する</li><li><strong>本文照合（参考値のみ）</strong>: 差分の追加行を照合する（<code>git diff &lt;base_branch&gt;...HEAD --unified=0 | grep '^+' | grep -v '^+++' | grep -ciE "&lt;pattern&gt;"</code>）。これは<strong>参考値</strong>であり、単独では該当確定としない（変数名等の偶然のマッチを含み得るため、判断材料としてコメントに記録するに留める）</li></ol>
+<p>計測結果と判定根拠（マッチした <code>pattern</code> の <code>id</code> と件数・計測したファイル数）は、チケットコメントの「判断根拠」フィールドに記録します。</p>
+
+<hr>
+
+<h2>差し戻し（リワーク）</h2>
+
+<pre><code class="language-yaml">on_rework:
+  condition: 不合格         # 差し戻しのトリガー条件（AIが解釈）
+  next: implementer         # 差し戻し先のステップID</code></pre>
+
+<p>差し戻しが発生すると、指定したステップから再実行されます。</p>
+
+<h3>差し戻し上限（rework_limit）</h3>
+
+<p>ワークフローのトップレベルに <code>rework_limit</code> を設定すると、同一チケットでの差し戻し回数に上限を設けられます。<strong>上限値は workflow.yml の <code>rework_limit</code> が正</strong>です。</p>
+
+<pre><code class="language-yaml">rework_limit: 2   # 差し戻しは2回まで</code></pre>
+
+<p>差し戻し（不合格）コメントの<strong>先頭行</strong>は、必ず次の形式で記述します。</p>
+
+<pre><code class="language-">❌ &lt;エージェント名&gt;: 差し戻し（差し戻し回数: n/2）</code></pre>
+
+<p>reviewer は不合格判定を出す前に、以下のコマンドで<strong>過去の差し戻しコメント数を数えます</strong>。コメントの先頭行のみを照合するため、本文中の引用・言及による偽陽性は発生しません。</p>
+
+<pre><code class="language-bash">gh api "repos/&lt;owner&gt;/&lt;repo&gt;/issues/&lt;番号&gt;/comments" --paginate \
+  --jq '.[].body | split("\n")[0]' | grep -cE '^❌ .+: 差し戻し' || true</code></pre>
+
+<ul><li>カウント <strong>n < 2</strong>（<code>rework_limit</code> 未満）→ 差し戻し可。通常どおり <code>on_rework.next</code> へ差し戻し</li><li>カウント <strong>n ≥ 2</strong>（<code>rework_limit</code> 以上）→ 差し戻しせず <code>escalated:human</code> へ遷移（human-escalator が起動し、差し戻しが上限に達した旨と争点を記録して人間の判断を仰ぐ）</li></ul>
+<p>同じ指摘での差し戻しループは、要件の曖昧さや設計上の対立などAIだけでは解決できない問題が背景にあることが多いため、上限到達時は人間にエスカレーションします。</p>
+
+<hr>
+
+<h2>サブエージェントの無音停止検知（点呼・ウォッチドッグ）（v0.26.0 新規）</h2>
+
+<p>Opus / Sonnet をオーケストレーターにした場合、委託したサブエージェントが API エラー等で無音停止しても、モデルの自発的な注意力だけでは検知できません（Issue #99）。<code>/ai-team-run</code> はサブエージェントへの委託と同時に <code>bin/watchdog.js</code> をバックグラウンドで起動し、機械的に停止を検知します。</p>
+
+<h3>仕組みの概要</h3>
+
+<ol><li>委託時、サブエージェントへのプロンプトに定期報告契約（着手時・主要ステップごと・失敗時即時・完了時の報告、5分ごとの heartbeat 打刻、完了時の done マーカー作成）を必ず含める</li><li>サブエージェント起動と同時に <code>bin/watchdog.js</code> をバックグラウンドで起動し、heartbeat の更新と done マーカーの出現を監視する</li><li>watchdog がバックグラウンドプロセスとして終了することで、オーケストレーターがモデルの注意力に依存せず起床する</li><li>終了コードで分岐:</li></ol>   - <code>0</code>（完了検出）→ 完了報告を検証して次のステップへ
+<p>   - <code>3</code>（無音検出）→ heartbeat・成果物の mtime を実測して裏取りしたうえで、生存なら watchdog を再起動、死亡なら再委託</p>
+<p>   - <code>2</code>（検査エラー）→ 引数不正または heartbeat/done-marker のパスが通常ファイルでない実体（symlink・FIFO・ディレクトリ等）</p>
+
+<h3>設定（<code>.claude/ai-team-config.yml</code> の <code>delegation_watchdog</code>）</h3>
+
+<pre><code class="language-yaml">delegation_watchdog:
+  stall_threshold_minutes: 10   # 既定値。heartbeat 5分間隔義務 × 2回欠落に対応
+  max_redelegations: 2          # 既定値。超過時は subagent_stall として escalated:human へ</code></pre>
+
+<p>キー不在時は上記既定値で動作します（後方互換）。再委託回数が <code>max_redelegations</code> を超えると、<code>escalation-rules.yml</code> の <code>subagent_stall</code> トリガーに従いエスカレーションします。</p>
+
+<p>詳細な委託前手順・プロンプトテンプレート・起床時の判定手順は <code>skills/ai-team-run.md</code>（配布後は <code>.claude/commands/ai-team-run.md</code>）の「委託監視プロトコル（点呼・ウォッチドッグ）」を参照してください。</p>
+
+<hr>
+
+<h2>エスカレーション</h2>
+
+<h3>エスカレーション定義</h3>
+
+<pre><code class="language-yaml">on_escalation:
+  next: human-escalator     # 常に human-escalator ステップへ</code></pre>
+
+<p>条件付きエスカレーション：</p>
+
+<pre><code class="language-yaml">on_escalation:
+  condition: 重大セキュリティリスクを発見
+  next: human-escalator</code></pre>
+
+<h3>human-escalatorステップの定義</h3>
+
+<p>ワークフロー内に必ず以下を定義してください。</p>
+
+<pre><code class="language-yaml">- id: human-escalator
+  agent: human-escalator
+  label: "escalated:human"
+  description: 判断できない事項を人間にエスカレーション
+  on_complete:
+    condition: 人間が判断・返答
+    next: return_to_previous  # エスカレーション元のステップに戻る</code></pre>
+
+<code>return_to_previous</code> は予約語です。エスカレーション元のステップに自動で戻ります。
+
+<h3>return_to_previous の仕組み</h3>
+
+<p>エスカレーション時、human-escalator はエスカレーションコメント（<code>🚨 エスカレーション</code>）に<strong>エスカレーション元のステップID</strong>を構造化フィールドとして記録します。</p>
+
+<pre><code class="language-">エスカレーション元ステップ: &lt;ステップID&gt;</code></pre>
+
+<p>人間の対応後、<code>/ai-team-resume</code> がこのフィールドを読み取り、workflow.yml の該当ステップから再開します。フィールドが存在しない旧形式のコメントの場合、resume は チケットのラベルとコメント履歴から復帰先を推定し、推定根拠を再開コメントに記録します。</p>
+
+<hr>
+
+<h2>特殊な引き継ぎ先</h2>
+
+<table><thead><tr><th>値</th><th>意味</th></tr></thead><tbody><tr><td><code>return_to_previous</code></td><td>エスカレーション・差し戻し元のステップに戻る</td></tr><tr><td><code>[step-a, step-b]</code></td><td>複数ステップを並列起動</td></tr></tbody></table>
+<hr>
+
+<h2>完了アクション</h2>
+
+<pre><code class="language-yaml">- id: contributor-close
+  agent: contributor
+  label: "contributor:ready"
+  on_complete:
+    action: close_issue    # チケットをクローズする</code></pre>
+
+<code>action: close_issue</code> はワークフローの終端を示します。
+
+<hr>
+
+<h2>ラベル設計ルール</h2>
+
+<h3>命名規則</h3>
+
+<pre><code class="language-">&lt;チーム名&gt;:&lt;エージェント名&gt;
+
+例:
+  backend:tech-lead
+  backend:implementer
+  content:writer
+  infra:security-engineer</code></pre>
+
+<h3>共通ラベル（チーム横断）</h3>
+
+<table><thead><tr><th>ラベル</th><th>意味</th></tr></thead><tbody><tr><td><code>contributor:ready</code></td><td>Contributor によるDOD確認・クローズ待ち</td></tr><tr><td><code>escalated:human</code></td><td>人間の判断待ち</td></tr><tr><td><code>epic</code></td><td>複数チームにまたがるEpic チケット（Dispatcherが分解）</td></tr><tr><td><code>sub-issue</code></td><td>Dispatcherが生成したサブチケット</td></tr><tr><td><code>complexity:high</code></td><td>複雑度が高い（ダブルレビューのトリガー）</td></tr><tr><td><code>security-sensitive</code></td><td>セキュリティ関連（ダブルレビューのトリガー）</td></tr><tr><td><code>breaking-change</code></td><td>破壊的変更（ダブルレビューのトリガー）</td></tr><tr><td><code>type:incident</code></td><td>インシデントレポートのチケット</td></tr></tbody></table>
+<h3>ラベルの状態遷移</h3>
+
+<p>各ステップ完了時にラベルを更新することで、現在の担当エージェントが明示されます。</p>
+
+<pre><code class="language-">backend:tech-lead → backend:implementer → backend:reviewer → backend:pr-creator → contributor:ready</code></pre>
+
+<hr>
+
+<h2>エージェントの追加方法</h2>
+
+<h3>1. エージェント定義ファイルを作成</h3>
+
+<pre><code class="language-">.claude/teams/&lt;チーム名&gt;/agents/&lt;エージェント名&gt;.md</code></pre>
+
+<h3>2. workflow.yml にステップを追加</h3>
+
+<pre><code class="language-yaml">- id: new-agent-step
+  agent: new-agent-name   # agents/&lt;name&gt;.md のファイル名（拡張子なし）
+  label: "&lt;チーム名&gt;:new-agent-name"
+  description: &lt;説明&gt;
+  on_complete:
+    next: &lt;次のステップ&gt;</code></pre>
+
+<h3>3. 前後のステップの <code>next</code> を更新</h3>
+
+<p>既存ステップの <code>on_complete.next</code> を新しいステップIDに変更します。</p>
+
+<hr>
+
+<h2>依頼時のみ起動するエージェント</h2>
+
+<p>常駐せず、特定の条件でのみ起動するエージェントは <code>conditions</code> で制御します。</p>
+
+<pre><code class="language-yaml">- id: infra-lead-check
+  agent: infra-lead
+  on_complete:
+    conditions:
+      - id: architect-needed
+        description: 大規模変更・アーキテクチャ判断が必要な場合のみ
+        criteria:
+          - システム全体の設計方針に関わる大規模変更
+          - 言語・フレームワークの選定が必要
+        next: architect   # この条件の場合のみ architect を起動
+
+      - id: no-architect-needed
+        description: 通常の変更
+        next: security-engineer  # architect をスキップ</code></pre>
+
+<hr>
+
+<h2>カスタマイズのガイドライン</h2>
+
+<h3>プロジェクト固有の設定は workflow.yml を直接編集</h3>
+
+<pre><code class="language-yaml"># プロジェクト固有のレビュー基準を追加する例
+- id: tech-lead-review-decision
+  # ... 既存の設定 ...
+  on_complete:
+    conditions:
+      - id: double-review
+        criteria:
+          - 変更ファイル数が5以上
+          - 認証・セキュリティ関連の変更
+          - このプロジェクト固有の条件: &lt;追記&gt;   # ← ここに追加
+        next: [reviewer-a, reviewer-b]</code></pre>
+
+<h3>チームを追加する場合</h3>
+
+<ol><li><code>templates/teams/&lt;新チーム名&gt;/</code> ディレクトリを作成</li><li><code>agents/</code> 配下にエージェント定義ファイルを配置</li><li><code>workflow.yml</code> を作成</li><li><code>dod/</code> 配下にDODテンプレートを配置</li><li>セットアップウィザード（<code>/ai-team-setup</code>）でチームを選択できるよう、ウィザード設定を更新</li></ol>
+<hr>
+
+<h2>よくある設計パターン</h2>
+
+<h3>パターン1: シンプルな直列フロー</h3>
+
+<pre><code class="language-yaml">steps:
+  - id: step-a
+    on_complete: { next: step-b }
+  - id: step-b
+    on_complete: { next: step-c }
+  - id: step-c
+    on_complete: { action: close_issue }</code></pre>
+
+<h3>パターン2: 条件分岐あり</h3>
+
+<pre><code class="language-yaml">- id: decision-point
+  on_complete:
+    conditions:
+      - id: path-a
+        criteria: [条件A]
+        next: handler-a
+      - id: path-b
+        criteria: [条件B]
+        next: handler-b</code></pre>
+
+<h3>パターン3: 並列 + 合流</h3>
+
+<pre><code class="language-yaml">- id: trigger
+  on_complete:
+    next: [parallel-a, parallel-b]
+
+- id: parallel-a
+  parallel_with: parallel-b
+  on_complete: { next: merge-point }
+
+- id: parallel-b
+  parallel_with: parallel-a
+  on_complete: { next: merge-point }
+
+- id: merge-point
+  requires_all_of: [parallel-a, parallel-b]
+  on_complete: { next: next-step }</code></pre>
+
+<h3>パターン4: 差し戻しループ</h3>
+
+<pre><code class="language-yaml">- id: implementer
+  on_rework: { condition: 差し戻し, next: implementer }  # 自分自身に戻る
+  on_complete: { next: reviewer }
+
+- id: reviewer
+  on_complete: { condition: 合格, next: next-step }
+  on_rework: { condition: 不合格, next: implementer }</code></pre>
+
+<hr>
+
+<h2>実践例</h2>
+
+<p>実際のチームワークフローを題材にした具体的なシナリオです。</p>
+
+<hr>
+
+<h3>実践例A: バックエンドチーム — セキュリティ関連実装がダブルレビューになるケース</h3>
+
+<p><strong>シナリオ</strong>: JWTトークンの認証ロジックを修正するチケット</p>
+
+<h4>チケットの状態</h4>
+
+<pre><code class="language-">タイトル: JWT有効期限の設定をconfigから読み込むよう修正
+ラベル: backend:tech-lead, team:backend
+変更予定ファイル: src/auth/jwt.ts, src/config/auth.ts, tests/auth.test.ts</code></pre>
+
+<h4>1. Tech-Lead が設計方針を決定</h4>
+
+<p>Tech-Lead がインシデントファイルを確認すると、過去に同種のインシデントが記録されていた。</p>
+
+<pre><code class="language-">⚠️ 関連インシデント注意事項
+
+参照: `.claude/incidents/2026-05-10_101_auth-token-expiry.md`
+
+⛔ やってはいけないこと
+- トークン有効期限を直接コードに書くこと
+- 環境変数の存在チェックを省略すること
+
+⚠️ 注意事項
+- 必ず config/auth.yml の値を参照すること</code></pre>
+
+<p>設計方針コメントを投稿し、<code>backend:implementer</code> に更新。</p>
+
+<h4>2. Implementer が実装・テストを完了</h4>
+
+<p>完了報告を投稿。変更ファイルは3件、テスト全件パス。</p>
+
+<h4>3. Tech-Lead がレビュー方式を自動判断</h4>
+
+<pre><code class="language-">🔧 Tech-Lead: レビュー方式を判断しました
+
+## 影響範囲の分析
+- 変更ファイル数: 3件
+- 変更対象領域: 認証・JWT・トークン管理
+- 複数レイヤーの変更: なし
+
+## 判断結果: ダブルレビュー
+
+判断理由:
+- 認証ロジック（JWT）の変更を含むため、double_review_criteria の
+  「認証・認可に関わる変更」に該当する
+
+⏭️ 次のアクション: backend:reviewer-a + backend:reviewer-b に引き継ぎます</code></pre>
+
+<p>ラベルを <code>backend:reviewer-a</code> と <code>backend:reviewer-b</code> の両方に付与。</p>
+
+<h4>4. Reviewer-A と Reviewer-B が独立してレビュー（並列）</h4>
+
+<p>Reviewer-A・Reviewer-B はお互いのコメントを見ずにそれぞれレビューし、暫定結果を投稿。</p>
+
+<pre><code class="language-">🔍 Reviewer-A: 独立レビュー完了（暫定）
+※ このレビューはReviewer-Bの結果を見ずに独立して行いました
+- 指摘: src/auth/jwt.ts L.23 — 環境変数が未定義の場合のフォールバック処理がない
+  根拠: .claude/rules/security.md「環境変数は必ず存在チェックを行うこと」</code></pre>
+
+<pre><code class="language-">🔍 Reviewer-B: 独立レビュー完了（暫定）
+※ このレビューはReviewer-Aの結果を見ずに独立して行いました
+- 指摘: src/auth/jwt.ts L.23 — 同上（環境変数の存在チェック漏れ）
+- 指摘: tests/auth.test.ts — 環境変数未定義時のテストケースがない</code></pre>
+
+<h4>5. クロスレビューで合意形成</h4>
+
+<pre><code class="language-">❌ Reviewer-A: 差し戻し（差し戻し回数: 1/2）
+
+🔀 クロスレビュー完了 → 最終判定
+
+## Reviewer-B との差異確認
+| 指摘項目 | Reviewer-A | Reviewer-B | 最終判断 |
+|---------|-----------|-----------|---------|
+| 環境変数チェック漏れ | 指摘あり | 指摘あり | 要修正（合意） |
+| テストケース不足 | 指摘なし | 指摘あり | 要修正（Reviewer-Bが正しい） |
+
+## 最終判定: 不合格
+
+⏭️ 次のアクション: backend:implementer に差し戻します</code></pre>
+
+<h4>6. Implementer が修正 → 再レビュー → 合格 → PR作成 → 人間が承認・マージ</h4>
+
+<hr>
+
+<h3>実践例B: コンテンツチーム — Researcherが呼ばれるケースとスキップされるケース</h3>
+
+<p><strong>シナリオ比較</strong>: 同じ「健康」カテゴリでも調査の要否が分かれる</p>
+
+<h4>ケースB-1: Researcherが呼ばれるケース</h4>
+
+<pre><code class="language-">タイトル: 日本人の睡眠不足の現状と改善策についての記事を作成</code></pre>
+
+<p>Editor-in-Chief の判断：</p>
+
+<pre><code class="language-">📝 Editor-in-Chief: 方針を決定しました
+
+...（方針の記述）...
+
+## Researcherへの調査依頼
+統計データ（日本人の平均睡眠時間・睡眠不足の割合）と
+科学的根拠のある改善策が必要なため、Researcherに調査を依頼します。
+
+⏭️ 次のアクション: content:researcher に引き継ぎます</code></pre>
+
+<p>Researcher が政府統計・査読論文から事実データを収集し、調査レポートを作成。</p>
+
+<pre><code class="language-">🔬 Researcher: 調査が完了しました
+
+## 確認された事実
+- 日本人の平均睡眠時間は7時間22分（厚生労働省「国民健康・栄養調査」2023年、URL）
+- 「睡眠負債」は認知機能・免疫機能に影響（Nature誌 Smith et al., 2022、URL）
+
+## 推定として扱うべき情報
+- 推定: 経済損失は年間約15兆円と推定される
+  根拠: ランド研究所試算（2023）、ただし試算方法に議論あり（URL）</code></pre>
+
+<p>Writer は調査レポートを参照して執筆。事実と推定を明確に区別した原稿を作成。</p>
+
+<h4>ケースB-2: Researcherがスキップされるケース</h4>
+
+<pre><code class="language-">タイトル: 社内Slackの使い方ガイドを更新する</code></pre>
+
+<p>Editor-in-Chief の判断：</p>
+
+<pre><code class="language-">📝 Editor-in-Chief: 方針を決定しました
+
+...（方針の記述）...
+
+## 調査の要否
+内部ドキュメントの整理・更新であり、既知の情報のみで構成されるため
+Researcherへの調査依頼は不要と判断します。
+
+⏭️ 次のアクション: content:writer に直接引き継ぎます</code></pre>
+
+<p>Researcher をスキップして Writer に直接引き継ぎ。</p>
+
+<h4>ケースB-3: 健康記事でコンプライアンスが法的判断を必要とするケース</h4>
+
+<p>Writer が「○○サプリメントは睡眠を改善します」という表現を含む原稿を提出。</p>
+
+<p>Compliance がチェック：</p>
+
+<pre><code class="language-">❌ Compliance: 差し戻し（差し戻し回数: 1/2）
+
+## CRITICAL（必ず修正）
+- [ ] 「睡眠を改善します」という表現
+  - 問題: 薬機法上の効能・効果の標榜に該当する可能性がある
+  - 根拠: compliance-rules/health-pharma.md「効能・効果の標榜禁止」
+  - 修正方針: 「睡眠をサポートする成分を含みます」等の表現に変更、
+              またはHuman-Escalatorで法的判断を仰ぐ
+
+⏭️ 次のアクション: content:writer に差し戻します</code></pre>
+
+<hr>
+
+<h3>実践例C: インフラチーム — Architectへの依頼が発生するケース</h3>
+
+<p><strong>シナリオ</strong>: マイクロサービス化のためのAPI Gateway導入</p>
+
+<h4>チケットの状態</h4>
+
+<pre><code class="language-">タイトル: モノリスAPIをAPI Gateway + Lambda構成に移行する
+ラベル: infra:infra-lead</code></pre>
+
+<h4>1. Infra-Lead が分析・設計方針を決定</h4>
+
+<p>公式ドキュメント（AWS API Gateway）を参照し、設計方針を投稿。</p>
+
+<p>変更内容を分類：</p>
+<ul><li>API Gatewayのルーティング設定 → Network-Engineer</li><li>Lambda・IAM・CloudFormation → Infra-Specialist</li></ul>
+<p>両エージェントを並列起動。</p>
+
+<h4>2. Network-Engineer と Infra-Specialist が並列で実装</h4>
+
+<p>それぞれ独立して担当領域を実装し、完了を報告。</p>
+
+<h4>3. Infra-Lead が整合性を確認 → Architect への依頼を判断</h4>
+
+<pre><code class="language-">🏗️ Infra-Lead: 実装完了を確認しました
+
+## 整合性チェック結果
+Network-Engineer の実装と Infra-Specialist の実装の整合性を確認しました。
+技術的には問題ありませんが、以下の理由でArchitectへの助言を依頼します。
+
+## Architectへの依頼理由
+このAPI Gateway導入はシステム全体のアーキテクチャ変更（モノリス → マイクロサービス）
+を伴います。言語・デザインパターン・将来の拡張性について、
+システム全体の観点からの助言が必要と判断しました。
+
+⏭️ 次のアクション: infra:architect に助言を依頼します（深い推論が必要な助言専用エージェント）</code></pre>
+
+<h4>4. Architect が助言（深い推論による分析）</h4>
+
+<pre><code class="language-">🏛️ Architect: 助言を提供します
+
+## 質問・依頼の理解
+モノリスAPIをAPI Gateway + Lambda構成に移行する際の
+アーキテクチャ的な妥当性と注意点について助言を求められています。
+
+## 分析
+
+### 選択肢の比較
+
+**選択肢A: 今回の構成（API Gateway + Lambda）**
+- 利点: スケーラビリティ・従量課金・デプロイの独立性
+- 欠点: コールドスタート・レイテンシ増加・デバッグの複雑化
+- 適した状況: トラフィックが不規則・チームが独立してデプロイしたい
+
+**選択肢B: API Gateway + コンテナ（ECS/EKS）**
+- 利点: コールドスタートなし・Lambdaの制約（15分タイムアウト等）なし
+- 欠点: 常時起動コスト・インフラ管理の複雑化
+- 適した状況: 長時間処理・既存のコンテナ資産がある
+
+### 推奨
+現在のトラフィックパターンと開発チームの規模から判断すると、
+選択肢Aが適切です。ただし以下の点に注意してください。
+
+## 長期的な考慮事項
+- サービス間通信のパターンを早期に定義する（同期/非同期）
+- 共通処理（認証・ログ）はLambda Layerで管理する
+- 将来のサービス追加を見据えてOpenAPIスキーマを整備する
+
+## 参照したパターン・原則
+- マイクロサービスパターン: API Gatewayパターン（Richardson, 2018）
+- AWSベストプラクティス: Serverless Application Lens</code></pre>
+
+<h4>5. Security-Engineer がセキュリティレビュー → Contributor がクローズ</h4>
+
+<p>Architect の助言を受けた実装をSecurity-Engineerがレビューし合格。今回のシナリオでは差し戻し・エスカレーションは発生しなかったため、オーケストレーター・Infra-Lead・Human-Escalatorによる失敗時点の記録（下記コラム参照）は行われていません。Security-Engineerのレビュー合格後、Contributorがクローズします。</p>
+
+<p>> <strong>もし差し戻しが発生していたら（Issue #89 の記録モデル）</strong>: レビュー不合格のコメントを投稿する<strong>直前</strong>に、オーケストレーター（<code>/ai-team-run</code>）がその原因・争点を <code>.claude/incidents/</code> に即時記録します（発火点1）。再実装担当（Infra-Specialist / Network-Engineer）を再起動する<strong>前</strong>には <code>index.yml</code> を照合し、記録済みの再発防止策を作業指示に反映します（発火点2）。<code>escalated:human</code> へ遷移した場合はHuman-Escalatorが停止前に記録します（発火点3）。詳細は <code>templates/incidents/README.md</code>「責務分担」を参照してください。</p>
+
+<p>クローズ時、Contributorはインシデント記録の<strong>拾い上げ・検証</strong>を実施します（一次記録は失敗時点で完了している前提のため、ゼロからの調査ではありません）。<strong>Contributorの役割縮退はレビューの省略を意味しません</strong>（レビュー自体は既定どおりSecurity-Engineerが独立して実施済みです。レビューステップを経ずにマージすることは許容されません）。</p>
+
+<pre><code class="language-">✅ Contributor確認済み：インシデント記録なし
+
+インシデント記録の判定基準: (a)〜(d) いずれも非該当
+今回のAPI Gateway導入では差し戻し・エスカレーション・障害はなく、オーケストレーター/リーダーによる一次記録もありませんでした。既存記録の拾い上げ対象もありません。</code></pre>
+
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>

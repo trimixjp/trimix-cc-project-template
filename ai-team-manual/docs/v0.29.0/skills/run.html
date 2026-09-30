@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>/ai-team-run — ワークフロー起動 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.29.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="../index.html">概要</a></li><li class=""><a href="../getting-started.html">クイックスタート</a></li><li class=""><a href="../installation.html">インストール</a></li><li class=""><a href="../faq.html">よくある質問（FAQ）</a></li><li class=""><a href="../changelog.html">v0.28.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="../skills/overview.html">スキル一覧</a></li><li class=""><a href="../skills/setup.html">ai-team-setup</a></li><li class="active"><a href="../skills/run.html">ai-team-run</a></li><li class=""><a href="../skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="../skills/watch.html">ai-team-watch</a></li><li class=""><a href="../skills/configure.html">ai-team-configure</a></li><li class=""><a href="../skills/create.html">ai-team-create</a></li><li class=""><a href="../skills/install.html">ai-team-install</a></li><li class=""><a href="../skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="../skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="../teams/overview.html">チーム概要</a></li><li class=""><a href="../teams/backend.html">バックエンドチーム</a></li><li class=""><a href="../teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="../teams/infra.html">インフラチーム</a></li><li class=""><a href="../teams/content.html">コンテンツチーム</a></li><li class=""><a href="../teams/sns.html">SNS運用チーム</a></li><li class=""><a href="../teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="../agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="../agents/contributor.html">Contributor</a></li><li class=""><a href="../agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="../guide/setup.html">セットアップガイド</a></li><li class=""><a href="../guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="../guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="../guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="../guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="../guide/upgrade.html">アップグレード</a></li><li class=""><a href="../guide/migration.html">バージョン移行</a></li><li class=""><a href="../guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="../reference/config.html">設定ファイル</a></li><li class=""><a href="../reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="../reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="../reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class=""><a href="../changelog.html">v0.24.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">/ai-team-run — ワークフロー起動</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../../v0.5.1/skills/run.html" >v0.5.1</option><option value="../../v0.5.2/skills/run.html" >v0.5.2</option><option value="../../v0.6.0/skills/run.html" >v0.6.0</option><option value="../../v0.7.0/skills/run.html" >v0.7.0</option><option value="../../v0.8.0/skills/run.html" >v0.8.0</option><option value="../../v0.9.0/skills/run.html" >v0.9.0</option><option value="../../v0.10.0/skills/run.html" >v0.10.0</option><option value="../../v0.11.0/skills/run.html" >v0.11.0</option><option value="../../v0.12.0/skills/run.html" >v0.12.0</option><option value="../../v0.13.0/skills/run.html" >v0.13.0</option><option value="../../v0.14.0/skills/run.html" >v0.14.0</option><option value="../../v0.15.0/skills/run.html" >v0.15.0</option><option value="../../v0.16.0/skills/run.html" >v0.16.0</option><option value="../../v0.17.0/skills/run.html" >v0.17.0</option><option value="../../v0.18.0/skills/run.html" >v0.18.0</option><option value="../../v0.20.0/skills/run.html" >v0.20.0</option><option value="../../v0.21.0/skills/run.html" >v0.21.0</option><option value="../../v0.21.1/skills/run.html" >v0.21.1</option><option value="../../v0.22.0/skills/run.html" >v0.22.0</option><option value="../../v0.22.1/skills/run.html" >v0.22.1</option><option value="../../v0.23.0/skills/run.html" >v0.23.0</option><option value="../../v0.24.0/skills/run.html" >v0.24.0</option><option value="../../v0.25.0/skills/run.html" >v0.25.0</option><option value="../../v0.26.0/skills/run.html" >v0.26.0</option><option value="../../v0.27.0/skills/run.html" >v0.27.0</option><option value="../../v0.28.0/skills/run.html" >v0.28.0</option><option value="../../v0.29.0/skills/run.html" selected>v0.29.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>/ai-team-run — ワークフロー起動</h1>
+
+<p>担当チケット（チケット・Jira・Linear 等）を読み込み、適切なチームのワークフローを起動します。</p>
+
+<p>> <strong>スキル定義</strong>: <code>skills/ai-team-run.md</code></p>
+<p>> <strong>短縮エイリアス</strong>: <code>/airun</code>（v0.27.0 以降。<code>/airun 42</code> は <code>/ai-team-run 42</code> と同じ）</p>
+
+<hr>
+
+<h2>使い方</h2>
+
+<pre><code class="language-">/ai-team-run &lt;チケットURL または チケットID&gt;</code></pre>
+
+<p>引数を省略した場合、チケットの URL またはチケット内容の貼り付けを促されます。</p>
+
+<h3>実行例</h3>
+
+<pre><code class="language-"># チケット番号で指定
+/ai-team-run 42
+
+# チケット URL で指定
+/ai-team-run https://github.com/.*/issues/42
+
+# Jira URL で指定
+/ai-team-run https://your-org.atlassian.net/browse/PROJ-123
+
+# 引数なしで起動 → チケット内容の入力を求められる
+/ai-team-run</code></pre>
+
+<hr>
+
+<h2>ステップ 1: チケットの読み込み</h2>
+
+<p>引数の形式に応じて、自動的に取得方法を選択します。</p>
+
+<table><thead><tr><th>チケットの形式</th><th>取得方法</th></tr></thead><tbody><tr><td>番号のみ（例: <code>42</code>）</td><td><code>gh issue view 42 --json title,body,labels,assignees,comments</code></td></tr><tr><td>チケット URL</td><td><code>gh issue view &lt;番号&gt;</code> で取得</td></tr><tr><td>Jira URL</td><td>URL から番号抽出後、ユーザーに内容貼り付けを依頼</td></tr><tr><td>その他の URL</td><td>ユーザーにチケット内容の貼り付けを依頼</td></tr></tbody></table>
+<hr>
+
+<h2>ステップ 2: 前提確認</h2>
+
+<code>.claude/</code> ディレクトリが存在しない場合、未セットアップとして <code>/ai-team-setup</code> の実行を案内して中断します。
+
+<hr>
+
+<h2>ステップ 3: チームとワークフローの特定</h2>
+
+<p>チケットの<strong>ラベル</strong>・<strong>タイトル</strong>・<strong>内容</strong>から担当チームを判定します。ラベルが優先されます。</p>
+
+<h3>ラベルによる判断（優先）</h3>
+
+<table><thead><tr><th>ラベルプレフィックス</th><th>担当チーム</th><th>ワークフロー</th></tr></thead><tbody><tr><td><code>backend:*</code></td><td>バックエンドチーム</td><td><code>.claude/teams/backend/workflow.yml</code></td></tr><tr><td><code>frontend:*</code></td><td>フロントエンドチーム</td><td><code>.claude/teams/frontend/workflow.yml</code></td></tr><tr><td><code>content:*</code></td><td>コンテンツチーム</td><td><code>.claude/teams/content/workflow.yml</code></td></tr><tr><td><code>infra:*</code></td><td>インフラチーム</td><td><code>.claude/teams/infra/workflow.yml</code></td></tr><tr><td><code>epic</code> / <code>dispatcher</code></td><td>Dispatcher</td><td>各チームに分解（<code>.claude/agents/dispatcher.md</code>）</td></tr><tr><td><code>incident</code></td><td>インシデント対応</td><td>緊急対応フロー</td></tr><tr><td><code>escalated:human</code></td><td>人間対応待ち</td><td>ワークフロー停止中（<code>/ai-team-resume</code> で再開）</td></tr></tbody></table>
+<h3>ラベルがない場合</h3>
+
+<p>タイトル・本文のキーワードを次の決定表に機械的に照合してチームを推定し、ユーザーに確認してから起動します（v0.23.0 で決定表化）。どの行にも一致しない場合はユーザーに直接質問します。</p>
+
+<table><thead><tr><th>タイトル・本文のキーワード（いずれかを含む）</th><th>付与するラベル</th></tr></thead><tbody><tr><td>複数チームにまたがる・横断・全体</td><td><code>epic</code></td></tr><tr><td>障害・本番エラー・緊急</td><td><code>incident</code></td></tr><tr><td>API・DB・サーバ・バッチ・認証・バックエンド</td><td><code>backend:tech-lead</code></td></tr><tr><td>画面・UI・コンポーネント・CSS・フロントエンド</td><td><code>frontend:designer</code></td></tr><tr><td>インフラ・クラウド・ネットワーク・デプロイ・セキュリティ</td><td><code>infra:infra-lead</code></td></tr><tr><td>記事・ドキュメント・README・文章</td><td><code>content:editor-in-chief</code></td></tr><tr><td>SNS・X・Instagram・投稿文</td><td><code>sns:strategist</code></td></tr><tr><td>YouTube・動画・台本・チャンネル</td><td><code>youtube:director</code></td></tr></tbody></table>
+<hr>
+
+<h2>ステップ 4: インシデント確認</h2>
+
+<p>担当チームのワークフロー起動前に <code>.claude/incidents/index.yml</code> を読み込み、チケット内容と <code>keywords</code> を照合します。関連インシデントが見つかった場合、注意事項を チケット本文末尾またはコメントとして投稿します。</p>
+
+<pre><code class="language-">## ⚠️ 関連インシデント注意事項
+
+参照: `.claude/incidents/&lt;ファイル名&gt;`
+
+⛔ やってはいけないこと
+- （インシデントファイルから転記）
+
+⚠️ 注意事項
+- （インシデントファイルから転記）</code></pre>
+
+<hr>
+
+<h2>ステップ 5: ワークフローの起動</h2>
+
+<h3>Epic / Dispatcher の場合</h3>
+
+<code>.claude/agents/dispatcher.md</code> を読み込み、Dispatcher エージェントとして動作します。
+
+<ol><li>チケット内容を分析して サブチケット（またはサブタスク）に分解</li><li>各チームのワークフローを並列または順次で起動</li></ol>
+<h3>通常チケットの場合</h3>
+
+<code>workflow.yml</code> の最初のステップに対応するエージェント定義を読み込み、そのエージェントとして動作します。
+
+<p>例（バックエンドチームの場合）：</p>
+
+<pre><code class="language-">workflow.yml の steps[0] = tech-lead-analysis
+→ .claude/teams/backend/agents/tech-lead.md を読み込む
+→ Tech-Lead として動作開始</code></pre>
+
+<h3>インシデントの場合</h3>
+
+<p>担当チームが不明な場合はユーザーに確認し、即座に <code>escalated:human</code> ラベルの付与を提案します。</p>
+
+<hr>
+
+<h2>ステップ 6: エージェントとしての動作</h2>
+
+<p>エージェント定義に従い、チケットを処理します。</p>
+
+<h3>チケットへの記録</h3>
+
+<p>各エージェントの作業結果は チケットコメントとして記録されます。</p>
+
+<pre><code class="language-bash"># GitHub Issues
+gh issue comment &lt;番号&gt; --body "..."
+
+# その他のシステム
+# コメント内容をユーザーに提示し、手動での貼り付けを案内</code></pre>
+
+<h3>ラベルの更新</h3>
+
+<p>次のエージェントへの引き継ぎ時にラベルを更新します。</p>
+
+<pre><code class="language-bash">gh issue edit &lt;番号&gt; --add-label "backend:reviewer" --remove-label "backend:implementer"</code></pre>
+
+<h3>ワークフローの継続</h3>
+
+<p>現在のエージェントの処理が完了したら、<code>workflow.yml</code> の <code>on_complete.next</code> に従って次のステップへ進みます。</p>
+
+<hr>
+
+<h2>サブエージェントの無音停止検知（点呼・ウォッチドッグ）</h2>
+
+<p>Opus / Sonnet をオーケストレーターとして使用する場合、委託したサブエージェントが API エラー等で無音停止しても気づけない問題が発生しています（実績例: 約40分間の停止を検知できず）。この機能は、バックグラウンドプロセス（<code>bin/watchdog.js</code>）を使用して、サブエージェントの生存状態を定期的に確認します。</p>
+
+<h3>仕組みの概要</h3>
+
+<pre><code class="language-">委託時:
+  1. .claude/delegation-status/issue-&lt;番号&gt;/&lt;task-slug&gt;/ ディレクトリ作成
+  2. サブエージェント起動（バックグラウンド）
+  3. 同時に watchdog も起動（バックグラウンド）
+
+watchdog 監視中:
+  - heartbeat.log の更新時刻を定期確認（5分間隔での更新を期待）
+  - done マーカーファイルの作成を検知
+
+停止検知時（heartbeat 10分間以上未更新）:
+  - heartbeat と成果物ファイルの mtime を実測確認（長考中を誤判定しないため）
+  - 生存なら → 監視継続
+  - 死亡なら → 同一プロンプトで再委託（上限2回）
+  - 再委託上限超過 → escalated:human へエスカレーション</code></pre>
+
+<h3>設定</h3>
+
+<code>.claude/ai-team-config.yml</code> に <code>delegation_watchdog</code> キーがある場合は下記の値で、ない場合は既定値を使用します：
+
+<pre><code class="language-yaml">delegation_watchdog:
+  stall_threshold_minutes: 10   # heartbeat 更新なし期間の閾値（既定: 10分）
+  max_redelegations: 2          # 再委託の上限回数（既定: 2回）</code></pre>
+
+<h3>サブエージェント側の報告義務</h3>
+
+<p>サブエージェントには以下の報告契約を明示してください：</p>
+
+<ol><li>着手時・主要ステップ完了ごと・失敗時・完了時に報告する</li><li>最低5分に1回、<code>date '+%Y-%m-%dT%H:%M:%S' &gt;&gt; &lt;heartbeat.log&gt;</code> を実行する</li><li>完了時に <code>&lt;done マーカー&gt;</code> ファイルを作成してから終了する</li><li>STATUS? 受信時は、3行以内+実測値付きで即応する</li><li>指示で明示されたパス以外に出力・削除をしない</li></ol>
+<hr>
+
+<h2>ワークフロー停止条件</h2>
+
+<p>以下のいずれかに該当した場合、ワークフローを停止してユーザーに状況を報告します。</p>
+
+<table><thead><tr><th>停止理由</th><th>対応方法</th></tr></thead><tbody><tr><td><code>escalated:human</code> ラベル付与</td><td>人間が判断・コメント → <code>/ai-team-resume</code> で再開</td></tr><tr><td>PR の承認・マージが必要</td><td>人間が承認・マージ → ワークフロー継続</td></tr><tr><td>重大セキュリティリスク発見</td><td>人間の判断・対応 → 修正後に再開</td></tr><tr><td><code>escalation-rules.yml</code> の <code>escalation_triggers</code> に該当</td><td>人間の判断 → <code>/ai-team-resume</code></td></tr><tr><td>チケットがクローズされた</td><td>Contributor が完了処理済み → 停止</td></tr></tbody></table>
+<hr>
+
+<h2>エージェント間の引き継ぎフロー（バックエンド例）</h2>
+
+<pre><code class="language-">[/ai-team-run 42]
+       │
+       ▼
+[ラベル backend:tech-lead を確認]
+       │
+       ▼
+[tech-lead エージェント起動]
+  → 要件分析・設計方針コメント投稿
+  → ラベルを backend:implementer に更新
+       │
+       ▼
+[implementer エージェント起動]
+  → 実装・テスト・完了報告コメント投稿
+  → ラベルを backend:tech-lead に戻す
+       │
+       ▼
+[tech-lead がレビュー方式判断]
+  → シングル or ダブルレビューを決定
+  → ラベルを reviewer または reviewer-a + reviewer-b に更新
+       │
+       ▼
+[reviewer / cross-review 完了]
+  → 合格コメント投稿
+  → ラベルを backend:tech-writer に更新
+       │
+       ▼
+[tech-writer がドキュメント更新]
+  → docs-src/ を更新、build.js 実行
+  → ラベルを backend:pr-creator に更新
+       │
+       ▼
+[pr-creator が PR 作成]
+  → escalated:human ラベル付与
+  → 人間の承認・マージを待つ
+       │
+       ▼
+[人間がマージ後]
+  → /ai-team-resume または solo 自動再開
+  → contributor が DOD 確認・チケットクローズ</code></pre>
+
+<hr>
+
+<h2>関連ドキュメント</h2>
+
+<ul><li><a href="resume.html">ai-team-resume</a> — エスカレーション後の再開</li><li><a href="../teams/backend.html">バックエンドチーム</a> — フロー詳細</li><li><a href="../reference/workflow.html">ワークフロー定義</a> — <code>workflow.yml</code> の仕様</li><li><a href="../reference/escalation.html">エスカレーションルール</a> — 停止条件の詳細</li></ul>
+      </article>
+    </div>
+  </div>
+  <script src="../assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
