@@ -161,7 +161,7 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
 
 <p>どちらの方式で作業したかは、Implementer が完了報告に <code>作業方式:</code> と <code>作業ディレクトリ:</code> として必ず記録するため、後から追えます。</p>
 
-<h3>ステップ7: advisor のモデル（Claude Code のとき）</h3>
+<h3>ステップ4d: advisor のモデル（Claude Code のとき）</h3>
 
 <p>runtime が <strong>Claude Code</strong> の場合のみ、advisor のモデルを選択できます（Grok Build では不可）。</p>
 
@@ -170,19 +170,24 @@ node node_modules/@trimix/ai-team/bin/lib/apply-model-profile.js \
     設計・検証を強いモデルに任せる方針の既定値
     事前に Claude Code で /model fable を実行し、利用クレジットへの同意が必要です
   opus
-    バランス型。検証・実装で活躍
+    本体が fable のセッションには付きません
+    性能が「ハイパフォーマンス」のときは、この選択肢は出ません
   設定しない
-    advisor を設定しません。後から変更できます
+    どのファイルも変えません（既存の値も消しません）
   解除
-    現在の設定を削除します（以前設定があるときだけ表示）</code></pre>
+    .claude/settings.local.json に advisorModel があるときだけ表示。そのキーだけを削除します</code></pre>
 
 <p><strong>advisor</strong> は、実装エージェントが判断に迷ったときに相談する、より強いモデルです。<strong>エージェント・スキルごとには指定できません</strong>（frontmatter に advisor 用のキーが無く、Claude Code の設定 <code>advisorModel</code> だけで指定します）。</p>
 
 <p>選んだ値は <strong><code>.claude/settings.local.json</code></strong>（個人設定）に書き込まれます。本人にだけ効き、チームの他のメンバーには影響しません。</p>
 
+<p><strong>性能「ハイパフォーマンス」との関係</strong>: 性能が high-performance（本体の設計役が fable）のときは、opus の選択肢を出しません。既に値が opus のまま性能を high-performance にした場合は、その値と場所を示して、変更するかどうかを尋ねます。</p>
+
+<p><strong>「設定しない」を選んだとき</strong>: どのファイルも変えません。ただし <code>.claude/settings.local.json</code> が既にあり、Git 管理外でなければ、<code>.gitignore</code> への追記を提案します（同意したときだけ追記します。<code>advisorModel</code> は書きません）。</p>
+
 <p><strong>設定の変更方法</strong>:</p>
 <ul><li>ここで選んだ値は、このプロジェクトでは <code>/advisor</code> コマンドの選択より優先されます</li><li>変更は <code>/ai-team-setup</code> の「設定の切替のみ」か <code>.claude/settings.local.json</code> を手で編集して行ってください</li></ul>
-<h3>ステップ8: GitHub ラベルの作成</h3>
+<h3>ステップ5: GitHub ラベルの作成</h3>
 
 <p>選択したチームに対応するラベルを <code>gh label create</code> で一括作成するかどうか確認します。既存ラベルは <code>--force</code> オプションで上書き更新されます。</p>
 

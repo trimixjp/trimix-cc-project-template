@@ -136,8 +136,8 @@ runtime が **Claude Code** の場合のみ、advisor のモデルを選択し�
 | 選択肢 | 説明 |
 |--------|------|
 | **fable（推奨）** | 設計・検証を強いモデルに任せる方針の既定値。事前に `/model fable` を実行し、利用クレジットへの同意が必要。未同意の間は、公式ドキュメントによればエラーにならず advisor なしで動き、通知が出ます |
-| **opus** | バランス型。検証・実装で活躍 |
-| **設定しない** | advisor を設定しません。後から変更できます |
+| **opus** | 本体が fable のセッションには付きません。性能が high-performance（本体の設計役が fable）のときは、この選択肢を出しません |
+| **設定しない** | どのファイルも変えません（既存の値も消しません） |
 | **解除**（再 setup 時のみ） | 現在の設定を削除します（`.claude/settings.local.json` に値があるときだけ表示） |
 
 advisor は、実装エージェントが判断に迷ったときに相談する、より強いモデルです。**エージェント・スキルごとには指定できません**（frontmatter に advisor 用のキーが無く、Claude Code の settings `advisorModel` だけで指定します）。
@@ -145,6 +145,10 @@ advisor は、実装エージェントが判断に迷ったときに相談する
 **書き込み先**: git リポジトリのルート（worktree では本体側のルート）の `.claude/settings.local.json`（個人設定）。本人にだけ効き、チームの他のメンバーには影響しません。
 
 **決定3の注意**: 既存の `advisorModel` が見つかった場合（`.claude/settings.local.json` / `.claude/settings.json` / ユーザー設定など）、値と場所を示して上書きするかを確認します。**黙って上書きしません**。
+
+**性能 high-performance と opus**: 性能が high-performance のときは opus を選択肢から外します。既存の値が opus のまま性能を high-performance にしたときは、値と場所を示して変更するかを尋ねます。
+
+**「設定しない」のときの `.gitignore`**: 「設定しない」を選んでも、`.claude/settings.local.json` が既にあり Git 管理外でなければ、`.gitignore` への追記を提案します。同意したときだけ追記し、`advisorModel` は書きません。
 
 **Bedrock での動作**: Amazon Bedrock・Claude Platform on AWS では advisor は使えず、設定しても効果はありません（公式ドキュメントの記述による。未同意環境・Bedrock での実挙動は実測していません）。
 

@@ -174,7 +174,7 @@ workspace:
 
 どちらの方式で作業したかは、Implementer が完了報告に `作業方式:` と `作業ディレクトリ:` として必ず記録するため、後から追えます。
 
-### ステップ7: advisor のモデル（Claude Code のとき）
+### ステップ4d: advisor のモデル（Claude Code のとき）
 
 runtime が **Claude Code** の場合のみ、advisor のモデルを選択できます（Grok Build では不可）。
 
@@ -184,22 +184,27 @@ runtime が **Claude Code** の場合のみ、advisor のモデルを選択で�
     設計・検証を強いモデルに任せる方針の既定値
     事前に Claude Code で /model fable を実行し、利用クレジットへの同意が必要です
   opus
-    バランス型。検証・実装で活躍
+    本体が fable のセッションには付きません
+    性能が「ハイパフォーマンス」のときは、この選択肢は出ません
   設定しない
-    advisor を設定しません。後から変更できます
+    どのファイルも変えません（既存の値も消しません）
   解除
-    現在の設定を削除します（以前設定があるときだけ表示）
+    .claude/settings.local.json に advisorModel があるときだけ表示。そのキーだけを削除します
 ```
 
 **advisor** は、実装エージェントが判断に迷ったときに相談する、より強いモデルです。**エージェント・スキルごとには指定できません**（frontmatter に advisor 用のキーが無く、Claude Code の設定 `advisorModel` だけで指定します）。
 
 選んだ値は **`.claude/settings.local.json`**（個人設定）に書き込まれます。本人にだけ効き、チームの他のメンバーには影響しません。
 
+**性能「ハイパフォーマンス」との関係**: 性能が high-performance（本体の設計役が fable）のときは、opus の選択肢を出しません。既に値が opus のまま性能を high-performance にした場合は、その値と場所を示して、変更するかどうかを尋ねます。
+
+**「設定しない」を選んだとき**: どのファイルも変えません。ただし `.claude/settings.local.json` が既にあり、Git 管理外でなければ、`.gitignore` への追記を提案します（同意したときだけ追記します。`advisorModel` は書きません）。
+
 **設定の変更方法**:
 - ここで選んだ値は、このプロジェクトでは `/advisor` コマンドの選択より優先されます
 - 変更は `/ai-team-setup` の「設定の切替のみ」か `.claude/settings.local.json` を手で編集して行ってください
 
-### ステップ8: GitHub ラベルの作成
+### ステップ5: GitHub ラベルの作成
 
 選択したチームに対応するラベルを `gh label create` で一括作成するかどうか確認します。既存ラベルは `--force` オプションで上書き更新されます。
 

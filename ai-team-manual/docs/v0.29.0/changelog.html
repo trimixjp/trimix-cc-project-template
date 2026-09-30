@@ -42,26 +42,36 @@
 
 <p><strong>setup ウィザードに質問7 <code>advisor のモデル</code> を追加</strong></p>
 
-<p>v0.28.0 では advisor のモデルを <code>.claude/settings.local.json</code> に手で書く必要がありました。v0.29.0 では setup 時にウィザードで選べるようになります：</p>
+<p>v0.28.0 までは、setup で advisor のモデルを設定できませんでした。v0.29.0 では setup 時にウィザードで選べます：</p>
 
-<ul><li><strong>fable（推奨）</strong>: 設計・検証を強いモデルに任せる方針の既定値。事前に <code>/model fable</code> で利用クレジットへの同意が必要です</li><li><strong>opus</strong>: バランス型。検証・実装で活躍</li><li><strong>設定しない</strong>: advisor を設定しません</li></ul>
+<ul><li><strong>fable（推奨）</strong>: 設計・検証を強いモデルに任せる方針の既定値。事前に <code>/model fable</code> で利用クレジットへの同意が必要です</li><li><strong>opus</strong>: 本体が fable のセッションには付きません。性能が high-performance（本体の設計役が fable）のときは、この選択肢を出しません</li><li><strong>設定しない</strong>: どのファイルも変えません（既存の値も消しません）</li><li><strong>解除</strong>: <code>.claude/settings.local.json</code> に <code>advisorModel</code> があるときだけ表示。そのキーだけを削除します</li></ul>
 <p>runtime が Claude Code のときだけ質問が出ます。Grok Build では質問しません（advisor は Claude Code の機能のため）。</p>
+
+<p><strong>advisor コマンドの追加</strong></p>
+
+<code>node &lt;パッケージルート&gt;/bin/setup.js advisor</code> に次のサブコマンドを追加しました。詳細は <a href="reference/config.html">設定リファレンス</a> を参照してください。
+
+<ul><li><code>advisor check</code>: 現在の実効値と、値がある場所を表示します（何も書き込みません）</li><li><code>advisor apply</code>: <code>advisorModel</code> を設定・解除します。既存の値が違うときは黙って上書きせず、<code>--overwrite</code> を付けたときだけ上書きします</li><li><code>advisor gitignore</code>: <code>.claude/settings.local.json</code> を <code>.gitignore</code> に追記します</li></ul>
+<p><strong>性能との組み合わせ（決定6）</strong></p>
+
+<p>性能が high-performance のときは opus を選べません。既存の値が opus のまま high-performance にした場合は、値と場所を示して変更するかを尋ねます。</p>
+
+<p><strong>「設定しない」と <code>.gitignore</code>（決定7）</strong></p>
+
+<p>「設定しない」を選んでも、<code>.claude/settings.local.json</code> が既にあり Git 管理外でなければ、<code>.gitignore</code> への追記を提案します。同意したときだけ追記し、<code>advisorModel</code> は書きません。</p>
 
 <h3>既存環境への影響</h3>
 
-<p><strong>破壊的変更はありません</strong>。既存の <code>.claude/settings.local.json</code> には何も書き込まれません（opt-in）。再度 <code>/ai-team-setup</code> を実行すると、「設定の切替のみ」モードで質問7（advisor のモデル）が出ます。</p>
+<p><strong>破壊的変更はありません</strong>。既存の <code>.claude/settings.local.json</code> には何も書き込まれません（opt-in）。再度 <code>/ai-team-setup</code> を実行すると、「設定の切替のみ」モードで質問0・5・6・7 が出ます。</p>
 
 <h3>個人設定優先化</h3>
 
-<code>advisorModel</code> が <code>.claude/settings.local.json</code> に設定されている場合、プロジェクト設定・ユーザー設定より優先されます。その結果、既に <code>/advisor</code> で選んでいたモデル選択は <strong>効かなくなります</strong>。変更は再 setup か <code>.claude/settings.local.json</code> 編集で行ってください。
+<code>advisorModel</code> が <code>.claude/settings.local.json</code> に設定されている場合、プロジェクト設定・ユーザー設定より優先されます。その結果、<code>/advisor</code> コマンドで選んだモデル（ユーザー設定に保存されます）は <strong>効かなくなります</strong>。変更は再 setup か <code>.claude/settings.local.json</code> 編集で行ってください。
 
 <h3>その他の改善</h3>
 
-<p><strong>v0.28.0 の軽微な不正確さを修正</strong>:</p>
-<ul><li><code>skills/setup.md</code> の質問5（モデル性能）で Grok の説明に verifier を加えた（「Grok では balance / high-performance 時 leader/verifier/worker=grok-4.5…」）</li><li><code>guide/migration.md</code> の「<code>upgrade --dry</code> で16ファイルが表示される」が導入済みチームの検証役ファイル対象である点を明確に</li></ul>
-<h2>インシデント修正・改善</h2>
-
-<ul><li>#9（<code>resolveSettings()</code> は起動フォルダからの読み込みに。Agent SDK の既定動作）を設計に反映</li><li>#4（書き込み経路・読み取り経路の全列挙）に基づき、advisorModel 読み取り対象を 4 か所に明記</li><li>#8（マニュアルリンク検証テスト）で npm test 全件成功を確認</li><li>#2（未コミット変更での destructive git コマンド禁止）で別作業ツリーで実装</li></ul>
+<p><strong>v0.28.0 のマニュアルの不正確さを修正</strong>:</p>
+<ul><li><code>skills/setup.md</code> の質問5（モデル性能）で Grok の説明に verifier を加えた（「Grok では balance / high-performance 時 leader/verifier/worker=grok-4.5…」）</li><li><code>guide/migration.md</code> の v0.28.0 の節にある「16ファイル」は、導入済みのチームの検証役ファイルだけが対象であることを明記（5チームすべてを導入している場合は16ファイル。<code>upgrade</code> の対象は導入済みのチームです）</li></ul>
 <h2>関連チケット・参照資料</h2>
 
 <ul><li>Issue #115: setup で advisor のモデル設定を可能に</li><li>Issue #111: 検証役ロール（verifier）の新設（v0.28.0）</li><li>Issue #113: setup の書き込み経路解決確認</li></ul>

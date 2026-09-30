@@ -128,14 +128,28 @@ delegation_watchdog:
 
 <p><strong>書き込み先</strong>: 個人設定 <code>.claude/settings.local.json</code>（git リポジトリのルートまたは起動フォルダ、worktree では本体側のルート）。本人にだけ効き、チームの他のメンバーには影響しません。</p>
 
-<p><strong>読み取り順（優先順位）</strong>:</p>
-<ol><li><code>.claude/settings.local.json</code>（個人設定・プロジェクト固有）</li><li><code>.claude/settings.json</code>（共有プロジェクト設定・チーム全体）</li><li><code>~/.claude/settings.json</code> または <code>$CLAUDE_CONFIG_DIR/settings.json</code>（ユーザー設定・全プロジェクト）</li></ol>
-<p>上位の設定がある場合、下位の値は上書きされます。個人設定が最優先です。</p>
+<p><strong>読み取り経路</strong>（<code>advisor check</code> が確認する場所。個人設定が共有プロジェクト設定・ユーザー設定より優先されます）:</p>
+<ol><li>R1: git リポジトリのルートの <code>.claude/settings.local.json</code>（個人設定。書き込み先と同じ）</li><li>R2: 実行フォルダがルートと違うときだけ、実行フォルダ側の <code>.claude/settings.local.json</code>（旧版が実行フォルダへ置いたもの。変更しません）</li><li>R3: 実行フォルダの <code>.claude/settings.json</code>（共有プロジェクト設定。変更しません）</li><li>R4: ユーザー設定（<code>CLAUDE_CONFIG_DIR</code> があればその下、無ければ <code>~/.claude/settings.json</code>。変更しません）</li></ol>
+<p><strong>確認・設定の方法</strong>（<code>&lt;id&gt;</code> は性能プロファイル ID: <code>high-performance</code> / <code>balance</code> / <code>low-cost</code>。<code>--profile</code> を省くと config の値を読みます）:</p>
 
-<p><strong>確認・設定の方法</strong>:</p>
-<ul><li>確認: <code>node &lt;パッケージルート&gt;/bin/setup.js advisor check --profile &lt;balance|high-performance&gt;</code></li><li>設定: <code>node &lt;パッケージルート&gt;/bin/setup.js advisor apply --model &lt;fable|opus|unset&gt; --profile &lt;balance|high-performance&gt;</code></li><li><code>.gitignore 追記の提案</code>: <code>node &lt;パッケージルート&gt;/bin/setup.js advisor gitignore</code></li></ul>
-<p><strong>既に <code>/advisor</code> で選んでいた場合</strong>:</p>
-<ul><li><code>/advisor</code> フラグはセッション単位（その実行だけ）に advisor のモデルを上書きします</li><li><code>.claude/settings.local.json</code> に <code>advisorModel</code> が設定されていると、個人設定が優先されて <code>/advisor</code> の選択は <strong>効きません</strong></li><li>変更するには、再 setup（「設定の切替のみ」モード）か <code>.claude/settings.local.json</code> を手で編集してください</li></ul>
+<pre><code class="language-bash">node &lt;パッケージルート&gt;/bin/setup.js advisor check [--json] [--profile &lt;id&gt;]
+node &lt;パッケージルート&gt;/bin/setup.js advisor apply --model &lt;fable|opus|unset&gt; [--overwrite] [--gitignore] [--dry] [--profile &lt;id&gt;]
+node &lt;パッケージルート&gt;/bin/setup.js advisor gitignore [--dry]</code></pre>
+
+<ul><li><code>check</code>: 現在の実効値と、値が見つかった場所（R1〜R4）を表示します。何も書き込みません</li><li><code>apply</code>: <code>advisorModel</code> を設定します。<code>unset</code> は解除（R1 のそのキーだけを削除）です。既存の値が選んだ値と違うときは何も書かずに止まり、<code>--overwrite</code> を付けたときだけ上書きします。<code>--dry</code> は書かずに内容だけ示します</li><li><code>gitignore</code>: <code>.claude/settings.local.json</code> を <code>.gitignore</code> に追記します（<code>advisorModel</code> は書きません）</li></ul>
+<p><strong>終了コード</strong>:</p>
+
+<table><thead><tr><th>終了コード</th><th>意味</th></tr></thead><tbody><tr><td>0</td><td>成功、または変更なし</td></tr><tr><td>2</td><td>引数誤り、または性能 high-performance で opus を選んだ</td></tr><tr><td>3</td><td>既存の <code>advisorModel</code> があり、選んだ値と違う（または他の設定ファイルを確認できない）。値と場所が表示されます。上書きするなら <code>--overwrite</code> を付けて再実行します</td></tr><tr><td>4</td><td>書き込み拒否（壊れた JSON・シンボリックリンク・ハードリンク・通常ファイルでない実体など）。何も書いていません</td></tr><tr><td>5</td><td>想定外の例外、または書き込みの失敗。出力の「状態」にどこまで書いたかが書かれます。<code>advisor check</code> で実際の状態を確かめてください</td></tr></tbody></table>
+<p>通常ファイルでない実体（FIFO など）が設定ファイルの場所にあるときは、読まずに「確認できません」と表示します（<code>check</code> は終了コード0、<code>apply</code> は R1 なら 4、R2〜R4 なら 3）。git が読む無視ファイルが通常ファイルでないとき、または git が5秒以内に終わらないときは、「git 状態: 確認不能（理由）」と表示します（<code>check</code> は終了コード0、<code>apply --gitignore</code> と <code>advisor gitignore</code> は終了コード4で何も書きません）。</p>
+
+<code>--overwrite</code> でも、共有プロジェクト設定（<code>.claude/settings.json</code>）とユーザー設定は変更しません。個人設定の値が優先されて隠れるだけです。
+
+<p><strong>性能 high-performance と opus</strong>: 性能が high-performance（本体の設計役が fable）のときは opus を選べません（終了コード2）。既存の値が opus のまま性能を high-performance にした場合は、<code>check</code> が注意を表示するので、値と場所を示して変更するかどうかを尋ねます。</p>
+
+<p><strong>「設定しない」と <code>.gitignore</code></strong>: 「設定しない」を選んでも、<code>.claude/settings.local.json</code> が既にあり Git 管理外でなければ、<code>.gitignore</code> への追記を提案します。同意したときだけ <code>advisor gitignore</code> で追記し、<code>advisorModel</code> は書きません。</p>
+
+<p><strong><code>/advisor</code> コマンド・<code>--advisor</code> フラグ・無効化との関係</strong>:</p>
+<ul><li>セッション単位の上書きは、Claude Code の起動時の <code>--advisor</code> フラグです</li><li><code>/advisor</code> コマンドでの選択はユーザー設定（<code>~/.claude/settings.json</code>）に保存されます。個人設定 <code>.claude/settings.local.json</code> に <code>advisorModel</code> があるとそちらが優先されるため、<code>/advisor</code> の選択は <strong>効きません</strong></li><li>変更するには、再 setup（「設定の切替のみ」モード）か <code>.claude/settings.local.json</code> を手で編集してください</li><li>advisor の無効化は環境変数 <code>CLAUDE_CODE_DISABLE_ADVISOR_TOOL</code> です</li></ul>
 <p><strong>未同意環境・Bedrock での動作</strong>:</p>
 <ul><li><code>fable</code> を使うには、事前に Claude Code で <code>/model fable</code> を実行し、利用クレジットへの同意が必要です</li><li>未同意の環境・Amazon Bedrock・Claude Platform on AWS では、公式ドキュメントによれば<strong>エラーにならず advisor なしで動き、通知が出ます</strong>（実測未実施）</li></ul>
 <hr>

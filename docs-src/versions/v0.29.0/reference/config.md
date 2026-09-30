@@ -129,22 +129,47 @@ advisor は、実装エージェントが判断に迷ったときに相談する
 
 **書き込み先**: 個人設定 `.claude/settings.local.json`（git リポジトリのルートまたは起動フォルダ、worktree では本体側のルート）。本人にだけ効き、チームの他のメンバーには影響しません。
 
-**読み取り順（優先順位）**:
-1. `.claude/settings.local.json`（個人設定・プロジェクト固有）
-2. `.claude/settings.json`（共有プロジェクト設定・チーム全体）
-3. `~/.claude/settings.json` または `$CLAUDE_CONFIG_DIR/settings.json`（ユーザー設定・全プロジェクト）
+**読み取り経路**（`advisor check` が確認する場所。個人設定が共有プロジェクト設定・ユーザー設定より優先されます）:
+1. R1: git リポジトリのルートの `.claude/settings.local.json`（個人設定。書き込み先と同じ）
+2. R2: 実行フォルダがルートと違うときだけ、実行フォルダ側の `.claude/settings.local.json`（旧版が実行フォルダへ置いたもの。変更しません）
+3. R3: 実行フォルダの `.claude/settings.json`（共有プロジェクト設定。変更しません）
+4. R4: ユーザー設定（`CLAUDE_CONFIG_DIR` があればその下、無ければ `~/.claude/settings.json`。変更しません）
 
-上位の設定がある場合、下位の値は上書きされます。個人設定が最優先です。
+**確認・設定の方法**（`<id>` は性能プロファイル ID: `high-performance` / `balance` / `low-cost`。`--profile` を省くと config の値を読みます）:
 
-**確認・設定の方法**:
-- 確認: `node <パッケージルート>/bin/setup.js advisor check --profile <balance|high-performance>`
-- 設定: `node <パッケージルート>/bin/setup.js advisor apply --model <fable|opus|unset> --profile <balance|high-performance>`
-- `.gitignore 追記の提案`: `node <パッケージルート>/bin/setup.js advisor gitignore`
+```bash
+node <パッケージルート>/bin/setup.js advisor check [--json] [--profile <id>]
+node <パッケージルート>/bin/setup.js advisor apply --model <fable|opus|unset> [--overwrite] [--gitignore] [--dry] [--profile <id>]
+node <パッケージルート>/bin/setup.js advisor gitignore [--dry]
+```
 
-**既に `/advisor` で選んでいた場合**:
-- `/advisor` フラグはセッション単位（その実行だけ）に advisor のモデルを上書きします
-- `.claude/settings.local.json` に `advisorModel` が設定されていると、個人設定が優先されて `/advisor` の選択は **効きません**
+- `check`: 現在の実効値と、値が見つかった場所（R1〜R4）を表示します。何も書き込みません
+- `apply`: `advisorModel` を設定します。`unset` は解除（R1 のそのキーだけを削除）です。既存の値が選んだ値と違うときは何も書かずに止まり、`--overwrite` を付けたときだけ上書きします。`--dry` は書かずに内容だけ示します
+- `gitignore`: `.claude/settings.local.json` を `.gitignore` に追記します（`advisorModel` は書きません）
+
+**終了コード**:
+
+| 終了コード | 意味 |
+|-----------|------|
+| 0 | 成功、または変更なし |
+| 2 | 引数誤り、または性能 high-performance で opus を選んだ |
+| 3 | 既存の `advisorModel` があり、選んだ値と違う（または他の設定ファイルを確認できない）。値と場所が表示されます。上書きするなら `--overwrite` を付けて再実行します |
+| 4 | 書き込み拒否（壊れた JSON・シンボリックリンク・ハードリンク・通常ファイルでない実体など）。何も書いていません |
+| 5 | 想定外の例外、または書き込みの失敗。出力の「状態」にどこまで書いたかが書かれます。`advisor check` で実際の状態を確かめてください |
+
+通常ファイルでない実体（FIFO など）が設定ファイルの場所にあるときは、読まずに「確認できません」と表示します（`check` は終了コード0、`apply` は R1 なら 4、R2〜R4 なら 3）。git が読む無視ファイルが通常ファイルでないとき、または git が5秒以内に終わらないときは、「git 状態: 確認不能（理由）」と表示します（`check` は終了コード0、`apply --gitignore` と `advisor gitignore` は終了コード4で何も書きません）。
+
+`--overwrite` でも、共有プロジェクト設定（`.claude/settings.json`）とユーザー設定は変更しません。個人設定の値が優先されて隠れるだけです。
+
+**性能 high-performance と opus**: 性能が high-performance（本体の設計役が fable）のときは opus を選べません（終了コード2）。既存の値が opus のまま性能を high-performance にした場合は、`check` が注意を表示するので、値と場所を示して変更するかどうかを尋ねます。
+
+**「設定しない」と `.gitignore`**: 「設定しない」を選んでも、`.claude/settings.local.json` が既にあり Git 管理外でなければ、`.gitignore` への追記を提案します。同意したときだけ `advisor gitignore` で追記し、`advisorModel` は書きません。
+
+**`/advisor` コマンド・`--advisor` フラグ・無効化との関係**:
+- セッション単位の上書きは、Claude Code の起動時の `--advisor` フラグです
+- `/advisor` コマンドでの選択はユーザー設定（`~/.claude/settings.json`）に保存されます。個人設定 `.claude/settings.local.json` に `advisorModel` があるとそちらが優先されるため、`/advisor` の選択は **効きません**
 - 変更するには、再 setup（「設定の切替のみ」モード）か `.claude/settings.local.json` を手で編集してください
+- advisor の無効化は環境変数 `CLAUDE_CODE_DISABLE_ADVISOR_TOOL` です
 
 **未同意環境・Bedrock での動作**:
 - `fable` を使うには、事前に Claude Code で `/model fable` を実行し、利用クレジットへの同意が必要です

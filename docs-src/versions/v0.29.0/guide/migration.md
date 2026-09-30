@@ -28,23 +28,23 @@ npm install --save-dev ./trimix-ai-team-0.29.0.tgz
 
 #### ステップ 2: 設定の確認（推奨）
 
-既にオーナー環境で `~/.claude/settings.json` に `advisorModel: fable` が設定されている場合、新しく作成したプロジェクトでも同じ値を共有できます。設定を確認したい場合は：
+ユーザー設定（`~/.claude/settings.json`）に `advisorModel` がある場合があります。現在の実効値とその場所を確認するには：
 
 ```bash
-node node_modules/@trimix/ai-team/bin/setup.js advisor check --profile balance
+node node_modules/@trimix/ai-team/bin/setup.js advisor check --profile <性能プロファイルID>
 ```
 
 #### ステップ 3: advisor のモデル設定（任意）
 
 Claude Code runtime を使用している場合、advisor のモデルを設定できます。設定の切替のみモードで再実行してください：
 
-```bash
+Claude Code で次を実行します：
+
+```
 /ai-team-setup
-# または
-npx @trimix/ai-team ai-team-setup
 ```
 
-既存の runtime / モデル性能 / effort はそのまま保持され、質問7（advisor のモデル）だけが追加で聞かれます。
+「設定の切替のみ」を選ぶと、質問0（runtime）・質問5（モデル性能）・質問6（effort 深度）・質問7（advisor のモデル）が聞かれます。質問7 は runtime が Claude Code のときだけです。
 
 設定しない場合、「設定しない」を選ぶと何も書き込まれません。
 
@@ -58,7 +58,7 @@ npx @trimix/ai-team ai-team-setup
 
 ## v0.27.0 から v0.28.0 への移行
 
-v0.28.0 では、**検証役ロール `verifier` を新設**し、レビュー・QA・セキュリティ確認などの検証専任エージェント 13 名（16ファイル）を `worker` から `verifier` に変更しました。このアップグレードでは、既存インストールの検証役エージェントが自動で更新されます。
+v0.28.0 では、**検証役ロール `verifier` を新設**し、レビュー・QA・セキュリティ確認などの検証専任エージェント 13 名（5チームすべてを導入している場合は 16 ファイル）を `worker` から `verifier` に変更しました。このアップグレードでは、既存インストールのうち、導入済みのチームの検証役エージェントが自動で更新されます。
 
 ### 破壊的変更
 
@@ -68,7 +68,7 @@ v0.28.0 では、**検証役ロール `verifier` を新設**し、レビュー�
 
 #### 未編集のファイル（baseline と一致）
 
-検証役 13 名（16ファイル）の frontmatter が変わります。**全プロファイルで `model_role` が `worker` → `verifier` に** 変わり、**balance プロファイル限定で `model` も `sonnet` → `opus` に** 変わります。
+導入済みのチームの検証役（5チームすべてを導入している場合は 13 名・16ファイル）の frontmatter が変わります。**全プロファイルで `model_role` が `worker` → `verifier` に** 変わり、**balance プロファイル限定で `model` も `sonnet` → `opus` に** 変わります。
 
 | runtime / プロファイル | model の変更 | model_role の変更 |
 |---|---|---|
@@ -79,7 +79,7 @@ v0.28.0 では、**検証役ロール `verifier` を新設**し、レビュー�
 | grok / high-performance | 不変（grok-4.5） | worker → verifier |
 | grok / low-cost | 不変（grok-composer-2.5-fast） | worker → verifier |
 
-対象エージェント（16ファイル）：
+対象エージェント（`upgrade` は導入済みのチームの分だけが対象です。backend・frontend・infra・content・youtube の5チームすべてを導入している場合は16ファイル）：
 
 - backend・frontend：`reviewer`、`reviewer-a`、`reviewer-b`
 - infra：`security-engineer`
@@ -110,7 +110,7 @@ rm .claude/teams/backend/agents/reviewer.md.new
 
 #### ✏️  上書き更新されるファイル
 
-baseline と一致する未編集のファイルです。検証役 16 ファイルのうち、編集していないものはここに表示され、実際に上書きされます。
+baseline と一致する未編集のファイルです。導入済みのチームの検証役ファイルのうち、編集していないものはここに表示され、実際に上書きされます。
 
 **注意:** high-performance や low-cost プロファイルでは、検証役の `model` は変わりません（opus や sonnet のままです）が、`model_role` が `worker` から `verifier` に書き換わるため、このカテゴリに表示されます。これは正常な動作です（`model_role` の行が変わるため「更新」と扱われます）。
 
@@ -170,7 +170,7 @@ npx @trimix/ai-team upgrade --dry
 
 以下のカテゴリが表示されます：
 
-- **✏️  上書き更新されるファイル:** 未編集の検証役エージェント（16ファイル。上書きされます）
+- **✏️  上書き更新されるファイル:** 未編集の検証役エージェント（導入済みのチームの分。5チームすべてを導入している場合は16ファイル。上書きされます）
 - **🛡️  保護のためスキップ:** 手編集済みファイル・baseline 未記録・`# customized: true` マーカー付きファイル（本体は保護され `.new` が書き出されます）
 - **ℹ️  baseline に記録が無いため安全側で保護したファイル:** baseline 未記録ファイルについての追加案内。`baseline record` コマンドで解消できます
 
@@ -185,7 +185,7 @@ npx @trimix/ai-team upgrade
 #### ステップ 4: 確認事項チェック
 
 - [ ] `npm list @trimix/ai-team` でバージョンが `0.28.0` になっている
-- [ ] `upgrade --dry` で「✏️  上書き更新されるファイル」として16ファイルが表示された
+- [ ] `upgrade --dry` で「✏️  上書き更新されるファイル」として、導入済みのチームの検証役ファイル（5チームすべてを導入している場合は16ファイル）が表示された
 - [ ] 手編集ファイルがある場合、`.new` ファイルを見比べて frontmatter を適用
 - [ ] frontmatter を適用済みの `.new` ファイルを1つずつ確認して削除（例: `rm .claude/teams/backend/agents/reviewer.md.new`）
 
