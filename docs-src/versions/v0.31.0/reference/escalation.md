@@ -306,7 +306,7 @@ gh issue edit <番号> --add-assignee "<GitHubユーザー名>"
 ```
 1. PR-Creator: gh pr create 完了
 2. PR-Creator → Human-Escalator（merge_approval）
-3. チケットに 「⚠️ 承認・マージは人間が行います」コメント投稿
+3. チケットに 「⚠️ 承認・マージは人の承認を得てから行います（`merge_approval`）」コメント投稿
 4. 人間: PR をレビューしてマージ
 5. /ai-team-resume → Contributor 起動 → DOD 確認 → チケットクローズ
 ```

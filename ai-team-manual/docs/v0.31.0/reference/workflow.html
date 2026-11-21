@@ -355,7 +355,7 @@ steps:
     agent: human-escalator
     label: "escalated:human"
     on_complete:
-      condition: 人間がマージ完了
+      condition: マージ完了（人の承認によるマージ、または範囲を明示して任された代行）
       next: contributor-close
 
   - id: human-escalator

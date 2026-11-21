@@ -45,7 +45,7 @@
 
 <code>/ai-team-run</code> は、最初の書き込みの前に1回だけ、書き込みの範囲を具体的に1文で確かめます。例: 「#42 のワークフローが人の判断待ち（PR の承認待ち、または escalated:human）に戻るまで、#42 へのコメント・ラベル変更と、feature ブランチの push・PR 作成を行ってよいですか」。返事を待つ間は、チケットの読み込み・インシデントの照合など、書き込みの要らない作業を進めます。<code>/ai-team-watch</code>（ソロモード）は、setup で <code>mode: solo</code> を選んだ時点の同意で代え、聞きません。
 
-<p><strong>理由</strong>: チケットの作成・コメント・ラベル変更・push・PR 作成は外部への公開で、範囲を明示して同意を取ってから行うためです。起動は作業の指示であり、書き込みの同意とは読み替えません。同意の範囲はワークフローが人の判断待ちに戻った時点で終わり、<code>/ai-team-resume</code> で再開するときは改めて確かめます。</p>
+<p><strong>理由</strong>: チケットの作成・コメント・ラベル変更・push・PR 作成は外部への公開で、範囲を明示して同意を取ってから行うためです。起動は作業の指示であり、書き込みの同意とは読み替えません。同意の範囲はワークフローが人の判断待ちに戻った時点で終わり、<code>/ai-team-resume</code> で再開するときは改めて確かめます。人が範囲を明示して完了まで任せた場合（マージの代行を含む）は、書き込みの同意の範囲もその完了（マージ後のコメント・ラベル変更・クローズ）まで広がります。</p>
 
 <p>setup がプロジェクトの <code>CLAUDE.md</code> に書く「タスク受付ルール」も、チケットを作る前にタイトルと本文の案を見せ、1文で同意を取る形にしました。</p>
 
@@ -65,16 +65,16 @@
 
 <h3><code>/ai-team-run</code></h3>
 
-<ul><li><strong>書き込みの同意</strong>: 上の決定のとおり。同意が得られない場合は、書き込まずに分かったことをターミナルに示して停止します</li><li><strong>委託の判断基準と委託プロンプトの骨組み</strong>: 委託プロンプトは、目的・分かっていること・作業場所（<code>pwd</code> とブランチ）・資料・手順・完了条件・出力先をタグで分けた骨組みで書き、その後ろに報告の契約（6 条項）をそのまま入れます。6 条項の文言は変わりません</li><li><strong>途中からの再開</strong>: チームのステップのラベル（例: <code>backend:implementer</code>）が付いているチケットは、最初のステップから始め直さず、<code>/ai-team-resume</code> と同じ決定表でそのステップから始めます。最後の <code>⏭️ 次のアクション:</code> 行と作業ブランチの <code>git log</code> で、終わった作業を確かめてから続けます。<code>/ai-team-watch</code> が書いていた「再開モード」は、この手順を指すことを明記しました</li><li><strong>確認の聞き方</strong>: チームの推定や既存チケットの選択などで確かめるときは、推奨と理由を添えた、はい／いいえで答えられる1文で聞きます。聞く場面は変えていません</li><li><strong>CLI が失敗したとき</strong>: リトライの前に、エラー出力から原因（認証・ネットワーク・レート制限など）を確かめ、直せるものは直します。リトライの回数は1回のままです（<code>/ai-team-resume</code>・<code>/ai-team-watch</code> も同じ）</li><li><strong>ターミナルへの報告</strong>: ステップの開始と完了を1行で伝え、停止するときは、わかった事・やった事・次の事をまとめます</li><li><strong>読めない参照の置き換え</strong>: 公開されていないファイルや、以前の規約の条番号を指していた説明を、その場で読める理由に置き換えました</li></ul>
+<ul><li><strong>書き込みの同意</strong>: 上の決定のとおり。同意が得られない場合は、書き込まずに分かったことをターミナルに示して停止します</li><li><strong>委託の判断基準と委託プロンプトの骨組み</strong>: 委託プロンプトは、目的・分かっていること・作業場所（<code>pwd</code> とブランチ）・資料・手順・完了条件・出力先をタグで分けた骨組みで書き、その後ろに報告の契約（6 条項）をそのまま入れます。6 条項の文言は変わりません</li><li><strong>途中からの再開</strong>: ステップの完了コメント（<code>⏭️ 次のアクション:</code> 行を含むコメント）があるチケットは、最初のステップから始め直さず、チームのステップのラベルと最後の <code>⏭️ 次のアクション:</code> 行で決めたステップから始めます。新規か再開かはラベルでは判定しません（新しいチケットにも先頭ステップのラベルが付いているため）。最後の <code>⏭️ 次のアクション:</code> 行と作業ブランチの <code>git log</code> で、終わった作業を確かめてから続けます（implementer・developer も、作業ブランチがあればコミット済みのタスクを確かめてから続けます）。<code>/ai-team-watch</code> が書いていた「再開モード」は、この手順を指すことを明記しました</li><li><strong>確認の聞き方</strong>: チームの推定や既存チケットの選択などで確かめるときは、推奨と理由を添えた、はい／いいえで答えられる1文で聞きます。聞く場面は変えていません</li><li><strong>CLI が失敗したとき</strong>: リトライの前に、エラー出力から原因（認証・ネットワーク・レート制限など）を確かめ、直せるものは直します。リトライの回数は1回のままです（<code>/ai-team-resume</code>・<code>/ai-team-watch</code> も同じ）</li><li><strong>ターミナルへの報告</strong>: ステップの開始と完了を1行で伝え、停止するときは、わかった事・やった事・次の事をまとめます</li><li><strong>読めない参照の置き換え</strong>: 公開されていないファイルや、以前の規約の条番号を指していた説明を、その場で読める理由に置き換えました</li></ul>
 <h3>エージェント定義</h3>
 
-<ul><li><strong>テストを減らす変更は承認制</strong>（backend の implementer・frontend の developer）: テストを消す・スキップする・期待値を実装に合わせて書き換えるときは、理由をコメントに書き、リーダー（Tech-Lead / Frontend-Lead）の承認を得てから行います。レビュー観点 <code>test-coverage</code> と、PR 本文の「承認前に知っておくこと」（<code>テストの削除・スキップ</code> 行）でも見えるようにしました</li><li><strong>1つずつ実装して確かめる</strong>: implementer・developer は着手前にテストの基準値を記録し、タスクを1つずつ実装して確かめてから進みます。完了報告に「着手前の基準値」の欄を足しました</li><li><strong>委託の作業台帳の片付け</strong>（contributor）: クローズ時に <code>.claude/delegation-status/issue-&lt;番号&gt;/</code> を、すべてのタスクに <code>done</code> があることを確かめてから消します。setup は <code>.claude/delegation-status/</code> を <code>.gitignore</code> に冪等に追記します</li><li><strong>human-merge-approval の説明</strong>（backend・frontend の <code>workflow.yml</code>）: マージの承認の決定に合わせました。ステップの構成とラベルは変わりません</li></ul>
+<ul><li><strong>テストを減らす変更は承認制</strong>（backend の implementer・frontend の developer）: テストを消す・スキップする・期待値を実装に合わせて書き換えるときは、理由をコメントに書き、リーダー（Tech-Lead / Frontend-Lead）の承認を得てから行います。最終の承認はマージの承認と一緒に人が行うため、PR 本文の「承認前に知っておくこと」（<code>テストの削除・スキップ</code> 行）に件数と理由を必ず出します。レビュー観点 <code>test-coverage</code> でも確かめます</li><li><strong>1つずつ実装して確かめる</strong>: implementer・developer は着手前にテストの基準値を記録し、タスクを1つずつ実装して確かめてから進みます。完了報告に「着手前の基準値」の欄を足しました</li><li><strong>委託の作業台帳の片付け</strong>（contributor）: クローズ時に <code>.claude/delegation-status/issue-&lt;番号&gt;/</code> を、すべてのタスクに <code>done</code> があることを確かめてから消します。setup は <code>.claude/delegation-status/</code> を <code>.gitignore</code> に冪等に追記します</li><li><strong>human-merge-approval の説明</strong>（backend・frontend の <code>workflow.yml</code>）: マージの承認の決定に合わせました。ステップの構成とラベルは変わりません</li></ul>
 <h3>ガイド</h3>
 
 <ul><li>エージェント記述ガイド（<code>.claude/docs/agent-writing-guide.md</code>）の「重要な原則」の規則で、禁止事項には効く範囲と理由を添え、人の承認で許されるものは「承認を得てから行う」と書くことにしました</li><li>ワークフローガイド（<code>.claude/docs/workflow-guide.md</code>）に、3 つの決定を結論・理由・日付で記録しました</li></ul>
 <h2>既存環境への影響</h2>
 
-<p><strong>破壊的変更はありません</strong>。ワークフローのステップ構成・ラベル・コメントの1行目と <code>⏭️ 次のアクション:</code> 行は変わりません。動きが変わるのは、起動時に同意の1問が増えること、ラベルの付いたチケットが途中から始まること、ターミナルの表示が増えることです。</p>
+<p><strong>破壊的変更はありません</strong>。ワークフローのステップ構成・ラベル・コメントの1行目と <code>⏭️ 次のアクション:</code> 行は変わりません。動きが変わるのは、起動時に同意の1問が増えること、ステップの完了コメントがあるチケットが途中から始まること、ターミナルの表示が増えることです。</p>
 
 <code>upgrade</code> で、変更のあったスキル・共通エージェント・エスカレーションルール・導入済みのチームのファイルが更新されます。プロジェクトの <code>CLAUDE.md</code> の「タスク受付ルール」と <code>.gitignore</code> は <code>upgrade</code> の対象外です。詳しくは <a href="guide/migration.html">移行ガイド</a> を参照してください。
 

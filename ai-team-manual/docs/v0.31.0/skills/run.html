@@ -70,7 +70,7 @@
 <p><strong>決定（2026-11-22、Issue #125）と理由</strong>: 外部への公開は、範囲を明示して同意を取ってから行います。<code>/ai-team-run</code> の起動は作業の指示であり、書き込みの同意とは読み替えません。</p>
 
 <table><thead><tr><th>場面</th><th>動き</th></tr></thead><tbody><tr><td>番号・URL で起動した</td><td>チケットを読んだ直後、最初のコメントの前に聞く</td></tr><tr><td>問題の説明（自由記述）で起動した</td><td>チケットを作る前に、タイトル・本文・ラベルの案と範囲を1文にまとめて聞く</td></tr><tr><td>起動の指示に範囲が書いてある（例: 「#42 を PR 作成まで進めて。コメントと push も任せる」）、または直前に同じ範囲の同意を得ている</td><td>範囲を1行で表示して進める</td></tr><tr><td><code>/ai-team-watch</code>（ソロモード）</td><td>setup で <code>mode: solo</code> を選んだ時点の同意で代え、聞かない</td></tr><tr><td>同意が得られない</td><td>書き込まずに、分かったことをターミナルに示して停止する</td></tr></tbody></table>
-<p>同意の範囲は、ワークフローが人の判断待ちに戻った時点で終わります。<code>/ai-team-resume</code> で再開するときは、改めて確かめます。同意はターミナルのやり取りで完結し、チケットにはコメントしません。</p>
+<p>同意の範囲は、ワークフローが人の判断待ちに戻った時点で終わります。<code>/ai-team-resume</code> で再開するときは、改めて確かめます。人が範囲を明示して完了まで任せた場合（マージの代行を含む）は、書き込みの同意の範囲もその完了（マージ後のコメント・ラベル変更・クローズ）まで広がります。同意はターミナルのやり取りで完結し、チケットにはコメントしません。</p>
 
 <hr>
 
@@ -96,9 +96,7 @@
 <table><thead><tr><th>ラベルプレフィックス</th><th>担当チーム</th><th>ワークフロー</th></tr></thead><tbody><tr><td><code>backend:*</code></td><td>バックエンドチーム</td><td><code>.claude/teams/backend/workflow.yml</code></td></tr><tr><td><code>frontend:*</code></td><td>フロントエンドチーム</td><td><code>.claude/teams/frontend/workflow.yml</code></td></tr><tr><td><code>content:*</code></td><td>コンテンツチーム</td><td><code>.claude/teams/content/workflow.yml</code></td></tr><tr><td><code>infra:*</code></td><td>インフラチーム</td><td><code>.claude/teams/infra/workflow.yml</code></td></tr><tr><td><code>epic</code> / <code>dispatcher</code></td><td>Dispatcher</td><td>各チームに分解（<code>.claude/agents/dispatcher.md</code>）</td></tr><tr><td><code>incident</code></td><td>インシデント対応</td><td>緊急対応フロー</td></tr><tr><td><code>escalated:human</code></td><td>人間対応待ち</td><td>ワークフロー停止中（<code>/ai-team-resume</code> で再開）</td></tr></tbody></table>
 <h3>ラベルがない場合</h3>
 
-<p>タイトル・本文のキーワードを次の決定表に機械的に照合してチームを推定し、ユーザーに確認してから起動します（v0.23.0 で決定表化）。どの行にも一致しない場合はユーザーに直接質問します。</p>
-
-<p>確認は、推定したチームと一致したキーワードを添えた、はい／いいえで答えられる1文で行います（v0.31.0）。例: 「#42 を backend チームで始めてよいですか（本文の『API』『DB』に一致）」。キーワード対応表には誤判定があるため、確認は省きません。</p>
+<p>タイトル・本文のキーワードを次の決定表に機械的に照合してチームを推定し（v0.23.0 で決定表化）、推定したチームと一致したキーワードを添えた、はい／いいえで答えられる1文で確かめてから起動します（v0.31.0）。例: 「#42 を backend チームで始めてよいですか（本文の『API』『DB』に一致）」。キーワード対応表には誤判定があるため、確認は省きません。どの行にも一致しない場合はユーザーに直接質問します。</p>
 
 <table><thead><tr><th>タイトル・本文のキーワード（いずれかを含む）</th><th>付与するラベル</th></tr></thead><tbody><tr><td>複数チームにまたがる・横断・全体</td><td><code>epic</code></td></tr><tr><td>障害・本番エラー・緊急</td><td><code>incident</code></td></tr><tr><td>API・DB・サーバ・バッチ・認証・バックエンド</td><td><code>backend:tech-lead</code></td></tr><tr><td>画面・UI・コンポーネント・CSS・フロントエンド</td><td><code>frontend:designer</code></td></tr><tr><td>インフラ・クラウド・ネットワーク・デプロイ・セキュリティ</td><td><code>infra:infra-lead</code></td></tr><tr><td>記事・ドキュメント・README・文章</td><td><code>content:editor-in-chief</code></td></tr><tr><td>SNS・X・Instagram・投稿文</td><td><code>sns:strategist</code></td></tr><tr><td>YouTube・動画・台本・チャンネル</td><td><code>youtube:director</code></td></tr></tbody></table>
 <hr>
@@ -137,7 +135,7 @@
 <ol><li>チケット内容を分析して サブチケット（またはサブタスク）に分解</li><li>各チームのワークフローを並列または順次で起動</li></ol>
 <h3>通常チケットの場合</h3>
 
-<p>チームのステップのラベルが付いていない新しいチケットは、<code>workflow.yml</code> の最初のステップに対応するエージェント定義を読み込み、そのエージェントとして動作します。</p>
+<p>新規か再開かは、ラベルではなく、ステップの完了コメント（<code>⏭️ 次のアクション:</code> 行を含むコメント）の有無で判定します（v0.31.0）。完了コメントが1件も無い新しいチケットは、<code>workflow.yml</code> の最初のステップに対応するエージェント定義を読み込み、そのエージェントとして動作します。自由記述から作ったチケットや Issue テンプレートから作ったチケットには、作った時点で先頭ステップのラベル（例: <code>backend:tech-lead</code>）が付いているため、ラベルでは判定しません。</p>
 
 <p>例（バックエンドチームの場合）：</p>
 
@@ -147,9 +145,9 @@
 
 <h3>途中から再開する場合（v0.31.0）</h3>
 
-<p>チームのステップのラベル（例: <code>backend:implementer</code>）がすでに付いているチケットは、最初のステップから始め直さず、そのステップから始めます。セッションが途中で切れた場合や、<code>/ai-team-watch</code> が再開対象を処理する場合です。始め直すと、終わったステップの作業とコメントを重ねてしまうためです。</p>
+<p>ステップの完了コメントがあるチケットは、最初のステップから始め直さず、続きのステップから始めます。セッションが途中で切れた場合や、<code>/ai-team-watch</code> が再開対象を処理する場合です。始め直すと、終わったステップの作業とコメントを重ねてしまうためです。</p>
 
-<p>復帰先は <code>/ai-team-resume</code> と同じ決定表で決めます（ラベルがちょうど1つならそのステップ。それ以外は最後の <code>⏭️ 次のアクション:</code> 行。どちらでも決まらなければ、候補と理由を添えて1文で確かめる）。同じラベルのステップが複数ある場合（backend の <code>backend:tech-lead</code> など）は、最後の <code>⏭️ 次のアクション:</code> 行で決めます。</p>
+<p>復帰先は、チームのステップのラベルがちょうど1つならそのステップ、それ以外は最後の <code>⏭️ 次のアクション:</code> 行に書かれたステップです。同じラベルのステップが複数ある場合（backend の <code>backend:tech-lead</code> など）は、最後の <code>⏭️ 次のアクション:</code> 行で決めます。どちらでも決まらなければ、候補と理由を添えて1文で確かめます。この表は <a href="resume.html">ai-team-resume</a> の、旧形式のエスカレーションコメント用の表をもとにしていますが、適用する場面と、同じラベルのステップが複数ある場合の扱いが違います。</p>
 
 <p>始める前に、最後の <code>⏭️ 次のアクション:</code> 行と、作業ブランチの <code>git log --oneline &lt;base_branch&gt;..HEAD</code> で、終わった作業を確かめます。進捗の記録は今までどおりチケットのコメントと git のコミットで、進捗ファイルは作りません。</p>
 
@@ -193,6 +191,8 @@ gh issue comment &lt;番号&gt; --body "..."
 <p>ステップは、原則として <code>/ai-team-run</code> を実行しているセッションで「そのエージェントとして」動きます。サブエージェントへ委託するのは、次の4つのどれかに当たるときだけです。</p>
 
 <table><thead><tr><th>#</th><th>委託する場面</th><th>例</th></tr></thead><tbody><tr><td>1</td><td>並列のステップ（<code>next</code> が配列）</td><td><code>reviewer-a</code> と <code>reviewer-b</code></td></tr><tr><td>2</td><td>大量のファイルを読んで、結論だけを受け取りたい調査</td><td>影響範囲の洗い出し。広い探索は Explore に任せる</td></tr><tr><td>3</td><td>エージェント定義の <code>model</code> が、セッションのモデルと違うステップ</td><td>balance で、opus のセッションから <code>model: sonnet</code> の implementer を動かす</td></tr><tr><td>4</td><td>独立した目で見る検証役（<code>model_role: verifier</code>）</td><td>reviewer・security-engineer・各 <code>*-qa</code></td></tr></tbody></table>
+<p>Dispatcher によるサブチケットの分解は、セッションで Dispatcher として行います。Epic が大きく大量の読み込みが要る調査は 2 に、分解したサブチケットのワークフローを並列で動かすときは 1 に当たります。</p>
+
 <p>委託するときは、エージェント定義の <code>model</code> を Agent ツールの <code>model</code> に渡し、渡したモデルを委託の記録コメントに書きます。委託プロンプトは、目的・分かっていること・作業場所（<code>pwd</code> とブランチ）・資料・手順・完了条件・出力先をタグで分けた骨組みで書き、その後ろに次の節の報告契約をそのまま入れます。</p>
 
 <p><strong>決定（2026-11-22、Issue #125）と理由</strong>: 委託すると、渡す文脈と受け取る報告の両方で情報が落ち、費用もかかるため、必要な場面に絞ります。ただし 1・2 だけに絞ると、役割別モデル（<code>model_role</code> ごとの <code>model</code>）がほとんど効きません。Claude Code では <code>.claude/teams/&lt;team&gt;/agents/</code> の定義はサブエージェントとして登録されず（登録されるのは <code>.claude/agents/</code> の共通エージェントだけ）、セッションで「そのエージェントとして動作」すると、セッションのモデルで動くためです。そこで 3・4 を加えます。3 は Claude Code の runtime を前提にしています（Grok Build ではエージェントを <code>.grok/agents/</code> にミラーします）。</p>
@@ -280,7 +280,7 @@ watchdog 監視中:
   → 人間の承認・マージを待つ
        │
        ▼
-[人間がマージ後]
+[マージ後（人の承認によるマージ、または任された代行）]
   → /ai-team-resume または solo 自動再開
   → contributor が DOD 確認・チケットクローズ</code></pre>
 

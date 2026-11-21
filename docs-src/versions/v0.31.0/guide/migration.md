@@ -15,7 +15,7 @@ v0.31.0 では、`/ai-team-run` の書き込みの同意・委託の判断基準
 動きが変わる点は次の 3 つです。
 
 - `/ai-team-run`（マルチユーザーモード）は、チケットへの最初の書き込みの前に、範囲を1文で確かめます。ソロモードの `/ai-team-watch` は聞きません
-- チームのステップのラベルがすでに付いているチケットは、最初のステップから始め直さず、そのステップから始めます
+- ステップの完了コメント（`⏭️ 次のアクション:` 行を含むコメント）があるチケットは、最初のステップから始め直さず、続きのステップから始めます（新規か再開かはラベルでは判定しません）
 - ステップの開始と完了がターミナルに1行で表示されます
 
 ### アップグレード時の変更
@@ -26,12 +26,12 @@ v0.31.0 では、`/ai-team-run` の書き込みの同意・委託の判断基準
 |---|---|
 | スキル（4） | `.claude/commands/ai-team-run.md`・`ai-team-resume.md`・`ai-team-watch.md`・`ai-team-setup.md` |
 | 共通（2） | `.claude/agents/contributor.md`・`.claude/escalation-rules.yml` |
-| backend（4） | `.claude/teams/backend/agents/implementer.md`・`agents/pr-creator.md`・`workflow.yml`・`review-config.yml` |
-| frontend（4） | `.claude/teams/frontend/agents/developer.md`・`agents/pr-creator.md`・`workflow.yml`・`review-config.yml` |
+| backend（5） | `.claude/teams/backend/agents/implementer.md`・`agents/pr-creator.md`・`agents/reviewer.md`・`workflow.yml`・`review-config.yml` |
+| frontend（5） | `.claude/teams/frontend/agents/developer.md`・`agents/pr-creator.md`・`agents/reviewer.md`・`workflow.yml`・`review-config.yml` |
 
-infra・content・sns・youtube のチームのファイルは変わっていません。6 チームすべてを導入している場合は 14 ファイル、backend だけなら 10 ファイルです。手編集したファイルは上書きされず、最新の雛形が `<ファイル名>.new` として書き出されます（扱い方は v0.29.0 から v0.30.0 への移行の「手編集済みのファイル」と同じです）。
+infra・content・sns・youtube のチームのファイルは変わっていません。6 チームすべてを導入している場合は 16 ファイル、backend だけなら 11 ファイルです。手編集したファイルは上書きされず、最新の雛形が `<ファイル名>.new` として書き出されます（扱い方は v0.29.0 から v0.30.0 への移行の「手編集済みのファイル」と同じです）。
 
-`workflow.yml` の変更は、`human-merge-approval` ステップの `description` の1行だけです。
+`workflow.yml` の変更は、`human-merge-approval` ステップの `description` と `on_complete` の `condition` の2行だけです（ステップ構成とラベルは変わりません）。
 
 ### `upgrade` の対象外で、手で反映するもの
 

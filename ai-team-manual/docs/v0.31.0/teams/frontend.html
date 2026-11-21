@@ -65,7 +65,7 @@
     J -->|合格| K
     G -->|不合格| D
     J -->|不合格| D
-    K --> L["⏸️ human-merge-approval\n人間がマージ"]
+    K --> L["⏸️ human-merge-approval\n人の承認でマージ"]
     L --> M["contributor-close\nDOD 確認・クローズ"]</div>
 
 <p>バックエンドとの違い：</p>
@@ -170,7 +170,7 @@
 
 <h2>ステップ定義詳細（workflow.yml より）</h2>
 
-<table><thead><tr><th>step id</th><th>agent</th><th>label</th><th>概要</th></tr></thead><tbody><tr><td><code>designer-analysis</code></td><td>designer</td><td><code>frontend:designer</code></td><td>参考サイト分析・UI 仕様策定・デザイントークン定義</td></tr><tr><td><code>frontend-lead-analysis</code></td><td>frontend-lead</td><td><code>frontend:frontend-lead</code></td><td>要件分析・設計・アクセシビリティ要件</td></tr><tr><td><code>developer</code></td><td>developer</td><td><code>frontend:developer</code></td><td>実装・テスト</td></tr><tr><td><code>frontend-lead-review-decision</code></td><td>frontend-lead</td><td><code>frontend:frontend-lead</code></td><td>レビュー方式判断</td></tr><tr><td><code>reviewer</code></td><td>reviewer</td><td><code>frontend:reviewer</code></td><td>シングルレビュー</td></tr><tr><td><code>reviewer-a</code> / <code>reviewer-b</code></td><td>reviewer-a / reviewer-b</td><td><code>frontend:reviewer-a/b</code></td><td>独立並列レビュー</td></tr><tr><td><code>cross-review</code></td><td>reviewer-a</td><td>-</td><td>クロスレビュー</td></tr><tr><td><code>pr-creator</code></td><td>pr-creator</td><td><code>frontend:pr-creator</code></td><td>PR 作成</td></tr><tr><td><code>human-merge-approval</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>人間がマージ</td></tr><tr><td><code>human-escalator</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>エスカレーション</td></tr><tr><td><code>contributor-close</code></td><td>contributor</td><td><code>contributor:ready</code></td><td>DOD 確認・クローズ</td></tr></tbody></table>
+<table><thead><tr><th>step id</th><th>agent</th><th>label</th><th>概要</th></tr></thead><tbody><tr><td><code>designer-analysis</code></td><td>designer</td><td><code>frontend:designer</code></td><td>参考サイト分析・UI 仕様策定・デザイントークン定義</td></tr><tr><td><code>frontend-lead-analysis</code></td><td>frontend-lead</td><td><code>frontend:frontend-lead</code></td><td>要件分析・設計・アクセシビリティ要件</td></tr><tr><td><code>developer</code></td><td>developer</td><td><code>frontend:developer</code></td><td>実装・テスト</td></tr><tr><td><code>frontend-lead-review-decision</code></td><td>frontend-lead</td><td><code>frontend:frontend-lead</code></td><td>レビュー方式判断</td></tr><tr><td><code>reviewer</code></td><td>reviewer</td><td><code>frontend:reviewer</code></td><td>シングルレビュー</td></tr><tr><td><code>reviewer-a</code> / <code>reviewer-b</code></td><td>reviewer-a / reviewer-b</td><td><code>frontend:reviewer-a/b</code></td><td>独立並列レビュー</td></tr><tr><td><code>cross-review</code></td><td>reviewer-a</td><td>-</td><td>クロスレビュー</td></tr><tr><td><code>pr-creator</code></td><td>pr-creator</td><td><code>frontend:pr-creator</code></td><td>PR 作成</td></tr><tr><td><code>human-merge-approval</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>人の承認でマージ（範囲を明示して任された場合は代行。<code>merge_approval</code>）</td></tr><tr><td><code>human-escalator</code></td><td>human-escalator</td><td><code>escalated:human</code></td><td>エスカレーション</td></tr><tr><td><code>contributor-close</code></td><td>contributor</td><td><code>contributor:ready</code></td><td>DOD 確認・クローズ</td></tr></tbody></table>
 <hr>
 
 <h2>関連ドキュメント</h2>

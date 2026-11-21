@@ -46,15 +46,15 @@
 
 <p>動きが変わる点は次の 3 つです。</p>
 
-<ul><li><code>/ai-team-run</code>（マルチユーザーモード）は、チケットへの最初の書き込みの前に、範囲を1文で確かめます。ソロモードの <code>/ai-team-watch</code> は聞きません</li><li>チームのステップのラベルがすでに付いているチケットは、最初のステップから始め直さず、そのステップから始めます</li><li>ステップの開始と完了がターミナルに1行で表示されます</li></ul>
+<ul><li><code>/ai-team-run</code>（マルチユーザーモード）は、チケットへの最初の書き込みの前に、範囲を1文で確かめます。ソロモードの <code>/ai-team-watch</code> は聞きません</li><li>ステップの完了コメント（<code>⏭️ 次のアクション:</code> 行を含むコメント）があるチケットは、最初のステップから始め直さず、続きのステップから始めます（新規か再開かはラベルでは判定しません）</li><li>ステップの開始と完了がターミナルに1行で表示されます</li></ul>
 <h3>アップグレード時の変更</h3>
 
 <code>upgrade</code> で更新されるのは、v0.30.0 から内容が変わった次のファイルです。導入済みのチームの分だけが対象になります。
 
-<table><thead><tr><th>区分</th><th>ファイル</th></tr></thead><tbody><tr><td>スキル（4）</td><td><code>.claude/commands/ai-team-run.md</code>・<code>ai-team-resume.md</code>・<code>ai-team-watch.md</code>・<code>ai-team-setup.md</code></td></tr><tr><td>共通（2）</td><td><code>.claude/agents/contributor.md</code>・<code>.claude/escalation-rules.yml</code></td></tr><tr><td>backend（4）</td><td><code>.claude/teams/backend/agents/implementer.md</code>・<code>agents/pr-creator.md</code>・<code>workflow.yml</code>・<code>review-config.yml</code></td></tr><tr><td>frontend（4）</td><td><code>.claude/teams/frontend/agents/developer.md</code>・<code>agents/pr-creator.md</code>・<code>workflow.yml</code>・<code>review-config.yml</code></td></tr></tbody></table>
-<p>infra・content・sns・youtube のチームのファイルは変わっていません。6 チームすべてを導入している場合は 14 ファイル、backend だけなら 10 ファイルです。手編集したファイルは上書きされず、最新の雛形が <code>&lt;ファイル名&gt;.new</code> として書き出されます（扱い方は v0.29.0 から v0.30.0 への移行の「手編集済みのファイル」と同じです）。</p>
+<table><thead><tr><th>区分</th><th>ファイル</th></tr></thead><tbody><tr><td>スキル（4）</td><td><code>.claude/commands/ai-team-run.md</code>・<code>ai-team-resume.md</code>・<code>ai-team-watch.md</code>・<code>ai-team-setup.md</code></td></tr><tr><td>共通（2）</td><td><code>.claude/agents/contributor.md</code>・<code>.claude/escalation-rules.yml</code></td></tr><tr><td>backend（5）</td><td><code>.claude/teams/backend/agents/implementer.md</code>・<code>agents/pr-creator.md</code>・<code>agents/reviewer.md</code>・<code>workflow.yml</code>・<code>review-config.yml</code></td></tr><tr><td>frontend（5）</td><td><code>.claude/teams/frontend/agents/developer.md</code>・<code>agents/pr-creator.md</code>・<code>agents/reviewer.md</code>・<code>workflow.yml</code>・<code>review-config.yml</code></td></tr></tbody></table>
+<p>infra・content・sns・youtube のチームのファイルは変わっていません。6 チームすべてを導入している場合は 16 ファイル、backend だけなら 11 ファイルです。手編集したファイルは上書きされず、最新の雛形が <code>&lt;ファイル名&gt;.new</code> として書き出されます（扱い方は v0.29.0 から v0.30.0 への移行の「手編集済みのファイル」と同じです）。</p>
 
-<code>workflow.yml</code> の変更は、<code>human-merge-approval</code> ステップの <code>description</code> の1行だけです。
+<code>workflow.yml</code> の変更は、<code>human-merge-approval</code> ステップの <code>description</code> と <code>on_complete</code> の <code>condition</code> の2行だけです（ステップ構成とラベルは変わりません）。
 
 <h3><code>upgrade</code> の対象外で、手で反映するもの</h3>
 

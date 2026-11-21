@@ -109,8 +109,14 @@ git worktree remove <作業ディレクトリ>   # 未コミット変更があ�
 
 ```bash
 # <番号> は当該チケットの番号をそのまま書く（パスを変数で組み立てない）
-for d in .claude/delegation-status/issue-<番号>/*/; do [ -f "${d}done" ] || echo "done なし: $d"; done
-# 上の出力が空のときだけ実行する
+# glob（*/）を使わず find で列挙するので、台帳が空でも bash・zsh で同じに動く
+if [ -d .claude/delegation-status/issue-<番号> ]; then
+  find .claude/delegation-status/issue-<番号> -mindepth 1 -maxdepth 1 -type d \
+    -exec sh -c '[ -f "$1/done" ] || echo "done なし: $1"' _ {} \;
+else
+  echo "台帳なし（何もしない）"
+fi
+# 台帳があり、上の出力が空（done なしのタスクが無い）のときだけ実行する
 rm -r .claude/delegation-status/issue-<番号>
 ```
 
@@ -292,7 +298,7 @@ gh api "repos/<owner>/<repo>/issues/<番号>/comments" --paginate \
 - [ ] 作業品質チェック 3 項目（判断根拠の記録・懸念点の処理・エスカレーション事項）がすべて合格している
 - [ ] 適用 DOD ファイルが特定され、全チェックリスト項目が充足している
 - [ ] `escalated:human` の事項がすべて解決済みである
-- [ ] PR・マージが必要な場合、人間によるマージが完了している
+- [ ] PR・マージが必要な場合、マージが完了している（人の承認によるマージ、または範囲を明示して任された代行。代行なら、その根拠のコメントがある）
 - [ ] インシデント記録の要否判定（(a)〜(d)）の結果が チケットコメントに記録されている
 - [ ] 該当ありの場合、既存記録の検証（またはリーダーの記録漏れの拾い上げ）を行い、その結果を チケットコメントに記録している
 

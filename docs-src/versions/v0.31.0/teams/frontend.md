@@ -43,7 +43,7 @@ flowchart TD
     J -->|合格| K
     G -->|不合格| D
     J -->|不合格| D
-    K --> L["⏸️ human-merge-approval\n人間がマージ"]
+    K --> L["⏸️ human-merge-approval\n人の承認でマージ"]
     L --> M["contributor-close\nDOD 確認・クローズ"]
 ```
 
@@ -212,7 +212,7 @@ PR 作成時の チケットコメントでも、スクリーンショット添�
 | `reviewer-a` / `reviewer-b` | reviewer-a / reviewer-b | `frontend:reviewer-a/b` | 独立並列レビュー |
 | `cross-review` | reviewer-a | - | クロスレビュー |
 | `pr-creator` | pr-creator | `frontend:pr-creator` | PR 作成 |
-| `human-merge-approval` | human-escalator | `escalated:human` | 人間がマージ |
+| `human-merge-approval` | human-escalator | `escalated:human` | 人の承認でマージ（範囲を明示して任された場合は代行。`merge_approval`） |
 | `human-escalator` | human-escalator | `escalated:human` | エスカレーション |
 | `contributor-close` | contributor | `contributor:ready` | DOD 確認・クローズ |
 

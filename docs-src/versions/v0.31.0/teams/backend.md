@@ -45,7 +45,7 @@ flowchart TD
     I -->|不合格| C
     VB --> J["tech-writer\ndocs-src/ 更新\nbuild.js 実行"]
     J --> K["pr-creator\ngh pr create\nescalated:human"]
-    K --> L["⏸️ human-merge-approval\n人間がマージ"]
+    K --> L["⏸️ human-merge-approval\n人の承認でマージ"]
     L --> M["contributor-close\nDOD 確認\nインシデント記録\nチケットクローズ"]
 ```
 
@@ -269,7 +269,7 @@ PR 本文は、人が承認判断に必要な情報だけを表示し、残り�
 
 PR 作成後は `escalated:human` ラベルが付与され、人間のマージを待ちます。マージは人の承認を得てから行います。人が範囲を明示して代行を任せた場合だけ、オーケストレーターがマージ条件を実測してから代行します（v0.31.0。[エスカレーションルール](../reference/escalation.html) の `merge_approval`）。
 
-テストを消す・スキップする・期待値を実装に合わせて書き換えるときは、Implementer が理由をコメントに書き、Tech-Lead の承認を得てから行います。承認したものは完了報告と PR 本文の「承認前に知っておくこと」に件数と理由が載り、レビューでも確かめます（v0.31.0）。Implementer は着手前にテストの基準値を記録し、タスクを1つずつ実装して確かめます。
+テストを消す・スキップする・期待値を実装に合わせて書き換えるときは、Implementer が理由をコメントに書き、リーダー（Tech-Lead）の承認を得てから行います。最終の承認はマージの承認と一緒に人が行うため、承認したものは完了報告と PR 本文の「承認前に知っておくこと」に件数と理由が必ず載り、レビューでも確かめます（v0.31.0）。Implementer は着手前にテストの基準値を記録し、タスクを1つずつ実装して確かめます。
 
 ---
 
@@ -305,7 +305,7 @@ PR 作成後は `escalated:human` ラベルが付与され、人間のマージ�
 | `version-bumper` | version-bumper | `backend:version-bumper` | `ai-team-config.yml` の設定に従いバージョンを管理（auto/manual。`none` 選択時はセットアップでこのステップ自体が削除される） |
 | `tech-writer` | tech-writer | `backend:tech-writer` | docs-src 更新・build.js 実行 |
 | `pr-creator` | pr-creator | `backend:pr-creator` | PR 作成・人間に承認依頼 |
-| `human-merge-approval` | human-escalator | `escalated:human` | 人間がマージ |
+| `human-merge-approval` | human-escalator | `escalated:human` | 人の承認でマージ（範囲を明示して任された場合は代行。`merge_approval`） |
 | `human-escalator` | human-escalator | `escalated:human` | 判断不能事項を人間にエスカレーション |
 | `contributor-close` | contributor | `contributor:ready` | DOD 確認・チケットクローズ（`action: close_issue`） |
 
