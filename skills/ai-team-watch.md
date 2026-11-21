@@ -98,7 +98,7 @@ npx @trimix/ai-team ticket view <番号>
      ```
      🤖 [HH:MM] チケット #<番号> を処理中: <タイトル>
      ```
-  3. `/ai-team-run <番号またはURL>` に相当する処理を実行
+  3. `/ai-team-run <番号またはURL>` に相当する処理を実行（`/ai-team-run` の「書き込みの同意」は、setup で `mode: solo` を選んだ時点の同意で代えるため聞かない）
   4. **処理完了のアンロック**: 処理が完了（またはエラー終了）したら `ai-team:in-progress` ラベルを除去
      ```bash
      npx @trimix/ai-team ticket edit <番号> --remove-label "ai-team:in-progress"
