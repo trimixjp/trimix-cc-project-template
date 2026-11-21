@@ -290,7 +290,7 @@ solo:
 # Opus/Sonnet をオーケストレーターにした場合でも、サブエージェントの無音停止を
 # bin/watchdog.js が機械的に検知し、自動再委託・エスカレーションにつなげる設定
 delegation_watchdog:
-  stall_threshold_minutes: 10   # heartbeat 5分間隔義務 × 2回欠落 = 憲法第6条「2回連続無応答」に対応
+  stall_threshold_minutes: 10   # heartbeat の5分間隔の義務を2回欠いたら停止を疑う
   max_redelegations: 2          # rework_limit と同じ思想（3回目は人間へエスカレーション）
 ```
 
