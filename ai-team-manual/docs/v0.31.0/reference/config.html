@@ -181,9 +181,10 @@ node &lt;パッケージルート&gt;/bin/setup.js advisor gitignore [--dry]</co
   - id: merge_approval
     type: merge_approval
     priority: P2
-    description: プルリクエストの承認とマージは常に人間が行う
+    description: プルリクエストの承認とマージは、人の承認を得てから行う
     detection: |
-      （PR 作成ステップ・保護ブランチへのマージ到達で常にエスカレーション）
+      （PR 作成ステップ・保護ブランチへのマージ到達でエスカレーション。
+        人が範囲を明示して代行を任せた場合だけ、マージ条件を実測して代行する）
 
   - id: ambiguous_spec
     type: ambiguous_spec
