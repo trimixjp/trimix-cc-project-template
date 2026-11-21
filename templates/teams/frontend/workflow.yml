@@ -158,7 +158,7 @@ steps:
   - id: human-merge-approval
     agent: human-escalator
     label: "escalated:human"
-    description: PR承認・マージは常に人間が行う
+    description: PR承認・マージは人の承認を得てから行う（人が範囲を明示して代行を任せた場合は escalation-rules.yml の merge_approval に従う）
     on_complete:
       condition: 人間がマージ完了
       next: contributor-close
