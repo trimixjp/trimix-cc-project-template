@@ -76,7 +76,7 @@ node <パッケージルート>/bin/lib/apply-model-profile.js \
 
 **質問2**: 運用モードを選択してください（`AskUserQuestion` ツールを使用）
 - **マルチユーザーモード**: 担当者が `/ai-team-run <チケット>` を実行して処理を開始します。複数人チームに適しています
-- **ソロモード**: `/ai-team-watch` を起動すると新しいチケットを自動検出して処理します。1人での運用に適しています
+- **ソロモード**: `/ai-team-watch` を起動すると新しいチケットを自動検出して処理します。1人での運用に適しています。自動検出したチケットへのコメント・ラベル変更と、feature ブランチの push・PR 作成を、その都度は確かめずに行います（ソロモードを選ぶことを、その同意とみなします。マージは人の承認を得てから行います）
 
 **質問3**: バージョン管理の方法を選択してください（`AskUserQuestion` ツールを使用）
 - **自動インクリメント（auto）**: Reviewer 合格後に conventional commit に基づき `package.json` のバージョンを自動更新します。ソロ運用・小規模チームに適しています
@@ -290,7 +290,7 @@ solo:
 # Opus/Sonnet をオーケストレーターにした場合でも、サブエージェントの無音停止を
 # bin/watchdog.js が機械的に検知し、自動再委託・エスカレーションにつなげる設定
 delegation_watchdog:
-  stall_threshold_minutes: 10   # heartbeat 5分間隔義務 × 2回欠落 = 憲法第6条「2回連続無応答」に対応
+  stall_threshold_minutes: 10   # heartbeat の5分間隔の義務を2回欠いたら停止を疑う
   max_redelegations: 2          # rework_limit と同じ思想（3回目は人間へエスカレーション）
 ```
 
@@ -576,6 +576,14 @@ EOF
 > 以降は通常通り `git add` / `git commit` で変更を管理できます。
 > 個人環境でのみ使う設定（`hooks/` など）は引き続き `.gitignore` で除外してください。
 
+### 委託の作業台帳の .gitignore 追記（常に実行）
+
+`/ai-team-run` がサブエージェントへ委託するときに作る作業台帳（`.claude/delegation-status/`。heartbeat と完了マーカー）を Git 管理から除外します。上の見出し行による判定とは別に、この行だけを冪等に追記します（以前の版で setup したプロジェクトにも足すため）。
+
+```bash
+grep -qxF ".claude/delegation-status/" .gitignore 2>/dev/null || printf '\n# @trimix/ai-team - 委託の作業台帳\n.claude/delegation-status/\n' >> .gitignore
+```
+
 ### 作業空間が worktree の場合の .gitignore 追記（質問4c で worktree を選択したときのみ）
 
 質問4c で **ワークツリー** を選択した場合は、Implementer が生成する分離ワークツリー（`.claude/worktrees/`）を Git 管理から除外するため、`.gitignore` に追記します。**追記前に `grep` で追記済みかを確認**し、未追記の場合のみ実行してください（冪等。既に存在すれば何もしません）。ブランチ方式を選択した場合はこの追記は不要です。
@@ -803,6 +811,7 @@ node <パッケージルート>/bin/setup.js baseline record --force
 - [ ] 配置したファイルが実在する（`ls .claude/agents/ .claude/teams/<選択チーム>/` で確認）
 - [ ] `.claude/ai-team-config.yml` に選択した `mode` / `version_management` / `workspace.strategy` / `model_performance` / `effort_depth` / `runtime` が記録されている
 - [ ] `.claude/ai-team-config.yml` に `delegation_watchdog`（`stall_threshold_minutes` / `max_redelegations`）が記録されている（Issue #99。キー不在でも既定値で動作するが、setup が生成する config には明記する）
+- [ ] `.gitignore` に `.claude/delegation-status/` が追記されている（`grep -qxF ".claude/delegation-status/" .gitignore`）
 - [ ] 質問4c で worktree を選んだ場合、`.gitignore` に `.claude/worktrees/` が追記されている（`grep -qxF ".claude/worktrees/" .gitignore`）
 - [ ] モデル・effort プロファイルを配置済み md に反映済み（tech-lead / pr-creator / ai-team-run の frontmatter を spot チェック）
 - [ ] `.claude/model-profiles.yml` が配置されている

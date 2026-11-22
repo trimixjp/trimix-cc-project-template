@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>v0.31.0 の変更点 - @trimix/ai-team ドキュメント</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">@trimix/ai-team ドキュメント</div>
+        <div class="sidebar-version">v0.31.0</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section"><div class="nav-section-title">はじめに</div><ul class="nav-list"><li class=""><a href="index.html">概要</a></li><li class=""><a href="getting-started.html">クイックスタート</a></li><li class=""><a href="installation.html">インストール</a></li><li class=""><a href="faq.html">よくある質問（FAQ）</a></li><li class="active"><a href="changelog.html">v0.31.0 の変更点</a></li></ul></div><div class="nav-section"><div class="nav-section-title">スキル（コマンド）</div><ul class="nav-list"><li class=""><a href="skills/overview.html">スキル一覧</a></li><li class=""><a href="skills/setup.html">ai-team-setup</a></li><li class=""><a href="skills/run.html">ai-team-run</a></li><li class=""><a href="skills/ticket.html">ai-team-ticket</a></li><li class=""><a href="skills/watch.html">ai-team-watch</a></li><li class=""><a href="skills/configure.html">ai-team-configure</a></li><li class=""><a href="skills/create.html">ai-team-create</a></li><li class=""><a href="skills/install.html">ai-team-install</a></li><li class=""><a href="skills/gallery.html">ai-team-gallery</a></li><li class=""><a href="skills/resume.html">ai-team-resume</a></li></ul></div><div class="nav-section"><div class="nav-section-title">チーム</div><ul class="nav-list"><li class=""><a href="teams/overview.html">チーム概要</a></li><li class=""><a href="teams/backend.html">バックエンドチーム</a></li><li class=""><a href="teams/frontend.html">フロントエンドチーム</a></li><li class=""><a href="teams/infra.html">インフラチーム</a></li><li class=""><a href="teams/content.html">コンテンツチーム</a></li><li class=""><a href="teams/sns.html">SNS運用チーム</a></li><li class=""><a href="teams/youtube.html">YouTube動画制作チーム</a></li></ul></div><div class="nav-section"><div class="nav-section-title">共通エージェント</div><ul class="nav-list"><li class=""><a href="agents/dispatcher.html">Dispatcher</a></li><li class=""><a href="agents/contributor.html">Contributor</a></li><li class=""><a href="agents/human-escalator.html">Human-Escalator</a></li></ul></div><div class="nav-section"><div class="nav-section-title">ガイド</div><ul class="nav-list"><li class=""><a href="guide/setup.html">セットアップガイド</a></li><li class=""><a href="guide/workflow.html">ワークフローのカスタマイズ</a></li><li class=""><a href="guide/agents.html">エージェントのカスタマイズ</a></li><li class=""><a href="guide/docs.html">ドキュメントの管理</a></li><li class=""><a href="guide/best-practices.html">ベストプラクティス</a></li><li class=""><a href="guide/upgrade.html">アップグレード</a></li><li class=""><a href="guide/migration.html">バージョン移行</a></li><li class=""><a href="guide/troubleshooting.html">トラブルシューティング</a></li></ul></div><div class="nav-section"><div class="nav-section-title">リファレンス</div><ul class="nav-list"><li class=""><a href="reference/config.html">設定ファイル</a></li><li class=""><a href="reference/workflow.html">ワークフロー定義</a></li><li class=""><a href="reference/escalation.html">エスカレーションルール</a></li><li class=""><a href="reference/dod.html">DODテンプレート</a></li></ul></div><div class="nav-section"><div class="nav-section-title">変更履歴</div><ul class="nav-list"><li class="active"><a href="changelog.html">v0.31.0 の変更点</a></li></ul></div>
+      </nav>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">v0.31.0 の変更点</div>
+        
+    <div class="version-switcher">
+      <label for="version-select">バージョン:</label>
+      <select id="version-select" onchange="location.href=this.value">
+        <option value="../v0.5.1/changelog.html" >v0.5.1</option><option value="../v0.5.2/changelog.html" >v0.5.2</option><option value="../v0.6.0/changelog.html" >v0.6.0</option><option value="../v0.7.0/changelog.html" >v0.7.0</option><option value="../v0.8.0/changelog.html" >v0.8.0</option><option value="../v0.9.0/changelog.html" >v0.9.0</option><option value="../v0.10.0/changelog.html" >v0.10.0</option><option value="../v0.11.0/changelog.html" >v0.11.0</option><option value="../v0.12.0/changelog.html" >v0.12.0</option><option value="../v0.13.0/changelog.html" >v0.13.0</option><option value="../v0.14.0/changelog.html" >v0.14.0</option><option value="../v0.15.0/changelog.html" >v0.15.0</option><option value="../v0.16.0/changelog.html" >v0.16.0</option><option value="../v0.17.0/changelog.html" >v0.17.0</option><option value="../v0.18.0/changelog.html" >v0.18.0</option><option value="../v0.20.0/changelog.html" >v0.20.0</option><option value="../v0.21.0/changelog.html" >v0.21.0</option><option value="../v0.21.1/changelog.html" >v0.21.1</option><option value="../v0.22.0/changelog.html" >v0.22.0</option><option value="../v0.22.1/changelog.html" >v0.22.1</option><option value="../v0.23.0/changelog.html" >v0.23.0</option><option value="../v0.24.0/changelog.html" >v0.24.0</option><option value="../v0.25.0/changelog.html" >v0.25.0</option><option value="../v0.26.0/changelog.html" >v0.26.0</option><option value="../v0.27.0/changelog.html" >v0.27.0</option><option value="../v0.28.0/changelog.html" >v0.28.0</option><option value="../v0.29.0/changelog.html" >v0.29.0</option><option value="../v0.30.0/changelog.html" >v0.30.0</option><option value="../v0.31.0/changelog.html" selected>v0.31.0 (最新)</option>
+      </select>
+    </div>
+  
+      </header>
+      <article class="content">
+        <h1>v0.31.0 の変更点</h1>
+
+<h2>概要</h2>
+
+<p>v0.31.0 では、<code>/ai-team-run</code> と、そこから呼ばれるエージェント定義を、次の 3 つの考え方に合わせて見直しました。</p>
+
+<ol><li>委託を必要な場面に絞り、委託するときは目的・作業場所・完了条件・モデルを渡す</li><li>承認が要る操作と、人にしか決められない選択のときだけ止まる。確認は具体的な1文にする</li><li>途中で切れても続きから再開でき、テストを黙って減らさない</li></ol>
+<p>コメントの1行目（差し戻し回数の照合）と <code>⏭️ 次のアクション:</code> 行（<code>/ai-team-resume</code> の再開処理）の決まりは変えていません。</p>
+
+<h2>決定（2026-11-22、Issue #125）</h2>
+
+<h3>書き込みの同意</h3>
+
+<code>/ai-team-run</code> は、最初の書き込みの前に1回だけ、書き込みの範囲を具体的に1文で確かめます。例: 「#42 のワークフローが人の判断待ち（PR の承認待ち、または escalated:human）に戻るまで、#42 へのコメント・ラベル変更と、feature ブランチの push・PR 作成を行ってよいですか」。返事を待つ間は、チケットの読み込み・インシデントの照合など、書き込みの要らない作業を進めます。<code>/ai-team-watch</code>（ソロモード）は、setup で <code>mode: solo</code> を選んだ時点の同意で代え、聞きません。
+
+<p><strong>理由</strong>: チケットの作成・コメント・ラベル変更・push・PR 作成は外部への公開で、範囲を明示して同意を取ってから行うためです。起動は作業の指示であり、書き込みの同意とは読み替えません。同意の範囲はワークフローが人の判断待ちに戻った時点で終わり、<code>/ai-team-resume</code> で再開するときは改めて確かめます。人が範囲を明示して完了まで任せた場合（マージの代行を含む）は、書き込みの同意の範囲もその完了（マージ後のコメント・ラベル変更・クローズ）まで広がります。</p>
+
+<p>setup がプロジェクトの <code>CLAUDE.md</code> に書く「タスク受付ルール」も、チケットを作る前にタイトルと本文の案を見せ、1文で同意を取る形にしました。</p>
+
+<h3>マージの承認</h3>
+
+<code>merge_approval</code> の「例外なく常にエスカレーションする（AIによる自動マージは禁止）」を、「マージは人の承認を得てから行う」に書き換えました。人が範囲を明示して代行を任せた場合（例: 「このチケットを完了まで任せる」）だけ、オーケストレーターがマージ条件（最終判定 合格・テストの実行結果・<code>mergeable</code> が <code>MERGEABLE</code>）を実測してから代行し、代行したことと根拠をチケットコメントに残します。
+
+<p><strong>理由</strong>: 「絶対しない」ではなく「承認を得てから行う」と書き、効く範囲と理由を添えるためです。以前の文は、人が範囲を明示して任せた運用と食い違っていました。</p>
+
+<h3>委託するかどうか</h3>
+
+<p>ステップは、原則として <code>/ai-team-run</code> を実行しているセッションで「そのエージェントとして」動きます。サブエージェントへ委託するのは、①並列のステップ ②大量の読み込みで結論だけ欲しい調査 ③エージェント定義の <code>model</code> がセッションのモデルと違うステップ ④独立した目で見る検証役（<code>model_role: verifier</code>）のときだけです。委託するときは、エージェント定義の <code>model</code> を Agent ツールの <code>model</code> に渡します。</p>
+
+<p><strong>理由</strong>: 委託は情報が落ち、費用もかかるため必要な場面に絞ります。ただし①②だけでは、役割別モデルがほとんど効きません。Claude Code では <code>.claude/teams/&lt;team&gt;/agents/</code> の定義がサブエージェントとして登録されず、セッションで「そのエージェントとして動作」するとセッションのモデルで動くためです。そこで③④を加えました（Claude Code の runtime の話です）。</p>
+
+<h2>主な変更</h2>
+
+<h3><code>/ai-team-run</code></h3>
+
+<ul><li><strong>書き込みの同意</strong>: 上の決定のとおり。同意が得られない場合は、書き込まずに分かったことをターミナルに示して停止します</li><li><strong>委託の判断基準と委託プロンプトの骨組み</strong>: 委託プロンプトは、目的・分かっていること・作業場所（<code>pwd</code> とブランチ）・資料・手順・完了条件・出力先をタグで分けた骨組みで書き、その後ろに報告の契約（6 条項）をそのまま入れます。6 条項の文言は変わりません</li><li><strong>途中からの再開</strong>: ステップの完了コメント（<code>⏭️ 次のアクション:</code> 行を含むコメント）があるチケットは、最初のステップから始め直さず、チームのステップのラベルと最後の <code>⏭️ 次のアクション:</code> 行で決めたステップから始めます。新規か再開かはラベルでは判定しません（新しいチケットにも先頭ステップのラベルが付いているため）。最後の <code>⏭️ 次のアクション:</code> 行と作業ブランチの <code>git log</code> で、終わった作業を確かめてから続けます（implementer・developer も、作業ブランチがあればコミット済みのタスクを確かめてから続けます）。<code>/ai-team-watch</code> が書いていた「再開モード」は、この手順を指すことを明記しました</li><li><strong>確認の聞き方</strong>: チームの推定や既存チケットの選択などで確かめるときは、推奨と理由を添えた、はい／いいえで答えられる1文で聞きます。聞く場面は変えていません</li><li><strong>CLI が失敗したとき</strong>: リトライの前に、エラー出力から原因（認証・ネットワーク・レート制限など）を確かめ、直せるものは直します。リトライの回数は1回のままです（<code>/ai-team-resume</code>・<code>/ai-team-watch</code> も同じ）</li><li><strong>ターミナルへの報告</strong>: ステップの開始と完了を1行で伝え、停止するときは、わかった事・やった事・次の事をまとめます</li><li><strong>読めない参照の置き換え</strong>: 公開されていないファイルや、以前の規約の条番号を指していた説明を、その場で読める理由に置き換えました</li></ul>
+<h3>エージェント定義</h3>
+
+<ul><li><strong>テストを減らす変更は承認制</strong>（backend の implementer・frontend の developer）: テストを消す・スキップする・期待値を実装に合わせて書き換えるときは、理由をコメントに書き、リーダー（Tech-Lead / Frontend-Lead）の承認を得てから行います。最終の承認はマージの承認と一緒に人が行うため、PR 本文の「承認前に知っておくこと」（<code>テストの削除・スキップ</code> 行）に件数と理由を必ず出します。レビュー観点 <code>test-coverage</code> でも確かめます</li><li><strong>1つずつ実装して確かめる</strong>: implementer・developer は着手前にテストの基準値を記録し、タスクを1つずつ実装して確かめてから進みます。完了報告に「着手前の基準値」の欄を足しました</li><li><strong>委託の作業台帳の片付け</strong>（contributor）: クローズ時に <code>.claude/delegation-status/issue-&lt;番号&gt;/</code> を、すべてのタスクに <code>done</code> があることを確かめてから消します。setup は <code>.claude/delegation-status/</code> を <code>.gitignore</code> に冪等に追記します</li><li><strong>human-merge-approval の説明</strong>（backend・frontend の <code>workflow.yml</code>）: マージの承認の決定に合わせました。ステップの構成とラベルは変わりません</li></ul>
+<h3>ガイド</h3>
+
+<ul><li>エージェント記述ガイド（<code>.claude/docs/agent-writing-guide.md</code>）の「重要な原則」の規則で、禁止事項には効く範囲と理由を添え、人の承認で許されるものは「承認を得てから行う」と書くことにしました</li><li>ワークフローガイド（<code>.claude/docs/workflow-guide.md</code>）に、3 つの決定を結論・理由・日付で記録しました</li></ul>
+<h2>既存環境への影響</h2>
+
+<p><strong>破壊的変更はありません</strong>。ワークフローのステップ構成・ラベル・コメントの1行目と <code>⏭️ 次のアクション:</code> 行は変わりません。動きが変わるのは、起動時に同意の1問が増えること、ステップの完了コメントがあるチケットが途中から始まること、ターミナルの表示が増えることです。</p>
+
+<code>upgrade</code> で、変更のあったスキル・共通エージェント・エスカレーションルール・導入済みのチームのファイルが更新されます。プロジェクトの <code>CLAUDE.md</code> の「タスク受付ルール」と <code>.gitignore</code> は <code>upgrade</code> の対象外です。詳しくは <a href="guide/migration.html">移行ガイド</a> を参照してください。
+
+<h2>関連チケット</h2>
+
+<ul><li>Issue #125: ai-team-run の委託・確認・再開・報告を、グローバル規律（Fable 5.2 必須プロンプト 100 選）に合わせる</li></ul>
+<h2>アップグレード手順</h2>
+
+<pre><code class="language-bash">npm install --save-dev ./trimix-ai-team-0.31.0.tgz
+npx @trimix/ai-team upgrade</code></pre>
+
+<p>詳細は <a href="guide/migration.html">移行ガイド</a> を参照してください。</p>
+
+      </article>
+    </div>
+  </div>
+  <script src="assets/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad: true, theme: 'default'});</script>
+</body>
+</html>
